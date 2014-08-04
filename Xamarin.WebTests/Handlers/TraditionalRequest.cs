@@ -53,9 +53,9 @@ namespace Xamarin.WebTests.Handlers
 			Request.Credentials = credentials;
 		}
 
-		public override void SetProxy (IWebProxy proxy)
+		public override void SetProxy (IPortableProxy proxy)
 		{
-			Request.Proxy = proxy;
+			PortableSupport.Web.SetProxy (Request, proxy);
 		}
 
 		public override string Method {
@@ -101,7 +101,7 @@ namespace Xamarin.WebTests.Handlers
 
 			try {
 				if (Content != null) {
-					using (var stream = await Request.GetRequestStreamAsync ()) {
+					using (var stream = await PortableSupport.Web.GetRequestStreamAsync (Request)) {
 						using (var writer = new StreamWriter (stream)) {
 							await Content.WriteToAsync (writer);
 							await writer.FlushAsync ();
@@ -109,7 +109,7 @@ namespace Xamarin.WebTests.Handlers
 					}
 				}
 
-				var response = (HttpWebResponse)await Request.GetResponseAsync ();
+				var response = await PortableSupport.Web.GetResponseAsync (Request);
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;

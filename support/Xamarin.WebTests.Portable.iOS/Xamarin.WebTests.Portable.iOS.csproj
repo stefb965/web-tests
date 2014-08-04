@@ -36,6 +36,7 @@
     <Reference Include="System.Core" />
     <Reference Include="monotouch" />
     <Reference Include="Mono.Security" />
+    <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
@@ -74,7 +75,12 @@
     <Compile Include="..\Xamarin.WebTests.Portable\PortableSupport.cs">
       <Link>PortableSupport.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableProxy.cs">
+      <Link>Xamarin.WebTests.Portable\IPortableProxy.cs</Link>
+    </Compile>
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

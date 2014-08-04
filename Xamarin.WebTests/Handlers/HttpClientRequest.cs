@@ -35,6 +35,7 @@ using Xamarin.AsyncTests.Constraints;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Portable;
 
 	public class HttpClientRequest : Request
 	{
@@ -93,9 +94,9 @@ namespace Xamarin.WebTests.Handlers
 			throw new NotSupportedException ();
 		}
 
-		public override void SetProxy (IWebProxy proxy)
+		public override void SetProxy (IPortableProxy proxy)
 		{
-			Handler.Proxy = proxy;
+			PortableSupport.Web.SetProxy (Handler, proxy);
 		}
 		public override void SetCredentials (ICredentials credentials)
 		{

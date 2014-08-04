@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.Framework
 			get { return reuseConnection; }
 		}
 
-		public virtual IWebProxy GetProxy ()
+		public virtual IPortableProxy GetProxy ()
 		{
 			return null;
 		}

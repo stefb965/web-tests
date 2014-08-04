@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.Framework
 			await base.Stop (cancellationToken);
 		}
 
-		public override IWebProxy GetProxy ()
+		public override IPortableProxy GetProxy ()
 		{
 			var proxy = PortableSupport.Web.CreateProxy (proxyUri);
 			if (Credentials != null)

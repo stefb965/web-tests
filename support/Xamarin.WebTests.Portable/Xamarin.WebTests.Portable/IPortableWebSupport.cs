@@ -26,7 +26,10 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Portable
 {
@@ -42,11 +45,15 @@ namespace Xamarin.WebTests.Portable
 
 		IPortableEndPoint GetEndpoint (int port);
 
-		IWebProxy CreateProxy (Uri uri);
+		IPortableProxy CreateProxy (Uri uri);
 
 		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl);
 
 		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
+
+		void SetProxy (HttpWebRequest request, IPortableProxy proxy);
+
+		void SetProxy (HttpClientHandler handler, IPortableProxy proxy);
 
 		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
 
@@ -58,7 +65,11 @@ namespace Xamarin.WebTests.Portable
 
 		Stream GetRequestStream (HttpWebRequest request);
 
+		Task<Stream> GetRequestStreamAsync (HttpWebRequest request);
+
 		HttpWebResponse GetResponse (HttpWebRequest request);
+
+		Task<HttpWebResponse> GetResponseAsync (HttpWebRequest request);
 
 		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
 

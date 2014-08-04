@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Net.NetworkInformation;
 using System.Text;
@@ -391,9 +392,42 @@ namespace Xamarin.WebTests.Portable
 			}
 		}
 
-		IWebProxy IPortableWebSupport.CreateProxy (Uri uri)
+		IPortableProxy IPortableWebSupport.CreateProxy (Uri uri)
 		{
-			return new WebProxy (uri, false);
+			return new PortableProxy (uri);
+		}
+
+		void IPortableWebSupport.SetProxy (HttpWebRequest request, IPortableProxy proxy)
+		{
+			request.Proxy = ((PortableProxy)proxy).Proxy;
+		}
+
+		void IPortableWebSupport.SetProxy (HttpClientHandler handler, IPortableProxy proxy)
+		{
+			handler.Proxy = ((PortableProxy)proxy).Proxy;
+		}
+
+		class PortableProxy : IPortableProxy
+		{
+			readonly WebProxy proxy;
+
+			public PortableProxy (Uri uri)
+			{
+				this.proxy = new WebProxy (uri, false);
+			}
+
+			public WebProxy Proxy {
+				get { return proxy; }
+			}
+
+			public Uri Uri {
+				get { return proxy.Address; }
+			}
+
+			public ICredentials Credentials {
+				get { return proxy.Credentials; }
+				set { proxy.Credentials = value; }
+			}
 		}
 
 		void IPortableWebSupport.SetAllowWriteStreamBuffering (HttpWebRequest request, bool value)
@@ -421,9 +455,19 @@ namespace Xamarin.WebTests.Portable
 			return request.GetRequestStream ();
 		}
 
+		Task<Stream> IPortableWebSupport.GetRequestStreamAsync (HttpWebRequest request)
+		{
+			return request.GetRequestStreamAsync ();
+		}
+
 		HttpWebResponse IPortableWebSupport.GetResponse (HttpWebRequest request)
 		{
 			return (HttpWebResponse)request.GetResponse ();
+		}
+
+		async Task<HttpWebResponse> IPortableWebSupport.GetResponseAsync (HttpWebRequest request)
+		{
+			return (HttpWebResponse)await request.GetResponseAsync ();
 		}
 
 		IWebClient IPortableWebSupport.CreateWebClient ()

@@ -1,5 +1,5 @@
 ﻿//
-// IRequest.cs
+// IPortableProxy.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,35 +25,18 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
 
-using Xamarin.AsyncTests;
-
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.Portable
 {
-	using Framework;
-	using Portable;
-
-	public abstract class Request
+	public interface IPortableProxy
 	{
-		public abstract string Method {
-			get; set;
+		Uri Uri {
+			get;
 		}
 
-		public HttpContent Content {
+		ICredentials Credentials {
 			get; set;
 		}
-
-		public abstract void SetContentLength (long contentLength);
-
-		public abstract void SetContentType (string contentType);
-
-		public abstract void SendChunked ();
-
-		public abstract void SetProxy (IPortableProxy proxy);
-
-		public abstract void SetCredentials (ICredentials credentials);
 	}
 }
 
