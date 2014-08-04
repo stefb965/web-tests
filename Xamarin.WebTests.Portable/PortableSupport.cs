@@ -39,7 +39,7 @@ using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests
+namespace Xamarin.WebTests.Portable
 {
 	using Framework;
 	using Portable;
@@ -71,6 +71,11 @@ namespace Xamarin.WebTests
 
 		public Version MonoRuntimeVersion {
 			get { return runtimeVersion; }
+		}
+
+		public Encoding GetASCIIEncoding ()
+		{
+			return Encoding.ASCII;
 		}
 
 		static PortableSupport ()
@@ -316,7 +321,7 @@ namespace Xamarin.WebTests
 			return new PortableEndpoint (new IPEndPoint (address, port));
 		}
 
-		internal static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
+		public static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
 		{
 			return (PortableEndpoint)endpoint;
 		}

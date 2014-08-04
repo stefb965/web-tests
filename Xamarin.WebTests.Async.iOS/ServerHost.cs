@@ -37,6 +37,7 @@ using Xamarin.AsyncTests.Server;
 namespace Xamarin.WebTests.Async.iOS
 {
 	using Framework;
+	using Portable;
 
 	public class ServerHost : IServerHost
 	{

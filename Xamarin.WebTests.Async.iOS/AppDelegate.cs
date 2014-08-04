@@ -36,7 +36,7 @@ using Xamarin.Forms.Platform.iOS;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.WebTests.Async;
+using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.Async.iOS
 {
@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.Async.iOS
 			settings = new SettingsHost ();
 			server = new ServerHost ();
 
-			test = new UITestApp (PortableSupport.Instance, settings, server, typeof(AppDelegate).Assembly);
+			test = new UITestApp (PortableSupport.Instance, settings, server, typeof(WebTestFeatures).Assembly);
 
 			window = new UIWindow (UIScreen.MainScreen.Bounds);
 			window.RootViewController =  test.Root.CreateViewController ();

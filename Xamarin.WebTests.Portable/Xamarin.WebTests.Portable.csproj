@@ -39,7 +39,7 @@
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IWebClient.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\PortableSupport.cs" />
+    <Compile Include="PortableSupportPcl.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
