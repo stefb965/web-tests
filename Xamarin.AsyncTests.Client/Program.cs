@@ -140,9 +140,7 @@ namespace Xamarin.AsyncTests.Client
 				return;
 			}
 
-			var support = new PortableSupport ();
-
-			Context = new TestApp (support, Settings);
+			Context = new TestApp (PortableSupport.Instance, Settings);
 			Context.Logger = new ConsoleLogger (this);
 		}
 

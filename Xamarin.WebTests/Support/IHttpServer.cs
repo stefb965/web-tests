@@ -1,5 +1,5 @@
 ﻿//
-// Connection.cs
+// IHttpServer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,61 +25,12 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
-using System.Text;
-using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Support
 {
-	using Framework;
-
-	public class Connection
+	public interface IHttpServer
 	{
-		StreamReader reader;
-		StreamWriter writer;
-
-		public Connection (Stream stream)
-		{
-			reader = new StreamReader (stream, Encoding.ASCII);
-			writer = new StreamWriter (stream, Encoding.ASCII);
-			writer.AutoFlush = true;
-		}
-
-		protected StreamReader RequestReader {
-			get { return reader; }
-		}
-
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
-
-		public HttpRequest ReadRequest ()
-		{
-			return new HttpRequest (this, reader);
-		}
-
-		protected HttpResponse ReadResponse ()
-		{
-			return new HttpResponse (this, reader);
-		}
-
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
-
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
-
-		public void Close ()
-		{
-			writer.Flush ();
-		}
+		bool HandleConnection (Stream stream);
 	}
 }
 

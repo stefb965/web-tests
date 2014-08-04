@@ -32,46 +32,27 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Server
 {
 	using Handlers;
+	using Framework;
+	using Support;
 
 	public class HttpListener : Listener
 	{
-		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
-		List<Handler> allHandlers = new List<Handler> ();
+		readonly IHttpServer server;
 
-		static int nextId;
-
-		public HttpListener (IPAddress address, int port, bool reuseConnection, bool ssl)
-			: base (address, port, reuseConnection, ssl)
+		public HttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl)
+			: base (endpoint, reuseConnection, ssl)
 		{
-		}
-
-		public Uri RegisterHandler (Handler handler)
-		{
-			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
-			return new Uri (Uri, path);
-		}
-
-		public void RegisterHandler (string path, Handler handler)
-		{
-			handlers.Add (path, handler);
-			allHandlers.Add (handler);
+			this.server = server;
 		}
 
 		protected override bool HandleConnection (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			var connection = new HttpConnection (this, stream);
-			var request = connection.ReadRequest ();
-
-			var path = request.Path;
-			var handler = handlers [path];
-			handlers.Remove (path);
-
-			return handler.HandleRequest (connection, request);
+			return server.HandleConnection (stream);
 		}
 	}
 }

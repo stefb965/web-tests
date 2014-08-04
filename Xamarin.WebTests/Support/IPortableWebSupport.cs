@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// IPortableWebSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
+using System.IO;
+using System.Net;
 
-namespace Xamarin.WebTests.Handlers
+using Xamarin.AsyncTests;
+
+namespace Xamarin.WebTests.Support
 {
 	using Framework;
 
-	public class HelloWorldHandler : Handler
+	public interface IPortableWebSupport
 	{
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
+		bool HasNetwork {
+			get;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
-		}
+		IPortableEndPoint GetLoopbackEndpoint (int port);
+
+		IPortableEndPoint GetEndpoint (int port);
+
+		IWebProxy CreateProxy (Uri uri);
+
+		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl);
+
+		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
+
+		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
+
+		void SetKeepAlive (HttpWebRequest request, bool value);
+
+		void SetSendChunked (HttpWebRequest request, bool value);
+
+		void SetContentLength (HttpWebRequest request, long length);
+
+		Stream GetRequestStream (HttpWebRequest request);
+
+		HttpWebResponse GetResponse (HttpWebRequest request);
+
+		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
+
+		IWebClient CreateWebClient ();
 	}
 }
 

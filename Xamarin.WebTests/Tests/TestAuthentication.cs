@@ -35,7 +35,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Tests
 {
-	using Server;
 	using Handlers;
 	using Framework;
 
@@ -54,7 +53,7 @@ namespace Xamarin.WebTests.Tests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL, ReuseConnection = ReuseConnection };
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), ReuseConnection, UseSSL);
 		}
 
 		IEnumerable<Handler> ITestParameterSource<Handler>.GetParameters (TestContext ctx, string filter)

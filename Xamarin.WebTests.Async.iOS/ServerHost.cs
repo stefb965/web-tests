@@ -43,8 +43,10 @@ namespace Xamarin.WebTests.Async.iOS
 		public Task<IServerConnection> Start (CancellationToken cancellationToken)
 		{
 			return Task.Run<IServerConnection> (() => {
-				var address = HttpServer.GetAddress ();
-				var listener = new TcpListener (new IPEndPoint (address, 8888));
+				var endpoint = PortableSupport.Web.GetEndpoint (8888);
+				var networkEndpoint = PortableSupport.GetEndpoint (endpoint);
+
+				var listener = new TcpListener (networkEndpoint);
 
 				listener.Start ();
 				Debug.WriteLine ("Server started: {0}", listener.LocalEndpoint);

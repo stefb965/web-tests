@@ -1,5 +1,5 @@
 ﻿//
-// HttpConnection.cs
+// PortableSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,25 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Net.Sockets;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests
 {
-	public class HttpConnection : Connection
+	using Support;
+
+	public static class PortableSupport
 	{
-		public HttpListener Server {
-			get; private set;
+		public static IPortableSupport Instance {
+			get { throw new NotSupportedException (); }
 		}
 
-		public HttpConnection (HttpListener server, Stream stream)
-			: base (stream)
-		{
-			Server = server;
+		public static IPortableWebSupport Web {
+			get { throw new NotSupportedException (); }
 		}
 	}
 }

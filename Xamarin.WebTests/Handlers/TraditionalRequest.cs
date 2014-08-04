@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Handlers
 		public TraditionalRequest (Uri uri)
 		{
 			Request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			Request.KeepAlive = true;
+			PortableSupport.Web.SetKeepAlive (Request, true);
 		}
 
 		#region implemented abstract members of Request
@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SetContentLength (long contentLength)
 		{
-			Request.ContentLength = contentLength;
+			PortableSupport.Web.SetContentLength (Request, contentLength);
 		}
 
 		public override void SetContentType (string contentType)
@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.Handlers
 
 		public override void SendChunked ()
 		{
-			Request.SendChunked = true;
+			PortableSupport.Web.SetSendChunked (Request, true);
 		}
 
 		public async Task<Response> Send (TestContext ctx, CancellationToken cancellationToken)
@@ -130,7 +130,7 @@ namespace Xamarin.WebTests.Handlers
 			using (var reader = new StreamReader (response.GetResponseStream ())) {
 				content = reader.ReadToEnd ();
 			}
-			response.Close ();
+			response.Dispose ();
 
 			return new SimpleResponse (this, status, StringContent.CreateMaybeNull (content), error);
 		}
@@ -139,12 +139,12 @@ namespace Xamarin.WebTests.Handlers
 		{
 			try {
 				if (Content != null) {
-					using (var writer = new StreamWriter (Request.GetRequestStream ())) {
+					using (var writer = new StreamWriter (PortableSupport.Web.GetRequestStream (Request))) {
 						Content.WriteToAsync (writer).Wait ();
 					}
 				}
 
-				var response = (HttpWebResponse)Request.GetResponse ();
+				var response = PortableSupport.Web.GetResponse (Request);
 				return FromHttpResponse (response);
 			} catch (WebException wexc) {
 				var response = (HttpWebResponse)wexc.Response;

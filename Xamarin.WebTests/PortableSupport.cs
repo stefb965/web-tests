@@ -24,17 +24,116 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Net.NetworkInformation;
 using System.Text;
+using System.Text.RegularExpressions;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
+using Mono.Security.Protocol.Ntlm;
+
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests
 {
-	public class PortableSupport : IPortableSupport
+	using Framework;
+	using Support;
+	using Server;
+
+	public class PortableSupport : IPortableSupport, IPortableWebSupport
 	{
-		#region IPortableSupport implementation
+		public static IPortableSupport Instance {
+			get { return instance; }
+		}
+
+		public static IPortableWebSupport Web {
+			get { return instance; }
+		}
+
+		PortableSupport ()
+		{
+		}
+
+		#region Misc
+
+		public string CurrentThreadId {
+			get { return Thread.CurrentThread.ManagedThreadId.ToString (); }
+		}
+
+		public bool IsMicrosoftRuntime {
+			get { return isMsRuntime; }
+		}
+
+		public Version MonoRuntimeVersion {
+			get { return runtimeVersion; }
+		}
+
+		static PortableSupport ()
+		{
+			try {
+				address = LookupAddress ();
+				hasNetwork = !IPAddress.IsLoopback (address);
+			} catch {
+				address = IPAddress.Loopback;
+				hasNetwork = false;
+			}
+
+			try {
+				runtimeVersion = GetRuntimeVersion ();
+			} catch {
+				;
+			}
+
+			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
+		}
+
+		static readonly PortableSupport instance = new PortableSupport ();
+
+		static readonly bool hasNetwork;
+		static readonly IPAddress address;
+
+		static readonly bool isMsRuntime;
+		static readonly Version runtimeVersion;
+
+		static Version GetRuntimeVersion ()
+		{
+			string version;
+			#if __MOBILE__
+			version = Mono.Runtime.GetDisplayName ();
+			#else
+			Type type = Type.GetType ("Mono.Runtime", false);
+			if (type == null)
+			return null;
+
+			var method = type.GetMethod ("GetDisplayName", BindingFlags.NonPublic | BindingFlags.Static);
+			if (method == null)
+			return null;
+
+			version = (string)method.Invoke (null, null);
+			#endif
+
+			var match = Regex.Match (version, @"^(\d+)\.(\d+)(?:\.(\d+))?\b");
+			if (!match.Success)
+				return null;
+
+			var major = int.Parse (match.Groups [1].Value);
+			var minor = int.Parse (match.Groups [2].Value);
+			int build = 0;
+
+			if (match.Groups.Count > 2 && match.Groups [3].Success)
+				build = int.Parse (match.Groups [3].Value);
+
+			return new Version (major, minor, build);
+		}
+
+		#endregion
+
+		#region Stack Trace
 
 		[HideStackFrame]
 		public string GetStackTrace (bool full)
@@ -92,8 +191,6 @@ namespace Xamarin.WebTests
 			}
 			return sb.ToString ();
 		}
-
-		#endregion
 
 		string FormatFrame (StackFrame frame)
 		{
@@ -200,6 +297,204 @@ namespace Xamarin.WebTests
 			}
 			sb.Append (">");
 		}
+
+		#endregion
+
+		#region Networking
+
+		public bool HasNetwork {
+			get { return hasNetwork; }
+		}
+
+		public IPortableEndPoint GetLoopbackEndpoint (int port)
+		{
+			return new PortableEndpoint (new IPEndPoint (IPAddress.Loopback, port));
+		}
+
+		public IPortableEndPoint GetEndpoint (int port)
+		{
+			return new PortableEndpoint (new IPEndPoint (address, port));
+		}
+
+		internal static IPEndPoint GetEndpoint (IPortableEndPoint endpoint)
+		{
+			return (PortableEndpoint)endpoint;
+		}
+
+		static IPAddress LookupAddress ()
+		{
+			try {
+				#if __IOS__
+				var interfaces = NetworkInterface.GetAllNetworkInterfaces ();
+				foreach (var iface in interfaces) {
+					if (iface.NetworkInterfaceType != NetworkInterfaceType.Ethernet && iface.NetworkInterfaceType != NetworkInterfaceType.Wireless80211)
+						continue;
+					foreach (var address in iface.GetIPProperties ().UnicastAddresses) {
+						if (address.Address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address.Address))
+							return address.Address;
+					}
+				}
+				#else
+				var hostname = Dns.GetHostName ();
+				var hostent = Dns.GetHostEntry (hostname);
+				foreach (var address in hostent.AddressList) {
+				if (address.AddressFamily == AddressFamily.InterNetwork && !IPAddress.IsLoopback (address))
+				return address;
+				}
+				#endif
+			} catch {
+				;
+			}
+
+			return IPAddress.Loopback;
+		}
+
+		class PortableEndpoint : IPortableEndPoint
+		{
+			readonly IPEndPoint endpoint;
+
+			public PortableEndpoint (IPEndPoint endpoint)
+			{
+				this.endpoint = endpoint;
+			}
+
+			public int Port {
+				get { return endpoint.Port; }
+			}
+
+			public string Address {
+				get { return endpoint.Address.ToString (); }
+			}
+
+			public bool IsLoopback {
+				get { return IPAddress.IsLoopback (endpoint.Address); }
+			}
+
+			public IPortableEndPoint CopyWithPort (int port)
+			{
+				return new PortableEndpoint (new IPEndPoint (endpoint.Address, port));
+			}
+
+			public static implicit operator IPEndPoint (PortableEndpoint portable)
+			{
+				return portable.endpoint;
+			}
+
+			public override string ToString ()
+			{
+				return string.Format ("[PortableEndpoint {0}]", endpoint);
+			}
+		}
+
+		IWebProxy IPortableWebSupport.CreateProxy (Uri uri)
+		{
+			return new WebProxy (uri, false);
+		}
+
+		void IPortableWebSupport.SetAllowWriteStreamBuffering (HttpWebRequest request, bool value)
+		{
+			request.AllowWriteStreamBuffering = value;
+		}
+
+		void IPortableWebSupport.SetKeepAlive (HttpWebRequest request, bool value)
+		{
+			request.KeepAlive = value;
+		}
+
+		void IPortableWebSupport.SetSendChunked (HttpWebRequest request, bool value)
+		{
+			request.SendChunked = value;
+		}
+
+		void IPortableWebSupport.SetContentLength (HttpWebRequest request, long length)
+		{
+			request.ContentLength = length;
+		}
+
+		Stream IPortableWebSupport.GetRequestStream (HttpWebRequest request)
+		{
+			return request.GetRequestStream ();
+		}
+
+		HttpWebResponse IPortableWebSupport.GetResponse (HttpWebRequest request)
+		{
+			return (HttpWebResponse)request.GetResponse ();
+		}
+
+		IWebClient IPortableWebSupport.CreateWebClient ()
+		{
+			return new PortableWebClient ();
+		}
+
+		class PortableWebClient : IWebClient
+		{
+			WebClient client = new WebClient ();
+
+			public Task<string> UploadStringTaskAsync (Uri uri, string data)
+			{
+				return client.UploadStringTaskAsync (uri, data);
+			}
+
+			public void Dispose ()
+			{
+				Dispose (true);
+				GC.SuppressFinalize (this);
+			}
+
+			public void Dispose (bool disposing)
+			{
+				if (client != null) {
+					client.Dispose ();
+					client = null;
+				}
+			}
+
+			~PortableWebClient ()
+			{
+				Dispose (false);
+			}
+		}
+
+		#endregion
+
+		#region Listeners
+
+		IListener IPortableWebSupport.CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl)
+		{
+			return new HttpListener (endpoint, server, reuseConnection, ssl);
+		}
+
+		IListener IPortableWebSupport.CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)
+		{
+			return new ProxyListener ((HttpListener)httpListener, proxyEndpoint, authType);
+		}
+
+		#endregion
+
+		#region NTLM Authentication
+
+		bool IPortableWebSupport.HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
+		{
+			if (haveChallenge) {
+				// FIXME: We don't actually check the result.
+				var message = new Type3Message (bytes);
+				if (message.Type != 3)
+					throw new InvalidOperationException ();
+
+				return true;
+			} else {
+				var message = new Type1Message (bytes);
+				if (message.Type != 1)
+					throw new InvalidOperationException ();
+
+				var type2 = new Type2Message ();
+				haveChallenge = true;
+				bytes = type2.GetBytes ();
+				return false;
+			}
+		}
+
+		#endregion
 	}
 }
 

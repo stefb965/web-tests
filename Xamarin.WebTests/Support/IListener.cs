@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// IListener.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.Support
 {
-	using Framework;
-
-	public class HelloWorldHandler : Handler
+	public interface IListener
 	{
-		static int next_id;
+		Task Start ();
 
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
-		}
-
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
-		}
+		Task Stop ();
 	}
 }
 

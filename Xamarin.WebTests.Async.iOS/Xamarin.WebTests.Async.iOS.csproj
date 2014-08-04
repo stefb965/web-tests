@@ -179,8 +179,32 @@
     <Compile Include="..\Xamarin.WebTests\Handlers\HttpClientRequest.cs">
       <Link>Handlers\HttpClientRequest.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\Connection.cs">
+      <Link>Framework\Connection.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\HttpConnection.cs">
+      <Link>Framework\HttpConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Framework\ProxyConnection.cs">
+      <Link>Framework\ProxyConnection.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Support\IListener.cs">
+      <Link>Support\IListener.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Support\IPortableEndPoint.cs">
+      <Link>Support\IPortableEndPoint.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Support\IPortableWebSupport.cs">
+      <Link>Support\IPortableWebSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Support\IWebClient.cs">
+      <Link>Support\IWebClient.cs</Link>
+    </Compile>
     <Compile Include="..\Xamarin.WebTests\PortableSupport.cs">
       <Link>PortableSupport.cs</Link>
+    </Compile>
+    <Compile Include="..\Xamarin.WebTests\Support\IHttpServer.cs">
+      <Link>Support\IHttpServer.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -190,12 +214,6 @@
     <Compile Include="..\Xamarin.WebTests\Framework\TransferMode.cs">
       <Link>Framework\TransferMode.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\Connection.cs">
-      <Link>Server\Connection.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\HttpConnection.cs">
-      <Link>Server\HttpConnection.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
@@ -204,9 +222,6 @@
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\ProxyListener.cs">
       <Link>Server\ProxyListener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests\Server\ProxyConnection.cs">
-      <Link>Server\ProxyConnection.cs</Link>
     </Compile>
     <Compile Include="..\Xamarin.WebTests\Handlers\AbstractRedirectHandler.cs">
       <Link>Handlers\AbstractRedirectHandler.cs</Link>
@@ -265,6 +280,21 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
       <Project>{4A28C314-01ED-43DD-A08E-8EB842E25294}</Project>
@@ -291,5 +321,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Tests\" />
+    <Folder Include="Support\" />
   </ItemGroup>
 </Project>

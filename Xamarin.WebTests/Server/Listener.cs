@@ -37,9 +37,14 @@ using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using SD = System.Diagnostics;
 
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.Server
 {
-	public abstract class Listener
+	using Framework;
+	using Support;
+
+	public abstract class Listener : IListener
 	{
 		Socket server;
 		int currentConnections;
@@ -74,14 +79,16 @@ namespace Xamarin.WebTests.Server
 			return asm.GetManifestResourceStream ("Xamarin.WebTests.Server." + name);
 		}
 
-		public Listener (IPAddress address, int port, bool reuseConnection, bool ssl)
+		public Listener (IPortableEndPoint endpoint, bool reuseConnection, bool ssl)
 		{
 			this.ssl = ssl;
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", address, port));
+			var networkEndpoint = PortableSupport.GetEndpoint (endpoint);
+
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", networkEndpoint.Address, networkEndpoint.Port));
 
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			server.Bind (new IPEndPoint (address, port));
+			server.Bind (networkEndpoint);
 			server.Listen (1);
 		}
 

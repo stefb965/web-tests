@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// IEndPoint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.Support
 {
-	using Framework;
-
-	public class HelloWorldHandler : Handler
+	public interface IPortableEndPoint
 	{
-		static int next_id;
-
-		public override object Clone ()
-		{
-			return new HelloWorldHandler ();
+		int Port {
+			get;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
-		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+		string Address {
+			get;
 		}
+
+		bool IsLoopback {
+			get;
+		}
+
+		IPortableEndPoint CopyWithPort (int port);
 	}
 }
 

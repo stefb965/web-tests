@@ -36,7 +36,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests
 {
-	using Server;
 	using Handlers;
 	using Framework;
 
@@ -50,7 +49,7 @@ namespace Xamarin.WebTests
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
-			return new HttpServer (IPAddress.Loopback, 9999) { UseSSL = UseSSL };
+			return new HttpServer (PortableSupport.Web.GetLoopbackEndpoint (9999), false, UseSSL);
 		}
 
 		IEnumerable<HttpClientHandler> GetStableTests ()

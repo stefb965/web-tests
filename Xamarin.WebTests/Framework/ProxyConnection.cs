@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// ProxyConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,26 +24,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
+using System.IO;
+using System.Text;
+using System.Net;
+using System.Globalization;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
-
-	public class HelloWorldHandler : Handler
+	public class ProxyConnection : Connection
 	{
-		static int next_id;
+		Connection proxy;
 
-		public override object Clone ()
+		public ProxyConnection (Connection proxy, Stream stream)
+			: base (stream)
 		{
-			return new HelloWorldHandler ();
+			this.proxy = proxy;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		public void HandleRequest (HttpRequest request)
 		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+			var task = Task.Factory.StartNew (() => CopyResponse ());
+
+			WriteRequest (request);
+			var body = request.ReadBody ();
+			if (body != null)
+				body.WriteToAsync (ResponseWriter).Wait ();
+
+			task.Wait ();
+		}
+
+		void CopyResponse ()
+		{
+			var response = ReadResponse ();
+			response.SetHeader ("Connection", "close");
+			response.SetHeader ("Proxy-Connection", "close");
+			proxy.WriteResponse (response);
 		}
 	}
 }

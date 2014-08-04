@@ -30,11 +30,10 @@ namespace Xamarin.WebTests.Async.Android
 			Xamarin.Forms.Forms.Init (this, bundle);
 
 			preferences = PreferenceManager.GetDefaultSharedPreferences (this);
-			var support = new PortableSupport ();
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new UITestApp (support, settings, server, typeof(MainActivity).Assembly);
+			var test = new UITestApp (PortableSupport.Instance, settings, server, typeof(MainActivity).Assembly);
 
 			SetPage (test.Root);
 		}

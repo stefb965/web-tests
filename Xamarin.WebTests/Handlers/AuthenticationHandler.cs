@@ -25,14 +25,12 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
-using Mono.Security.Protocol.Ntlm;
 
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
-	using Server;
 
 	public class AuthenticationHandler : AbstractRedirectHandler
 	{

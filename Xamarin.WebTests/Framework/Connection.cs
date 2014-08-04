@@ -1,5 +1,5 @@
 ﻿//
-// HelloWorldBehavior.cs
+// Connection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,26 +24,58 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
+using System.IO;
+using System.Net;
+using System.Text;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Handlers
+namespace Xamarin.WebTests.Framework
 {
-	using Framework;
-
-	public class HelloWorldHandler : Handler
+	public class Connection
 	{
-		static int next_id;
+		StreamReader reader;
+		StreamWriter writer;
 
-		public override object Clone ()
+		public Connection (Stream stream)
 		{
-			return new HelloWorldHandler ();
+			reader = new StreamReader (stream, Encoding.ASCII);
+			writer = new StreamWriter (stream, Encoding.ASCII);
+			writer.AutoFlush = true;
 		}
 
-		protected internal override HttpResponse HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags)
+		protected StreamReader RequestReader {
+			get { return reader; }
+		}
+
+		protected StreamWriter ResponseWriter {
+			get { return writer; }
+		}
+
+		public HttpRequest ReadRequest ()
 		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			return HttpResponse.CreateSuccess (string.Format ("Hello World {0}!", ++next_id));
+			return new HttpRequest (this, reader);
+		}
+
+		protected HttpResponse ReadResponse ()
+		{
+			return new HttpResponse (this, reader);
+		}
+
+		protected void WriteRequest (HttpRequest request)
+		{
+			request.Write (writer);
+		}
+
+		public void WriteResponse (HttpResponse response)
+		{
+			response.Write (writer);
+		}
+
+		public void Close ()
+		{
+			writer.Flush ();
 		}
 	}
 }

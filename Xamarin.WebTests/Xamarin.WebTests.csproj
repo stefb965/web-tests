@@ -51,7 +51,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Server\Connection.cs" />
     <Compile Include="Framework\TransferMode.cs" />
     <Compile Include="Tests\TestPost.cs" />
     <Compile Include="Framework\RequestFlags.cs" />
@@ -59,8 +58,6 @@
     <Compile Include="Server\Listener.cs" />
     <Compile Include="Server\ProxyListener.cs" />
     <Compile Include="Tests\TestProxy.cs" />
-    <Compile Include="Server\HttpConnection.cs" />
-    <Compile Include="Server\ProxyConnection.cs" />
     <Compile Include="Tests\TestAuthentication.cs" />
     <Compile Include="Framework\HttpMessage.cs" />
     <Compile Include="Framework\HttpRequest.cs" />
@@ -92,7 +89,15 @@
     <Compile Include="Framework\HttpServer.cs" />
     <Compile Include="Framework\TestRunner.cs" />
     <Compile Include="Handlers\HttpClientRequest.cs" />
+    <Compile Include="Framework\Connection.cs" />
+    <Compile Include="Framework\HttpConnection.cs" />
+    <Compile Include="Framework\ProxyConnection.cs" />
+    <Compile Include="Support\IListener.cs" />
+    <Compile Include="Support\IPortableWebSupport.cs" />
+    <Compile Include="Support\IPortableEndPoint.cs" />
+    <Compile Include="Support\IWebClient.cs" />
     <Compile Include="PortableSupport.cs" />
+    <Compile Include="Support\IHttpServer.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
@@ -100,6 +105,7 @@
     <Folder Include="Server\" />
     <Folder Include="Tests\" />
     <Folder Include="Handlers\" />
+    <Folder Include="Support\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="cert.pfx">
