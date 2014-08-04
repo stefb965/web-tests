@@ -1,5 +1,5 @@
 ﻿//
-// IWebClient.cs
+// PortableSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,14 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Support
+namespace Xamarin.WebTests.Portable
 {
-	public interface IWebClient : IDisposable
+	public static class PortableSupport
 	{
-		Task<string> UploadStringTaskAsync (Uri uri, string data);
+		public static IPortableSupport Instance {
+			get { throw new NotSupportedException (); }
+		}
+
+		public static IPortableWebSupport Web {
+			get { throw new NotSupportedException (); }
+		}
 	}
 }
 

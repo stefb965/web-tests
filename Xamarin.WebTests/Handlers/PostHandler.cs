@@ -36,6 +36,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.Handlers
 {
 	using Framework;
+	using Portable;
 
 	public class PostHandler : Handler
 	{

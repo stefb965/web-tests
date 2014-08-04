@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using Handlers;
 	using Framework;
-	using Support;
+	using Portable;
 
 	[Proxy]
 	[AsyncTestFixture (Timeout = 30000)]

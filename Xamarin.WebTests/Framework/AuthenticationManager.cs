@@ -28,12 +28,7 @@ using System.Net;
 
 namespace Xamarin.WebTests.Framework
 {
-	public enum AuthenticationType {
-		None,
-		Basic,
-		NTLM,
-		ForceNone
-	}
+	using Portable;
 
 	public enum AuthenticationState {
 		Authenticated,

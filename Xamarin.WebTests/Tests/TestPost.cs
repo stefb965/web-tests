@@ -38,6 +38,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[AsyncTestFixture (Timeout = 15000)]
 	public class TestPost : ITestHost<HttpServer>, ITestParameterSource<Handler>

@@ -1,5 +1,5 @@
 ﻿//
-// Connection.cs
+// IPortableWebSupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,58 +27,42 @@ using System;
 using System.IO;
 using System.Net;
 using System.Text;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.Portable
 {
-	using Portable;
-
-	public class Connection
+	public interface IPortableWebSupport
 	{
-		StreamReader reader;
-		StreamWriter writer;
+		Encoding GetASCIIEncoding ();
 
-		public Connection (Stream stream)
-		{
-			reader = new StreamReader (stream, PortableSupport.Web.GetASCIIEncoding ());
-			writer = new StreamWriter (stream, PortableSupport.Web.GetASCIIEncoding ());
-			writer.AutoFlush = true;
+		bool HasNetwork {
+			get;
 		}
 
-		protected StreamReader RequestReader {
-			get { return reader; }
-		}
+		IPortableEndPoint GetLoopbackEndpoint (int port);
 
-		protected StreamWriter ResponseWriter {
-			get { return writer; }
-		}
+		IPortableEndPoint GetEndpoint (int port);
 
-		public HttpRequest ReadRequest ()
-		{
-			return new HttpRequest (this, reader);
-		}
+		IWebProxy CreateProxy (Uri uri);
 
-		protected HttpResponse ReadResponse ()
-		{
-			return new HttpResponse (this, reader);
-		}
+		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl);
 
-		protected void WriteRequest (HttpRequest request)
-		{
-			request.Write (writer);
-		}
+		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 
-		public void WriteResponse (HttpResponse response)
-		{
-			response.Write (writer);
-		}
+		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
 
-		public void Close ()
-		{
-			writer.Flush ();
-		}
+		void SetKeepAlive (HttpWebRequest request, bool value);
+
+		void SetSendChunked (HttpWebRequest request, bool value);
+
+		void SetContentLength (HttpWebRequest request, long length);
+
+		Stream GetRequestStream (HttpWebRequest request);
+
+		HttpWebResponse GetResponse (HttpWebRequest request);
+
+		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
+
+		IWebClient CreateWebClient ();
 	}
 }
 

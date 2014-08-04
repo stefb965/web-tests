@@ -1,5 +1,5 @@
 ﻿//
-// IHttpServer.cs
+// IEndPoint.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,13 +24,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 
-namespace Xamarin.WebTests.Support
+namespace Xamarin.WebTests.Portable
 {
-	public interface IHttpServer
+	public interface IPortableEndPoint
 	{
-		bool HandleConnection (Stream stream);
+		int Port {
+			get;
+		}
+
+		string Address {
+			get;
+		}
+
+		bool IsLoopback {
+			get;
+		}
+
+		IPortableEndPoint CopyWithPort (int port);
 	}
 }
 

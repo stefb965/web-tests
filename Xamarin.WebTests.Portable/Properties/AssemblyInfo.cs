@@ -1,5 +1,5 @@
 ﻿//
-// IPortableWebSupport.cs
+// AssemblyInfo.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -23,47 +23,31 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.IO;
-using System.Net;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
-using Xamarin.AsyncTests;
+// Information about this assembly is defined by the following attributes.
+// Change them to the values specific to your project.
 
-namespace Xamarin.WebTests.Support
-{
-	using Framework;
+[assembly: AssemblyTitle ("Xamarin.WebTests.Portable")]
+[assembly: AssemblyDescription ("")]
+[assembly: AssemblyConfiguration ("")]
+[assembly: AssemblyCompany ("Xamarin Inc. (http://www.xamarin.com)")]
+[assembly: AssemblyProduct ("")]
+[assembly: AssemblyCopyright ("Xamarin Inc. (http://www.xamarin.com)")]
+[assembly: AssemblyTrademark ("")]
+[assembly: AssemblyCulture ("")]
 
-	public interface IPortableWebSupport
-	{
-		bool HasNetwork {
-			get;
-		}
+// The assembly version has the format "{Major}.{Minor}.{Build}.{Revision}".
+// The form "{Major}.{Minor}.*" will automatically update the build and revision,
+// and "{Major}.{Minor}.{Build}.*" will update just the revision.
 
-		IPortableEndPoint GetLoopbackEndpoint (int port);
+[assembly: AssemblyVersion ("1.0.*")]
 
-		IPortableEndPoint GetEndpoint (int port);
+// The following attributes are used to specify the signing key for the assembly,
+// if desired. See the Mono documentation for more information about signing.
 
-		IWebProxy CreateProxy (Uri uri);
+//[assembly: AssemblyDelaySign(false)]
+//[assembly: AssemblyKeyFile("")]
 
-		IListener CreateHttpListener (IPortableEndPoint endpoint, IHttpServer server, bool reuseConnection, bool ssl);
-
-		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
-
-		void SetAllowWriteStreamBuffering (HttpWebRequest request, bool value);
-
-		void SetKeepAlive (HttpWebRequest request, bool value);
-
-		void SetSendChunked (HttpWebRequest request, bool value);
-
-		void SetContentLength (HttpWebRequest request, long length);
-
-		Stream GetRequestStream (HttpWebRequest request);
-
-		HttpWebResponse GetResponse (HttpWebRequest request);
-
-		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
-
-		IWebClient CreateWebClient ();
-	}
-}
-
+[assembly: ReferenceAssembly]

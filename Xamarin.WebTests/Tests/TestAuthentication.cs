@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.Tests
 {
 	using Handlers;
 	using Framework;
+	using Portable;
 
 	[AsyncTestFixture (Timeout = 10000)]
 	public class TestAuthentication : ITestHost<HttpServer>, ITestParameterSource<Handler>, ITestParameterSource<AuthenticationType>

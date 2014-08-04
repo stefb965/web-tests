@@ -1,5 +1,5 @@
 ﻿//
-// IListener.cs
+// IHttpServer.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,16 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
+using System.IO;
 
-namespace Xamarin.WebTests.Support
+namespace Xamarin.WebTests.Portable
 {
-	public interface IListener
+	public interface IHttpServer
 	{
-		Task Start ();
-
-		Task Stop ();
+		bool HandleConnection (Stream stream);
 	}
 }
 

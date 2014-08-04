@@ -35,6 +35,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests
 {
 	using Framework;
+	using Portable;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
 	public class WorkAttribute : TestCategoryAttribute
