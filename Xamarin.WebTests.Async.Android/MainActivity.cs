@@ -14,7 +14,7 @@ using Xamarin.Forms.Platform.Android;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.UI;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.WebTests.Async;
+using Xamarin.WebTests.Portable;
 
 namespace Xamarin.WebTests.Async.Android
 {
@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Async.Android
 			var settings = new SettingsHost (preferences);
 			var server = new ServerHost ();
 
-			var test = new UITestApp (PortableSupport.Instance, settings, server, typeof(MainActivity).Assembly);
+			var test = new UITestApp (PortableSupport.Instance, settings, server, typeof(WebTestFeatures).Assembly);
 
 			SetPage (test.Root);
 		}
