@@ -181,7 +181,7 @@
       <Project>{584654DF-6888-4B18-AB82-3C773CD45436}</Project>
       <Name>Xamarin.AsyncTests.Server</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.Portable.iOS\Xamarin.WebTests.Portable.iOS.csproj">
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable.iOS\Xamarin.WebTests.Portable.iOS.csproj">
       <Project>{395BDF74-B2E6-4CA4-9AB0-4DBD76258035}</Project>
       <Name>Xamarin.WebTests.Portable.iOS</Name>
     </ProjectReference>

@@ -99,7 +99,7 @@
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.Portable.Android\Xamarin.WebTests.Portable.Android.csproj">
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable.Android\Xamarin.WebTests.Portable.Android.csproj">
       <Project>{378CBF56-1858-473E-8465-E10986F0D37C}</Project>
       <Name>Xamarin.WebTests.Portable.Android</Name>
     </ProjectReference>

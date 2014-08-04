@@ -17,13 +17,13 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Server",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Client", "Xamarin.AsyncTests.Client\Xamarin.AsyncTests.Client.csproj", "{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable", "Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj", "{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable", "support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj", "{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.iOS", "Xamarin.WebTests.Portable.iOS\Xamarin.WebTests.Portable.iOS.csproj", "{395BDF74-B2E6-4CA4-9AB0-4DBD76258035}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.iOS", "support\Xamarin.WebTests.Portable.iOS\Xamarin.WebTests.Portable.iOS.csproj", "{395BDF74-B2E6-4CA4-9AB0-4DBD76258035}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.Android", "Xamarin.WebTests.Portable.Android\Xamarin.WebTests.Portable.Android.csproj", "{378CBF56-1858-473E-8465-E10986F0D37C}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.Android", "support\Xamarin.WebTests.Portable.Android\Xamarin.WebTests.Portable.Android.csproj", "{378CBF56-1858-473E-8465-E10986F0D37C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.Console", "Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj", "{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Portable.Console", "support\Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj", "{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
