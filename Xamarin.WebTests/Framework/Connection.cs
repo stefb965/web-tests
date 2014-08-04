@@ -42,8 +42,8 @@ namespace Xamarin.WebTests.Framework
 
 		public Connection (Stream stream)
 		{
-			reader = new StreamReader (stream, PortableSupport.Web.GetASCIIEncoding ());
-			writer = new StreamWriter (stream, PortableSupport.Web.GetASCIIEncoding ());
+			reader = new StreamReader (stream);
+			writer = new StreamWriter (stream);
 			writer.AutoFlush = true;
 		}
 

@@ -35,8 +35,6 @@ namespace Xamarin.WebTests.Portable
 {
 	public interface IPortableWebSupport
 	{
-		Encoding GetASCIIEncoding ();
-
 		bool HasNetwork {
 			get;
 		}

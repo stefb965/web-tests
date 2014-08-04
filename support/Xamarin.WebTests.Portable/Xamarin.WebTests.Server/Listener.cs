@@ -31,10 +31,12 @@ using System.Text;
 using System.Threading;
 using System.Reflection;
 using System.Net.Sockets;
-using System.Net.Security;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+#if !WINDOWS_PHONE
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+#endif
 using SD = System.Diagnostics;
 
 using Xamarin.AsyncTests;
@@ -53,10 +55,13 @@ namespace Xamarin.WebTests.Server
 		bool ssl;
 		Uri uri;
 
+		#if !WINDOWS_PHONE
 		static X509Certificate2 cert;
+		#endif
 
 		static Listener ()
 		{
+			#if !WINDOWS_PHONE
 			// openssl req -x509 -newkey rsa:2048 -keyout key.pem -out cert.pem -days XXX
 			// openssl pkcs12 -export -in cert.pem -inkey key.pem -out cert.pfx
 			using (var stream = GetResourceStream ("cert.pfx")) {
@@ -70,6 +75,7 @@ namespace Xamarin.WebTests.Server
 			ServicePointManager.ServerCertificateValidationCallback = (o,c,chain,errors) => {
 				return c.GetCertHashString ().Equals (cert.GetCertHashString ());
 			};
+			#endif
 		}
 
 		static Stream GetResourceStream (string name)

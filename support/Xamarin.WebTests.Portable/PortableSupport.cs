@@ -36,7 +36,9 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
+#if !WINDOWS_PHONE
 using Mono.Security.Protocol.Ntlm;
+#endif
 
 using Xamarin.AsyncTests;
 
@@ -72,11 +74,6 @@ namespace Xamarin.WebTests.Portable
 
 		public Version MonoRuntimeVersion {
 			get { return runtimeVersion; }
-		}
-
-		public Encoding GetASCIIEncoding ()
-		{
-			return Encoding.ASCII;
 		}
 
 		static PortableSupport ()
@@ -399,34 +396,39 @@ namespace Xamarin.WebTests.Portable
 
 		void IPortableWebSupport.SetProxy (HttpWebRequest request, IPortableProxy proxy)
 		{
-			request.Proxy = ((PortableProxy)proxy).Proxy;
+			request.Proxy = (PortableProxy)proxy;
 		}
 
 		void IPortableWebSupport.SetProxy (HttpClientHandler handler, IPortableProxy proxy)
 		{
-			handler.Proxy = ((PortableProxy)proxy).Proxy;
+			handler.Proxy = (PortableProxy)proxy;
 		}
 
-		class PortableProxy : IPortableProxy
+		class PortableProxy : IPortableProxy, IWebProxy
 		{
-			readonly WebProxy proxy;
+			readonly Uri uri;
 
 			public PortableProxy (Uri uri)
 			{
-				this.proxy = new WebProxy (uri, false);
-			}
-
-			public WebProxy Proxy {
-				get { return proxy; }
+				this.uri = uri;
 			}
 
 			public Uri Uri {
-				get { return proxy.Address; }
+				get { return uri; }
 			}
 
 			public ICredentials Credentials {
-				get { return proxy.Credentials; }
-				set { proxy.Credentials = value; }
+				get; set;
+			}
+
+			public Uri GetProxy (Uri destination)
+			{
+				return uri;
+			}
+
+			public bool IsBypassed (Uri host)
+			{
+				return false;
 			}
 		}
 
@@ -524,6 +526,9 @@ namespace Xamarin.WebTests.Portable
 
 		bool IPortableWebSupport.HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{
+		#if WINDOWS_PHONE
+			throw new NotImplementedException ();
+		#else
 			if (haveChallenge) {
 				// FIXME: We don't actually check the result.
 				var message = new Type3Message (bytes);
@@ -541,6 +546,7 @@ namespace Xamarin.WebTests.Portable
 				bytes = type2.GetBytes ();
 				return false;
 			}
+		#endif
 		}
 
 		#endregion
