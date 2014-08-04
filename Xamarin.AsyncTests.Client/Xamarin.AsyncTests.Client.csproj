@@ -60,5 +60,9 @@
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj">
+      <Project>{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}</Project>
+      <Name>Xamarin.WebTests.Portable.Console</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

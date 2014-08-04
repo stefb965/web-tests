@@ -33,6 +33,7 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.WebTests;
+using Xamarin.WebTests.Portable;
 using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Client

@@ -3,14 +3,13 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectTypeGuids>{6BC8ED88-2882-458C-8E55-DFD12B67127B};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <ProjectGuid>{395BDF74-B2E6-4CA4-9AB0-4DBD76258035}</ProjectGuid>
+    <ProjectGuid>{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>Xamarin.WebTests.Portable.iOS</RootNamespace>
-    <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
+    <RootNamespace>Xamarin.WebTests.Portable.Console</RootNamespace>
     <AssemblyName>Xamarin.WebTests.Portable</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -32,15 +31,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
-    <Reference Include="System.Xml" />
-    <Reference Include="System.Core" />
-    <Reference Include="monotouch" />
     <Reference Include="Mono.Security" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Resources\" />
-    <Folder Include="Xamarin.WebTests.Portable\" />
-    <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -62,9 +53,6 @@
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IWebClient.cs">
       <Link>Xamarin.WebTests.Portable\IWebClient.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\PortableSupport.cs">
-      <Link>PortableSupport.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests\Server\HttpListener.cs">
       <Link>Server\HttpListener.cs</Link>
     </Compile>
@@ -74,38 +62,29 @@
     <Compile Include="..\Xamarin.WebTests\Server\ProxyListener.cs">
       <Link>Server\ProxyListener.cs</Link>
     </Compile>
+    <Compile Include="..\Xamarin.WebTests.Portable\PortableSupport.cs">
+      <Link>PortableSupport.cs</Link>
+    </Compile>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
-      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
-      <Name>Xamarin.AsyncTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
-      <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
-      <Name>Xamarin.WebTests</Name>
-    </ProjectReference>
+    <Folder Include="Xamarin.WebTests.Portable\" />
+    <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\Xamarin.WebTests\cert.pfx">
       <Link>Server\cert.pfx</Link>
       <LogicalName>Xamarin.WebTests.Server.cert.pfx</LogicalName>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
+      <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
+      <Name>Xamarin.WebTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
