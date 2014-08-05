@@ -22,11 +22,12 @@
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <OutputPath>bin\Debug</OutputPath>
-    <DefineConstants>DEBUG;</DefineConstants>
+    <DefineConstants>DEBUG;XAMARIN_WEBTESTS</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AndroidLinkMode>None</AndroidLinkMode>
     <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>full</DebugType>
@@ -36,13 +37,14 @@
     <WarningLevel>4</WarningLevel>
     <AndroidUseSharedRuntime>false</AndroidUseSharedRuntime>
     <ConsolePause>false</ConsolePause>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DefineConstants>XAMARIN_WEBTESTS</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="Mono.Android" />
-    <Reference Include="Mono.Security" />
     <Reference Include="System.Net.Http" />
   </ItemGroup>
   <ItemGroup>
@@ -80,6 +82,33 @@
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableProxy.cs">
       <Link>Xamarin.WebTests.Portable\IPortableProxy.cs</Link>
     </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security\BitConverterLE.cs">
+      <Link>Mono.Security\BitConverterLE.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security\Locale.cs">
+      <Link>Mono.Security\Locale.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\MessageBase.cs">
+      <Link>Mono.Security.Protocol.Ntlm\MessageBase.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmAuthLevel.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmFlags.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmFlags.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\NtlmSettings.cs">
+      <Link>Mono.Security.Protocol.Ntlm\NtlmSettings.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type1Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type1Message.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type2Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type2Message.cs</Link>
+    </Compile>
+    <Compile Include="..\Mono.Security\Mono.Security.Protocol.Ntlm\Type3Message.cs">
+      <Link>Mono.Security.Protocol.Ntlm\Type3Message.cs</Link>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\AboutResources.txt" />
@@ -101,6 +130,8 @@
   <ItemGroup>
     <Folder Include="Xamarin.WebTests.Portable\" />
     <Folder Include="Server\" />
+    <Folder Include="Mono.Security\" />
+    <Folder Include="Mono.Security.Protocol.Ntlm\" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\cert.pfx">
