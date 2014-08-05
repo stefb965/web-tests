@@ -48,17 +48,9 @@ namespace Xamarin.WebTests.Portable
 	using Portable;
 	using Server;
 
-	public class PortableSupport : IPortableSupport, IPortableWebSupport
+	public class PortableSupportImpl : IPortableSupport, IPortableWebSupport
 	{
-		public static IPortableSupport Instance {
-			get { return instance; }
-		}
-
-		public static IPortableWebSupport Web {
-			get { return instance; }
-		}
-
-		PortableSupport ()
+		PortableSupportImpl ()
 		{
 		}
 
@@ -76,7 +68,7 @@ namespace Xamarin.WebTests.Portable
 			get { return runtimeVersion; }
 		}
 
-		static PortableSupport ()
+		static PortableSupportImpl ()
 		{
 			try {
 				address = LookupAddress ();
@@ -95,7 +87,11 @@ namespace Xamarin.WebTests.Portable
 			isMsRuntime = Environment.OSVersion.Platform == PlatformID.Win32NT && runtimeVersion == null;
 		}
 
-		static readonly PortableSupport instance = new PortableSupport ();
+		public static void Initialize ()
+		{
+			var instance = new PortableSupportImpl ();
+			PortableSupport.Initialize (instance, instance);
+		}
 
 		static readonly bool hasNetwork;
 		static readonly IPAddress address;

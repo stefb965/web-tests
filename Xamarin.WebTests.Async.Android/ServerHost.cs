@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.Async.Android
 		{
 			return Task.Run<IServerConnection> (() => {
 				var endpoint = PortableSupport.Web.GetEndpoint (8888);
-				var networkEndpoint = PortableSupport.GetEndpoint (endpoint);
+				var networkEndpoint = PortableSupportImpl.GetEndpoint (endpoint);
 
 				var listener = new TcpListener (networkEndpoint);
 

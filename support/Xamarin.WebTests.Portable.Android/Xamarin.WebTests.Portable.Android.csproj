@@ -12,7 +12,7 @@
     <AndroidResgenClass>Resource</AndroidResgenClass>
     <AndroidResgenFile>Resources\Resource.designer.cs</AndroidResgenFile>
     <AndroidUseLatestPlatformSdk>False</AndroidUseLatestPlatformSdk>
-    <AssemblyName>Xamarin.WebTests.Portable</AssemblyName>
+    <AssemblyName>Xamarin.WebTests.Portable.Android</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
     <TargetFrameworkVersion>v4.2</TargetFrameworkVersion>
@@ -49,24 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Resources\Resource.designer.cs" />
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\AuthenticationType.cs">
-      <Link>Xamarin.WebTests.Portable\AuthenticationType.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IHttpServer.cs">
-      <Link>Xamarin.WebTests.Portable\IHttpServer.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IListener.cs">
-      <Link>Xamarin.WebTests.Portable\IListener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableEndPoint.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableEndPoint.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableWebSupport.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableWebSupport.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IWebClient.cs">
-      <Link>Xamarin.WebTests.Portable\IWebClient.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\HttpListener.cs">
       <Link>Xamarin.WebTests.Server\HttpListener.cs</Link>
     </Compile>
@@ -76,11 +58,8 @@
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\ProxyListener.cs">
       <Link>Xamarin.WebTests.Server\ProxyListener.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\PortableSupport.cs">
-      <Link>PortableSupport.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableProxy.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableProxy.cs</Link>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\PortableSupportImpl.cs">
+      <Link>Xamarin.WebTests.Server\PortableSupportImpl.cs</Link>
     </Compile>
     <Compile Include="..\Mono.Security\Mono.Security\BitConverterLE.cs">
       <Link>Mono.Security\BitConverterLE.cs</Link>
@@ -126,10 +105,12 @@
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Xamarin.WebTests.Portable\" />
-    <Folder Include="Server\" />
     <Folder Include="Mono.Security\" />
     <Folder Include="Mono.Security.Protocol.Ntlm\" />
   </ItemGroup>

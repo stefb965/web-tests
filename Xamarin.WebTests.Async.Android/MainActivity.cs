@@ -28,6 +28,7 @@ namespace Xamarin.WebTests.Async.Android
 			base.OnCreate (bundle);
 
 			Xamarin.Forms.Forms.Init (this, bundle);
+			PortableSupportImpl.Initialize ();
 
 			preferences = PreferenceManager.GetDefaultSharedPreferences (this);
 			var settings = new SettingsHost (preferences);

@@ -40,6 +40,8 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>true</Prefer32Bit>
+    <WarningLevel>4</WarningLevel>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -73,6 +75,10 @@
     <ProjectReference Include="..\support\Xamarin.WebTests.Portable.Console\Xamarin.WebTests.Portable.Console.csproj">
       <Project>{B4911C7D-196D-4B50-98FF-0BD6CABF60B4}</Project>
       <Name>Xamarin.WebTests.Portable.Console</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
   </ItemGroup>
 </Project>

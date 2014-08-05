@@ -30,12 +30,21 @@ namespace Xamarin.WebTests.Portable
 {
 	public static class PortableSupport
 	{
+		public static void Initialize (IPortableSupport setInstance, IPortableWebSupport setWeb)
+		{
+			instance = setInstance;
+			web = setWeb;
+		}
+
+		static IPortableSupport instance;
+		static IPortableWebSupport web;
+
 		public static IPortableSupport Instance {
-			get { throw new NotSupportedException (); }
+			get { return instance; }
 		}
 
 		public static IPortableWebSupport Web {
-			get { throw new NotSupportedException (); }
+			get { return web; }
 		}
 	}
 }

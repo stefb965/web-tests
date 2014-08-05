@@ -103,5 +103,9 @@
       <Project>{378CBF56-1858-473E-8465-E10986F0D37C}</Project>
       <Name>Xamarin.WebTests.Portable.Android</Name>
     </ProjectReference>
+    <ProjectReference Include="..\support\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

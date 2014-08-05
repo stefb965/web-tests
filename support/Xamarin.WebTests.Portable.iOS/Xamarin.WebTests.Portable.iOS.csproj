@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>Xamarin.WebTests.Portable.iOS</RootNamespace>
     <IPhoneResourcePrefix>Resources</IPhoneResourcePrefix>
-    <AssemblyName>Xamarin.WebTests.Portable</AssemblyName>
+    <AssemblyName>Xamarin.WebTests.Portable.iOS</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\Xamarin.AsyncTests.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
@@ -42,29 +42,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Resources\" />
-    <Folder Include="Xamarin.WebTests.Portable\" />
-    <Folder Include="Server\" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\AuthenticationType.cs">
-      <Link>Xamarin.WebTests.Portable\AuthenticationType.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IHttpServer.cs">
-      <Link>Xamarin.WebTests.Portable\IHttpServer.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IListener.cs">
-      <Link>Xamarin.WebTests.Portable\IListener.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableEndPoint.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableEndPoint.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableWebSupport.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableWebSupport.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IWebClient.cs">
-      <Link>Xamarin.WebTests.Portable\IWebClient.cs</Link>
-    </Compile>
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\HttpListener.cs">
       <Link>Xamarin.WebTests.Server\HttpListener.cs</Link>
     </Compile>
@@ -74,11 +54,8 @@
     <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\ProxyListener.cs">
       <Link>Xamarin.WebTests.Server\ProxyListener.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\PortableSupport.cs">
-      <Link>PortableSupport.cs</Link>
-    </Compile>
-    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable\IPortableProxy.cs">
-      <Link>Xamarin.WebTests.Portable\IPortableProxy.cs</Link>
+    <Compile Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Server\PortableSupportImpl.cs">
+      <Link>Xamarin.WebTests.Server\PortableSupportImpl.cs</Link>
     </Compile>
     <Compile Include="..\Mono.Security\Mono.Security\BitConverterLE.cs">
       <Link>Mono.Security\BitConverterLE.cs</Link>
@@ -117,6 +94,10 @@
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\iOS\Xamarin.MonoTouch.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
@@ -125,6 +106,10 @@
     <ProjectReference Include="..\..\Xamarin.WebTests\Xamarin.WebTests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.Portable\Xamarin.WebTests.Portable.csproj">
+      <Project>{9A328159-EF48-4082-B8FA-FB4FC2E44B0C}</Project>
+      <Name>Xamarin.WebTests.Portable</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
