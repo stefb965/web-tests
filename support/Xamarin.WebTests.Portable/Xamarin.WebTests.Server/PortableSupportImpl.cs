@@ -36,9 +36,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Diagnostics;
 using System.Collections.Generic;
-#if !WINDOWS_PHONE
 using Mono.Security.Protocol.Ntlm;
-#endif
 
 using Xamarin.AsyncTests;
 
@@ -522,9 +520,6 @@ namespace Xamarin.WebTests.Portable
 
 		bool IPortableWebSupport.HandleNTLM (ref byte[] bytes, ref bool haveChallenge)
 		{
-		#if WINDOWS_PHONE
-			throw new NotImplementedException ();
-		#else
 			if (haveChallenge) {
 				// FIXME: We don't actually check the result.
 				var message = new Type3Message (bytes);
@@ -542,7 +537,6 @@ namespace Xamarin.WebTests.Portable
 				bytes = type2.GetBytes ();
 				return false;
 			}
-		#endif
 		}
 
 		#endregion
