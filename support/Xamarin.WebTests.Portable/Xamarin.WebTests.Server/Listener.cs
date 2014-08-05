@@ -277,12 +277,6 @@ namespace Xamarin.WebTests.Server
 
 		void HandleConnection_internal (Socket socket, Stream stream, CancellationToken cancellationToken)
 		{
-			#if FIXME
-			var reader = new StreamReader (stream, Encoding.ASCII);
-			var writer = new StreamWriter (stream, Encoding.ASCII);
-			writer.AutoFlush = true;
-			#endif
-
 			while (!cancellationToken.IsCancellationRequested) {
 				var wantToReuse = HandleConnection (socket, stream, cancellationToken);
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)

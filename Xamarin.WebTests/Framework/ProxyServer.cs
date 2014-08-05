@@ -48,7 +48,7 @@ namespace Xamarin.WebTests.Framework
 		{
 			this.proxyEndpoint = proxyEndpoint;
 
-			proxyUri = new Uri (string.Format ("http{0}://{1}:{2}/", ssl ? "s" : "", proxyEndpoint.Address, proxyEndpoint.Port));
+			proxyUri = new Uri (string.Format ("http://{0}:{1}/", proxyEndpoint.Address, proxyEndpoint.Port));
 		}
 
 		public AuthenticationType AuthenticationType {
