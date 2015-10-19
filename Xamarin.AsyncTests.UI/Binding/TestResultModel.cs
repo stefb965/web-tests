@@ -114,7 +114,7 @@ namespace Xamarin.AsyncTests.MacUI
 				return null;
 
 			var sb = new StringBuilder ();
-			if (Session.App.Settings.Debug_DumpTestPath && Result.Path != null) {
+			if (Session != null && Session.App.Settings.Debug_DumpTestPath && Result.Path != null) {
 				var serialized = Result.Path.SerializePath ();
 				sb.AppendLine (serialized.ToString ());
 				sb.AppendLine ();
