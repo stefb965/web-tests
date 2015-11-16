@@ -77,9 +77,6 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.Default;
 				yield return ConnectionTestType.AcceptFromLocalCA;
 				yield return ConnectionTestType.RejectAll;
-				yield return ConnectionTestType.UnrequestedClientCertificate;
-				yield return ConnectionTestType.RejectClientCertificate;
-				yield return ConnectionTestType.MissingClientCertificate;
 				yield break;
 
 			case ConnectionTestCategory.HttpsWithDotNet:
