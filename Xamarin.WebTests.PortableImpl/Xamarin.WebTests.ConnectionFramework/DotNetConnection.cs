@@ -194,6 +194,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override void Stop ()
 		{
+			try {
+				if (sslStream != null) {
+					sslStream.Close ();
+					sslStream = null;
+				}
+			} catch {
+				;
+			}
 			if (accepted != null) {
 				try {
 					accepted.Shutdown (SocketShutdown.Both);
@@ -219,14 +227,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 					;
 				}
 				socket = null;
-			}
-			try {
-				if (sslStream != null) {
-					sslStream.Close ();
-					sslStream = null;
-				}
-			} catch {
-				;
 			}
 		}
 
