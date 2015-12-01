@@ -202,6 +202,16 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
+		public ICertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)
+		{
+			return new CertificateValidator (callback);
+		}
+
+		public ICertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback)
+		{
+			return new CertificateSelector (callback);
+		}
+
 		public bool AreEqual (ICertificate a, ICertificate b)
 		{
 			if (a == b)

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -58,7 +59,11 @@ namespace Xamarin.WebTests.Providers
 
 		bool AreEqual (ICertificate a, ICertificate b);
 
+		ICertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
+
 		ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
+
+		ICertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback);
 
 		ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
 	}
