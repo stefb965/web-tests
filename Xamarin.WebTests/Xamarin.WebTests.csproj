@@ -84,4 +84,9 @@
     <Folder Include="Xamarin.WebTests.Internal\" />
     <Folder Include="Xamarin.WebTests.Features\" />
   </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Xamarin.WebTests.PortableSecurity">
+      <HintPath>..\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

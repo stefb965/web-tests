@@ -40,6 +40,7 @@ d0e61bdd
         <Type>System.Net.EndPoint</Type>
         <Type>System.Net.IPEndPoint</Type>
         <Type>System.Net.IPHostEntry</Type>
+		<Type>System.Net.IWebProxy</Type>
 		<Type>System.Net.NetworkCredential</Type>
 		<Type>System.Net.ServicePoint</Type>
 		<Type>System.Net.ServicePointManager</Type>

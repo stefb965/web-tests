@@ -114,65 +114,6 @@ namespace Xamarin.WebTests.Server
 			return new PortableProxy (uri);
 		}
 
-		IWebClient IPortableWebSupport.CreateWebClient ()
-		{
-			return new PortableWebClient ();
-		}
-
-		class PortableWebClient : IWebClient
-		{
-			WebClient client = new WebClient ();
-
-			public Task<string> UploadStringTaskAsync (Uri uri, string data)
-			{
-				return client.UploadStringTaskAsync (uri, data);
-			}
-
-			public Task<Stream> OpenWriteAsync (Uri uri, string method)
-			{
-				return client.OpenWriteTaskAsync (uri, method);
-			}
-
-			public Task<byte[]> UploadValuesTaskAsync (
-				Uri uri, string method, List<KeyValuePair<string, string>> data)
-			{
-				var collection = new NameValueCollection ();
-				foreach (var entry in data)
-					collection.Add (entry.Key, entry.Value);
-				return client.UploadValuesTaskAsync (uri, method, collection);
-			}
-
-			public void SetCredentials (ICredentials credentials)
-			{
-				client.Credentials = credentials;
-			}
-
-			public void Cancel ()
-			{
-				if (client != null)
-					client.CancelAsync ();
-			}
-
-			public void Dispose ()
-			{
-				Dispose (true);
-				GC.SuppressFinalize (this);
-			}
-
-			public void Dispose (bool disposing)
-			{
-				if (client != null) {
-					client.Dispose ();
-					client = null;
-				}
-			}
-
-			~PortableWebClient ()
-			{
-				Dispose (false);
-			}
-		}
-
 		#endregion
 
 		#region Listeners
