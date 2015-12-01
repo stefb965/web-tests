@@ -155,6 +155,8 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ManualSslStreamAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\IsSupportedConstraint.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ProtocolVersionAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

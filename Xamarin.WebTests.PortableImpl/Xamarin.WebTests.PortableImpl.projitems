@@ -15,8 +15,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetConnectionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClient.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientHandler.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\HttpClientProvider.cs" />
