@@ -114,5 +114,9 @@
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Mac\Xamarin.WebTests.PortableSecurity.Mac.csproj">
+      <Project>{BC0385D6-52A8-41D1-9E72-3AF768C42661}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.Mac</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

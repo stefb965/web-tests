@@ -175,5 +175,9 @@
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.iOS\Xamarin.WebTests.PortableSecurity.iOS.csproj">
+      <Project>{D2ADF33E-0152-4AFB-BF71-588BCCB5DEE7}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.iOS</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>

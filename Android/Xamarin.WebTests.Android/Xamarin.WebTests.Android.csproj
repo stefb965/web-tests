@@ -116,5 +116,9 @@
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Android\Xamarin.WebTests.PortableSecurity.Android.csproj">
+      <Project>{435F3228-ECA3-44C3-BE2D-5BBA02741833}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.Android</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
