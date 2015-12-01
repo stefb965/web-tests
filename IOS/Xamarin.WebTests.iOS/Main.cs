@@ -26,13 +26,20 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.Providers;
+using Xamarin.WebTests.Resources;
 
 using Foundation;
 using UIKit;
 
+[assembly: DependencyProvider (typeof (Xamarin.WebTests.iOS.Application))]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+
 namespace Xamarin.WebTests.iOS
 {
-	public class Application
+	public class Application : WebDependencyProvider
 	{
 		// This is the main entry point of the application.
 		static void Main (string[] args)
@@ -40,6 +47,23 @@ namespace Xamarin.WebTests.iOS
 			// if you want to use a different Application Delegate class from "AppDelegate"
 			// you can specify it here.
 			UIApplication.Main (args, null, "AppDelegate");
+		}
+
+		public override void Initialize ()
+		{
+			base.Initialize ();
+
+			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+
+			InstallDefaultCertificateValidator ();
+		}
+
+		void InstallDefaultCertificateValidator ()
+		{
+			var provider = DependencyInjector.Get<ICertificateProvider> ();
+
+			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+			provider.InstallDefaultValidator (defaultValidator);
 		}
 	}
 }

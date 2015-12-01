@@ -26,18 +26,8 @@
 using System;
 using System.Threading;
 using Xamarin.AsyncTests;
-#if MACUI
-using AppKit;
-using Xamarin.AsyncTests.MacUI;
-using Xamarin.WebTests.MacUI;
-#elif !__MOBILE__
-using Xamarin.AsyncTests.Console;
-#endif
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests.Portable;
-
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
-[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
 namespace Xamarin.WebTests.TestProvider
 {
@@ -48,9 +38,9 @@ namespace Xamarin.WebTests.TestProvider
 	using Providers;
 	using HttpClient;
 
-	class WebDependencyProvider : IDependencyProvider
+	public abstract class WebDependencyProvider : IDependencyProvider
 	{
-		public void Initialize ()
+		public virtual void Initialize ()
 		{
 			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
 			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
@@ -58,22 +48,6 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
 			DependencyInjector.RegisterDependency<ConnectionProviderFactory> (() => new DefaultConnectionProviderFactory ());
 			DependencyInjector.RegisterDependency<IStreamProvider> (() => new StreamProvider ());
-
-#if MACUI
-			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
-#endif
-
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
-
-			InstallDefaultCertificateValidator ();
-		}
-
-		void InstallDefaultCertificateValidator ()
-		{
-			var provider = DependencyInjector.Get<ICertificateProvider> ();
-
-			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-			provider.InstallDefaultValidator (defaultValidator);
 		}
 	}
 }
