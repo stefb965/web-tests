@@ -27,11 +27,11 @@ using System;
 using System.Net;
 using System.Net.Security;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Portable;
 
-	class CertificateValidator : ICertificateValidator
+	public class CertificateValidator
 	{
 		public RemoteCertificateValidationCallback ValidationCallback {
 			get;

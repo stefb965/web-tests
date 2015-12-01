@@ -29,6 +29,7 @@ using System.Net.Security;
 namespace Xamarin.WebTests.Providers
 {
 	using Portable;
+	using ConnectionFramework;
 
 	public delegate bool CertificateValidationDelegate (ICertificate certificate);
 
@@ -37,19 +38,19 @@ namespace Xamarin.WebTests.Providers
 
 	public interface ICertificateProvider
 	{
-		ICertificateValidator GetDefault ();
+		CertificateValidator GetDefault ();
 
-		ICertificateValidator AcceptThisCertificate (IServerCertificate certificate);
+		CertificateValidator AcceptThisCertificate (IServerCertificate certificate);
 
-		ICertificateValidator AcceptFromCA (ICertificate certificate);
+		CertificateValidator AcceptFromCA (ICertificate certificate);
 
-		ICertificateValidator AcceptNull ();
+		CertificateValidator AcceptNull ();
 
-		ICertificateValidator RejectAll ();
+		CertificateValidator RejectAll ();
 
-		ICertificateValidator AcceptAll ();
+		CertificateValidator AcceptAll ();
 
-		void InstallDefaultValidator (ICertificateValidator validator);
+		void InstallDefaultValidator (CertificateValidator validator);
 
 		ICertificate GetCertificateFromData (byte[] data);
 
@@ -59,13 +60,13 @@ namespace Xamarin.WebTests.Providers
 
 		bool AreEqual (ICertificate a, ICertificate b);
 
-		ICertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
+		CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
 
-		ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
+		CertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
 
-		ICertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback);
+		CertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback);
 
-		ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
+		CertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
 	}
 }
 

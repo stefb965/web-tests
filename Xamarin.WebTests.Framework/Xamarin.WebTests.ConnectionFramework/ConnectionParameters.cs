@@ -74,11 +74,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public ICertificateValidator ClientCertificateValidator {
+		public CertificateValidator ClientCertificateValidator {
 			get; set;
 		}
 
-		public ICertificateSelector ClientCertificateSelector {
+		public CertificateSelector ClientCertificateSelector {
 			get; set;
 		}
 
@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public ICertificateValidator ServerCertificateValidator {
+		public CertificateValidator ServerCertificateValidator {
 			get; set;
 		}
 

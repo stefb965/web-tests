@@ -47,6 +47,7 @@ namespace Xamarin.WebTests.Server
 	using Portable;
 	using Providers;
 	using HttpFramework;
+	using ConnectionFramework;
 	using Resources;
 	using Server;
 
@@ -199,14 +200,14 @@ namespace Xamarin.WebTests.Server
 			get { return HttpWebRequestImpl.SupportsCertificateValidator; }
 		}
 
-		public void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator)
+		public void InstallCertificateValidator (IHttpWebRequest request, CertificateValidator validator)
 		{
 			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
 		}
 
-		public void InstallDefaultCertificateValidator (ICertificateValidator validator)
+		public void InstallDefaultCertificateValidator (CertificateValidator validator)
 		{
-			ServicePointManager.ServerCertificateValidationCallback = ((CertificateValidator)validator).ValidationCallback;
+			ServicePointManager.ServerCertificateValidationCallback = validator.ValidationCallback;
 		}
 
 		#endregion

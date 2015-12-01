@@ -1,5 +1,5 @@
 ﻿//
-// ICertificateSelector.cs
+// CertificateSelector.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,14 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Net.Security;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface ICertificateSelector
+	using Portable;
+
+	public class CertificateSelector
 	{
-		LocalCertificateSelectionCallback SelectionCallback {
+		public LocalCertificateSelectionCallback SelectionCallback {
 			get;
+			private set;
+		}
+
+		public CertificateSelector (LocalCertificateSelectionCallback callback)
+		{
+			SelectionCallback = callback;
 		}
 	}
 }

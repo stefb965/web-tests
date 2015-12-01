@@ -34,6 +34,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.Server
 {
 	using Portable;
+	using ConnectionFramework;
 
 	class HttpWebRequestImpl : IHttpWebRequest
 	{
@@ -110,11 +111,11 @@ namespace Xamarin.WebTests.Server
 			get { return callbackProp != null; }
 		}
 
-		public void InstallCertificateValidator (ICertificateValidator validator)
+		public void InstallCertificateValidator (CertificateValidator validator)
 		{
 			if (!SupportsCertificateValidator)
 				throw new NotSupportedException ();
-			callbackProp.SetValue (Request, ((CertificateValidator)validator).ValidationCallback);
+			callbackProp.SetValue (Request, validator.ValidationCallback);
 		}
 
 		public ICertificate GetCertificate ()

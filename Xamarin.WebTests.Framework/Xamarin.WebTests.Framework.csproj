@@ -86,7 +86,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\WebExceptionStatus.cs" />
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateValidator.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
@@ -123,7 +122,6 @@
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkContentType.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\ICertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ConnectionTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFilter.cs" />
@@ -170,6 +168,8 @@
     <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
     <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
     <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

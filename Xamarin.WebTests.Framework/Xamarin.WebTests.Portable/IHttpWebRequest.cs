@@ -31,6 +31,8 @@ using System.Threading.Tasks;
 
 namespace Xamarin.WebTests.Portable
 {
+	using ConnectionFramework;
+
 	public interface IHttpWebRequest
 	{
 		HttpWebRequest Request {
@@ -55,7 +57,7 @@ namespace Xamarin.WebTests.Portable
 
 		Task<HttpWebResponse> GetResponseAsync ();
 
-		void InstallCertificateValidator (ICertificateValidator validator);
+		void InstallCertificateValidator (CertificateValidator validator);
 
 		ICertificate GetCertificate ();
 

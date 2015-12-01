@@ -33,38 +33,39 @@ namespace Xamarin.WebTests.Server
 {
 	using Portable;
 	using Providers;
+	using ConnectionFramework;
 
 	class CertificateProvider : ICertificateProvider
 	{
-		static readonly ICertificateValidator acceptAll = new CertificateValidator ((s, c, ch, e) => true);
-		static readonly ICertificateValidator rejectAll = new CertificateValidator ((s, c, ch, e) => false);
-		static readonly ICertificateValidator acceptNull = new CertificateValidator ((s, c, ch, e) => {
+		static readonly CertificateValidator acceptAll = new CertificateValidator ((s, c, ch, e) => true);
+		static readonly CertificateValidator rejectAll = new CertificateValidator ((s, c, ch, e) => false);
+		static readonly CertificateValidator acceptNull = new CertificateValidator ((s, c, ch, e) => {
 			return c == null && e == SslPolicyErrors.RemoteCertificateNotAvailable;
 		});
 
-		public static ICertificateValidator AcceptAll {
+		public static CertificateValidator AcceptAll {
 			get { return acceptAll; }
 		}
 
-		public static ICertificateValidator RejectAll {
+		public static CertificateValidator RejectAll {
 			get { return rejectAll; }
 		}
 
-		public static ICertificateValidator AcceptNull {
+		public static CertificateValidator AcceptNull {
 			get { return acceptNull; }
 		}
 
-		public ICertificateValidator GetDefault ()
+		public CertificateValidator GetDefault ()
 		{
 			return RejectAll;
 		}
 
-		ICertificateValidator ICertificateProvider.AcceptNull ()
+		CertificateValidator ICertificateProvider.AcceptNull ()
 		{
 			return AcceptNull;
 		}
 
-		ICertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
+		CertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
 		{
 			return AcceptThisCertificate (certificate);
 		}
@@ -83,7 +84,7 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		ICertificateValidator ICertificateProvider.AcceptFromCA (ICertificate certificate)
+		CertificateValidator ICertificateProvider.AcceptFromCA (ICertificate certificate)
 		{
 			return AcceptFromCA (certificate);
 		}
@@ -101,7 +102,7 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		void ICertificateProvider.InstallDefaultValidator (ICertificateValidator validator)
+		void ICertificateProvider.InstallDefaultValidator (CertificateValidator validator)
 		{
 			InstallDefaultValidator ((CertificateValidator)validator);
 		}
@@ -125,12 +126,12 @@ namespace Xamarin.WebTests.Server
 			return true;
 		}
 
-		ICertificateValidator ICertificateProvider.RejectAll ()
+		CertificateValidator ICertificateProvider.RejectAll ()
 		{
 			return RejectAll;
 		}
 
-		ICertificateValidator ICertificateProvider.AcceptAll ()
+		CertificateValidator ICertificateProvider.AcceptAll ()
 		{
 			return AcceptAll;
 		}
@@ -187,12 +188,12 @@ namespace Xamarin.WebTests.Server
 			return array;
 		}
 
-		public ICertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func)
+		public CertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func)
 		{
 			return new CertificateValidator ((s, c, ch, e) => func (GetCertificate (c)));
 		}
 
-		public ICertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func)
+		public CertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func)
 		{
 			return new CertificateSelector ((s, t, lc, rc, ai) => {
 				var localCertificates = GetCertificateCollection (lc);
@@ -202,12 +203,12 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		public ICertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)
+		public CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)
 		{
 			return new CertificateValidator (callback);
 		}
 
-		public ICertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback)
+		public CertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback)
 		{
 			return new CertificateSelector (callback);
 		}

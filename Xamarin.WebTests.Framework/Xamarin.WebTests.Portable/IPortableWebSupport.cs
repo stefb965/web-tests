@@ -34,6 +34,7 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Portable
 {
 	using HttpFramework;
+	using ConnectionFramework;
 	using Providers;
 
 	public interface IPortableWebSupport
@@ -56,9 +57,9 @@ namespace Xamarin.WebTests.Portable
 			get;
 		}
 
-		void InstallCertificateValidator (IHttpWebRequest request, ICertificateValidator validator);
+		void InstallCertificateValidator (IHttpWebRequest request, CertificateValidator validator);
 
-		void InstallDefaultCertificateValidator (ICertificateValidator validator);
+		void InstallDefaultCertificateValidator (CertificateValidator validator);
 	}
 }
 
