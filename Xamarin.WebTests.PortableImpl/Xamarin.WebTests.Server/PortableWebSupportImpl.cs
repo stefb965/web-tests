@@ -118,16 +118,6 @@ namespace Xamarin.WebTests.Server
 			return ResourceManager.SelfSignedServerCertificate;
 		}
 
-		Listener IPortableWebSupport.CreateHttpListener (HttpServer server)
-		{
-			return new HttpListener (server);
-		}
-
-		Listener IPortableWebSupport.CreateProxyListener (Listener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType)
-		{
-			return new ProxyListener ((HttpListener)httpListener, proxyEndpoint, authType);
-		}
-
 		#endregion
 
 		#region Certificate Validation
@@ -139,11 +129,6 @@ namespace Xamarin.WebTests.Server
 		public void InstallCertificateValidator (IHttpWebRequest request, CertificateValidator validator)
 		{
 			((HttpWebRequestImpl)request).InstallCertificateValidator (validator);
-		}
-
-		public void InstallDefaultCertificateValidator (CertificateValidator validator)
-		{
-			ServicePointManager.ServerCertificateValidationCallback = validator.ValidationCallback;
 		}
 
 		#endregion

@@ -53,7 +53,6 @@ namespace Xamarin.WebTests.HttpFramework
 		readonly ConnectionParameters parameters;
 		readonly IHttpProvider provider;
 		readonly ISslStreamProvider sslStreamProvider;
-		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint listenAddress;
 		Listener listener;
@@ -80,8 +79,6 @@ namespace Xamarin.WebTests.HttpFramework
 					sslStreamProvider = factory.DefaultSslStreamProvider;
 				}
 			}
-
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 
 			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
@@ -160,7 +157,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public virtual Task Start (TestContext ctx, CancellationToken cancellationToken)
 		{
-			listener = WebSupport.CreateHttpListener (this);
+			listener = new HttpListener (this);
 			if (Interlocked.CompareExchange<TestContext> (ref currentCtx, ctx, null) != null)
 				throw new InternalErrorException ();
 			return listener.Start ();

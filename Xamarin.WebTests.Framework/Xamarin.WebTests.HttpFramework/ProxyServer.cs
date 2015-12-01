@@ -46,14 +46,12 @@ namespace Xamarin.WebTests.HttpFramework
 		IPortableEndPoint proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;
 		Listener proxyListener;
-		readonly IPortableWebSupport WebSupport;
 
 		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ConnectionParameters parameters = null)
 			: base (provider, endpoint, endpoint, ListenerFlags.Proxy, parameters)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 
-			WebSupport = DependencyInjector.Get<IPortableWebSupport> ();
 			proxyUri = new Uri (string.Format ("http://{0}:{1}/", proxyEndpoint.Address, proxyEndpoint.Port));
 		}
 
@@ -70,7 +68,7 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			await base.Start (ctx, cancellationToken);
 
-			proxyListener = WebSupport.CreateProxyListener (Listener, proxyEndpoint, authType);
+			proxyListener = new ProxyListener ((HttpListener)Listener, proxyEndpoint, authType);
 			await proxyListener.Start ();
 		}
 
