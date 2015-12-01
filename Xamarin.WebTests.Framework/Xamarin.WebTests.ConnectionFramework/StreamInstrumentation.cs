@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var transportResult = base.BeginWrite (buffer, offset, size, WriteCallback, myResult);
 
 			if (transportResult.CompletedSynchronously)
-				ThreadPool.QueueUserWorkItem (_ => WriteCallback (transportResult));
+				Task.Factory.StartNew (() => WriteCallback (transportResult));
 
 			return myResult;
 		}
@@ -132,7 +132,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var transportResult = base.BeginRead (buffer, offset, size, ReadCallback, myResult);
 
 			if (transportResult.CompletedSynchronously)
-				ThreadPool.QueueUserWorkItem (_ => ReadCallback (transportResult));
+				Task.Factory.StartNew (() => ReadCallback (transportResult));
 
 			return myResult;
 		}

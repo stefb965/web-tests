@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Server
 	using Providers;
 	using Portable;
 
-	class HttpListener : Listener
+	public class HttpListener : Listener
 	{
 		readonly HttpServer server;
 

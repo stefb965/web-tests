@@ -160,6 +160,16 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyConnection.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetClient.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnection.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetServer.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\ManualConnectionProvider.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamInstrumentation.cs" />
+    <Compile Include="ReferenceSource\SimpleAsyncResult.cs" />
+    <Compile Include="Xamarin.WebTests.Server\Listener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\HttpListener.cs" />
+    <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -213,6 +223,8 @@
     <Folder Include="Xamarin.WebTests.Providers\" />
     <Folder Include="Xamarin.WebTests.ConnectionFramework\" />
     <Folder Include="Xamarin.WebTests.TestFramework\" />
+    <Folder Include="ReferenceSource\" />
+    <Folder Include="Xamarin.WebTests.Server\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

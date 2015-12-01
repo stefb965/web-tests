@@ -17,7 +17,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 	using Portable;
-	using Server;
 
 	public class DotNetServer : DotNetConnection, IServer
 	{

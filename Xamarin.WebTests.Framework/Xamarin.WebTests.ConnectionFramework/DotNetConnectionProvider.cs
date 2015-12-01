@@ -31,9 +31,8 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
-	using Server;
 
-	sealed class DotNetConnectionProvider : ConnectionProvider
+	public sealed class DotNetConnectionProvider : ConnectionProvider
 	{
 		readonly ISslStreamProvider sslStreamProvider;
 		readonly IHttpProvider httpProvider;

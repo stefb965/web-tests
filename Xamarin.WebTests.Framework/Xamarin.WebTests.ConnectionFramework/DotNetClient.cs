@@ -3,7 +3,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
-using System.Net.Sockets;
+// using System.Net.Sockets;
 using System.Net.Security;
 using System.Diagnostics;
 using System.Collections.Generic;
@@ -17,7 +17,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 	using Portable;
-	using Server;
 
 	public class DotNetClient : DotNetConnection, IClient
 	{

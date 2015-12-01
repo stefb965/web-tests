@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.Server
 	using Portable;
 	using Providers;
 
-	abstract class Listener : IListener
+	public abstract class Listener : IListener
 	{
 		Socket server;
 		int currentConnections;

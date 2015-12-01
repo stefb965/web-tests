@@ -42,7 +42,7 @@ namespace Xamarin.WebTests.Server
 	using Providers;
 	using Portable;
 
-	class ProxyListener : Listener
+	public class ProxyListener : Listener
 	{
 		readonly HttpListener target;
 		ProxyAuthManager authManager;
@@ -121,7 +121,7 @@ namespace Xamarin.WebTests.Server
 			targetSocket.Connect (targetEndpoint);
 			targetSocket.NoDelay = true;
 
-			var writer = new StreamWriter (stream, Encoding.ASCII);
+			var writer = new StreamWriter (stream, new ASCIIEncoding ());
 			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");

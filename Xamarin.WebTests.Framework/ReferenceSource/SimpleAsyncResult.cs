@@ -171,14 +171,6 @@ namespace System.Net
 			AsyncWaitHandle.WaitOne ();
 		}
 
-		internal bool WaitUntilComplete (int timeout, bool exitContext)
-		{
-			if (IsCompleted)
-				return true;
-
-			return AsyncWaitHandle.WaitOne (timeout, exitContext);
-		}
-
 		public object AsyncState {
 			get { return state; }
 		}
