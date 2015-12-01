@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return parameters; }
 		}
 
-		public virtual IPortableProxy GetProxy ()
+		public virtual IWebProxy GetProxy ()
 		{
 			return null;
 		}

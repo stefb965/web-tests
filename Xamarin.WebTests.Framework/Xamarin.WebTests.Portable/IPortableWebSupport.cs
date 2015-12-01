@@ -44,8 +44,6 @@ namespace Xamarin.WebTests.Portable
 			get;
 		}
 
-		IPortableProxy CreateProxy (Uri uri);
-
 		IServerCertificate GetDefaultServerCertificate ();
 
 		Listener CreateHttpListener (HttpServer server);

@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.HttpClient
 	public class HttpClientHandler : IHttpClientHandler
 	{
 		readonly Http.HttpClientHandler handler;
-		IPortableProxy proxy;
+		IWebProxy proxy;
 
 		public HttpClientHandler (Http.HttpClientHandler handler)
 		{
@@ -65,11 +65,11 @@ namespace Xamarin.WebTests.HttpClient
 			set { handler.Credentials = value; }
 		}
 
-		public IPortableProxy Proxy {
+		public IWebProxy Proxy {
 			get { return proxy; }
 			set {
 				proxy = value;
-				handler.Proxy = (IWebProxy)value;
+				handler.Proxy = value;
 			}
 		}
 	}

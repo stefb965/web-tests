@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.HttpClient
 			get; set;
 		}
 
-		IPortableProxy Proxy {
+		IWebProxy Proxy {
 			get; set;
 		}
 

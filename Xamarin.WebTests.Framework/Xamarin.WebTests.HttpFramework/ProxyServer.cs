@@ -82,12 +82,40 @@ namespace Xamarin.WebTests.HttpFramework
 			await base.Stop (ctx, cancellationToken);
 		}
 
-		public override IPortableProxy GetProxy ()
+		public override IWebProxy GetProxy ()
 		{
-			var proxy = WebSupport.CreateProxy (proxyUri);
+			var proxy = new SimpleProxy (proxyUri);
 			if (Credentials != null)
 				proxy.Credentials = Credentials;
 			return proxy;
+		}
+
+		class SimpleProxy : IWebProxy
+		{
+			readonly Uri uri;
+
+			public SimpleProxy (Uri uri)
+			{
+				this.uri = uri;
+			}
+
+			public Uri Uri {
+				get { return uri; }
+			}
+
+			public ICredentials Credentials {
+				get; set;
+			}
+
+			public Uri GetProxy (Uri destination)
+			{
+				return uri;
+			}
+
+			public bool IsBypassed (Uri host)
+			{
+				return false;
+			}
 		}
 
 		protected override string MyToString ()

@@ -109,11 +109,6 @@ namespace Xamarin.WebTests.Server
 			return IPAddress.Loopback;
 		}
 
-		IPortableProxy IPortableWebSupport.CreateProxy (Uri uri)
-		{
-			return new PortableProxy (uri);
-		}
-
 		#endregion
 
 		#region Listeners

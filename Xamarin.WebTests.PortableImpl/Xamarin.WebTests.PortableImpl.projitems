@@ -22,7 +22,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\CertificateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableProxy.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\StreamProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebDependencyProvider.cs" />

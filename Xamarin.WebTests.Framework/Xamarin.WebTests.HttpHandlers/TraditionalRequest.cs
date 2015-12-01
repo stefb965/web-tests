@@ -71,7 +71,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			Request.Request.Credentials = credentials;
 		}
 
-		public override void SetProxy (IPortableProxy proxy)
+		public override void SetProxy (IWebProxy proxy)
 		{
 			Request.SetProxy (proxy);
 		}

@@ -95,7 +95,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			throw new NotSupportedException ();
 		}
 
-		public override void SetProxy (IPortableProxy proxy)
+		public override void SetProxy (IWebProxy proxy)
 		{
 			Handler.Proxy = proxy;
 		}

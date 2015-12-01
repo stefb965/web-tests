@@ -51,7 +51,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public abstract void SendChunked ();
 
-		public abstract void SetProxy (IPortableProxy proxy);
+		public abstract void SetProxy (IWebProxy proxy);
 
 		public abstract void SetCredentials (ICredentials credentials);
 

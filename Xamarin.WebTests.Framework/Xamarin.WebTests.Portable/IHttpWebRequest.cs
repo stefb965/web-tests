@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Portable
 			get;
 		}
 
-		void SetProxy (IPortableProxy proxy);
+		void SetProxy (IWebProxy proxy);
 
 		void SetAllowWriteStreamBuffering (bool value);
 
