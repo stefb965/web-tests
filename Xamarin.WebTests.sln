@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Console", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.AsyncTests.Mobile", "Xamarin.AsyncTests.Mobile\Xamarin.AsyncTests.Mobile.csproj", "{AC422C55-E4C1-4CD7-9186-124B7F9E728D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Android", "Xamarin.WebTests.Android\Xamarin.WebTests.Android.csproj", "{7587BD12-8EE4-4830-AC9E-3EE92EED914E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.Android", "Android\Xamarin.WebTests.Android\Xamarin.WebTests.Android.csproj", "{7587BD12-8EE4-4830-AC9E-3EE92EED914E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.iOS", "Xamarin.WebTests.iOS\Xamarin.WebTests.iOS.csproj", "{A459395B-9BE6-4787-90A4-F786AB7E33A7}"
 EndProject
