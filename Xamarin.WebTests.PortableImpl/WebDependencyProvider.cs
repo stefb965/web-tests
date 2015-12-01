@@ -75,21 +75,6 @@ namespace Xamarin.WebTests.TestProvider
 			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
 			provider.InstallDefaultValidator (defaultValidator);
 		}
-
-#if MACUI
-		static void Main (string[] args)
-		{
-			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-
-			NSApplication.Init ();
-			NSApplication.Main (args);
-		}
-#elif !__MOBILE__
-		static void Main (string[] args)
-		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
-		}
-#endif
 	}
 }
 
