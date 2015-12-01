@@ -88,7 +88,6 @@
     <Compile Include="Xamarin.WebTests.Portable\ICertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IListener.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableProxy.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />

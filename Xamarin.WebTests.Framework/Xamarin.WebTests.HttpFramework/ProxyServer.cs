@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.HttpFramework
 	using HttpHandlers;
 	using Portable;
 	using Providers;
+	using Server;
 
 	[FriendlyName ("[ProxyServer]")]
 	public class ProxyServer : HttpServer
@@ -44,7 +45,7 @@ namespace Xamarin.WebTests.HttpFramework
 		Uri proxyUri;
 		IPortableEndPoint proxyEndpoint;
 		AuthenticationType authType = AuthenticationType.None;
-		IListener proxyListener;
+		Listener proxyListener;
 		readonly IPortableWebSupport WebSupport;
 
 		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ConnectionParameters parameters = null)

@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Portable
 	using HttpFramework;
 	using ConnectionFramework;
 	using Providers;
+	using Server;
 
 	public interface IPortableWebSupport
 	{
@@ -47,9 +48,9 @@ namespace Xamarin.WebTests.Portable
 
 		IServerCertificate GetDefaultServerCertificate ();
 
-		IListener CreateHttpListener (HttpServer server);
+		Listener CreateHttpListener (HttpServer server);
 
-		IListener CreateProxyListener (IListener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
+		Listener CreateProxyListener (Listener httpListener, IPortableEndPoint proxyEndpoint, AuthenticationType authType);
 
 		IWebClient CreateWebClient ();
 

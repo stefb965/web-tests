@@ -43,6 +43,7 @@ namespace Xamarin.WebTests.HttpFramework
 	using HttpHandlers;
 	using Providers;
 	using Portable;
+	using Server;
 
 	[FriendlyName ("[HttpServer]")]
 	public class HttpServer : ITestInstance
@@ -55,7 +56,7 @@ namespace Xamarin.WebTests.HttpFramework
 		readonly IPortableWebSupport WebSupport;
 
 		IPortableEndPoint listenAddress;
-		IListener listener;
+		Listener listener;
 
 		TestContext currentCtx;
 
@@ -85,7 +86,7 @@ namespace Xamarin.WebTests.HttpFramework
 			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
-		protected IListener Listener {
+		protected Listener Listener {
 			get { return listener; }
 		}
 
