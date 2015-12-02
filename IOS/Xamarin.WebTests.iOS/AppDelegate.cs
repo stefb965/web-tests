@@ -29,6 +29,7 @@ using System.Collections.Generic;
 
 using Foundation;
 using UIKit;
+using Xamarin.WebTests.TestProvider;
 
 namespace Xamarin.WebTests.iOS
 {
@@ -54,7 +55,7 @@ namespace Xamarin.WebTests.iOS
 		{
 			Forms.Init ();
 
-			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(AppDelegate).Assembly);
 
 			Framework = TestFramework.GetLocalFramework (typeof(AppDelegate).Assembly);

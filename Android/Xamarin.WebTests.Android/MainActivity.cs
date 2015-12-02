@@ -2,6 +2,7 @@
 
 using Android.App;
 using Android.OS;
+using Xamarin.WebTests.TestProvider;
 
 namespace Xamarin.WebTests.Android
 {
@@ -26,7 +27,7 @@ namespace Xamarin.WebTests.Android
 
 			Forms.Init (this, bundle);
 
-			DependencyInjector.RegisterAssembly (typeof(PortableSupportImpl).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(MainActivity).Assembly);
 
 			Framework = TestFramework.GetLocalFramework (typeof(MainActivity).Assembly);
