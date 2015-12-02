@@ -16,6 +16,7 @@ namespace Xamarin.WebTests.MacUI
 		static void Main (string[] args)
 		{
 			DependencyInjector.RegisterAssembly (typeof(MacMain).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 
 			NSApplication.Init ();
 			NSApplication.Main (args);

@@ -71,6 +71,10 @@
       <Project>{142D593E-5162-4C41-94CD-9656052F58EC}</Project>
       <Name>Xamarin.WebTests.TestProvider.Console</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
+      <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
+    </ProjectReference>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>

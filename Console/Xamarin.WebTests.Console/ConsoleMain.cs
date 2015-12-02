@@ -14,7 +14,9 @@ namespace Xamarin.WebTests.Console
 	{
 		static void Main (string[] args)
 		{
-			Program.Run (typeof (WebDependencyProvider).Assembly, args);
+			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
+			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
+			Program.Run (typeof (WebTestFeatures).Assembly, args);
 		}
 
 		public override void Initialize ()

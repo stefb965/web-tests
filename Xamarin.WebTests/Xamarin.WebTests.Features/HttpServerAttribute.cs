@@ -64,14 +64,17 @@ namespace Xamarin.WebTests.Features
 			return flags;
 		}
 
-		protected virtual ConnectionParameters GetParameters (TestContext ctx)
+		protected virtual bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
 		{
 			bool useSSL;
-			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)
-				return null;
+			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL) {
+				parameters = null;
+				return false;
+			}
 
 			var certificate = ResourceManager.SelfSignedServerCertificate;
-			return new ConnectionParameters ("http", certificate);
+			parameters = new ConnectionParameters ("http", certificate);
+			return true;
 		}
 
 		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
@@ -88,10 +91,13 @@ namespace Xamarin.WebTests.Features
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
-			var sslStreamProvider = GetSslStreamProvider (ctx);
+
+			ConnectionParameters parameters;
+			ISslStreamProvider sslStreamProvider = null;
 
 			var listenerFlags = GetListenerFlags (ctx);
-			var parameters = GetParameters (ctx);
+			if (GetParameters (ctx, out parameters))
+				sslStreamProvider = GetSslStreamProvider (ctx);
 
 			return new HttpServer (endpoint, endpoint, listenerFlags, sslStreamProvider, parameters);
 		}
