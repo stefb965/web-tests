@@ -14,6 +14,7 @@ fdb44340e07651f1455a489b29a7e6219a8f85e52b0f8588b4f8a857746a8468d37b556223d145
     <InputAssembly>Mono.Security</InputAssembly>
     <ProfileReference>mscorlib</ProfileReference>
     <ProfileReference>System</ProfileReference>
+    <ProfileReference>System.Net</ProfileReference>
     <ProfileReference>Xamarin.WebTests.PortableSecurity</ProfileReference>
     <ImportAssembly>mscorlib</ImportAssembly>
     <ImportAssembly>System</ImportAssembly>

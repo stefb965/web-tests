@@ -50,6 +50,10 @@ namespace Xamarin.WebTests.Portable
 			get;
 		}
 
+		IHttpProvider DefaultHttpProvider {
+			get;
+		}
+
 		void InstallCertificateValidator (IHttpWebRequest request, CertificateValidator validator);
 	}
 }

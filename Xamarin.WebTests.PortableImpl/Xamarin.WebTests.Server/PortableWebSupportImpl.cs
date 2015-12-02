@@ -64,10 +64,12 @@ namespace Xamarin.WebTests.Server
 				address = IPAddress.Loopback;
 				hasNetwork = false;
 			}
+			defaultHttpProvider = new DefaultHttpProvider (null);
 		}
 
 		static readonly bool hasNetwork;
 		static readonly IPAddress address;
+		static readonly IHttpProvider defaultHttpProvider;
 
 		#endregion
 
@@ -107,6 +109,10 @@ namespace Xamarin.WebTests.Server
 			}
 
 			return IPAddress.Loopback;
+		}
+
+		public IHttpProvider DefaultHttpProvider {
+			get { return defaultHttpProvider; }
 		}
 
 		#endregion
