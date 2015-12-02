@@ -6,7 +6,7 @@
     <SharedGUID>{D578985A-B8C0-4083-8F3E-1AE2B680E85B}</SharedGUID>
   </PropertyGroup>
   <PropertyGroup Label="Configuration">
-    <Import_RootNamespace>Xamarin.WebTests.PortableImpl</Import_RootNamespace>
+    <Import_RootNamespace>Xamarin.WebTests.TestProvider</Import_RootNamespace>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\ConnectionHelper.cs" />
