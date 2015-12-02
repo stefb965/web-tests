@@ -42,6 +42,10 @@ namespace Xamarin.WebTests.Server
 
 	class HttpProviderImpl : IHttpProvider
 	{
+		public bool SupportsPerRequestCertificateValidator {
+			get { return HttpWebRequestExtension.SupportsCertificateValidator; }
+		}
+
 		public bool SupportsHttpClient {
 			get { return true; }
 		}

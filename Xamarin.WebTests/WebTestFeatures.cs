@@ -36,7 +36,6 @@ using Xamarin.WebTests.HttpClient;
 using Xamarin.WebTests.Providers;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures))]
-[assembly: RequireDependency (typeof (IPortableWebSupport))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
 [assembly: RequireDependency (typeof (ConnectionProviderFactory))]
 
@@ -254,7 +253,7 @@ namespace Xamarin.WebTests
 
 		bool SupportsCertificateTests ()
 		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
+			var support = DependencyInjector.Get<IHttpProvider> ();
 			return support.SupportsPerRequestCertificateValidator;
 		}
 

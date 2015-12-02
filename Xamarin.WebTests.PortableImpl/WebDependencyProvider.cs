@@ -44,7 +44,6 @@ namespace Xamarin.WebTests.TestProvider
 		public virtual void Initialize ()
 		{
 			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
-			DependencyInjector.RegisterDependency<IPortableWebSupport> (() => new PortableWebSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
 			DependencyInjector.RegisterDependency<ConnectionProviderFactory> (() => new DefaultConnectionProviderFactory ());
