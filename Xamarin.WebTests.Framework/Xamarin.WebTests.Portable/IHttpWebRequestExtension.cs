@@ -1,5 +1,5 @@
 ﻿//
-// HttpWebRequestExtension.cs
+// IHttpWebRequest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,16 +24,50 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Server
+namespace Xamarin.WebTests.Portable
 {
-	class HttpWebRequestExtensionProvider : IExtensionProvider<HttpWebRequest>
+	public interface IHttpWebRequestExtension : IExtensionObject<HttpWebRequest>
 	{
-		public IExtensionObject<HttpWebRequest> GetExtensionObject (HttpWebRequest instance)
-		{
-			return new HttpWebRequestExtension (instance);
+		void SetSendChunked (bool value);
+
+		void SetContentLength (long length);
+
+		void SetAllowWriteStreamBuffering (bool value);
+
+		void SetKeepAlive (bool value);
+
+		void SetProxy (IWebProxy proxy);
+
+		Stream GetRequestStream ();
+
+		Task<Stream> GetRequestStreamAsync ();
+
+		HttpWebResponse GetResponse ();
+
+		Task<HttpWebResponse> GetResponseAsync ();
+
+		void InstallCertificateValidator (RemoteCertificateValidationCallback validator);
+
+		void SetClientCertificates (X509CertificateCollection clientCertificates);
+
+		X509Certificate GetCertificate ();
+
+		X509Certificate GetClientCertificate ();
+
+		int ReadWriteTimeout {
+			get; set;
+		}
+
+		int Timeout {
+			get; set;
 		}
 	}
 }

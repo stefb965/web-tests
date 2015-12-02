@@ -46,9 +46,7 @@ namespace Xamarin.WebTests.Providers
 			get;
 		}
 
-		IHttpWebRequest CreateWebRequest (Uri uri);
-
-		IHttpWebRequest CreateWebRequest (HttpWebRequest request);
+		HttpWebRequest CreateWebRequest (Uri uri);
 
 		ISslStreamProvider SslStreamProvider {
 			get;

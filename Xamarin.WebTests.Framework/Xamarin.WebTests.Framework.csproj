@@ -87,7 +87,6 @@
     <Compile Include="Xamarin.WebTests.Portable\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.Portable\ICertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IClientCertificate.cs" />
-    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequest.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IPortableWebSupport.cs" />
     <Compile Include="Xamarin.WebTests.Portable\IServerCertificate.cs" />
     <Compile Include="Xamarin.WebTests.Portable\NTLMHandler.cs" />
@@ -167,6 +166,7 @@
     <Compile Include="Xamarin.WebTests.Server\ProxyListener.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateSelector.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\CertificateValidator.cs" />
+    <Compile Include="Xamarin.WebTests.Portable\IHttpWebRequestExtension.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

@@ -29,10 +29,6 @@ namespace Xamarin.AsyncTests
 {
 	public interface IExtensionObject<T>
 	{
-		IExtensionProvider<T> Provider {
-			get;
-		}
-
 		T Object {
 			get;
 		}

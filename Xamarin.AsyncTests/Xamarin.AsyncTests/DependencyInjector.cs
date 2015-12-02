@@ -129,6 +129,15 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public static void RegisterExtension<T> (Func<T,IExtensionObject<T>> provider)
+		{
+			lock (syncRoot) {
+				if (extensions.ContainsKey (typeof(T)))
+					throw new InvalidOperationException ();
+				extensions.Add (typeof (T), new ExtensionProvider<T> (provider));
+			}
+		}
+
 		public static bool TryGetExtension<T> (out IExtensionProvider<T> provider)
 		{
 			lock (syncRoot) {
@@ -142,13 +151,28 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public static E GetExtensionObject<T,E> (T instance)
+		public static E GetExtension<T,E> (T instance)
 			where E : IExtensionObject<T>
 		{
 			IExtensionProvider<T> provider;
 			if (!TryGetExtension (out provider))
 				throw new InvalidOperationException ();
 			return (E)provider.GetExtensionObject (instance);
+		}
+
+		class ExtensionProvider<T> : IExtensionProvider<T>
+		{
+			readonly Func<T,IExtensionObject<T>> provider;
+
+			public ExtensionProvider (Func<T,IExtensionObject<T>> provider)
+			{
+				this.provider = provider;
+			}
+
+			public IExtensionObject<T> GetExtensionObject (T instance)
+			{
+				return provider (instance);
+			}
 		}
 	}
 }

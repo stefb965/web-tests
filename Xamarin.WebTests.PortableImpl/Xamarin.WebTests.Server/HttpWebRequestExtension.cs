@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,7 +38,7 @@ namespace Xamarin.WebTests.Server
 	using Portable;
 	using ConnectionFramework;
 
-	class HttpWebRequestExtension : IHttpWebRequest
+	class HttpWebRequestExtension : IHttpWebRequestExtension
 	{
 		static readonly PropertyInfo callbackProp;
 
@@ -58,18 +59,8 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
-		public IExtensionProvider<HttpWebRequest> Provider {
-			get;
-			private set;
-		}
-
 		public HttpWebRequest Object {
 			get { return Request; }
-		}
-
-		public HttpWebRequestExtension (HttpWebRequestExtensionProvider provider)
-		{
-			Provider = provider;
 		}
 
 		public HttpWebRequestExtension (HttpWebRequest request)
@@ -126,36 +117,26 @@ namespace Xamarin.WebTests.Server
 			get { return callbackProp != null; }
 		}
 
-		public void InstallCertificateValidator (CertificateValidator validator)
+		public void InstallCertificateValidator (RemoteCertificateValidationCallback validator)
 		{
 			if (!SupportsCertificateValidator)
 				throw new NotSupportedException ();
-			callbackProp.SetValue (Request, validator.ValidationCallback);
+			callbackProp.SetValue (Request, validator);
 		}
 
-		public ICertificate GetCertificate ()
+		public X509Certificate GetCertificate ()
 		{
-			var certificate = Request.ServicePoint.Certificate;
-			if (certificate == null)
-				return null;
-			return CertificateProvider.GetCertificate (certificate);
+			return Request.ServicePoint.Certificate;
 		}
 
-		public ICertificate GetClientCertificate ()
+		public X509Certificate GetClientCertificate ()
 		{
-			var certificate = Request.ServicePoint.ClientCertificate;
-			if (certificate == null)
-				return null;
-			return CertificateProvider.GetCertificate (certificate);
+			return Request.ServicePoint.ClientCertificate;
 		}
 
-		public void SetClientCertificates (IClientCertificate[] clientCertificates)
+		public void SetClientCertificates (X509CertificateCollection clientCertificates)
 		{
-			var certificates = new X509CertificateCollection ();
-			foreach (var certificate in clientCertificates) {
-				certificates.Add (CertificateProvider.GetCertificate (certificate));
-			}
-			Request.ClientCertificates = certificates;
+			Request.ClientCertificates = clientCertificates;
 		}
 
 		public int ReadWriteTimeout {

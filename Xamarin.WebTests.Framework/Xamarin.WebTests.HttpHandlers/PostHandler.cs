@@ -193,7 +193,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			request.Method = Method ?? "POST";
 
 			if (AllowWriteStreamBuffering != null)
-				((TraditionalRequest)request).Request.SetAllowWriteStreamBuffering (AllowWriteStreamBuffering.Value);
+				((TraditionalRequest)request).RequestExt.SetAllowWriteStreamBuffering (AllowWriteStreamBuffering.Value);
 
 			if (Content != null)
 				request.SetContentType ("text/plain");

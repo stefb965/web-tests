@@ -24,7 +24,6 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\StreamProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebDependencyProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestExtensionProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestExtension.cs" />
   </ItemGroup>
 </Project>

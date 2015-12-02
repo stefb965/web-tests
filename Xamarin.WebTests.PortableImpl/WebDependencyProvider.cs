@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
@@ -48,6 +49,7 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<ICertificateProvider> (() => new CertificateProvider ());
 			DependencyInjector.RegisterDependency<ConnectionProviderFactory> (() => new DefaultConnectionProviderFactory ());
 			DependencyInjector.RegisterDependency<IStreamProvider> (() => new StreamProvider ());
+			DependencyInjector.RegisterExtension<HttpWebRequest> ((request) => new HttpWebRequestExtension (request));
 		}
 	}
 }

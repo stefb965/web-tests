@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -52,6 +53,8 @@ namespace Xamarin.WebTests.Providers
 
 		void InstallDefaultValidator (CertificateValidator validator);
 
+		ICertificate GetCertificate (X509Certificate certificate);
+
 		ICertificate GetCertificateFromData (byte[] data);
 
 		IServerCertificate GetServerCertificate (byte[] data, string password);
@@ -59,6 +62,8 @@ namespace Xamarin.WebTests.Providers
 		IClientCertificate GetClientCertificate (byte[] data, string password);
 
 		bool AreEqual (ICertificate a, ICertificate b);
+
+		bool AreEqual (X509Certificate a, ICertificate b);
 
 		CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
 

@@ -178,6 +178,11 @@ namespace Xamarin.WebTests.Server
 			return new CertificateFromData (data);
 		}
 
+		ICertificate ICertificateProvider.GetCertificate (X509Certificate certificate)
+		{
+			return GetCertificate (certificate);
+		}
+
 		static ICertificate[] GetCertificateCollection (X509CertificateCollection collection)
 		{
 			if (collection == null)
@@ -218,11 +223,19 @@ namespace Xamarin.WebTests.Server
 			if (a == b)
 				return true;
 
-			var aImpl = (CertificateFromData)a;
-			var bImpl = (CertificateFromData)b;
-			var aHash = aImpl.GetCertificateHash ();
-			var bHash = bImpl.GetCertificateHash ();
+			return AreEqual ((CertificateFromData)a, (CertificateFromData)b);
+		}
+
+		bool AreEqual (CertificateFromData a, CertificateFromData b)
+		{
+			var aHash = a.GetCertificateHash ();
+			var bHash = b.GetCertificateHash ();
 			return string.Equals (aHash, bHash);
+		}
+
+		public bool AreEqual (X509Certificate a, ICertificate b)
+		{
+			return AreEqual (new CertificateFromData (a), (CertificateFromData)b);
 		}
 
 		class CertificateFromData : ICertificate

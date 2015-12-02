@@ -32,6 +32,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -226,15 +227,19 @@ namespace Xamarin.WebTests.TestRunners
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
 			var webRequest = HttpProvider.CreateWebRequest (uri);
-			webRequest.SetKeepAlive (true);
 
 			var request = new TraditionalRequest (webRequest);
 
-			if (Parameters.ClientCertificateValidator != null)
-				request.Request.InstallCertificateValidator (Parameters.ClientCertificateValidator);
+			request.RequestExt.SetKeepAlive (true);
 
-			if (Parameters.ClientCertificate != null)
-				request.Request.SetClientCertificates (new IClientCertificate[] { Parameters.ClientCertificate });
+			if (Parameters.ClientCertificateValidator != null)
+				request.RequestExt.InstallCertificateValidator (Parameters.ClientCertificateValidator.ValidationCallback);
+
+			if (Parameters.ClientCertificate != null) {
+				var certificates = new X509CertificateCollection ();
+				certificates.Add (Parameters.ClientCertificate.Certificate);
+				request.RequestExt.SetClientCertificates (certificates);
+			}
 
 			return request;
 		}
@@ -246,11 +251,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
-			var certificate = traditionalRequest.Request.GetCertificate ();
+			var certificate = traditionalRequest.RequestExt.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
 			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
 
-			var clientCertificate = traditionalRequest.Request.GetClientCertificate ();
+			var clientCertificate = traditionalRequest.RequestExt.GetClientCertificate ();
 			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
 				ctx.Assert (clientCertificate, Is.Not.Null, "client certificate");
 				ctx.Assert (provider.AreEqual (clientCertificate, Parameters.ClientCertificate), "correct client certificate");
