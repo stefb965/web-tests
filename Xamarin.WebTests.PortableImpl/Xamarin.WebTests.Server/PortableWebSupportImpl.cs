@@ -64,11 +64,6 @@ namespace Xamarin.WebTests.Server
 			get { return defaultHttpProvider; }
 		}
 
-		IServerCertificate IPortableWebSupport.GetDefaultServerCertificate ()
-		{
-			return ResourceManager.SelfSignedServerCertificate;
-		}
-
 		public bool SupportsPerRequestCertificateValidator {
 			get { return HttpWebRequestExtension.SupportsCertificateValidator; }
 		}

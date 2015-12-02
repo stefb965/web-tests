@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestRunners;
+	using Resources;
 	using Portable;
 	using Providers;
 
@@ -78,8 +79,7 @@ namespace Xamarin.WebTests.Tests
 			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
 
-			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			serverCertificate = webSupport.GetDefaultServerCertificate ();
+			serverCertificate = ResourceManager.SelfSignedServerCertificate;
 			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
 		}
 

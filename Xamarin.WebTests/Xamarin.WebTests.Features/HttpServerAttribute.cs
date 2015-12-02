@@ -33,6 +33,7 @@ namespace Xamarin.WebTests.Features
 	using ConnectionFramework;
 	using TestFramework;
 	using HttpFramework;
+	using Resources;
 	using Portable;
 	using Providers;
 
@@ -68,8 +69,7 @@ namespace Xamarin.WebTests.Features
 			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)
 				return null;
 
-			var webSupport = DependencyInjector.Get<IPortableWebSupport> ();
-			var certificate = webSupport.GetDefaultServerCertificate ();
+			var certificate = ResourceManager.SelfSignedServerCertificate;
 			return new ConnectionParameters ("http", certificate);
 		}
 
