@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.TestRunners
 	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : HttpServer
 	{
-		public IHttpProvider HttpProvider {
+		public ConnectionTestProvider Provider {
 			get;
 			private set;
 		}
@@ -62,10 +62,10 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ISslStreamProvider sslStreamProvider, HttpsTestParameters parameters)
-			: base (endpoint, endpoint, flags, sslStreamProvider, parameters)
+		public HttpsTestRunner (IPortableEndPoint endpoint, ListenerFlags flags, ConnectionTestProvider provider, HttpsTestParameters parameters)
+			: base (endpoint, endpoint, flags, provider.Server.SslStreamProvider, parameters)
 		{
-			HttpProvider = provider;
+			Provider = provider;
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
@@ -232,7 +232,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			var webRequest = HttpProvider.CreateWebRequest (uri);
+			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri);
 
 			var request = new TraditionalRequest (webRequest);
 
