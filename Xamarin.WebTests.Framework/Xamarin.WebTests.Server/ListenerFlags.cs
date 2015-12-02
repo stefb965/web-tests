@@ -1,10 +1,10 @@
 ﻿//
-// AuthenticationType.cs
+// ListenerFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +25,16 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	public enum AuthenticationType
+	[Flags]
+	public enum ListenerFlags
 	{
-		None,
-		Basic,
-		NTLM,
-		ForceNone
+		None				= 0,
+		Proxy				= 1,
+		ReuseConnection			= 2,
+		SSL				= 4,
+		ExpectException			= 8
 	}
 }
 

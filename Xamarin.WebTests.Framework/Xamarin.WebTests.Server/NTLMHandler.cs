@@ -1,5 +1,5 @@
 ﻿//
-// ListenerFlags.cs
+// NTLMHandler.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,16 +25,11 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	[Flags]
-	public enum ListenerFlags
+	public interface NTLMHandler
 	{
-		None				= 0,
-		Proxy				= 1,
-		ReuseConnection			= 2,
-		SSL				= 4,
-		ExpectException			= 8
+		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
 	}
 }
 

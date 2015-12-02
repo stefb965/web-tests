@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.Tests
 	using Portable;
 	using Providers;
 	using Features;
+	using Server;
 
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestChunked

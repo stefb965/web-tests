@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Features
 	using Resources;
 	using Portable;
 	using Providers;
+	using Server;
 
 	public class HttpServerAttribute : TestHostAttribute, ITestHost<HttpServer>
 	{

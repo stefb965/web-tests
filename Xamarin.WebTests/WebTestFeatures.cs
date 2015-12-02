@@ -48,6 +48,7 @@ namespace Xamarin.WebTests
 	using Internal;
 	using Features;
 	using Providers;
+	using Server;
 	using Tests;
 
 	public class WebTestFeatures : SharedWebTestFeatures

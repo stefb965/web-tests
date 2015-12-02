@@ -1,10 +1,10 @@
 ﻿//
-// NTLMHandler.cs
+// AuthenticationType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,11 +25,14 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.Server
 {
-	public interface NTLMHandler
+	public enum AuthenticationType
 	{
-		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
+		None,
+		Basic,
+		NTLM,
+		ForceNone
 	}
 }
 

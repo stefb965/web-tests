@@ -39,7 +39,7 @@ namespace Xamarin.WebTests.Tests
 	using HttpHandlers;
 	using HttpFramework;
 	using TestRunners;
-	using Portable;
+	using Server;
 	using Providers;
 	using Features;
 
