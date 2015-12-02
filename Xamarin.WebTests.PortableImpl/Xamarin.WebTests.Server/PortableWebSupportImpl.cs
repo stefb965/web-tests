@@ -53,17 +53,6 @@ namespace Xamarin.WebTests.Server
 
 	class PortableWebSupportImpl : IPortableWebSupport
 	{
-		static PortableWebSupportImpl ()
-		{
-			defaultHttpProvider = new DefaultHttpProvider (null);
-		}
-
-		static readonly IHttpProvider defaultHttpProvider;
-
-		public IHttpProvider DefaultHttpProvider {
-			get { return defaultHttpProvider; }
-		}
-
 		public bool SupportsPerRequestCertificateValidator {
 			get { return HttpWebRequestExtension.SupportsCertificateValidator; }
 		}

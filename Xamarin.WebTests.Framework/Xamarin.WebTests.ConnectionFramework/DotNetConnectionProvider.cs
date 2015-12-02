@@ -35,14 +35,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 	public sealed class DotNetConnectionProvider : ConnectionProvider
 	{
 		readonly ISslStreamProvider sslStreamProvider;
-		readonly IHttpProvider httpProvider;
 		readonly ProtocolVersions protocols;
 
-		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider, IHttpProvider httpProvider)
+		public DotNetConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ISslStreamProvider sslStreamProvider)
 			: base (factory, type, GetFlags ())
 		{
 			this.sslStreamProvider = sslStreamProvider;
-			this.httpProvider = httpProvider;
 
 			protocols = ProtocolVersions.Tls10;
 			if ((Flags & ConnectionProviderFlags.SupportsTls12) != 0)
@@ -94,11 +92,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override ISslStreamProvider GetSslStreamProvider ()
 		{
 			return sslStreamProvider;
-		}
-
-		protected override IHttpProvider GetHttpProvider ()
-		{
-			return httpProvider;
 		}
 	}
 }

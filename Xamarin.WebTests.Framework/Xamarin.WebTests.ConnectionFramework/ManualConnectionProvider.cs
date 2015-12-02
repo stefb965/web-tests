@@ -57,11 +57,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			throw new NotImplementedException ();
 		}
 
-		protected override IHttpProvider GetHttpProvider ()
-		{
-			throw new NotImplementedException ();
-		}
-
 		public override ProtocolVersions SupportedProtocols {
 			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
 		}

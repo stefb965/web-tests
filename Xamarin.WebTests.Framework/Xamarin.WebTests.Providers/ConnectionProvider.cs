@@ -90,16 +90,6 @@ namespace Xamarin.WebTests.Providers
 		public bool SupportsHttp {
 			get { return (Flags & ConnectionProviderFlags.SupportsHttp) != 0; }
 		}
-
-		public IHttpProvider HttpProvider {
-			get {
-				if (!SupportsHttp)
-					throw new InvalidOperationException ();
-				return GetHttpProvider ();
-			}
-		}
-
-		protected abstract IHttpProvider GetHttpProvider ();
 	}
 }
 

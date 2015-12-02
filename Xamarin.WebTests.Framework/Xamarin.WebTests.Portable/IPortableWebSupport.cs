@@ -43,10 +43,6 @@ namespace Xamarin.WebTests.Portable
 		bool SupportsPerRequestCertificateValidator {
 			get;
 		}
-
-		IHttpProvider DefaultHttpProvider {
-			get;
-		}
 	}
 }
 

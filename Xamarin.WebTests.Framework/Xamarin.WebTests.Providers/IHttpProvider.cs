@@ -41,16 +41,6 @@ namespace Xamarin.WebTests.Providers
 		}
 
 		IHttpClientHandler CreateHttpClient ();
-
-		bool SupportsWebRequest {
-			get;
-		}
-
-		HttpWebRequest CreateWebRequest (Uri uri);
-
-		ISslStreamProvider SslStreamProvider {
-			get;
-		}
 	}
 }
 

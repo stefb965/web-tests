@@ -40,15 +40,8 @@ namespace Xamarin.WebTests.Server
 	using Providers;
 	using HttpClient;
 
-	class DefaultHttpProvider : IHttpProvider
+	class HttpProviderImpl : IHttpProvider
 	{
-		readonly ISslStreamProvider provider;
-
-		internal DefaultHttpProvider (ISslStreamProvider provider)
-		{
-			this.provider = provider;
-		}
-
 		public bool SupportsHttpClient {
 			get { return true; }
 		}
@@ -57,19 +50,6 @@ namespace Xamarin.WebTests.Server
 		{
 			var handler = new Http.HttpClientHandler ();
 			return new HttpClientHandler (handler);
-		}
-
-		public bool SupportsWebRequest {
-			get { return true; }
-		}
-
-		public HttpWebRequest CreateWebRequest (Uri uri)
-		{
-			return (HttpWebRequest)HttpWebRequest.Create (uri);
-		}
-
-		public ISslStreamProvider SslStreamProvider {
-			get { return provider; }
 		}
 	}
 }
