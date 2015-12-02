@@ -47,8 +47,8 @@ namespace Xamarin.WebTests.HttpFramework
 		AuthenticationType authType = AuthenticationType.None;
 		Listener proxyListener;
 
-		public ProxyServer (IHttpProvider provider, IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ConnectionParameters parameters = null)
-			: base (provider, endpoint, endpoint, ListenerFlags.Proxy, parameters)
+		public ProxyServer (IPortableEndPoint endpoint, IPortableEndPoint proxyEndpoint, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
+			: base (endpoint, endpoint, ListenerFlags.Proxy, sslStreamProvider, parameters)
 		{
 			this.proxyEndpoint = proxyEndpoint;
 

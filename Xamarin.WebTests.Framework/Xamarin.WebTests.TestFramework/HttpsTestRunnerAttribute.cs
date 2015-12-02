@@ -53,7 +53,9 @@ namespace Xamarin.WebTests.TestFramework
 
 		public HttpsTestRunner CreateInstance (TestContext ctx)
 		{
-			var httpProvider = ConnectionTestHelper.GetHttpProvider (ctx);
+			var provider = ctx.GetParameter<ConnectionTestProvider> ();
+			var httpProvider = provider.Client.HttpProvider;
+			var sslStreamProvider = provider.Server.SslStreamProvider;
 
 			var parameters = ctx.GetParameter<HttpsTestParameters> ();
 
@@ -71,7 +73,7 @@ namespace Xamarin.WebTests.TestFramework
 
 			var listenerFlags = ListenerFlags.SSL;
 
-			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, parameters);
+			return new HttpsTestRunner (httpProvider, parameters.EndPoint, listenerFlags, sslStreamProvider, parameters);
 		}
 	}
 }

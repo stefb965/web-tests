@@ -51,8 +51,6 @@ namespace Xamarin.WebTests.Providers
 		ISslStreamProvider SslStreamProvider {
 			get;
 		}
-
-		HttpServer CreateServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null);
 	}
 }
 

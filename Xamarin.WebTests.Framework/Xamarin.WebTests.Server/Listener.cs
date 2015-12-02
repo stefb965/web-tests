@@ -55,13 +55,10 @@ namespace Xamarin.WebTests.Server
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
-		readonly IHttpProvider provider;
 		readonly Uri uri;
 
-		public Listener (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags)
+		public Listener (IPortableEndPoint endpoint, ListenerFlags flags)
 		{
-			this.provider = provider;
-
 			var ssl = (flags & ListenerFlags.SSL) != 0;
 			if (ssl & (flags & ListenerFlags.Proxy) != 0)
 				throw new InvalidOperationException ();
@@ -74,10 +71,6 @@ namespace Xamarin.WebTests.Server
 			server = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			server.Bind (networkEndpoint);
 			server.Listen (1);
-		}
-
-		public IHttpProvider HttpProvider {
-			get { return provider; }
 		}
 
 		public Uri Uri {

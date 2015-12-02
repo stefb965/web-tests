@@ -50,13 +50,6 @@ namespace Xamarin.WebTests.TestFramework
 			return Factory.GetProviderFlags (type);
 		}
 
-		public static IHttpProvider GetHttpProvider (TestContext ctx)
-		{
-			var providerType = ctx.GetParameter<ConnectionTestProvider> ();
-			var provider = providerType.Client;
-			return provider.HttpProvider;
-		}
-
 		public static R CreateTestRunner<P,A,R> (TestContext ctx, Func<IServer,IClient,P,A,R> constructor)
 			where P : ClientAndServerProvider
 			where A : ConnectionParameters

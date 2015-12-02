@@ -146,6 +146,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			return new DotNetSslStream (sslStream);
 		}
+
+		public bool SupportsWebRequest {
+			get { return true; }
+		}
+
+		public HttpWebRequest CreateWebRequest (Uri uri)
+		{
+			return (HttpWebRequest)HttpWebRequest.Create (uri);
+		}
 	}
 }
 

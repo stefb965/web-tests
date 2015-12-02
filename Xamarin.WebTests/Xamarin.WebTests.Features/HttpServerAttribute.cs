@@ -73,28 +73,26 @@ namespace Xamarin.WebTests.Features
 			return new ConnectionParameters ("http", certificate);
 		}
 
-		static IHttpProvider GetHttpProvider (TestContext ctx)
+		static ISslStreamProvider GetSslStreamProvider (TestContext ctx)
 		{
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-			IHttpProvider provider;
 			ConnectionProviderType providerType;
-			if (ctx.TryGetParameter (out providerType))
-				provider = factory.GetProvider (providerType).HttpProvider;
-			else
-				provider = factory.DefaultHttpProvider;
+			if (!ctx.TryGetParameter (out providerType))
+				return factory.DefaultSslStreamProvider;
 
-			return provider;
+			var provider = factory.GetProvider (providerType);
+			return provider.SupportsSslStreams ? provider.SslStreamProvider : null;
 		}
 
 		public HttpServer CreateInstance (TestContext ctx)
 		{
 			var endpoint = ConnectionTestHelper.GetEndPoint (ctx);
-			var httpProvider = GetHttpProvider (ctx);
+			var sslStreamProvider = GetSslStreamProvider (ctx);
 
 			var listenerFlags = GetListenerFlags (ctx);
 			var parameters = GetParameters (ctx);
 
-			return httpProvider.CreateServer (endpoint, endpoint, listenerFlags, parameters);
+			return new HttpServer (endpoint, endpoint, listenerFlags, sslStreamProvider, parameters);
 		}
 	}
 }

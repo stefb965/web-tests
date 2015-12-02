@@ -51,7 +51,6 @@ namespace Xamarin.WebTests.HttpFramework
 		readonly Uri uri;
 		readonly ListenerFlags flags;
 		readonly ConnectionParameters parameters;
-		readonly IHttpProvider provider;
 		readonly ISslStreamProvider sslStreamProvider;
 
 		IPortableEndPoint listenAddress;
@@ -62,21 +61,20 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IHttpProvider provider, IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null)
+		public HttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
 		{
-			this.provider = provider;
 			this.listenAddress = listenAddress;
 			this.flags = flags;
+			this.sslStreamProvider = sslStreamProvider;
 			this.parameters = parameters;
 
 			if (parameters != null)
 				flags |= ListenerFlags.SSL;
 
 			if ((flags & ListenerFlags.SSL) != 0) {
-				sslStreamProvider = provider.SslStreamProvider;
-				if (sslStreamProvider == null) {
+				if (this.sslStreamProvider == null) {
 					var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-					sslStreamProvider = factory.DefaultSslStreamProvider;
+					this.sslStreamProvider = factory.DefaultSslStreamProvider;
 				}
 			}
 
@@ -85,10 +83,6 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected Listener Listener {
 			get { return listener; }
-		}
-
-		public IHttpProvider HttpProvider {
-			get { return provider; }
 		}
 
 		public IPortableEndPoint ListenAddress {

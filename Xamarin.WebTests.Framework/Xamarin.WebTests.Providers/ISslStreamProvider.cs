@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -47,6 +48,12 @@ namespace Xamarin.WebTests.Providers
 
 		Task<ISslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken);
+
+		bool SupportsWebRequest {
+			get;
+		}
+
+		HttpWebRequest CreateWebRequest (Uri uri);
 	}
 }
 

@@ -53,13 +53,19 @@ namespace Xamarin.WebTests.TestRunners
 	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : HttpServer
 	{
+		public IHttpProvider HttpProvider {
+			get;
+			private set;
+		}
+
 		new public HttpsTestParameters Parameters {
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
 
-		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, HttpsTestParameters parameters)
-			: base (provider, endpoint, endpoint, flags, parameters)
+		public HttpsTestRunner (IHttpProvider provider, IPortableEndPoint endpoint, ListenerFlags flags, ISslStreamProvider sslStreamProvider, HttpsTestParameters parameters)
+			: base (endpoint, endpoint, flags, sslStreamProvider, parameters)
 		{
+			HttpProvider = provider;
 		}
 
 		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
