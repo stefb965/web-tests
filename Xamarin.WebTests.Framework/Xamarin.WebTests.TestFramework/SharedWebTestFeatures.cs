@@ -35,8 +35,6 @@ namespace Xamarin.WebTests.TestFramework
 
 	public abstract class SharedWebTestFeatures : ITestConfigurationProvider
 	{
-		public readonly TestFeature HasNetwork;
-
 		public readonly TestFeature Mono38;
 		public readonly TestFeature Mono381;
 		public readonly TestFeature Mono361;
@@ -47,7 +45,6 @@ namespace Xamarin.WebTests.TestFramework
 
 		public virtual IEnumerable<TestFeature> Features {
 			get {
-				yield return HasNetwork;
 				yield return Mono38;
 				yield return Mono381;
 				yield return Mono361;
@@ -78,13 +75,6 @@ namespace Xamarin.WebTests.TestFramework
 				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
 			Mono361 = new TestFeature (
 				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
-			HasNetwork = new TestFeature ("Network", "HasNetwork", () => IsNetworkAvailable ());
-		}
-
-		protected virtual bool IsNetworkAvailable ()
-		{
-			var support = DependencyInjector.Get<IPortableWebSupport> ();
-			return support.HasNetwork;
 		}
 
 		protected virtual bool HasMonoVersion (Version version)

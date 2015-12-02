@@ -158,9 +158,6 @@ namespace Xamarin.WebTests
 
 			public IEnumerable<ProxyKind> GetParameters (TestContext ctx, string filter)
 			{
-				if (!ctx.IsEnabled (Instance.HasNetwork))
-					yield break;
-
 				if (!ctx.IsEnabled (Instance.Proxy))
 					yield break;
 

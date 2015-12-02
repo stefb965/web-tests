@@ -40,10 +40,6 @@ namespace Xamarin.WebTests.Portable
 
 	public interface IPortableWebSupport
 	{
-		bool HasNetwork {
-			get;
-		}
-
 		IServerCertificate GetDefaultServerCertificate ();
 
 		bool SupportsPerRequestCertificateValidator {
