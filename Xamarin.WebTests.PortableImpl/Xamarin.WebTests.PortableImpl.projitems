@@ -21,9 +21,10 @@
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.HttpClient\StringContent.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\CertificateProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\DefaultHttpProvider.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\PortableWebSupportImpl.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\StreamProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)WebDependencyProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestExtensionProvider.cs" />
+    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestExtension.cs" />
   </ItemGroup>
 </Project>

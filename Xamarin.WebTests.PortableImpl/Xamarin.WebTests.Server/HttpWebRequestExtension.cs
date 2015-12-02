@@ -1,5 +1,5 @@
 ﻿//
-// HttpWebRequestImpl.cs
+// HttpWebRequestExtension.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,17 +30,18 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
 	using Portable;
 	using ConnectionFramework;
 
-	class HttpWebRequestImpl : IHttpWebRequest
+	class HttpWebRequestExtension : IHttpWebRequest
 	{
 		static readonly PropertyInfo callbackProp;
 
-		static HttpWebRequestImpl ()
+		static HttpWebRequestExtension ()
 		{
 			/*
 			 * We use reflection to support older Mono runtimes, which don't have the property.
@@ -57,7 +58,21 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
-		public HttpWebRequestImpl (HttpWebRequest request)
+		public IExtensionProvider<HttpWebRequest> Provider {
+			get;
+			private set;
+		}
+
+		public HttpWebRequest Object {
+			get { return Request; }
+		}
+
+		public HttpWebRequestExtension (HttpWebRequestExtensionProvider provider)
+		{
+			Provider = provider;
+		}
+
+		public HttpWebRequestExtension (HttpWebRequest request)
 		{
 			Request = request;	
 		}

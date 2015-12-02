@@ -1,5 +1,5 @@
 ﻿//
-// IHttpWebRequest.cs
+// IExtensionProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,55 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.AsyncTests
 {
-	using ConnectionFramework;
-
-	public interface IHttpWebRequest : IExtensionObject<HttpWebRequest>
+	public interface IExtensionProvider<T>
 	{
-		HttpWebRequest Request {
-			get;
-		}
-
-		void SetProxy (IWebProxy proxy);
-
-		void SetAllowWriteStreamBuffering (bool value);
-
-		void SetKeepAlive (bool value);
-
-		void SetSendChunked (bool value);
-
-		void SetContentLength (long length);
-
-		Stream GetRequestStream ();
-
-		Task<Stream> GetRequestStreamAsync ();
-
-		HttpWebResponse GetResponse ();
-
-		Task<HttpWebResponse> GetResponseAsync ();
-
-		void InstallCertificateValidator (CertificateValidator validator);
-
-		ICertificate GetCertificate ();
-
-		ICertificate GetClientCertificate ();
-
-		void SetClientCertificates (IClientCertificate[] clientCertificates);
-
-		int ReadWriteTimeout {
-			get; set;
-		}
-
-		int Timeout {
-			get; set;
-		}
+		IExtensionObject<T> GetExtensionObject (T instance);
 	}
 }
 

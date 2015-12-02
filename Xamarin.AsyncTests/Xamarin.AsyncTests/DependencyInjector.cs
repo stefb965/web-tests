@@ -33,6 +33,7 @@ namespace Xamarin.AsyncTests
 	{
 		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
+		static Dictionary<Type,object> extensions = new Dictionary<Type,object> ();
 		static object syncRoot = new object ();
 
 		static void Register<T> (T instance)
@@ -117,6 +118,37 @@ namespace Xamarin.AsyncTests
 			lock (syncRoot) {
 				return dict.ContainsKey (type);
 			}
+		}
+
+		public static void RegisterExtension<T> (IExtensionProvider<T> provider)
+		{
+			lock (syncRoot) {
+				if (extensions.ContainsKey (typeof(T)))
+					throw new InvalidOperationException ();
+				extensions.Add (typeof(T), provider);
+			}
+		}
+
+		public static bool TryGetExtension<T> (out IExtensionProvider<T> provider)
+		{
+			lock (syncRoot) {
+				object value;
+				if (extensions.TryGetValue (typeof(T), out value)) {
+					provider = (IExtensionProvider<T>)value;
+					return true;
+				}
+				provider = null;
+				return false;
+			}
+		}
+
+		public static E GetExtensionObject<T,E> (T instance)
+			where E : IExtensionObject<T>
+		{
+			IExtensionProvider<T> provider;
+			if (!TryGetExtension (out provider))
+				throw new InvalidOperationException ();
+			return (E)provider.GetExtensionObject (instance);
 		}
 	}
 }

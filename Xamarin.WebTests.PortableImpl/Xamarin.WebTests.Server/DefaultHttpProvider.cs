@@ -66,12 +66,12 @@ namespace Xamarin.WebTests.Server
 		public IHttpWebRequest CreateWebRequest (Uri uri)
 		{
 			var request = (HttpWebRequest)HttpWebRequest.Create (uri);
-			return new HttpWebRequestImpl (request);
+			return new HttpWebRequestExtension (request);
 		}
 
 		public IHttpWebRequest CreateWebRequest (HttpWebRequest request)
 		{
-			return new HttpWebRequestImpl (request);
+			return new HttpWebRequestExtension (request);
 		}
 
 		public ISslStreamProvider SslStreamProvider {
