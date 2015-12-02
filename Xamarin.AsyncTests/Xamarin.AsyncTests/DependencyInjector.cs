@@ -33,7 +33,9 @@ namespace Xamarin.AsyncTests
 	{
 		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
-		static Dictionary<Type,object> extensions = new Dictionary<Type,object> ();
+		static Dictionary<Type,object> extensionProviders = new Dictionary<Type,object> ();
+		static Dictionary<Type,object> collections = new Dictionary<Type,object> ();
+		static Dictionary<Type,Tuple<int,object>> defaults = new Dictionary<Type,Tuple<int,object>> ();
 		static object syncRoot = new object ();
 
 		static void Register<T> (T instance)
@@ -120,21 +122,46 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public static void RegisterCollection<T> (T item)
+		{
+			lock (syncRoot) {
+				List<T> list;
+				object value;
+				if (collections.TryGetValue (typeof(T), out value))
+					list = (List<T>)value;
+				else {
+					list = new List<T> ();
+					collections.Add (typeof(T), list);
+				}
+				list.Add (item);
+			}
+		}
+
+		public static ICollection<T> GetCollection<T> ()
+		{
+			lock (syncRoot) {
+				object value;
+				if (collections.TryGetValue (typeof(T), out value))
+					return (List<T>)value;
+				return new T [0];
+			}
+		}
+
 		public static void RegisterExtension<T> (IExtensionProvider<T> provider)
 		{
 			lock (syncRoot) {
-				if (extensions.ContainsKey (typeof(T)))
+				if (extensionProviders.ContainsKey (typeof(T)))
 					throw new InvalidOperationException ();
-				extensions.Add (typeof(T), provider);
+				extensionProviders.Add (typeof(T), provider);
 			}
 		}
 
 		public static void RegisterExtension<T> (Func<T,IExtensionObject<T>> provider)
 		{
 			lock (syncRoot) {
-				if (extensions.ContainsKey (typeof(T)))
+				if (extensionProviders.ContainsKey (typeof(T)))
 					throw new InvalidOperationException ();
-				extensions.Add (typeof (T), new ExtensionProvider<T> (provider));
+				extensionProviders.Add (typeof (T), new ExtensionProvider<T> (provider));
 			}
 		}
 
@@ -142,7 +169,7 @@ namespace Xamarin.AsyncTests
 		{
 			lock (syncRoot) {
 				object value;
-				if (extensions.TryGetValue (typeof(T), out value)) {
+				if (extensionProviders.TryGetValue (typeof(T), out value)) {
 					provider = (IExtensionProvider<T>)value;
 					return true;
 				}
@@ -172,6 +199,35 @@ namespace Xamarin.AsyncTests
 			public IExtensionObject<T> GetExtensionObject (T instance)
 			{
 				return provider (instance);
+			}
+		}
+
+		public static bool RegisterDefaults<T> (int priority, T instance)
+		{
+			lock (syncRoot) {
+				Tuple<int,object> value;
+				if (!defaults.TryGetValue (typeof(T), out value)) {
+					value = new Tuple<int,object> (priority, instance);
+					defaults.Add (typeof(T), value);
+					return true;
+				}
+				if (priority <= value.Item1)
+					return false;
+				value = new Tuple<int,object> (priority, instance);
+				defaults [typeof(T)] = value;
+				return true;
+			}
+		}
+
+		public static T GetDefaults<T> (int minPriority = 0)
+		{
+			lock (syncRoot) {
+				Tuple<int,object> value;
+				if (!defaults.TryGetValue (typeof(T), out value))
+					return default (T);
+				if (value.Item1 < minPriority)
+					return default (T);
+				return (T)value.Item2;
 			}
 		}
 	}
