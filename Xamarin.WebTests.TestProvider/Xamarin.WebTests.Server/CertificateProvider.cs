@@ -173,6 +173,16 @@ namespace Xamarin.WebTests.Server
 			return pfx.Data;
 		}
 
+		byte[] ICertificateProvider.GetRawCertificateData (IClientCertificate certificate, out string password)
+		{
+			return GetRawCertificateData (certificate, out password);
+		}
+
+		byte[] ICertificateProvider.GetRawCertificateData (IServerCertificate certificate, out string password)
+		{
+			return GetRawCertificateData (certificate, out password);
+		}
+
 		public ICertificate GetCertificateFromData (byte[] data)
 		{
 			return new CertificateFromData (data);

@@ -61,6 +61,10 @@ namespace Xamarin.WebTests.Providers
 
 		IClientCertificate GetClientCertificate (byte[] data, string password);
 
+		byte[] GetRawCertificateData (IClientCertificate certificate, out string password);
+
+		byte[] GetRawCertificateData (IServerCertificate certificate, out string password);
+
 		bool AreEqual (ICertificate a, ICertificate b);
 
 		bool AreEqual (X509Certificate a, ICertificate b);
