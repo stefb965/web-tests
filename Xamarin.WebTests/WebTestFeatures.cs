@@ -26,6 +26,7 @@
 using System;
 using System.Net;
 using System.Reflection;
+using System.Threading;
 using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
@@ -51,11 +52,17 @@ namespace Xamarin.WebTests
 	using Server;
 	using Tests;
 
-	public class WebTestFeatures : SharedWebTestFeatures, ISingletonInstance
+	public class WebTestFeatures : SharedWebTestFeatures
 	{
 		public static WebTestFeatures Instance {
-			get { return DependencyInjector.Get<WebTestFeatures> (); }
+			get {
+				if (instance == null)
+					Interlocked.CompareExchange (ref instance, new WebTestFeatures (), null);
+				return instance;
+			}
 		}
+
+		static WebTestFeatures instance;
 
 		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
@@ -258,7 +265,7 @@ namespace Xamarin.WebTests
 			return support.SupportsPerRequestCertificateValidator;
 		}
 
-		public WebTestFeatures ()
+		WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 

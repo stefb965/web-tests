@@ -15,8 +15,6 @@ namespace Xamarin.WebTests.Android
 		{
 			base.Initialize ();
 
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
-
 			InstallDefaultCertificateValidator ();
 		}
 

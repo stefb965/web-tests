@@ -53,8 +53,6 @@ namespace Xamarin.WebTests.iOS
 		{
 			base.Initialize ();
 
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
-
 			InstallDefaultCertificateValidator ();
 		}
 

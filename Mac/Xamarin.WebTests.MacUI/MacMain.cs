@@ -27,7 +27,6 @@ namespace Xamarin.WebTests.MacUI
 			base.Initialize ();
 
 			DependencyInjector.RegisterDependency<IBuiltinTestServer> (() => new BuiltinTestServer ());
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 
 			InstallDefaultCertificateValidator ();
 		}
