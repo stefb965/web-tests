@@ -33,6 +33,7 @@ namespace Xamarin.WebTests.Android
 
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(MainActivity).Assembly);
+			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 
 			Framework = TestFramework.GetLocalFramework (typeof(MainActivity).Assembly);
 
