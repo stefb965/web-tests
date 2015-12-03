@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 {
 	public static class DependencyInjector
 	{
-		static Dictionary<Type,ISingletonInstance> dict = new Dictionary<Type,ISingletonInstance> ();
+		static Dictionary<Type,SingletonInstance> dict = new Dictionary<Type,SingletonInstance> ();
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
 		static Dictionary<Type,object> extensionProviders = new Dictionary<Type,object> ();
 		static Dictionary<Type,object> collections = new Dictionary<Type,object> ();
@@ -45,7 +45,7 @@ namespace Xamarin.AsyncTests
 			lock (syncRoot) {
 				if (dict.ContainsKey (typeof(T)))
 					return;
-				var instance = constructor ();
+				var instance = new SingletonInstance (constructor);
 				dict.Add (typeof(T), instance);
 			}
 		}
@@ -68,18 +68,33 @@ namespace Xamarin.AsyncTests
 			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
-				if (!dict.ContainsKey (typeof(T)))
+				T dependency;
+				if (!TryGet (out dependency))
 					throw new InvalidOperationException (string.Format ("Missing dependency: `{0}'", typeof(T)));
-				return (T)dict [typeof(T)];
+				return dependency;
 			}
 		}
 
 		internal static ISingletonInstance Get (Type type)
 		{
 			lock (syncRoot) {
-				if (!dict.ContainsKey (type))
+				ISingletonInstance instance;
+				if (!TryGet (type, out instance))
 					throw new InvalidOperationException (string.Format ("Missing dependency: `{0}'", type));
-				return dict [type];
+				return instance;
+			}
+		}
+
+		static bool TryGet (Type type, out ISingletonInstance dependency)
+		{
+			lock (syncRoot) {
+				SingletonInstance instance;
+				if (!dict.TryGetValue (type, out instance)) {
+					dependency = null;
+					return false;
+				}
+				dependency = (ISingletonInstance)instance.Instance;
+				return true;
 			}
 		}
 
@@ -87,12 +102,12 @@ namespace Xamarin.AsyncTests
 			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
-				ISingletonInstance value;
-				if (dict.TryGetValue (typeof(T), out value)) {
-					dependency = (T)value;
-					return true;
+				SingletonInstance instance;
+				if (!dict.TryGetValue (typeof(T), out instance)) {
+					dependency = null;
+					return false;
 				}
-				dependency = null;
+				dependency = (T)instance.Instance;
 				return false;
 			}
 		}
@@ -167,6 +182,25 @@ namespace Xamarin.AsyncTests
 			if (!TryGetExtension (out provider))
 				throw new InvalidOperationException ();
 			return (E)provider.GetExtensionObject (instance);
+		}
+
+		class SingletonInstance
+		{
+			object instance;
+			Func<object> constructor;
+
+			public object Instance {
+				get {
+					if (instance == null)
+						Interlocked.CompareExchange (ref instance, constructor (), null);
+					return instance;
+				}
+			}
+
+			public SingletonInstance (Func<object> ctor)
+			{
+				constructor = ctor;
+			}
 		}
 
 		class ExtensionProvider<T> : IExtensionProvider<T>
