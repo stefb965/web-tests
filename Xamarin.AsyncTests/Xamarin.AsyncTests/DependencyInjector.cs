@@ -93,7 +93,7 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public static object Get (Type type)
+		internal static object Get (Type type)
 		{
 			lock (syncRoot) {
 				if (!dict.ContainsKey (type))
@@ -203,7 +203,7 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		class DefaultEntry<T> where T : class
+		class DefaultEntry<T> where T : class, ITestDefaults
 		{
 			public int Priority {
 				get;
@@ -229,7 +229,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static bool RegisterDefaults<T> (int priority, Func<T> constructor)
-			where T : class
+			where T : class, ITestDefaults
 		{
 			lock (syncRoot) {
 				object value;
@@ -249,7 +249,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static T GetDefaults<T> (int minPriority = 0)
-			where T : class
+			where T : class, ITestDefaults
 		{
 			lock (syncRoot) {
 				object value;

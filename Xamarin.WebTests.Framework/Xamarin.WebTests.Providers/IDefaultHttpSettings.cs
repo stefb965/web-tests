@@ -1,8 +1,9 @@
 ﻿using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
-	public interface IDefaultHttpSettings
+	public interface IDefaultHttpSettings : ITestDefaults
 	{
 		bool InstallDefaultCertificateValidator {
 			get;
