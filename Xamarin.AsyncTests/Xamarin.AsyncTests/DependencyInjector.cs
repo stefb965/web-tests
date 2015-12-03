@@ -39,16 +39,6 @@ namespace Xamarin.AsyncTests
 		static Dictionary<Type,object> defaults = new Dictionary<Type,object> ();
 		static object syncRoot = new object ();
 
-		static void Register<T> (T instance)
-			where T : class, ISingletonInstance
-		{
-			lock (syncRoot) {
-				if (dict.ContainsKey (typeof (T)))
-					throw new InvalidOperationException ();
-				dict.Add (typeof (T), instance);
-			}
-		}
-
 		public static void RegisterDependency<T> (Func<T> constructor)
 			where T : class, ISingletonInstance
 		{
@@ -56,19 +46,6 @@ namespace Xamarin.AsyncTests
 				if (dict.ContainsKey (typeof(T)))
 					return;
 				var instance = constructor ();
-				dict.Add (typeof(T), instance);
-			}
-		}
-
-		public static void RegisterDependency<T,U> (Func<T> constructor)
-			where T : U
-			where U : class, ISingletonInstance
-		{
-			lock (syncRoot) {
-				if (dict.ContainsKey (typeof(U)))
-					return;
-				var instance = constructor ();
-				dict.Add (typeof(U), instance);
 				dict.Add (typeof(T), instance);
 			}
 		}
