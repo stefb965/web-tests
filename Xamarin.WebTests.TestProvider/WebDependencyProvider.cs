@@ -1,5 +1,5 @@
 ﻿//
-// MyClass.cs
+// WebDependencyProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.TestProvider
 			DependencyInjector.RegisterDependency<IStreamProvider> (() => new StreamProvider ());
 			DependencyInjector.RegisterDependency<IHttpProvider> (() => new HttpProviderImpl ());
 			DependencyInjector.RegisterExtension<HttpWebRequest> ((request) => new HttpWebRequestExtension (request));
+			DependencyInjector.RegisterDefaults<IDefaultHttpSettings> (0, new DefaultHttpSettings ());
 		}
 	}
 }
