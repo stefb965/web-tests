@@ -2,7 +2,11 @@
 
 using Android.App;
 using Android.OS;
+using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestProvider;
+
+[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
 namespace Xamarin.WebTests.Android
 {

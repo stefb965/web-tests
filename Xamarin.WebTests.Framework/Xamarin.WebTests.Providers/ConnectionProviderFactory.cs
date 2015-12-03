@@ -159,6 +159,13 @@ namespace Xamarin.WebTests.Providers
 				return defaultSslStreamProvider;
 			}
 		}
+
+		public IDefaultHttpSettings DefaultSettings {
+			get {
+				Initialize ();
+				return defaultSettings;
+			}
+		}
 	}
 }
 

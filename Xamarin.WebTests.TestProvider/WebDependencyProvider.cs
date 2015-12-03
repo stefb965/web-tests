@@ -39,9 +39,9 @@ namespace Xamarin.WebTests.TestProvider
 	using Providers;
 	using HttpClient;
 
-	public abstract class WebDependencyProvider : IDependencyProvider
+	public sealed class WebDependencyProvider : IDependencyProvider
 	{
-		public virtual void Initialize ()
+		public void Initialize ()
 		{
 			DependencyInjector.RegisterDependency<IPortableSupport> (() => new PortableSupportImpl ());
 			DependencyInjector.RegisterDependency<IHttpClientProvider> (() => new HttpClientProvider ());

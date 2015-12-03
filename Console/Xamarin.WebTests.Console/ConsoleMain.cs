@@ -10,28 +10,13 @@ using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.Console
 {
-	public class ConsoleMain : WebDependencyProvider
+	public class ConsoleMain
 	{
 		static void Main (string[] args)
 		{
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
 			Program.Run (typeof (WebTestFeatures).Assembly, args);
-		}
-
-		public override void Initialize ()
-		{
-			base.Initialize ();
-
-			InstallDefaultCertificateValidator ();
-		}
-
-		void InstallDefaultCertificateValidator ()
-		{
-			var provider = DependencyInjector.Get<ICertificateProvider> ();
-
-			var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-			provider.InstallDefaultValidator (defaultValidator);
 		}
 	}
 }
