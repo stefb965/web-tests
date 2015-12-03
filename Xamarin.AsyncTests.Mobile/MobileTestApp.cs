@@ -98,11 +98,11 @@ namespace Xamarin.AsyncTests.Mobile
 
 			EndPoint = GetEndPoint ();
 
-			MainLabel = new Label { XAlign = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
+			MainLabel = new Label { HorizontalTextAlignment = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
 
-			StatusLabel = new Label { XAlign = TextAlignment.Start };
+			StatusLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
 
-			StatisticsLabel = new Label { XAlign = TextAlignment.Start };
+			StatisticsLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
 
 			RunButton = new Button { Text = "Run" };
 
