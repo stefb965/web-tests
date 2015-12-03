@@ -52,17 +52,11 @@ namespace Xamarin.WebTests
 	using Server;
 	using Tests;
 
-	public class WebTestFeatures : SharedWebTestFeatures
+	public class WebTestFeatures : SharedWebTestFeatures, ISingletonInstance
 	{
 		public static WebTestFeatures Instance {
-			get {
-				if (instance == null)
-					Interlocked.CompareExchange (ref instance, new WebTestFeatures (), null);
-				return instance;
-			}
+			get { return DependencyInjector.Get<WebTestFeatures> (); }
 		}
-
-		static WebTestFeatures instance;
 
 		public readonly TestFeature NTLM = new TestFeature ("NTLM", "NTLM Authentication");
 		public readonly TestFeature Redirect = new TestFeature ("Redirect", "Redirect Tests", true);
@@ -265,7 +259,7 @@ namespace Xamarin.WebTests
 			return support.SupportsPerRequestCertificateValidator;
 		}
 
-		WebTestFeatures ()
+		public WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 

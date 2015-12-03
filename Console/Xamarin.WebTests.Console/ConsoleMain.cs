@@ -5,7 +5,7 @@ using Xamarin.WebTests.TestProvider;
 using Xamarin.WebTests.Providers;
 using Xamarin.WebTests.Resources;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.Console.ConsoleMain))]
+[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
 namespace Xamarin.WebTests.Console
@@ -16,6 +16,7 @@ namespace Xamarin.WebTests.Console
 		{
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
+			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
 			Program.Run (typeof (WebTestFeatures).Assembly, args);
 		}
 	}

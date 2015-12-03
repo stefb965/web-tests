@@ -108,7 +108,7 @@ namespace Xamarin.AsyncTests
 					return false;
 				}
 				dependency = (T)instance.Instance;
-				return false;
+				return true;
 			}
 		}
 
