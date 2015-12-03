@@ -123,6 +123,7 @@
     <Compile Include="Xamarin.AsyncTests\IExtensionProvider.cs" />
     <Compile Include="Xamarin.AsyncTests\IExtensionObject.cs" />
     <Compile Include="Xamarin.AsyncTests\ITestDefaults.cs" />
+    <Compile Include="Xamarin.AsyncTests\IExtensionCollection.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
