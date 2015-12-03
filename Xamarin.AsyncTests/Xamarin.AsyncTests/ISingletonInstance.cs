@@ -1,5 +1,5 @@
 ﻿//
-// IBuiltinTestServer.cs
+// ISingletonInstance.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,15 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests.Remoting;
 
-namespace Xamarin.AsyncTests.MacUI
+namespace Xamarin.AsyncTests
 {
-	public interface IBuiltinTestServer : ISingletonInstance
+	public interface ISingletonInstance
 	{
-		Task<TestServer> Start (CancellationToken cancellationToken);
 	}
 }
 

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.Providers
@@ -34,7 +35,7 @@ namespace Xamarin.WebTests.Providers
 	using HttpClient;
 	using Portable;
 
-	public interface IHttpProvider
+	public interface IHttpProvider : ISingletonInstance
 	{
 		bool SupportsPerRequestCertificateValidator {
 			get;

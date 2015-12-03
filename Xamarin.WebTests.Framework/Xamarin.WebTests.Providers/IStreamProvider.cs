@@ -25,10 +25,11 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
-	public interface IStreamProvider
+	public interface IStreamProvider : ISingletonInstance
 	{
 		IAsyncResult BeginRead (Stream stream, byte[] buffer, int offset, int count, AsyncCallback callback, object state);
 

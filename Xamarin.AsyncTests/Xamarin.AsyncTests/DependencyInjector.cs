@@ -32,7 +32,7 @@ namespace Xamarin.AsyncTests
 {
 	public static class DependencyInjector
 	{
-		static Dictionary<Type,object> dict = new Dictionary<Type,object> ();
+		static Dictionary<Type,ISingletonInstance> dict = new Dictionary<Type,ISingletonInstance> ();
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
 		static Dictionary<Type,object> extensionProviders = new Dictionary<Type,object> ();
 		static Dictionary<Type,object> collections = new Dictionary<Type,object> ();
@@ -40,6 +40,7 @@ namespace Xamarin.AsyncTests
 		static object syncRoot = new object ();
 
 		static void Register<T> (T instance)
+			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
 				if (dict.ContainsKey (typeof (T)))
@@ -49,6 +50,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static void RegisterDependency<T> (Func<T> constructor)
+			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
 				if (dict.ContainsKey (typeof(T)))
@@ -60,6 +62,7 @@ namespace Xamarin.AsyncTests
 
 		public static void RegisterDependency<T,U> (Func<T> constructor)
 			where T : U
+			where U : class, ISingletonInstance
 		{
 			lock (syncRoot) {
 				if (dict.ContainsKey (typeof(U)))
@@ -85,6 +88,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static T Get<T> ()
+			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
 				if (!dict.ContainsKey (typeof(T)))
@@ -93,7 +97,7 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		internal static object Get (Type type)
+		internal static ISingletonInstance Get (Type type)
 		{
 			lock (syncRoot) {
 				if (!dict.ContainsKey (type))
@@ -103,10 +107,10 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static bool TryGet<T> (out T dependency)
-			where T : class
+			where T : class, ISingletonInstance
 		{
 			lock (syncRoot) {
-				object value;
+				ISingletonInstance value;
 				if (dict.TryGetValue (typeof(T), out value)) {
 					dependency = (T)value;
 					return true;

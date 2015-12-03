@@ -26,6 +26,7 @@
 using System;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
 {
@@ -37,7 +38,7 @@ namespace Xamarin.WebTests.Providers
 	public delegate IClientCertificate CertificateSelectionDelegate (
 		string targetHost, ICertificate[] localCertificates, ICertificate remoteCertificate, string[] acceptableIssuers);
 
-	public interface ICertificateProvider
+	public interface ICertificateProvider : ISingletonInstance
 	{
 		CertificateValidator GetDefault ();
 

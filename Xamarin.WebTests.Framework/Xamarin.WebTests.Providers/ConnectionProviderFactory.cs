@@ -33,7 +33,7 @@ namespace Xamarin.WebTests.Providers
 {
 	using ConnectionFramework;
 
-	public sealed class ConnectionProviderFactory
+	public sealed class ConnectionProviderFactory : ISingletonInstance
 	{
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
 		readonly DotNetSslStreamProvider dotNetSslStreamProvider;

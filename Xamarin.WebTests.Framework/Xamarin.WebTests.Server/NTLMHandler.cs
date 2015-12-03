@@ -24,10 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
-	public interface NTLMHandler
+	public interface NTLMHandler : ISingletonInstance
 	{
 		bool HandleNTLM (ref byte[] bytes, ref bool haveChallenge);
 	}

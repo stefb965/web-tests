@@ -51,7 +51,7 @@ namespace Xamarin.WebTests
 	using Server;
 	using Tests;
 
-	public class WebTestFeatures : SharedWebTestFeatures
+	public class WebTestFeatures : SharedWebTestFeatures, ISingletonInstance
 	{
 		public static WebTestFeatures Instance {
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
