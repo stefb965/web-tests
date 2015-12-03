@@ -32,13 +32,23 @@ namespace Xamarin.WebTests.Providers
 {
 	using ConnectionFramework;
 
-	public abstract class ConnectionProviderFactory
+	public sealed class ConnectionProviderFactory
 	{
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;
+		readonly DotNetSslStreamProvider dotNetSslStreamProvider;
+		readonly DotNetConnectionProvider defaultConnectionProvider;
+		readonly ManualConnectionProvider manualConnectionProvider;
 
-		protected ConnectionProviderFactory ()
+		public ConnectionProviderFactory ()
 		{
 			providers = new Dictionary<ConnectionProviderType,ConnectionProvider> ();
+			dotNetSslStreamProvider = new DotNetSslStreamProvider ();
+
+			defaultConnectionProvider = new DotNetConnectionProvider (this, ConnectionProviderType.DotNet, dotNetSslStreamProvider);
+			Install (defaultConnectionProvider);
+
+			manualConnectionProvider = new ManualConnectionProvider (this, ConnectionProviderFlags.IsExplicit);
+			Install (manualConnectionProvider);
 		}
 
 		public bool IsSupported (ConnectionProviderType type)
@@ -91,13 +101,18 @@ namespace Xamarin.WebTests.Providers
 			return true;
 		}
 
-		protected void Install (ConnectionProvider provider)
+		public void Install (ConnectionProvider provider)
 		{
 			providers.Add (provider.Type, provider);
 		}
 
-		public abstract ISslStreamProvider DefaultSslStreamProvider {
-			get;
+		public ISslStreamProvider DefaultSslStreamProvider {
+			get {
+				var settings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
+				if (settings != null && settings.DefaultSslStreamProvider != null)
+					return settings.DefaultSslStreamProvider;
+				return dotNetSslStreamProvider;
+			}
 		}
 	}
 }
