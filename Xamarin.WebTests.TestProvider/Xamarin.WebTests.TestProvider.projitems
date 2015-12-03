@@ -23,6 +23,5 @@
     <Compile Include="$(MSBuildThisFileDirectory)WebDependencyProvider.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpWebRequestExtension.cs" />
     <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.Server\HttpProviderImpl.cs" />
-    <Compile Include="$(MSBuildThisFileDirectory)Xamarin.WebTests.ConnectionFramework\DefaultHttpSettings.cs" />
   </ItemGroup>
 </Project>

@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Linq;
 using System.Threading;
 using System.Collections.Generic;
@@ -135,10 +136,15 @@ namespace Xamarin.WebTests.Providers
 					extension.Initialize (this);
 
 				defaultSettings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
-				if (defaultSettings != null)
-					defaultSslStreamProvider = defaultSettings.DefaultSslStreamProvider;
+				if (defaultSettings == null)
+					defaultSettings = new DefaultHttpSettings ();
+
+				defaultSslStreamProvider = defaultSettings.DefaultSslStreamProvider;
 				if (defaultSslStreamProvider == null)
 					defaultSslStreamProvider = dotNetSslStreamProvider;
+
+				if (defaultSettings.SecurityProtocol != null)
+					ServicePointManager.SecurityProtocol = defaultSettings.SecurityProtocol.Value;
 
 				initialized = true;
 			}

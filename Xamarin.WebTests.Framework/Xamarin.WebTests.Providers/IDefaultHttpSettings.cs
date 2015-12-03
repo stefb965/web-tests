@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Providers
@@ -10,6 +11,10 @@ namespace Xamarin.WebTests.Providers
 		}
 
 		ISslStreamProvider DefaultSslStreamProvider {
+			get;
+		}
+
+		SecurityProtocolType? SecurityProtocol {
 			get;
 		}
 	}
