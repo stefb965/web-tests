@@ -6,7 +6,6 @@ using Xamarin.AsyncTests.MacUI;
 using Xamarin.WebTests.Providers;
 using Xamarin.WebTests.Resources;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
 namespace Xamarin.WebTests.MacUI

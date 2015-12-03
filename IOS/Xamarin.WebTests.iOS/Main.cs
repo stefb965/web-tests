@@ -34,7 +34,6 @@ using Xamarin.WebTests.Resources;
 using Foundation;
 using UIKit;
 
-[assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
 
 namespace Xamarin.WebTests.iOS
