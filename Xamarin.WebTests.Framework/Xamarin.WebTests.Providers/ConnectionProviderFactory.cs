@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Threading;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
@@ -38,6 +39,10 @@ namespace Xamarin.WebTests.Providers
 		readonly DotNetSslStreamProvider dotNetSslStreamProvider;
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 		readonly ManualConnectionProvider manualConnectionProvider;
+		IDefaultHttpSettings defaultSettings;
+		ISslStreamProvider defaultSslStreamProvider;
+		static object syncRoot = new object ();
+		bool initialized;
 
 		public ConnectionProviderFactory ()
 		{
@@ -53,15 +58,21 @@ namespace Xamarin.WebTests.Providers
 
 		public bool IsSupported (ConnectionProviderType type)
 		{
-			return providers.ContainsKey (type);
+			lock (syncRoot) {
+				Initialize ();
+				return providers.ContainsKey (type);
+			}
 		}
 
 		public ConnectionProviderFlags GetProviderFlags (ConnectionProviderType type)
 		{
-			ConnectionProvider provider;
-			if (!providers.TryGetValue (type, out provider))
-				return ConnectionProviderFlags.None;
-			return provider.Flags;
+			lock (syncRoot) {
+				Initialize ();
+				ConnectionProvider provider;
+				if (!providers.TryGetValue (type, out provider))
+					return ConnectionProviderFlags.None;
+				return provider.Flags;
+			}
 		}
 
 		public bool IsExplicit (ConnectionProviderType type)
@@ -72,46 +83,80 @@ namespace Xamarin.WebTests.Providers
 
 		public IEnumerable<ConnectionProviderType> GetProviders ()
 		{
-			return providers.Keys;
+			lock (syncRoot) {
+				Initialize ();
+				return providers.Keys;
+			}
 		}
 
 		public IEnumerable<ConnectionProvider> GetProviders (Func<ConnectionProvider,bool> filter = null)
 		{
-			return providers.Values.Where (p => filter != null ? filter (p) : !IsExplicit (p.Type));
+			lock (syncRoot) {
+				Initialize ();
+				return providers.Values.Where (p => filter != null ? filter (p) : !IsExplicit (p.Type));
+			}
 		}
 
 		public ConnectionProvider GetProvider (ConnectionProviderType type)
 		{
-			return providers [type];
+			lock (syncRoot) {
+				Initialize ();
+				return providers [type];
+			}
 		}
 
 		public bool IsCompatible (ConnectionProviderType clientType, ConnectionProviderType serverType)
 		{
-			ConnectionProvider clientProvider, serverProvider;
-			if (!providers.TryGetValue (clientType, out clientProvider))
-				return false;
-			if (!providers.TryGetValue (serverType, out serverProvider))
-				return false;
+			lock (syncRoot) {
+				Initialize ();
+				ConnectionProvider clientProvider, serverProvider;
+				if (!providers.TryGetValue (clientType, out clientProvider))
+					return false;
+				if (!providers.TryGetValue (serverType, out serverProvider))
+					return false;
 
-			if (!clientProvider.IsCompatibleWith (serverType))
-				return false;
-			if (!serverProvider.IsCompatibleWith (clientType))
-				return false;
+				if (!clientProvider.IsCompatibleWith (serverType))
+					return false;
+				if (!serverProvider.IsCompatibleWith (clientType))
+					return false;
 
-			return true;
+				return true;
+			}
+		}
+
+		public void Initialize ()
+		{
+			lock (syncRoot) {
+				if (initialized)
+					return;
+
+				var extensions = DependencyInjector.GetCollection<IConnectionProviderFactoryExtension> ();
+				foreach (var extension in extensions)
+					extension.Initialize (this);
+
+				defaultSettings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
+				if (defaultSettings != null)
+					defaultSslStreamProvider = defaultSettings.DefaultSslStreamProvider;
+				if (defaultSslStreamProvider == null)
+					defaultSslStreamProvider = dotNetSslStreamProvider;
+
+				initialized = true;
+			}
 		}
 
 		public void Install (ConnectionProvider provider)
 		{
-			providers.Add (provider.Type, provider);
+			lock (syncRoot) {
+				if (initialized)
+					throw new InvalidOperationException ();
+				providers.Add (provider.Type, provider);
+			}
 		}
 
 		public ISslStreamProvider DefaultSslStreamProvider {
 			get {
-				var settings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
-				if (settings != null && settings.DefaultSslStreamProvider != null)
-					return settings.DefaultSslStreamProvider;
-				return dotNetSslStreamProvider;
+				Initialize ();
+				return defaultSslStreamProvider;
 			}
 		}
 	}

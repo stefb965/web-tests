@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -35,7 +36,7 @@ namespace Xamarin.AsyncTests
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
 		static Dictionary<Type,object> extensionProviders = new Dictionary<Type,object> ();
 		static Dictionary<Type,object> collections = new Dictionary<Type,object> ();
-		static Dictionary<Type,Tuple<int,object>> defaults = new Dictionary<Type,Tuple<int,object>> ();
+		static Dictionary<Type,object> defaults = new Dictionary<Type,object> ();
 		static object syncRoot = new object ();
 
 		static void Register<T> (T instance)
@@ -202,32 +203,63 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public static bool RegisterDefaults<T> (int priority, T instance)
+		class DefaultEntry<T> where T : class
+		{
+			public int Priority {
+				get;
+				private set;
+			}
+
+			T instance;
+			Func<T> constructor;
+
+			public T Instance {
+				get {
+					if (instance == null)
+						Interlocked.CompareExchange (ref instance, constructor (), null);
+					return instance;
+				}
+			}
+
+			public DefaultEntry (int priority, Func<T> ctor)
+			{
+				Priority = priority;
+				constructor = ctor;
+			}
+		}
+
+		public static bool RegisterDefaults<T> (int priority, Func<T> constructor)
+			where T : class
 		{
 			lock (syncRoot) {
-				Tuple<int,object> value;
+				object value;
+				DefaultEntry<T> entry;
 				if (!defaults.TryGetValue (typeof(T), out value)) {
-					value = new Tuple<int,object> (priority, instance);
-					defaults.Add (typeof(T), value);
+					entry = new DefaultEntry<T> (priority, constructor);
+					defaults.Add (typeof(T), entry);
 					return true;
 				}
-				if (priority <= value.Item1)
+				entry = (DefaultEntry<T>)value;
+				if (priority <= entry.Priority)
 					return false;
-				value = new Tuple<int,object> (priority, instance);
-				defaults [typeof(T)] = value;
+				entry = new DefaultEntry<T> (priority, constructor);
+				defaults [typeof(T)] = entry;
 				return true;
 			}
 		}
 
 		public static T GetDefaults<T> (int minPriority = 0)
+			where T : class
 		{
 			lock (syncRoot) {
-				Tuple<int,object> value;
+				object value;
+				DefaultEntry<T> entry;
 				if (!defaults.TryGetValue (typeof(T), out value))
 					return default (T);
-				if (value.Item1 < minPriority)
-					return default (T);
-				return (T)value.Item2;
+				entry = (DefaultEntry<T>)value;
+				if (entry.Priority < minPriority)
+					return null;
+				return entry.Instance;
 			}
 		}
 	}
