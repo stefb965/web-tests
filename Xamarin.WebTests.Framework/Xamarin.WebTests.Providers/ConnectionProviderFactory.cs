@@ -40,7 +40,7 @@ namespace Xamarin.WebTests.Providers
 		readonly DotNetSslStreamProvider dotNetSslStreamProvider;
 		readonly DotNetConnectionProvider defaultConnectionProvider;
 		readonly ManualConnectionProvider manualConnectionProvider;
-		IDefaultHttpSettings defaultSettings;
+		IDefaultConnectionSettings defaultSettings;
 		ISslStreamProvider defaultSslStreamProvider;
 		static object syncRoot = new object ();
 		bool initialized;
@@ -131,9 +131,9 @@ namespace Xamarin.WebTests.Providers
 				if (initialized)
 					return;
 
-				defaultSettings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
+				defaultSettings = DependencyInjector.GetDefaults<IDefaultConnectionSettings> ();
 				if (defaultSettings == null)
-					defaultSettings = new DefaultHttpSettings ();
+					defaultSettings = new DefaultConnectionSettings ();
 
 				var extensions = DependencyInjector.GetCollection<IConnectionProviderFactoryExtension> ();
 				foreach (var extension in extensions)
@@ -166,7 +166,7 @@ namespace Xamarin.WebTests.Providers
 			}
 		}
 
-		public IDefaultHttpSettings DefaultSettings {
+		public IDefaultConnectionSettings DefaultSettings {
 			get {
 				Initialize ();
 				return defaultSettings;

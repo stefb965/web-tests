@@ -5,6 +5,6 @@ namespace Xamarin.WebTests.Providers
 {
 	public interface IConnectionProviderFactoryExtension : IExtensionCollection
 	{
-		void Initialize (ConnectionProviderFactory factory, IDefaultHttpSettings settings);
+		void Initialize (ConnectionProviderFactory factory, IDefaultConnectionSettings settings);
 	}
 }

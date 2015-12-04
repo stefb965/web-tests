@@ -166,9 +166,9 @@
     <Compile Include="Xamarin.WebTests.Server\ListenerFlags.cs" />
     <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Server\AuthenticationType.cs" />
-    <Compile Include="Xamarin.WebTests.Providers\IDefaultHttpSettings.cs" />
     <Compile Include="Xamarin.WebTests.Providers\IConnectionProviderExtension.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultHttpSettings.cs" />
+    <Compile Include="Xamarin.WebTests.Providers\IDefaultConnectionSettings.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

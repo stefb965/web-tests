@@ -5,11 +5,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using Providers;
 
-	public class DefaultHttpSettings : IDefaultHttpSettings
+	public class DefaultConnectionSettings : IDefaultConnectionSettings
 	{
 		DotNetSslStreamProvider dotNetStreamProvider;
 
-		public DefaultHttpSettings ()
+		public DefaultConnectionSettings ()
 		{
 			dotNetStreamProvider = new DotNetSslStreamProvider ();
 		}
