@@ -17,6 +17,10 @@ namespace Xamarin.WebTests.Providers
 		SecurityProtocolType? SecurityProtocol {
 			get;
 		}
+
+		Guid? InstallTlsProvider {
+			get;
+		}
 	}
 }
 
