@@ -131,13 +131,13 @@ namespace Xamarin.WebTests.Providers
 				if (initialized)
 					return;
 
-				var extensions = DependencyInjector.GetCollection<IConnectionProviderFactoryExtension> ();
-				foreach (var extension in extensions)
-					extension.Initialize (this);
-
 				defaultSettings = DependencyInjector.GetDefaults<IDefaultHttpSettings> ();
 				if (defaultSettings == null)
 					defaultSettings = new DefaultHttpSettings ();
+
+				var extensions = DependencyInjector.GetCollection<IConnectionProviderFactoryExtension> ();
+				foreach (var extension in extensions)
+					extension.Initialize (this, defaultSettings);
 
 				defaultSslStreamProvider = defaultSettings.DefaultSslStreamProvider;
 				if (defaultSslStreamProvider == null)
