@@ -35,6 +35,7 @@ namespace Xamarin.AsyncTests
 		static Dictionary<Type,SingletonInstance> dict = new Dictionary<Type,SingletonInstance> ();
 		static Dictionary<string,object> assemblies = new Dictionary<string,object> ();
 		static Dictionary<Type,object> extensionProviders = new Dictionary<Type,object> ();
+		static Dictionary<object,object> extensionObjects = new Dictionary<object,object> ();
 		static Dictionary<Type,object> collections = new Dictionary<Type,object> ();
 		static Dictionary<Type,object> defaults = new Dictionary<Type,object> ();
 		static object syncRoot = new object ();
@@ -145,6 +146,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		public static void RegisterExtension<T> (IExtensionProvider<T> provider)
+			where T : class
 		{
 			lock (syncRoot) {
 				if (extensionProviders.ContainsKey (typeof(T)))
@@ -153,7 +155,19 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
+		public static void RegisterExtension<T,E> (T instance, E extension)
+			where T : class
+			where E : class, IExtensionObject<T>
+		{
+			lock (syncRoot) {
+				if (extensionObjects.ContainsKey (instance))
+					throw new InvalidOperationException ();
+				extensionObjects.Add (instance, extension);
+			}
+		}
+
 		public static void RegisterExtension<T> (Func<T,IExtensionObject<T>> provider)
+			where T : class
 		{
 			lock (syncRoot) {
 				if (extensionProviders.ContainsKey (typeof(T)))
@@ -162,26 +176,34 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		public static bool TryGetExtension<T> (out IExtensionProvider<T> provider)
+		public static bool TryGetExtension<T,E> (T instance, out E extension)
+			where T : class
+			where E : class, IExtensionObject<T>
 		{
 			lock (syncRoot) {
 				object value;
-				if (extensionProviders.TryGetValue (typeof(T), out value)) {
-					provider = (IExtensionProvider<T>)value;
+				if (extensionObjects.TryGetValue (instance, out value)) {
+					extension = (E)value;
 					return true;
 				}
-				provider = null;
-				return false;
+				if (!extensionProviders.TryGetValue (typeof(T), out value)) {
+					extension = null;
+					return false;
+				}
+				var provider = (IExtensionProvider<T>)value;
+				extension = (E)provider.GetExtensionObject (instance);
+				return true;
 			}
 		}
 
 		public static E GetExtension<T,E> (T instance)
-			where E : IExtensionObject<T>
+			where T : class
+			where E : class, IExtensionObject<T>
 		{
-			IExtensionProvider<T> provider;
-			if (!TryGetExtension (out provider))
+			E extension;
+			if (!TryGetExtension (instance, out extension))
 				throw new InvalidOperationException ();
-			return (E)provider.GetExtensionObject (instance);
+			return extension;
 		}
 
 		class SingletonInstance
@@ -204,6 +226,7 @@ namespace Xamarin.AsyncTests
 		}
 
 		class ExtensionProvider<T> : IExtensionProvider<T>
+			where T : class
 		{
 			readonly Func<T,IExtensionObject<T>> provider;
 
@@ -218,7 +241,8 @@ namespace Xamarin.AsyncTests
 			}
 		}
 
-		class DefaultEntry<T> where T : class, ITestDefaults
+		class DefaultEntry<T>
+			where T : class, ITestDefaults
 		{
 			public int Priority {
 				get;
