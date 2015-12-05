@@ -120,7 +120,6 @@ namespace Xamarin.WebTests.TestFramework
 			case ConnectionProviderType.DotNet:
 				return IsMicrosoftRuntime;
 			case ConnectionProviderType.NewTLS:
-			case ConnectionProviderType.MonoWithNewTLS:
 			case ConnectionProviderType.OpenSsl:
 				return true;
 			default:

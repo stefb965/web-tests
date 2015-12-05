@@ -36,10 +36,6 @@ namespace Xamarin.WebTests.Providers
 		NewTLS,
 		OldTLS,
 
-		// Same, but with Mono-specific extensions.  This will return IMonoConnectionProvider.
-		MonoWithNewTLS,
-		MonoWithOldTLS,
-
 		// Just for testing.
 		OpenSsl,
 
