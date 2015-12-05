@@ -30,10 +30,8 @@ using System.Threading;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-
 	public sealed class ConnectionProviderFactory : ISingletonInstance
 	{
 		readonly Dictionary<ConnectionProviderType,ConnectionProvider> providers;

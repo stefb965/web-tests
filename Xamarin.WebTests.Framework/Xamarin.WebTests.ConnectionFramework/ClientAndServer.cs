@@ -33,8 +33,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-
 	public abstract class ClientAndServer : Connection
 	{
 		IServer server;

@@ -2,7 +2,6 @@
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Console;
 using Xamarin.WebTests.TestProvider;
-using Xamarin.WebTests.Providers;
 using Xamarin.WebTests.Resources;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]

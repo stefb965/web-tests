@@ -32,8 +32,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-
 	public class DummyConnection : Connection, ICommonConnection
 	{
 		readonly ConnectionProvider provider;

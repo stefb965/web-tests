@@ -34,7 +34,6 @@ namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
 	using TestRunners;
-	using Providers;
 
 	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
 	public class ConnectionTestProviderAttribute : TestParameterAttribute, ITestParameterSource<ConnectionTestProvider>

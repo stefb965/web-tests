@@ -28,7 +28,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Http = System.Net.Http;
-using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.HttpClient;
 
 namespace Xamarin.WebTests.HttpClient

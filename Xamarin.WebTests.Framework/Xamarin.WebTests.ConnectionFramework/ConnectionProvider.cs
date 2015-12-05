@@ -26,7 +26,7 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	using ConnectionFramework;
 

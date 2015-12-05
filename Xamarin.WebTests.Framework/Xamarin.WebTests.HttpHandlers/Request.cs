@@ -32,8 +32,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
 
 	public abstract class Request
 	{

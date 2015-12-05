@@ -29,8 +29,6 @@ using System.Net.Security;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-
 	public class CertificateSelector
 	{
 		public LocalCertificateSelectionCallback SelectionCallback {

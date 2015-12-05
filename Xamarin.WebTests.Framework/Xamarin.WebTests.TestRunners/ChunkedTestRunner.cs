@@ -35,9 +35,9 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestRunners
 {
+	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using Providers;
 
 	public class ChunkedTestRunner : TraditionalTestRunner
 	{

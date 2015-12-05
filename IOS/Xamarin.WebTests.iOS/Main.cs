@@ -28,7 +28,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestProvider;
-using Xamarin.WebTests.Providers;
 using Xamarin.WebTests.Resources;
 
 using Foundation;

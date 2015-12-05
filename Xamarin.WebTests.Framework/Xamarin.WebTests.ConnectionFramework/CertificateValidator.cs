@@ -29,8 +29,6 @@ using System.Net.Security;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-
 	public class CertificateValidator
 	{
 		public RemoteCertificateValidationCallback ValidationCallback {

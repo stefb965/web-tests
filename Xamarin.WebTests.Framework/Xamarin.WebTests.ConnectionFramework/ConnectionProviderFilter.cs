@@ -31,7 +31,6 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using TestFramework;
-	using Providers;
 
 	public abstract class ConnectionProviderFilter
 	{

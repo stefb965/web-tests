@@ -1,5 +1,5 @@
 ﻿//
-// IServerCertificate.cs
+// IHttpProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,11 +24,26 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IServerCertificate : ICertificate
+	using HttpFramework;
+	using HttpClient;
+
+	public interface IHttpProvider : ISingletonInstance
 	{
+		bool SupportsPerRequestCertificateValidator {
+			get;
+		}
+
+		bool SupportsHttpClient {
+			get;
+		}
+
+		IHttpClientHandler CreateHttpClient ();
 	}
 }
 

@@ -35,7 +35,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Server
 {
-	using Portable;
 	using ConnectionFramework;
 
 	class HttpWebRequestExtension : IHttpWebRequestExtension

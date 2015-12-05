@@ -35,8 +35,6 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using HttpHandlers;
-	using Portable;
-	using Providers;
 	using Server;
 
 	[FriendlyName ("[ProxyServer]")]

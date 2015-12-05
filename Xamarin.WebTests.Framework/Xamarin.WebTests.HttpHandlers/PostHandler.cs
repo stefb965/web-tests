@@ -36,8 +36,8 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
 
 	public class PostHandler : Handler
 	{

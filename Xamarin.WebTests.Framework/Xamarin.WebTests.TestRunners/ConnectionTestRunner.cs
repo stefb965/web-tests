@@ -31,9 +31,7 @@ namespace Xamarin.WebTests.TestRunners
 {
 	using ConnectionFramework;
 	using TestFramework;
-	using Providers;
 	using Resources;
-	using Portable;
 
 	public abstract class ConnectionTestRunner : ClientAndServer
 	{

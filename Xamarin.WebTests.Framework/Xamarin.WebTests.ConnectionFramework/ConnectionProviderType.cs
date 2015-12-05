@@ -1,5 +1,5 @@
 ﻿//
-// ISslStream.cs
+// ConnectionProviderType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,44 +24,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using ConnectionFramework;
-	using Portable;
-
-	public interface ISslStream
+	public enum ConnectionProviderType
 	{
-		bool IsAuthenticated {
-			get;
-		}
+		// Directly use SslStream
+		DotNet,
 
-		bool IsMutuallyAuthenticated {
-			get;
-		}
+		// Use Mono.Security.Interface.MonoTlsProviderFactory to select the old or new TLS implementation.
+		NewTLS,
+		OldTLS,
 
-		bool HasLocalCertificate {
-			get;
-		}
+		// Just for testing.
+		OpenSsl,
 
-		bool HasRemoteCertificate {
-			get;
-		}
-
-		ICertificate RemoteCertificate {
-			get;
-		}
-
-		Stream AuthenticatedStream {
-			get;
-		}
-
-		ProtocolVersions ProtocolVersion {
-			get;
-		}
-
-		void Close ();
+		// Manually started custom client / server
+		Manual
 	}
 }
 

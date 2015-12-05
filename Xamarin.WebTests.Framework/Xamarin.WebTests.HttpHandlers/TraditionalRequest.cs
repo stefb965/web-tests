@@ -33,9 +33,8 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
-	using Providers;
 
 	public class TraditionalRequest : Request
 	{

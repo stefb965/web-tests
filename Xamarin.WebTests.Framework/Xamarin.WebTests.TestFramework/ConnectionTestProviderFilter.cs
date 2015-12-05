@@ -28,7 +28,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using Providers;
 	using ConnectionFramework;
 	using TestRunners;
 

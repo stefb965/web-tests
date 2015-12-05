@@ -35,8 +35,6 @@ namespace Xamarin.WebTests.TestRunners
 	using ConnectionFramework;
 	using TestFramework;
 	using Resources;
-	using Providers;
-	using Portable;
 
 	[SslStreamTestRunner]
 	public class SslStreamTestRunner : ConnectionTestRunner

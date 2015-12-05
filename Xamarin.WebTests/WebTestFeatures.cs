@@ -32,9 +32,8 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests;
-using Xamarin.WebTests.Portable;
 using Xamarin.WebTests.HttpClient;
-using Xamarin.WebTests.Providers;
+using Xamarin.WebTests.ConnectionFramework;
 
 [assembly: AsyncTestSuite (typeof (WebTestFeatures))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
@@ -44,11 +43,9 @@ namespace Xamarin.WebTests
 {
 	using HttpFramework;
 	using TestFramework;
-	using Portable;
 	using Resources;
 	using Internal;
 	using Features;
-	using Providers;
 	using Server;
 	using Tests;
 

@@ -41,8 +41,6 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using TestFramework;
 	using TestRunners;
-	using Portable;
-	using Providers;
 	using Server;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]

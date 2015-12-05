@@ -5,8 +5,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Resources
 {
-	using Portable;
-	using Providers;
+	using ConnectionFramework;
 
 	public static class ResourceManager
 	{

@@ -36,8 +36,6 @@ namespace Xamarin.WebTests.Server
 {
 	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
-	using Providers;
 	using HttpClient;
 
 	class HttpProviderImpl : IHttpProvider

@@ -3,7 +3,6 @@ using AppKit;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestProvider;
 using Xamarin.AsyncTests.MacUI;
-using Xamarin.WebTests.Providers;
 using Xamarin.WebTests.Resources;
 
 [assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]

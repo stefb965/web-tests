@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionProviderType.cs
+// ConnectionProviderFlags.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,22 +25,19 @@
 // THE SOFTWARE.
 using System;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public enum ConnectionProviderType
+	[Flags]
+	public enum ConnectionProviderFlags
 	{
-		// Directly use SslStream
-		DotNet,
-
-		// Use Mono.Security.Interface.MonoTlsProviderFactory to select the old or new TLS implementation.
-		NewTLS,
-		OldTLS,
-
-		// Just for testing.
-		OpenSsl,
-
-		// Manually started custom client / server
-		Manual
+		None				= 0,
+		SupportsSslStream		= 1,
+		SupportsHttp			= 2,
+		SupportsTls12			= 4,
+		SupportsAeadCiphers		= 8,
+		SupportsEcDheCiphers		= 16,
+		SupportsClientCertificates	= 32,
+		IsExplicit			= 64
 	}
 }
 

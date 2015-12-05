@@ -44,8 +44,6 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.Server
 {
 	using HttpFramework;
-	using Portable;
-	using Providers;
 
 	public abstract class Listener
 	{

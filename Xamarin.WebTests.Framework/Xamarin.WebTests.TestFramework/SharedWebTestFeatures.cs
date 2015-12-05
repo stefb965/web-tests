@@ -31,7 +31,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using Portable;
+	using ConnectionFramework;
 
 	public abstract class SharedWebTestFeatures : ITestConfigurationProvider
 	{

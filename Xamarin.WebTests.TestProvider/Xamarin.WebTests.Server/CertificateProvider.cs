@@ -31,8 +31,6 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.Server
 {
-	using Portable;
-	using Providers;
 	using ConnectionFramework;
 
 	class CertificateProvider : ICertificateProvider

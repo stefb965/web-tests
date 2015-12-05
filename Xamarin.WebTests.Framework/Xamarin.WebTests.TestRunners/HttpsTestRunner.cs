@@ -45,7 +45,6 @@ namespace Xamarin.WebTests.TestRunners
 	using TestFramework;
 	using HttpFramework;
 	using HttpHandlers;
-	using Providers;
 	using Server;
 	using Resources;
 

@@ -28,8 +28,6 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-
 	public class ManualConnectionProvider : ConnectionProvider
 	{
 		public ManualConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderFlags flags)

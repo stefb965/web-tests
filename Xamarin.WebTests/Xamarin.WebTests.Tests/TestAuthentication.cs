@@ -40,7 +40,6 @@ namespace Xamarin.WebTests.Tests
 	using HttpFramework;
 	using TestRunners;
 	using Server;
-	using Providers;
 	using Features;
 
 	[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]

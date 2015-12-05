@@ -28,7 +28,7 @@ using System.IO;
 
 namespace Xamarin.WebTests.Server
 {
-	using Providers;
+	using ConnectionFramework;
 
 	class StreamProvider : IStreamProvider
 	{

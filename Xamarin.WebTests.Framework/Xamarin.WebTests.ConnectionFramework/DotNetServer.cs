@@ -15,9 +15,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-	using Portable;
-
 	public class DotNetServer : DotNetConnection, IServer
 	{
 		public IServerCertificate Certificate {

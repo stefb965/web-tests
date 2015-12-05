@@ -28,8 +28,6 @@ using System.Net;
 
 namespace Xamarin.WebTests.HttpClient
 {
-	using Portable;
-
 	public interface IHttpClientHandler
 	{
 		IHttpClient CreateHttpClient ();

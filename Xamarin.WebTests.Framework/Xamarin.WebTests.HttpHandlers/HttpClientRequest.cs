@@ -33,8 +33,8 @@ using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
+	using ConnectionFramework;
 	using HttpFramework;
-	using Portable;
 	using HttpClient;
 
 	public class HttpClientRequest : Request

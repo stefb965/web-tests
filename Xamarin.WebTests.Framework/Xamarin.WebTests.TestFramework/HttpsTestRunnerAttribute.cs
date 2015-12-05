@@ -35,7 +35,6 @@ namespace Xamarin.WebTests.TestFramework
 	using ConnectionFramework;
 	using HttpFramework;
 	using Server;
-	using Providers;
 	using Resources;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]

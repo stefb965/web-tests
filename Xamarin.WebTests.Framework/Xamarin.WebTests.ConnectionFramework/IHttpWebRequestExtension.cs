@@ -32,7 +32,7 @@ using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IHttpWebRequestExtension : IExtensionObject<HttpWebRequest>
 	{

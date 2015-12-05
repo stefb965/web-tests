@@ -41,8 +41,6 @@ namespace Xamarin.WebTests.HttpFramework
 {
 	using ConnectionFramework;
 	using HttpHandlers;
-	using Providers;
-	using Portable;
 	using Server;
 
 	[FriendlyName ("[HttpServer]")]

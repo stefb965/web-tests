@@ -31,9 +31,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-	using Providers;
-
 	public class DummyClient : DummyConnection, IClient
 	{
 		public DummyClient (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)

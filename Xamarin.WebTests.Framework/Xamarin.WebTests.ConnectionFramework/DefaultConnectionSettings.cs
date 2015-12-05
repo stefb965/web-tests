@@ -3,8 +3,6 @@ using System.Net;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-
 	public class DefaultConnectionSettings : IDefaultConnectionSettings
 	{
 		DotNetSslStreamProvider dotNetStreamProvider;

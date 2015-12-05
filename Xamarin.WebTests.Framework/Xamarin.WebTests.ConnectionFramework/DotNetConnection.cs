@@ -40,7 +40,6 @@ using Xamarin.AsyncTests.Portable;
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	using ConnectionFramework;
-	using Providers;
 
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{

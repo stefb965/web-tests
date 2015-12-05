@@ -27,7 +27,7 @@ using System;
 using System.IO;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IStreamProvider : ISingletonInstance
 	{

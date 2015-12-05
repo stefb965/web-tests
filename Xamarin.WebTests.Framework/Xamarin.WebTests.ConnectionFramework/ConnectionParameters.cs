@@ -1,7 +1,5 @@
 ﻿using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Portable;
-using Xamarin.WebTests.Providers;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {

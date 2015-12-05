@@ -15,9 +15,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-	using Portable;
-
 	public class DotNetClient : DotNetConnection, IClient
 	{
 		readonly ISslStreamProvider sslStreamProvider;

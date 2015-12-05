@@ -9,8 +9,6 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-
 	public abstract class Connection : IConnection, IDisposable
 	{
 		public abstract bool SupportsCleanShutdown {

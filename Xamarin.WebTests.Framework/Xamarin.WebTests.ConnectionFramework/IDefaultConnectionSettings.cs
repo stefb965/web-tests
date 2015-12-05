@@ -2,7 +2,7 @@
 using System.Net;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IDefaultConnectionSettings : ITestDefaults
 	{

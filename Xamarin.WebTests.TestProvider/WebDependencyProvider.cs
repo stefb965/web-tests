@@ -28,7 +28,7 @@ using System.Net;
 using System.Threading;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.Portable;
+using Xamarin.WebTests.ConnectionFramework;
 
 [assembly: DependencyProvider (typeof (Xamarin.WebTests.TestProvider.WebDependencyProvider))]
 
@@ -37,8 +37,6 @@ namespace Xamarin.WebTests.TestProvider
 	using Server;
 	using Resources;
 	using HttpFramework;
-	using ConnectionFramework;
-	using Providers;
 	using HttpClient;
 
 	public sealed class WebDependencyProvider : IDependencyProvider

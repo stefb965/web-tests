@@ -1,5 +1,5 @@
 ﻿//
-// ICertificate.cs
+// IServerCertificate.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,27 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Security.Cryptography.X509Certificates;
 
-namespace Xamarin.WebTests.Portable
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface ICertificate
+	public interface IServerCertificate : ICertificate
 	{
-		string Issuer {
-			get;
-		}
-
-		string Subject {
-			get;
-		}
-
-		string GetSerialNumber ();
-
-		string GetCertificateHash ();
-
-		X509Certificate Certificate {
-			get;
-		}
 	}
 }
 

@@ -35,9 +35,6 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Providers;
-	using Portable;
-
 	public class DotNetSslStreamProvider : ISslStreamProvider
 	{
 		static SslProtocols GetSslProtocol ()

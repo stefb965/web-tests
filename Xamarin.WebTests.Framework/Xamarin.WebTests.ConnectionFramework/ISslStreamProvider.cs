@@ -1,5 +1,5 @@
 ﻿//
-// ConnectionProviderFlags.cs
+// ISslStreamProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,20 +24,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	[Flags]
-	public enum ConnectionProviderFlags
+	public interface ISslStreamProvider
 	{
-		None				= 0,
-		SupportsSslStream		= 1,
-		SupportsHttp			= 2,
-		SupportsTls12			= 4,
-		SupportsAeadCiphers		= 8,
-		SupportsEcDheCiphers		= 16,
-		SupportsClientCertificates	= 32,
-		IsExplicit			= 64
+		ProtocolVersions SupportedProtocols {
+			get;
+		}
+
+		ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
+
+		Task<ISslStream> CreateServerStreamAsync (
+			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken);
+
+		Task<ISslStream> CreateClientStreamAsync (
+			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken);
+
+		bool SupportsWebRequest {
+			get;
+		}
+
+		HttpWebRequest CreateWebRequest (Uri uri);
 	}
 }
 

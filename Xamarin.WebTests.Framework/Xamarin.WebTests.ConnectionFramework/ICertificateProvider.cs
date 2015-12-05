@@ -28,11 +28,8 @@ using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.Providers
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	using Portable;
-	using ConnectionFramework;
-
 	public delegate bool CertificateValidationDelegate (ICertificate certificate);
 
 	public delegate IClientCertificate CertificateSelectionDelegate (
