@@ -30,13 +30,14 @@ namespace Xamarin.WebTests.Providers
 	[Flags]
 	public enum ConnectionProviderFlags
 	{
-		None			= 0,
-		SupportsSslStream	= 1,
-		SupportsHttp		= 2,
-		SupportsTls12		= 4,
-		SupportsAeadCiphers	= 8,
-		SupportsEcDheCiphers	= 16,
-		IsExplicit		= 32
+		None				= 0,
+		SupportsSslStream		= 1,
+		SupportsHttp			= 2,
+		SupportsTls12			= 4,
+		SupportsAeadCiphers		= 8,
+		SupportsEcDheCiphers		= 16,
+		SupportsClientCertificates	= 32,
+		IsExplicit			= 64
 	}
 }
 
