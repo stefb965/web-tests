@@ -57,8 +57,8 @@ namespace Xamarin.WebTests.Resources
 			get { return cacert; }
 		}
 
-		public static ICertificate InvalidServerCertificateV1 {
-			get { return invalidServerCert; }
+		public static X509Certificate InvalidServerCertificateV1 {
+			get { return invalidServerCert.Certificate; }
 		}
 
 		public static X509Certificate SelfSignedServerCertificate {
@@ -69,16 +69,16 @@ namespace Xamarin.WebTests.Resources
 			get { return serverCert.Certificate; }
 		}
 
-		public static ICertificate InvalidClientCertificateV1 {
-			get { return invalidClientCert; }
+		public static X509Certificate InvalidClientCertificateV1 {
+			get { return invalidClientCert.Certificate; }
 		}
 
-		public static ICertificate InvalidClientCaCertificate {
-			get { return invalidClientCaCert; }
+		public static X509Certificate InvalidClientCaCertificate {
+			get { return invalidClientCaCert.Certificate; }
 		}
 
-		public static ICertificate InvalidClientCertificateRsa512 {
-			get { return invalidClientCertRsa512; }
+		public static X509Certificate InvalidClientCertificateRsa512 {
+			get { return invalidClientCertRsa512.Certificate; }
 		}
 
 		public static X509Certificate MonkeyCertificate {
@@ -89,24 +89,24 @@ namespace Xamarin.WebTests.Resources
 			get { return penguinCert.Certificate; }
 		}
 
-		public static ICertificate ServerCertificateRsaOnly {
-			get { return serverCertRsaOnly; }
+		public static X509Certificate ServerCertificateRsaOnly {
+			get { return serverCertRsaOnly.Certificate; }
 		}
 
-		public static ICertificate ServerCertificateDheOnly {
-			get { return serverCertDheOnly; }
+		public static X509Certificate ServerCertificateDheOnly {
+			get { return serverCertDheOnly.Certificate; }
 		}
 
-		public static ICertificate InvalidServerCertificateRsa512 {
-			get { return invalidServerCertRsa512; }
+		public static X509Certificate InvalidServerCertificateRsa512 {
+			get { return invalidServerCertRsa512.Certificate; }
 		}
 
-		public static ICertificate ClientCertificateRsaOnly {
-			get { return clientCertRsaOnly; }
+		public static X509Certificate ClientCertificateRsaOnly {
+			get { return clientCertRsaOnly.Certificate; }
 		}
 
-		public static ICertificate ClientCertificateDheOnly {
-			get { return clientCertDheOnly; }
+		public static X509Certificate ClientCertificateDheOnly {
+			get { return clientCertDheOnly.Certificate; }
 		}
 
 		public static ICertificate GetCertificateWithKey (CertificateResourceType type)

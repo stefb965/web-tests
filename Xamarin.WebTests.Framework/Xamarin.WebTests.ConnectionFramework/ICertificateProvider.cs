@@ -63,6 +63,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		byte[] GetRawCertificateData (ICertificate certificate, out string password);
 
+		byte[] GetRawCertificateData (X509Certificate certificate, out string password);
+
 		bool AreEqual (ICertificate a, ICertificate b);
 
 		bool AreEqual (X509Certificate a, ICertificate b);

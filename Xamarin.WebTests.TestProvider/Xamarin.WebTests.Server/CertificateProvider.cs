@@ -173,7 +173,18 @@ namespace Xamarin.WebTests.Server
 			return pfx.Data;
 		}
 
+		public static byte[] GetRawCertificateData (X509Certificate certificate, out string password)
+		{
+			password = "monkey";
+			return certificate.Export (X509ContentType.Pfx, password);
+		}
+
 		byte[] ICertificateProvider.GetRawCertificateData (ICertificate certificate, out string password)
+		{
+			return GetRawCertificateData (certificate, out password);
+		}
+
+		byte[] ICertificateProvider.GetRawCertificateData (X509Certificate certificate, out string password)
 		{
 			return GetRawCertificateData (certificate, out password);
 		}
