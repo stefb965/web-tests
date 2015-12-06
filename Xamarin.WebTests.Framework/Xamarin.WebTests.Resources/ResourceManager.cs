@@ -108,7 +108,7 @@ namespace Xamarin.WebTests.Resources
 			get { return clientCertDheOnly; }
 		}
 
-		public static ICertificate GetCertificate (CertificateResourceType type)
+		public static ICertificate GetCertificateWithKey (CertificateResourceType type)
 		{
 			switch (type) {
 			case CertificateResourceType.ServerCertificateFromLocalCA:
