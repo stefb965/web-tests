@@ -27,6 +27,9 @@ namespace Xamarin.WebTests.Resources
 		static readonly IClientCertificate clientCertRsaOnly;
 		static readonly IClientCertificate clientCertDheOnly;
 
+		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
+		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
+
 		static ResourceManager ()
 		{
 			provider = DependencyInjector.Get<ICertificateProvider> ();
@@ -125,6 +128,33 @@ namespace Xamarin.WebTests.Resources
 				return selfServerCertNoKey;
 			default:
 				throw new InvalidOperationException ();
+			}
+		}
+
+		public static string GetCertificateHash (CertificateResourceType type)
+		{
+			switch (type) {
+			case CertificateResourceType.ServerCertificateFromLocalCA:
+				return serverCertHash;
+			case CertificateResourceType.SelfSignedServerCertificate:
+				return serverSelfHash;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		public static bool TryLookupByHash (string hash, out CertificateResourceType type)
+		{
+			switch (hash.ToUpperInvariant ()) {
+			case serverCertHash:
+				type = CertificateResourceType.ServerCertificateFromLocalCA;
+				return true;
+			case serverSelfHash:
+				type = CertificateResourceType.SelfSignedServerCertificate;
+				return true;
+			default:
+				type = CertificateResourceType.Invalid;
+				return false;
 			}
 		}
 
