@@ -104,25 +104,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public bool IsCompatible (ConnectionProviderType clientType, ConnectionProviderType serverType)
-		{
-			lock (syncRoot) {
-				Initialize ();
-				ConnectionProvider clientProvider, serverProvider;
-				if (!providers.TryGetValue (clientType, out clientProvider))
-					return false;
-				if (!providers.TryGetValue (serverType, out serverProvider))
-					return false;
-
-				if (!clientProvider.IsCompatibleWith (serverType))
-					return false;
-				if (!serverProvider.IsCompatibleWith (clientType))
-					return false;
-
-				return true;
-			}
-		}
-
 		public void Initialize ()
 		{
 			lock (syncRoot) {

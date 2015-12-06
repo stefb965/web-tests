@@ -35,11 +35,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		public override bool IsCompatibleWith (ConnectionProviderType type)
-		{
-			return true;
-		}
-
 		public override IClient CreateClient (ConnectionParameters parameters)
 		{
 			return new DummyClient (this, parameters.EndPoint, parameters);

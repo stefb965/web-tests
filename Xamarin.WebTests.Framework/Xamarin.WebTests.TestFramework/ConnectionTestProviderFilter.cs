@@ -54,14 +54,6 @@ namespace Xamarin.WebTests.TestFramework
 			return new ConnectionTestProvider (client, server, Category, Flags);
 		}
 
-		protected override bool IsCompatible (ConnectionProvider client, ConnectionProvider server)
-		{
-			if ((Flags & ConnectionTestFlags.AssumeSupportedByTest) != 0)
-				return true;
-
-			return base.IsCompatible (client, server);
-		}
-
 		public override bool IsClientSupported (TestContext ctx, ConnectionProvider provider, string filter)
 		{
 			if ((Flags & ConnectionTestFlags.ManualClient) != 0)

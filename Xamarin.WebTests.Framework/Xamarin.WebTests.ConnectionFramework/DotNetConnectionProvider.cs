@@ -57,22 +57,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return flags;
 		}
 
-		public override bool IsCompatibleWith (ConnectionProviderType type)
-		{
-			switch (type) {
-			case ConnectionProviderType.DotNet:
-				return true;
-			case ConnectionProviderType.NewTLS:
-				return IsMicrosoftRuntime;
-			case ConnectionProviderType.OpenSsl:
-				return !IsMicrosoftRuntime;
-			case ConnectionProviderType.Manual:
-				return true;
-			default:
-				return false;
-			}
-		}
-
 		public override ProtocolVersions SupportedProtocols {
 			get { return protocols; }
 		}

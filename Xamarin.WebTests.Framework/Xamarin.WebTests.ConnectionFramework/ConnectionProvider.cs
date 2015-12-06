@@ -63,8 +63,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return flags; }
 		}
 
-		public abstract bool IsCompatibleWith (ConnectionProviderType type);
-
 		public abstract IClient CreateClient (ConnectionParameters parameters);
 
 		public abstract IServer CreateServer (ConnectionParameters parameters);
