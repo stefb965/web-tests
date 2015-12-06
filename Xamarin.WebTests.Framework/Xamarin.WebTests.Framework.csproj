@@ -153,7 +153,6 @@
     <Compile Include="Xamarin.WebTests.Server\NTLMHandler.cs" />
     <Compile Include="Xamarin.WebTests.Server\AuthenticationType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DefaultConnectionSettings.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ICertificate.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpWebRequestExtension.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFactory.cs" />
