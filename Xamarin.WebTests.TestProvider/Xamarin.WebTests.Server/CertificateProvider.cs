@@ -63,12 +63,7 @@ namespace Xamarin.WebTests.Server
 			return AcceptNull;
 		}
 
-		CertificateValidator ICertificateProvider.AcceptThisCertificate (ICertificate certificate)
-		{
-			return AcceptThisCertificate (certificate);
-		}
-
-		internal CertificateValidator AcceptThisCertificate (ICertificate certificate)
+		public CertificateValidator AcceptThisCertificate (ICertificate certificate)
 		{
 			var cert = GetCertificate (certificate);
 			var serverHash = cert.GetCertHash ();
@@ -82,12 +77,7 @@ namespace Xamarin.WebTests.Server
 			});
 		}
 
-		CertificateValidator ICertificateProvider.AcceptFromCA (ICertificate certificate)
-		{
-			return AcceptFromCA (certificate);
-		}
-
-		internal CertificateValidator AcceptFromCA (ICertificate certificate)
+		public CertificateValidator AcceptFromCA (ICertificate certificate)
 		{
 			var cert = GetCertificate (certificate);
 
@@ -97,6 +87,30 @@ namespace Xamarin.WebTests.Server
 				if (e == SslPolicyErrors.None)
 					return true;
 				return c.Issuer.Equals (cert.Issuer);
+			});
+		}
+
+		public CertificateValidator AcceptThisCertificate (X509Certificate certificate)
+		{
+			var serverHash = certificate.GetCertHash ();
+
+			return new CertificateValidator ((s, c, ch, e) => {
+				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
+					return false;
+				if (e == SslPolicyErrors.None)
+					return true;
+				return Compare (c.GetCertHash (), serverHash);
+			});
+		}
+
+		public CertificateValidator AcceptFromCA (X509Certificate certificate)
+		{
+			return new CertificateValidator ((s, c, ch, e) => {
+				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
+					return false;
+				if (e == SslPolicyErrors.None)
+					return true;
+				return c.Issuer.Equals (certificate.Issuer);
 			});
 		}
 

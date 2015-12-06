@@ -39,7 +39,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		CertificateValidator GetDefault ();
 
+		CertificateValidator AcceptThisCertificate (X509Certificate certificate);
+
 		CertificateValidator AcceptThisCertificate (ICertificate certificate);
+
+		CertificateValidator AcceptFromCA (X509Certificate certificate);
 
 		CertificateValidator AcceptFromCA (ICertificate certificate);
 
