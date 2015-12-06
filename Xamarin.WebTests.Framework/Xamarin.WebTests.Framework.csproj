@@ -52,7 +52,6 @@
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpRequestMessage.cs" />
     <Compile Include="Xamarin.WebTests.HttpClient\IHttpResponseMessage.cs" />
     <Compile Include="Xamarin.WebTests.Resources\ResourceManager.cs" />
-    <Compile Include="Xamarin.WebTests.Resources\ServerCertificateType.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AbstractRedirectHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\AuthenticationHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\DeleteHandler.cs" />
@@ -169,6 +168,7 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamProvider.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateResourceType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
