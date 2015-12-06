@@ -53,8 +53,8 @@ namespace Xamarin.WebTests.Resources
 			clientCertDheOnly = provider.GetCertificate (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
 		}
 
-		public static ICertificate LocalCACertificate {
-			get { return cacert; }
+		public static X509Certificate LocalCACertificate {
+			get { return cacert.Certificate; }
 		}
 
 		public static X509Certificate InvalidServerCertificateV1 {

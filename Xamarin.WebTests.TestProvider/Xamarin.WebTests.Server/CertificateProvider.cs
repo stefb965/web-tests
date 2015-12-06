@@ -63,33 +63,6 @@ namespace Xamarin.WebTests.Server
 			return AcceptNull;
 		}
 
-		public CertificateValidator AcceptThisCertificate (ICertificate certificate)
-		{
-			var cert = GetCertificate (certificate);
-			var serverHash = cert.GetCertHash ();
-
-			return new CertificateValidator ((s, c, ch, e) => {
-				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
-					return false;
-				if (e == SslPolicyErrors.None)
-					return true;
-				return Compare (c.GetCertHash (), serverHash);
-			});
-		}
-
-		public CertificateValidator AcceptFromCA (ICertificate certificate)
-		{
-			var cert = GetCertificate (certificate);
-
-			return new CertificateValidator ((s, c, ch, e) => {
-				if (c == null || e == SslPolicyErrors.RemoteCertificateNotAvailable)
-					return false;
-				if (e == SslPolicyErrors.None)
-					return true;
-				return c.Issuer.Equals (cert.Issuer);
-			});
-		}
-
 		public CertificateValidator AcceptThisCertificate (X509Certificate certificate)
 		{
 			var serverHash = certificate.GetCertHash ();
@@ -166,22 +139,10 @@ namespace Xamarin.WebTests.Server
 			return certificate != null ? ((CertificateFromData)certificate).Certificate : null;
 		}
 
-		public static byte[] GetRawCertificateData (ICertificate certificate, out string password)
-		{
-			var pfx = (CertificateFromPFX)certificate;
-			password = pfx.Password;
-			return pfx.Data;
-		}
-
 		public static byte[] GetRawCertificateData (X509Certificate certificate, out string password)
 		{
 			password = "monkey";
 			return certificate.Export (X509ContentType.Pfx, password);
-		}
-
-		byte[] ICertificateProvider.GetRawCertificateData (ICertificate certificate, out string password)
-		{
-			return GetRawCertificateData (certificate, out password);
 		}
 
 		byte[] ICertificateProvider.GetRawCertificateData (X509Certificate certificate, out string password)
@@ -209,21 +170,6 @@ namespace Xamarin.WebTests.Server
 			return array;
 		}
 
-		public CertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func)
-		{
-			return new CertificateValidator ((s, c, ch, e) => func (GetCertificate (c)));
-		}
-
-		public CertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func)
-		{
-			return new CertificateSelector ((s, t, lc, rc, ai) => {
-				var localCertificates = GetCertificateCollection (lc);
-				var remoteCertificate = GetCertificate (rc);
-				var result = func (t, localCertificates, remoteCertificate, ai);
-				return GetCertificate (result);
-			});
-		}
-
 		public CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)
 		{
 			return new CertificateValidator (callback);
@@ -232,26 +178,6 @@ namespace Xamarin.WebTests.Server
 		public CertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback)
 		{
 			return new CertificateSelector (callback);
-		}
-
-		public bool AreEqual (ICertificate a, ICertificate b)
-		{
-			if (a == b)
-				return true;
-
-			return AreEqual ((CertificateFromData)a, (CertificateFromData)b);
-		}
-
-		bool AreEqual (CertificateFromData a, CertificateFromData b)
-		{
-			var aHash = a.GetCertificateHash ();
-			var bHash = b.GetCertificateHash ();
-			return string.Equals (aHash, bHash);
-		}
-
-		public bool AreEqual (X509Certificate a, ICertificate b)
-		{
-			return AreEqual (new CertificateFromData (a), (CertificateFromData)b);
 		}
 
 		public bool AreEqual (X509Certificate a, X509Certificate b)

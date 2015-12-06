@@ -30,22 +30,13 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public delegate bool CertificateValidationDelegate (ICertificate certificate);
-
-	public delegate ICertificate CertificateSelectionDelegate (
-		string targetHost, ICertificate[] localCertificates, ICertificate remoteCertificate, string[] acceptableIssuers);
-
 	public interface ICertificateProvider : ISingletonInstance
 	{
 		CertificateValidator GetDefault ();
 
 		CertificateValidator AcceptThisCertificate (X509Certificate certificate);
 
-		CertificateValidator AcceptThisCertificate (ICertificate certificate);
-
 		CertificateValidator AcceptFromCA (X509Certificate certificate);
-
-		CertificateValidator AcceptFromCA (ICertificate certificate);
 
 		CertificateValidator AcceptNull ();
 
@@ -61,23 +52,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		ICertificate GetCertificate (byte[] data, string password);
 
-		byte[] GetRawCertificateData (ICertificate certificate, out string password);
-
 		byte[] GetRawCertificateData (X509Certificate certificate, out string password);
-
-		bool AreEqual (ICertificate a, ICertificate b);
-
-		bool AreEqual (X509Certificate a, ICertificate b);
 
 		bool AreEqual (X509Certificate a, X509Certificate b); 
 
 		CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
 
-		CertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
-
 		CertificateSelector GetCustomCertificateSelector (LocalCertificateSelectionCallback callback);
-
-		CertificateSelector GetCustomCertificateSelector (CertificateSelectionDelegate func);
 	}
 }
 
