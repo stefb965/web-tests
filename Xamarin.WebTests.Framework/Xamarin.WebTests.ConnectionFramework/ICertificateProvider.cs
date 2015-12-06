@@ -48,9 +48,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		ICertificate GetCertificate (X509Certificate certificate);
 
-		ICertificate GetCertificateFromData (byte[] data);
+		X509Certificate GetCertificateFromData (byte[] data);
 
-		ICertificate GetCertificate (byte[] data, string password);
+		X509Certificate GetCertificateWithKey (byte[] data, string password);
 
 		byte[] GetRawCertificateData (X509Certificate certificate, out string password);
 

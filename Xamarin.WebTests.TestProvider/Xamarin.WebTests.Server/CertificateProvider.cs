@@ -121,9 +121,9 @@ namespace Xamarin.WebTests.Server
 			return AcceptAll;
 		}
 
-		public ICertificate GetCertificate (byte[] data, string password)
+		public X509Certificate GetCertificateWithKey (byte[] data, string password)
 		{
-			return new CertificateFromPFX (data, password);
+			return new X509Certificate2 (data, password);
 		}
 
 		public static ICertificate GetCertificate (X509Certificate certificate)
@@ -150,24 +150,14 @@ namespace Xamarin.WebTests.Server
 			return GetRawCertificateData (certificate, out password);
 		}
 
-		public ICertificate GetCertificateFromData (byte[] data)
+		public X509Certificate GetCertificateFromData (byte[] data)
 		{
-			return new CertificateFromData (data);
+			return new X509Certificate (data);
 		}
 
 		ICertificate ICertificateProvider.GetCertificate (X509Certificate certificate)
 		{
 			return GetCertificate (certificate);
-		}
-
-		static ICertificate[] GetCertificateCollection (X509CertificateCollection collection)
-		{
-			if (collection == null)
-				return null;
-			var array = new ICertificate [collection.Count];
-			for (int i = 0; i < array.Length; i++)
-				array [i] = GetCertificate (collection [i]);
-			return array;
 		}
 
 		public CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -46,7 +47,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		ICertificate RemoteCertificate {
+		X509Certificate RemoteCertificate {
 			get;
 		}
 

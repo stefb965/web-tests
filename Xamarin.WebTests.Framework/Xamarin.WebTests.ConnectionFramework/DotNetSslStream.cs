@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net.Security;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -55,14 +56,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return stream.RemoteCertificate != null; }
 		}
 
-		public ICertificate RemoteCertificate {
+		public X509Certificate RemoteCertificate {
 			get {
 				var certificate = stream.RemoteCertificate;
 				if (certificate == null)
 					throw new InvalidOperationException ();
 
-				var provider = DependencyInjector.Get<ICertificateProvider> ();
-				return provider.GetCertificateFromData (certificate.GetRawCertData ());
+				return certificate;
 			}
 		}
 
