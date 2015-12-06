@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public ICertificate ClientCertificate {
+		public X509Certificate ClientCertificate {
 			get; set;
 		}
 

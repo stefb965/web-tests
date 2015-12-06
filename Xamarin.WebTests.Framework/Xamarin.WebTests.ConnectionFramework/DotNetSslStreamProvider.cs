@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return null;
 
 			var clientCertificateCollection = new X509CertificateCollection ();
-			var certificate = parameters.ClientCertificate.Certificate;
+			var certificate = parameters.ClientCertificate;
 			clientCertificateCollection.Add (certificate);
 
 			return clientCertificateCollection;

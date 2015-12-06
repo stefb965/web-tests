@@ -81,12 +81,12 @@ namespace Xamarin.WebTests.Resources
 			get { return invalidClientCertRsa512; }
 		}
 
-		public static ICertificate MonkeyCertificate {
-			get { return monkeyCert; }
+		public static X509Certificate MonkeyCertificate {
+			get { return monkeyCert.Certificate; }
 		}
 
-		public static ICertificate PenguinCertificate {
-			get { return penguinCert; }
+		public static X509Certificate PenguinCertificate {
+			get { return penguinCert.Certificate; }
 		}
 
 		public static ICertificate ServerCertificateRsaOnly {

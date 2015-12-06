@@ -242,7 +242,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			if (Parameters.ClientCertificate != null) {
 				var certificates = new X509CertificateCollection ();
-				certificates.Add (Parameters.ClientCertificate.Certificate);
+				certificates.Add (Parameters.ClientCertificate);
 				request.RequestExt.SetClientCertificates (certificates);
 			}
 
