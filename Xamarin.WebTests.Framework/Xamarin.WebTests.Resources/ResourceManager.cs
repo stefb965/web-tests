@@ -27,6 +27,7 @@ namespace Xamarin.WebTests.Resources
 		static readonly ICertificate clientCertRsaOnly;
 		static readonly ICertificate clientCertDheOnly;
 
+		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
 
@@ -122,6 +123,8 @@ namespace Xamarin.WebTests.Resources
 		public static ICertificate GetCertificateWithoutKey (CertificateResourceType type)
 		{
 			switch (type) {
+			case CertificateResourceType.HamillerTubeCA:
+				return cacert;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKey;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -134,6 +137,8 @@ namespace Xamarin.WebTests.Resources
 		public static string GetCertificateHash (CertificateResourceType type)
 		{
 			switch (type) {
+			case CertificateResourceType.HamillerTubeCA:
+				return caCertHash;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertHash;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -146,6 +151,9 @@ namespace Xamarin.WebTests.Resources
 		public static bool TryLookupByHash (string hash, out CertificateResourceType type)
 		{
 			switch (hash.ToUpperInvariant ()) {
+			case caCertHash:
+				type = CertificateResourceType.HamillerTubeCA;
+				return true;
 			case serverCertHash:
 				type = CertificateResourceType.ServerCertificateFromLocalCA;
 				return true;

@@ -30,6 +30,7 @@ namespace Xamarin.WebTests.Resources
 	public enum CertificateResourceType
 	{
 		Invalid,
+		HamillerTubeCA,
 		ServerCertificateFromLocalCA,
 		SelfSignedServerCertificate
 	}
