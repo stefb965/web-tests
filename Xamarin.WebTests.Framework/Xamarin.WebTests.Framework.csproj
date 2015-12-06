@@ -213,6 +213,12 @@
     <EmbeddedResource Include="..\CA\client-cert-dheonly.pfx">
       <Link>CA\client-cert-dheonly.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert.pem">
+      <Link>CA\server-cert.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-self.pem">
+      <Link>CA\server-self.pem</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

@@ -11,8 +11,10 @@ namespace Xamarin.WebTests.Resources
 	{
 		static readonly ICertificateProvider provider;
 		static readonly ICertificate cacert;
+		static readonly ICertificate serverCertNoKey;
+		static readonly ICertificate selfServerCertNoKey;
 		static readonly IServerCertificate serverCert;
-		static readonly IServerCertificate selfServer;
+		static readonly IServerCertificate selfServerCert;
 		static readonly IServerCertificate invalidServerCert;
 		static readonly IClientCertificate invalidClientCert;
 		static readonly IClientCertificate invalidClientCaCert;
@@ -29,7 +31,9 @@ namespace Xamarin.WebTests.Resources
 		{
 			provider = DependencyInjector.Get<ICertificateProvider> ();
 			cacert = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem"));
-			selfServer = provider.GetServerCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
+			serverCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-cert.pem"));
+			selfServerCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-self.pem"));
+			selfServerCert = provider.GetServerCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
 			serverCert = provider.GetServerCertificate (ReadResource ("CA.server-cert.pfx"), "monkey");
 			invalidServerCert = provider.GetServerCertificate (ReadResource ("CA.invalid-server-cert.pfx"), "monkey");
 			invalidClientCert = provider.GetClientCertificate (ReadResource ("CA.invalid-client-cert.pfx"), "monkey");
@@ -53,7 +57,7 @@ namespace Xamarin.WebTests.Resources
 		}
 
 		public static IServerCertificate SelfSignedServerCertificate {
-			get { return selfServer; }
+			get { return selfServerCert; }
 		}
 
 		public static IServerCertificate ServerCertificateFromCA {
@@ -106,7 +110,19 @@ namespace Xamarin.WebTests.Resources
 			case ServerCertificateType.LocalCA:
 				return serverCert;
 			case ServerCertificateType.SelfSigned:
-				return selfServer;
+				return selfServerCert;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		public static ICertificate GetServerCertificateWithoutKey (ServerCertificateType type)
+		{
+			switch (type) {
+			case ServerCertificateType.LocalCA:
+				return serverCertNoKey;
+			case ServerCertificateType.SelfSigned:
+				return selfServerCertNoKey;
 			default:
 				throw new InvalidOperationException ();
 			}
