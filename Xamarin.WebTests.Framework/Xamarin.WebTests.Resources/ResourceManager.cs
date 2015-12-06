@@ -120,7 +120,7 @@ namespace Xamarin.WebTests.Resources
 			}
 		}
 
-		public static ICertificate GetCertificateWithoutKey (CertificateResourceType type)
+		public static ICertificate GetCertificate (CertificateResourceType type)
 		{
 			switch (type) {
 			case CertificateResourceType.HamillerTubeCA:
