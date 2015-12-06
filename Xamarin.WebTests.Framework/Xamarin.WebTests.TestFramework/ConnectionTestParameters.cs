@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.TestFramework
 {
@@ -36,7 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, ICertificate certificate)
+		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
 			: base (identifier, certificate)
 		{
 			Category = category;

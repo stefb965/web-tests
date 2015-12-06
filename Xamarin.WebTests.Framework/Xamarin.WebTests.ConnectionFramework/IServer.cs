@@ -29,9 +29,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IServer : ICommonConnection
 	{
-		ICertificate Certificate {
-			get;
-		}
 	}
 }
 

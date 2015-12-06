@@ -1,4 +1,6 @@
-﻿using Xamarin.AsyncTests;
+﻿using System;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -14,7 +16,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Identifier; }
 		}
 
-		public ConnectionParameters (string identifier, ICertificate serverCertificate)
+		public ConnectionParameters (string identifier, X509Certificate serverCertificate)
 		{
 			Identifier = identifier;
 			ServerCertificate = serverCertificate;
@@ -80,7 +82,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public ICertificate ServerCertificate {
+		public X509Certificate ServerCertificate {
 			get; set;
 		}
 

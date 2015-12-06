@@ -31,6 +31,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
@@ -68,7 +69,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		readonly static IPortableEndPoint address;
-		readonly static ICertificate serverCertificate;
+		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
 		readonly static bool hasNetwork;
 

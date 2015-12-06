@@ -17,10 +17,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class DotNetServer : DotNetConnection, IServer
 	{
-		public ICertificate Certificate {
-			get { return Parameters.ServerCertificate; }
-		}
-
 		readonly ISslStreamProvider sslStreamProvider;
 
 		public DotNetServer (ConnectionProvider provider, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider)

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Resources
@@ -60,12 +61,12 @@ namespace Xamarin.WebTests.Resources
 			get { return invalidServerCert; }
 		}
 
-		public static ICertificate SelfSignedServerCertificate {
-			get { return selfServerCert; }
+		public static X509Certificate SelfSignedServerCertificate {
+			get { return selfServerCert.Certificate; }
 		}
 
-		public static ICertificate ServerCertificateFromCA {
-			get { return serverCert; }
+		public static X509Certificate ServerCertificateFromCA {
+			get { return serverCert.Certificate; }
 		}
 
 		public static ICertificate InvalidClientCertificateV1 {
