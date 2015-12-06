@@ -37,12 +37,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			: base (provider, endpoint, parameters)
 		{
 		}
-
-		public ICertificate Certificate {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
 	}
 }
 

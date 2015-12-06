@@ -28,6 +28,7 @@ using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	[Obsolete ("KILL")]
 	public interface ICertificate
 	{
 		string Issuer {

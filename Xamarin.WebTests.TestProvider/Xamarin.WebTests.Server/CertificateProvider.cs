@@ -126,19 +126,6 @@ namespace Xamarin.WebTests.Server
 			return new X509Certificate2 (data, password);
 		}
 
-		public static ICertificate GetCertificate (X509Certificate certificate)
-		{
-			var certificate2 = certificate as X509Certificate2;
-			if (certificate2 != null)
-				return new CertificateFromData2 (certificate2);
-			return certificate != null ? new CertificateFromData (certificate) : null;
-		}
-
-		public static X509Certificate GetCertificate (ICertificate certificate)
-		{
-			return certificate != null ? ((CertificateFromData)certificate).Certificate : null;
-		}
-
 		public static byte[] GetRawCertificateData (X509Certificate certificate, out string password)
 		{
 			password = "monkey";
@@ -153,11 +140,6 @@ namespace Xamarin.WebTests.Server
 		public X509Certificate GetCertificateFromData (byte[] data)
 		{
 			return new X509Certificate (data);
-		}
-
-		ICertificate ICertificateProvider.GetCertificate (X509Certificate certificate)
-		{
-			return GetCertificate (certificate);
 		}
 
 		public CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback)
