@@ -14,7 +14,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Identifier; }
 		}
 
-		public ConnectionParameters (string identifier, IServerCertificate serverCertificate)
+		public ConnectionParameters (string identifier, ICertificate serverCertificate)
 		{
 			Identifier = identifier;
 			ServerCertificate = serverCertificate;
@@ -68,7 +68,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public IClientCertificate ClientCertificate {
+		public ICertificate ClientCertificate {
 			get; set;
 		}
 
@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public IServerCertificate ServerCertificate {
+		public ICertificate ServerCertificate {
 			get; set;
 		}
 

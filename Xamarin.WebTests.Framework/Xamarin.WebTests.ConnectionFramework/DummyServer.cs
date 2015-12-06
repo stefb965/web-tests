@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		public IServerCertificate Certificate {
+		public ICertificate Certificate {
 			get {
 				throw new NotImplementedException ();
 			}

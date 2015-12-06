@@ -32,14 +32,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public delegate bool CertificateValidationDelegate (ICertificate certificate);
 
-	public delegate IClientCertificate CertificateSelectionDelegate (
+	public delegate ICertificate CertificateSelectionDelegate (
 		string targetHost, ICertificate[] localCertificates, ICertificate remoteCertificate, string[] acceptableIssuers);
 
 	public interface ICertificateProvider : ISingletonInstance
 	{
 		CertificateValidator GetDefault ();
 
-		CertificateValidator AcceptThisCertificate (IServerCertificate certificate);
+		CertificateValidator AcceptThisCertificate (ICertificate certificate);
 
 		CertificateValidator AcceptFromCA (ICertificate certificate);
 
@@ -55,13 +55,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		ICertificate GetCertificateFromData (byte[] data);
 
-		IServerCertificate GetServerCertificate (byte[] data, string password);
+		ICertificate GetCertificate (byte[] data, string password);
 
-		IClientCertificate GetClientCertificate (byte[] data, string password);
-
-		byte[] GetRawCertificateData (IClientCertificate certificate, out string password);
-
-		byte[] GetRawCertificateData (IServerCertificate certificate, out string password);
+		byte[] GetRawCertificateData (ICertificate certificate, out string password);
 
 		bool AreEqual (ICertificate a, ICertificate b);
 

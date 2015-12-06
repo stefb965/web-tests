@@ -63,12 +63,12 @@ namespace Xamarin.WebTests.Server
 			return AcceptNull;
 		}
 
-		CertificateValidator ICertificateProvider.AcceptThisCertificate (IServerCertificate certificate)
+		CertificateValidator ICertificateProvider.AcceptThisCertificate (ICertificate certificate)
 		{
 			return AcceptThisCertificate (certificate);
 		}
 
-		internal CertificateValidator AcceptThisCertificate (IServerCertificate certificate)
+		internal CertificateValidator AcceptThisCertificate (ICertificate certificate)
 		{
 			var cert = GetCertificate (certificate);
 			var serverHash = cert.GetCertHash ();
@@ -134,12 +134,7 @@ namespace Xamarin.WebTests.Server
 			return AcceptAll;
 		}
 
-		public IServerCertificate GetServerCertificate (byte[] data, string password)
-		{
-			return new CertificateFromPFX (data, password);
-		}
-
-		public IClientCertificate GetClientCertificate (byte[] data, string password)
+		public ICertificate GetCertificate (byte[] data, string password)
 		{
 			return new CertificateFromPFX (data, password);
 		}
@@ -157,26 +152,14 @@ namespace Xamarin.WebTests.Server
 			return certificate != null ? ((CertificateFromData)certificate).Certificate : null;
 		}
 
-		public static byte[] GetRawCertificateData (IClientCertificate certificate, out string password)
+		public static byte[] GetRawCertificateData (ICertificate certificate, out string password)
 		{
 			var pfx = (CertificateFromPFX)certificate;
 			password = pfx.Password;
 			return pfx.Data;
 		}
 
-		public static byte[] GetRawCertificateData (IServerCertificate certificate, out string password)
-		{
-			var pfx = (CertificateFromPFX)certificate;
-			password = pfx.Password;
-			return pfx.Data;
-		}
-
-		byte[] ICertificateProvider.GetRawCertificateData (IClientCertificate certificate, out string password)
-		{
-			return GetRawCertificateData (certificate, out password);
-		}
-
-		byte[] ICertificateProvider.GetRawCertificateData (IServerCertificate certificate, out string password)
+		byte[] ICertificateProvider.GetRawCertificateData (ICertificate certificate, out string password)
 		{
 			return GetRawCertificateData (certificate, out password);
 		}
@@ -295,7 +278,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		class CertificateFromData2 : CertificateFromData, IServerCertificate, IClientCertificate
+		class CertificateFromData2 : CertificateFromData, ICertificate
 		{
 			public string Password {
 				get { throw new InvalidOperationException (); }
@@ -307,7 +290,7 @@ namespace Xamarin.WebTests.Server
 			}
 		}
 
-		class CertificateFromPFX : CertificateFromData, IServerCertificate, IClientCertificate
+		class CertificateFromPFX : CertificateFromData, ICertificate
 		{
 			public string Password {
 				get;

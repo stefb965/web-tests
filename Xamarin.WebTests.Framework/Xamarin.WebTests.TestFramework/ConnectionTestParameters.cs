@@ -36,7 +36,7 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, IServerCertificate certificate)
+		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, ICertificate certificate)
 			: base (identifier, certificate)
 		{
 			Category = category;

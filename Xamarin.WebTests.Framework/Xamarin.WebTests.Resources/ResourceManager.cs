@@ -13,19 +13,19 @@ namespace Xamarin.WebTests.Resources
 		static readonly ICertificate cacert;
 		static readonly ICertificate serverCertNoKey;
 		static readonly ICertificate selfServerCertNoKey;
-		static readonly IServerCertificate serverCert;
-		static readonly IServerCertificate selfServerCert;
-		static readonly IServerCertificate invalidServerCert;
-		static readonly IClientCertificate invalidClientCert;
-		static readonly IClientCertificate invalidClientCaCert;
-		static readonly IClientCertificate invalidClientCertRsa512;
-		static readonly IClientCertificate monkeyCert;
-		static readonly IClientCertificate penguinCert;
-		static readonly IServerCertificate serverCertRsaOnly;
-		static readonly IServerCertificate serverCertDheOnly;
-		static readonly IServerCertificate invalidServerCertRsa512;
-		static readonly IClientCertificate clientCertRsaOnly;
-		static readonly IClientCertificate clientCertDheOnly;
+		static readonly ICertificate serverCert;
+		static readonly ICertificate selfServerCert;
+		static readonly ICertificate invalidServerCert;
+		static readonly ICertificate invalidClientCert;
+		static readonly ICertificate invalidClientCaCert;
+		static readonly ICertificate invalidClientCertRsa512;
+		static readonly ICertificate monkeyCert;
+		static readonly ICertificate penguinCert;
+		static readonly ICertificate serverCertRsaOnly;
+		static readonly ICertificate serverCertDheOnly;
+		static readonly ICertificate invalidServerCertRsa512;
+		static readonly ICertificate clientCertRsaOnly;
+		static readonly ICertificate clientCertDheOnly;
 
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -36,78 +36,78 @@ namespace Xamarin.WebTests.Resources
 			cacert = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem"));
 			serverCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-cert.pem"));
 			selfServerCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-self.pem"));
-			selfServerCert = provider.GetServerCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
-			serverCert = provider.GetServerCertificate (ReadResource ("CA.server-cert.pfx"), "monkey");
-			invalidServerCert = provider.GetServerCertificate (ReadResource ("CA.invalid-server-cert.pfx"), "monkey");
-			invalidClientCert = provider.GetClientCertificate (ReadResource ("CA.invalid-client-cert.pfx"), "monkey");
-			invalidClientCaCert = provider.GetClientCertificate (ReadResource ("CA.invalid-client-ca-cert.pfx"), "monkey");
-			invalidClientCertRsa512 = provider.GetClientCertificate (ReadResource ("CA.client-cert-rsa512.pfx"), "monkey");
-			monkeyCert = provider.GetClientCertificate (ReadResource ("CA.monkey.pfx"), "monkey");
-			penguinCert = provider.GetClientCertificate (ReadResource ("CA.penguin.pfx"), "penguin");
-			serverCertRsaOnly = provider.GetServerCertificate (ReadResource ("CA.server-cert-rsaonly.pfx"), "monkey");
-			serverCertDheOnly = provider.GetServerCertificate (ReadResource ("CA.server-cert-dhonly.pfx"), "monkey");
-			invalidServerCertRsa512 = provider.GetServerCertificate (ReadResource ("CA.server-cert-rsa512.pfx"), "monkey");
-			clientCertRsaOnly = provider.GetClientCertificate (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
-			clientCertDheOnly = provider.GetClientCertificate (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
+			selfServerCert = provider.GetCertificate (ReadResource ("CA.server-self.pfx"), "monkey");
+			serverCert = provider.GetCertificate (ReadResource ("CA.server-cert.pfx"), "monkey");
+			invalidServerCert = provider.GetCertificate (ReadResource ("CA.invalid-server-cert.pfx"), "monkey");
+			invalidClientCert = provider.GetCertificate (ReadResource ("CA.invalid-client-cert.pfx"), "monkey");
+			invalidClientCaCert = provider.GetCertificate (ReadResource ("CA.invalid-client-ca-cert.pfx"), "monkey");
+			invalidClientCertRsa512 = provider.GetCertificate (ReadResource ("CA.client-cert-rsa512.pfx"), "monkey");
+			monkeyCert = provider.GetCertificate (ReadResource ("CA.monkey.pfx"), "monkey");
+			penguinCert = provider.GetCertificate (ReadResource ("CA.penguin.pfx"), "penguin");
+			serverCertRsaOnly = provider.GetCertificate (ReadResource ("CA.server-cert-rsaonly.pfx"), "monkey");
+			serverCertDheOnly = provider.GetCertificate (ReadResource ("CA.server-cert-dhonly.pfx"), "monkey");
+			invalidServerCertRsa512 = provider.GetCertificate (ReadResource ("CA.server-cert-rsa512.pfx"), "monkey");
+			clientCertRsaOnly = provider.GetCertificate (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
+			clientCertDheOnly = provider.GetCertificate (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
 		}
 
 		public static ICertificate LocalCACertificate {
 			get { return cacert; }
 		}
 
-		public static IServerCertificate InvalidServerCertificateV1 {
+		public static ICertificate InvalidServerCertificateV1 {
 			get { return invalidServerCert; }
 		}
 
-		public static IServerCertificate SelfSignedServerCertificate {
+		public static ICertificate SelfSignedServerCertificate {
 			get { return selfServerCert; }
 		}
 
-		public static IServerCertificate ServerCertificateFromCA {
+		public static ICertificate ServerCertificateFromCA {
 			get { return serverCert; }
 		}
 
-		public static IClientCertificate InvalidClientCertificateV1 {
+		public static ICertificate InvalidClientCertificateV1 {
 			get { return invalidClientCert; }
 		}
 
-		public static IClientCertificate InvalidClientCaCertificate {
+		public static ICertificate InvalidClientCaCertificate {
 			get { return invalidClientCaCert; }
 		}
 
-		public static IClientCertificate InvalidClientCertificateRsa512 {
+		public static ICertificate InvalidClientCertificateRsa512 {
 			get { return invalidClientCertRsa512; }
 		}
 
-		public static IClientCertificate MonkeyCertificate {
+		public static ICertificate MonkeyCertificate {
 			get { return monkeyCert; }
 		}
 
-		public static IClientCertificate PenguinCertificate {
+		public static ICertificate PenguinCertificate {
 			get { return penguinCert; }
 		}
 
-		public static IServerCertificate ServerCertificateRsaOnly {
+		public static ICertificate ServerCertificateRsaOnly {
 			get { return serverCertRsaOnly; }
 		}
 
-		public static IServerCertificate ServerCertificateDheOnly {
+		public static ICertificate ServerCertificateDheOnly {
 			get { return serverCertDheOnly; }
 		}
 
-		public static IServerCertificate InvalidServerCertificateRsa512 {
+		public static ICertificate InvalidServerCertificateRsa512 {
 			get { return invalidServerCertRsa512; }
 		}
 
-		public static IClientCertificate ClientCertificateRsaOnly {
+		public static ICertificate ClientCertificateRsaOnly {
 			get { return clientCertRsaOnly; }
 		}
 
-		public static IClientCertificate ClientCertificateDheOnly {
+		public static ICertificate ClientCertificateDheOnly {
 			get { return clientCertDheOnly; }
 		}
 
-		public static IServerCertificate GetServerCertificate (CertificateResourceType type)
+		public static ICertificate GetCertificate (CertificateResourceType type)
 		{
 			switch (type) {
 			case CertificateResourceType.ServerCertificateFromLocalCA:
@@ -119,7 +119,7 @@ namespace Xamarin.WebTests.Resources
 			}
 		}
 
-		public static ICertificate GetServerCertificateWithoutKey (CertificateResourceType type)
+		public static ICertificate GetCertificateWithoutKey (CertificateResourceType type)
 		{
 			switch (type) {
 			case CertificateResourceType.ServerCertificateFromLocalCA:

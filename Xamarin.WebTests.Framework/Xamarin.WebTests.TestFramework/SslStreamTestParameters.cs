@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, IServerCertificate certificate)
+		public SslStreamTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, ICertificate certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;

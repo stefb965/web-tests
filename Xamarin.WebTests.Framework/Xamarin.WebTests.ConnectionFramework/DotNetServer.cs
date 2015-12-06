@@ -17,7 +17,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class DotNetServer : DotNetConnection, IServer
 	{
-		public IServerCertificate Certificate {
+		public ICertificate Certificate {
 			get { return Parameters.ServerCertificate; }
 		}
 
