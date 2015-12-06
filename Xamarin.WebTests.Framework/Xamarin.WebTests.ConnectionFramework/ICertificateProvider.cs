@@ -63,6 +63,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		bool AreEqual (X509Certificate a, ICertificate b);
 
+		bool AreEqual (X509Certificate a, X509Certificate b); 
+
 		CertificateValidator GetCustomCertificateValidator (RemoteCertificateValidationCallback callback);
 
 		CertificateValidator GetCustomCertificateValidator (CertificateValidationDelegate func);
