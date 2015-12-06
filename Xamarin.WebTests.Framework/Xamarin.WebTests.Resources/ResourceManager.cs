@@ -107,9 +107,9 @@ namespace Xamarin.WebTests.Resources
 		public static IServerCertificate GetServerCertificate (CertificateResourceType type)
 		{
 			switch (type) {
-			case CertificateResourceType.LocalCA:
+			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCert;
-			case CertificateResourceType.SelfSigned:
+			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCert;
 			default:
 				throw new InvalidOperationException ();
@@ -119,9 +119,9 @@ namespace Xamarin.WebTests.Resources
 		public static ICertificate GetServerCertificateWithoutKey (CertificateResourceType type)
 		{
 			switch (type) {
-			case CertificateResourceType.LocalCA:
+			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKey;
-			case CertificateResourceType.SelfSigned:
+			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKey;
 			default:
 				throw new InvalidOperationException ();

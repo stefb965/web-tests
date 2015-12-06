@@ -194,11 +194,11 @@ namespace Xamarin.WebTests
 				if (!ctx.IsEnabled (Instance.SSL))
 					yield break;
 
-				yield return CertificateResourceType.SelfSigned;
+				yield return CertificateResourceType.SelfSignedServerCertificate;
 				if (!ctx.IsEnabled (Instance.CertificateTests))
 					yield break;
 
-				yield return CertificateResourceType.LocalCA;
+				yield return CertificateResourceType.ServerCertificateFromLocalCA;
 			}
 		}
 

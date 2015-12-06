@@ -1,5 +1,5 @@
 ﻿//
-// ServerCertificateType.cs
+// CertificateResourceType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,10 +27,10 @@ using System;
 
 namespace Xamarin.WebTests.Resources
 {
-	public enum ServerCertificateType
+	public enum CertificateResourceType
 	{
-		LocalCA,
-		SelfSigned
+		ServerCertificateFromLocalCA,
+		SelfSignedServerCertificate
 	}
 }
 
