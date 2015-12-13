@@ -47,10 +47,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		X509Certificate RemoteCertificate {
-			get;
-		}
-
 		Stream AuthenticatedStream {
 			get;
 		}

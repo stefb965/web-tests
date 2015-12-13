@@ -41,9 +41,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 			private set;
 		}
 
+		public virtual bool IsManual {
+			get { return Client.Type == ConnectionProviderType.Manual || Server.Type == ConnectionProviderType.Manual; }
+		}
+
 		public string Value {
 			get;
 			private set;
+		}
+
+		public virtual IClient CreateClient (ConnectionParameters parameters)
+		{
+			return Client.CreateClient (parameters);
+		}
+
+		public virtual IServer CreateServer (ConnectionParameters parameters)
+		{
+			return Server.CreateServer (parameters);
 		}
 
 		public ClientAndServerProvider (ConnectionProvider client, ConnectionProvider server, string value = null)
