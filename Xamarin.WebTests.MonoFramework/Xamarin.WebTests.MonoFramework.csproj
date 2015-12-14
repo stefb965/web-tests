@@ -66,6 +66,8 @@
     <Compile Include="Xamarin.WebTests.MonoTestFramework\SimpleConnectionType.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\SimpleConnectionParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\SimpleConnectionTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\CipherSuiteAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\ProtocolVersionsAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>
