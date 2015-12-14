@@ -75,6 +75,18 @@
       <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{26D9F399-1FD5-4796-AE59-E42D0FBA0EF2}</Project>
+      <Name>Mono.Security.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
+      <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
+      <Name>Xamarin.WebTests.MonoTests</Name>
+    </ProjectReference>
   </ItemGroup>
   <ProjectExtensions>
     <MonoDevelop>
