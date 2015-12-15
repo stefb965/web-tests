@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public MSI.MonoTlsConnectionInfo GetConnectionInfo ()
 		{
-			throw new NotImplementedException ();
+			return stream.GetConnectionInfo ();
 		}
 
 		public void Close ()
