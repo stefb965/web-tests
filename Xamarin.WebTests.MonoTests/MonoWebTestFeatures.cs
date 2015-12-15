@@ -26,15 +26,33 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTests;
 
-[assembly: AsyncTestSuite (typeof (MonoWebTestFeatures))]
+[assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), typeof (SharedWebTestFeatures))]
+[assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
 
 namespace Xamarin.WebTests.MonoTests
 {
 	public class MonoWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
+		public static MonoWebTestFeatures Instance {
+			get { return DependencyInjector.Get<MonoWebTestFeatures> (); }
+		}
+
+		internal class Provider : IDependencyProvider
+		{
+			public void Initialize ()
+			{
+				DependencyInjector.RegisterDependency<MonoWebTestFeatures> (() => new MonoWebTestFeatures ());
+			}
+		}
+
+		MonoWebTestFeatures ()
+		{
+		}
+
 		public IEnumerable<TestFeature> Features {
 			get { return new TestFeature [0]; }
 		}

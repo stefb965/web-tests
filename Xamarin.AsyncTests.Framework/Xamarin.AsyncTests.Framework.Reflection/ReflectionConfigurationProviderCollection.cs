@@ -1,11 +1,12 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
 	class ReflectionConfigurationProviderCollection : ITestConfigurationProvider
 	{
-		List<ReflectionConfigurationProvider> providers;
+		Dictionary<Type,ReflectionConfigurationProvider> providers;
 		List<TestFeature> features;
 		List<TestCategory> categories;
 		bool resolved;
@@ -13,7 +14,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		public ReflectionConfigurationProviderCollection (string name)
 		{
 			Name = name;
-			providers = new List<ReflectionConfigurationProvider> ();
+			providers = new Dictionary<Type,ReflectionConfigurationProvider> ();
 		}
 
 		public string Name {
@@ -21,16 +22,13 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public void Add (ITestConfigurationProvider provider)
-		{
-			Add (new ReflectionConfigurationProvider (provider));
-		}
-
-		public void Add (ReflectionConfigurationProvider provider)
+		public void Add (Type type)
 		{
 			if (resolved)
 				throw new InvalidOperationException ();
-			providers.Add (provider);
+			if (providers.ContainsKey (type))
+				return;
+			providers.Add (type, null);
 		}
 
 		public void Resolve ()
@@ -38,10 +36,18 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			if (resolved)
 				return;
 
+			var types = providers.Keys.ToArray ();
+
+			foreach (var type in types) {
+				var provider = (ITestConfigurationProvider)DependencyInjector.Get (type);
+				var providerWrapper = new ReflectionConfigurationProvider (provider);
+				providers [type] = providerWrapper;
+			}
+
 			features = new List<TestFeature> ();
 			categories = new List<TestCategory> ();
 
-			foreach (var provider in providers) {
+			foreach (var provider in providers.Values) {
 				features.AddRange (provider.Features);
 				categories.AddRange (provider.Categories);
 			}

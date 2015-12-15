@@ -16,8 +16,6 @@ namespace Xamarin.WebTests.Console
 		{
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
-			DependencyInjector.RegisterDependency<MonoWebTestFeatures> (() => new MonoWebTestFeatures ());
 			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}
 	}

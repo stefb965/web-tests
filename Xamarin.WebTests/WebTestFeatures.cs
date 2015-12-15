@@ -34,10 +34,12 @@ using Xamarin.AsyncTests.Portable;
 using Xamarin.WebTests;
 using Xamarin.WebTests.HttpClient;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.TestFramework;
 
-[assembly: AsyncTestSuite (typeof (WebTestFeatures))]
+[assembly: AsyncTestSuite (typeof (WebTestFeatures), typeof (SharedWebTestFeatures))]
 [assembly: RequireDependency (typeof (IHttpClientProvider))]
 [assembly: RequireDependency (typeof (ConnectionProviderFactory))]
+[assembly: DependencyProvider (typeof (WebTestFeatures.Provider))]
 
 namespace Xamarin.WebTests
 {
@@ -49,7 +51,7 @@ namespace Xamarin.WebTests
 	using Server;
 	using Tests;
 
-	public class WebTestFeatures : SharedWebTestFeatures, ISingletonInstance
+	public class WebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
 		public static WebTestFeatures Instance {
 			get { return DependencyInjector.Get<WebTestFeatures> (); }
@@ -77,15 +79,12 @@ namespace Xamarin.WebTests
 		}
 
 		#region ITestConfigurationProvider implementation
-		public override string Name {
+		public string Name {
 			get { return "Xamarin.WebTests"; }
 		}
 
-		public override IEnumerable<TestFeature> Features {
+		public IEnumerable<TestFeature> Features {
 			get {
-				foreach (var features in base.Features)
-					yield return features;
-
 				yield return SSL;
 				yield return MonoWithNewTlsAttribute.Instance;
 
@@ -99,11 +98,8 @@ namespace Xamarin.WebTests
 			}
 		}
 
-		public override IEnumerable<TestCategory> Categories {
+		public IEnumerable<TestCategory> Categories {
 			get {
-				foreach (var category in base.Categories)
-					yield return category;
-
 				yield return HeavyCategory;
 				yield return RecentlyFixedCategory;
 			}
@@ -172,7 +168,7 @@ namespace Xamarin.WebTests
 						yield return ProxyKind.NtlmAuth;
 				}
 
-				if (ctx.IsEnabled (Instance.Mono361)) {
+				if (ctx.IsEnabled (SharedWebTestFeatures.Instance.Mono361)) {
 					yield return ProxyKind.Unauthenticated;
 
 					if (ctx.IsEnabled (Instance.SSL))
@@ -230,7 +226,7 @@ namespace Xamarin.WebTests
 		public class Mono38Attribute : TestFeatureAttribute
 		{
 			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono38; }
+				get { return SharedWebTestFeatures.Instance.Mono38; }
 			}
 		}
 
@@ -238,7 +234,7 @@ namespace Xamarin.WebTests
 		public class Mono381Attribute : TestFeatureAttribute
 		{
 			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono381; }
+				get { return SharedWebTestFeatures.Instance.Mono381; }
 			}
 		}
 
@@ -246,7 +242,7 @@ namespace Xamarin.WebTests
 		public class Mono61Attribute : TestFeatureAttribute
 		{
 			public override TestFeature Feature {
-				get { return WebTestFeatures.Instance.Mono361; }
+				get { return SharedWebTestFeatures.Instance.Mono361; }
 			}
 		}
 
@@ -256,7 +252,15 @@ namespace Xamarin.WebTests
 			return support.SupportsPerRequestCertificateValidator;
 		}
 
-		public WebTestFeatures ()
+		internal class Provider : IDependencyProvider
+		{
+			public void Initialize ()
+			{
+				DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+			}
+		}
+
+		WebTestFeatures ()
 		{
 			DependencyInjector.RegisterDependency<NTLMHandler> (() => new NTLMHandlerImpl ());
 
