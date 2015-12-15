@@ -41,7 +41,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public List<Assembly> Assemblies {
+		public List<ReflectionTestAssembly> Assemblies {
 			get { return assemblies; }
 		}
 
@@ -56,12 +56,12 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		string name;
 		ReflectionConfigurationProviderCollection providers;
 		List<Assembly> dependencyAssemblies;
-		List<Assembly> assemblies;
+		List<ReflectionTestAssembly> assemblies;
 
 		public ReflectionTestFramework (Assembly assembly, params Assembly[] dependencies)
 		{
 			RootAssembly = assembly;
-			assemblies = new List<Assembly> ();
+			assemblies = new List<ReflectionTestAssembly> ();
 
 			dependencyAssemblies = new List<Assembly> ();
 			if (dependencies != null)
@@ -96,6 +96,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 				Assembly assembly;
 				AsyncTestSuiteAttribute attribute;
 
+				string thisName = cattr.Name;
+
 				if (cattr.IsReference) {
 					assembly = cattr.Type.GetTypeInfo ().Assembly;
 					RegisterDependency (assembly);
@@ -114,7 +116,10 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 					assembly = RootAssembly;
 				}
 
-				assemblies.Add (assembly);
+				if (thisName == null)
+					thisName = attribute.Name ?? assembly.GetName ().Name;
+
+				assemblies.Add (new ReflectionTestAssembly (thisName, attribute, assembly));
 				providers.Add (attribute.Type);
 
 				if (attribute.Dependencies != null) {

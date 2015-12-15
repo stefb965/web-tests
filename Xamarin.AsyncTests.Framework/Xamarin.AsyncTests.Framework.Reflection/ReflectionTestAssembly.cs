@@ -24,62 +24,37 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Linq;
 using System.Reflection;
-using System.Collections.Generic;
-using System.Threading;
-using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestAssemblyBuilder : TestBuilder
+	class ReflectionTestAssembly
 	{
-		public ReflectionTestSuiteBuilder SuiteBuilder {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public ReflectionTestAssembly Assembly {
+		public AsyncTestSuiteAttribute Attribute {
 			get;
 			private set;
 		}
 
-		public override TestBuilder Parent {
-			get { return SuiteBuilder; }
+		public Assembly Assembly {
+			get;
+			private set;
 		}
 
-		public ReflectionTestAssemblyBuilder (ReflectionTestSuiteBuilder suite, ReflectionTestAssembly assembly)
-			: base (TestSerializer.TestAssemblyIdentifier, assembly.Name,
-				TestSerializer.GetStringParameter (assembly.Assembly.FullName))
+		public ReflectionTestAssembly (string name, AsyncTestSuiteAttribute attribute, Assembly assembly)
 		{
-			SuiteBuilder = suite;
+			Name = name;
+			Attribute = attribute;
 			Assembly = assembly;
 		}
 
-		public override TestFilter Filter {
-			get { return null; }
-		}
-
-		protected override IEnumerable<TestBuilder> CreateChildren ()
+		public override string ToString ()
 		{
-			foreach (var type in Assembly.Assembly.ExportedTypes) {
-				var tinfo = type.GetTypeInfo ();
-				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
-				if (attr == null)
-					continue;
-
-				yield return new ReflectionTestFixtureBuilder (this, attr, tinfo);
-			}
-		}
-
-		protected override IEnumerable<TestHost> CreateParameterHosts ()
-		{
-			yield break;
-		}
-
-		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
-		{
-			return new TestCollectionInvoker (this, node);
+			return string.Format ("[ReflectionTestAssembly: Name={0}, Type={1}, Assembly={2}]", Name, Attribute.Type, Assembly);
 		}
 	}
 }

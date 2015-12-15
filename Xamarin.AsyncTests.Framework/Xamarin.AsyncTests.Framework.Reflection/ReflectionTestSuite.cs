@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public List<Assembly> Assemblies {
+		public List<ReflectionTestAssembly> Assemblies {
 			get;
 			private set;
 		}

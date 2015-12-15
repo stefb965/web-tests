@@ -30,7 +30,7 @@ using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTests;
 
-[assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), typeof (SharedWebTestFeatures))]
+[assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), "MonoWebTests", typeof (SharedWebTestFeatures))]
 [assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
 
 namespace Xamarin.WebTests.MonoTests

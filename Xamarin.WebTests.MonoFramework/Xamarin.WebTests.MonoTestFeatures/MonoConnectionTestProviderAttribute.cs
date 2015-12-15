@@ -42,6 +42,10 @@ namespace Xamarin.WebTests.MonoTestFeatures
 		{
 		}
 
+		public bool Optional {
+			get; set;
+		}
+
 		public IEnumerable<MonoConnectionTestProvider> GetParameters (TestContext ctx, string argument)
 		{
 			var category = ctx.GetParameter<MonoConnectionTestCategory> ();
@@ -57,7 +61,11 @@ namespace Xamarin.WebTests.MonoTestFeatures
 				filter = new MonoConnectionProviderFilter (category, flags);
 			}
 
-			return filter.GetSupportedProviders (ctx, argument).Cast<MonoConnectionTestProvider> ();
+			var supportedProviders = filter.GetSupportedProviders (ctx, argument).Cast<MonoConnectionTestProvider> ().ToList ();
+			if (!Optional && supportedProviders.Count == 0)
+				ctx.AssertFail ("Could not find any supported MonoConnectionTestProvider.");
+
+			return supportedProviders;
 		}
 	}
 }
