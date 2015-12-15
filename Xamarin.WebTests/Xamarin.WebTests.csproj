@@ -62,6 +62,7 @@
     <Compile Include="Xamarin.WebTests.Features\ChunkContentTypeAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\HttpServerAttribute.cs" />
     <Compile Include="Xamarin.WebTests.Features\MonoWithNewTlsAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.Tests\MartinTest.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

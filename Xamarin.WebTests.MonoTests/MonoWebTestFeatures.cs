@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTests;
@@ -32,9 +33,17 @@ using Xamarin.WebTests.MonoTests;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	public class MonoWebTestFeatures : SharedWebTestFeatures, ISingletonInstance
+	public class MonoWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
-		public override string Name {
+		public IEnumerable<TestFeature> Features {
+			get { return new TestFeature [0]; }
+		}
+
+		public IEnumerable<TestCategory> Categories {
+			get { return new TestCategory [0]; }
+		}
+
+		public string Name {
 			get { return "MonoTestFeatures"; }
 		}
 	}

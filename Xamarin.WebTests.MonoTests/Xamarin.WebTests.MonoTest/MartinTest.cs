@@ -28,6 +28,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.MonoTests
 {
@@ -38,6 +39,13 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class MartinTest
 	{
+		[Martin]
+		[AsyncTest]
+		public async Task HelloWorld (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ctx.LogMessage ("Hello Mono World!");
+		}
+			
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoClient)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,

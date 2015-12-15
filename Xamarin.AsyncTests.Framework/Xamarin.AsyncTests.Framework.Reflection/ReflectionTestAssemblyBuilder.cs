@@ -1,5 +1,5 @@
 ﻿//
-// ReflectionTestSuite.cs
+// ReflectionTestAssemblyBuilder.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,7 +25,6 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
-using System.Xml.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Threading;
@@ -33,62 +32,55 @@ using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	class ReflectionTestSuite : TestSuite, IPathResolver
+	class ReflectionTestAssemblyBuilder : TestBuilder
 	{
-		public TestFramework Framework {
+		public ReflectionTestSuiteBuilder SuiteBuilder {
 			get;
 			private set;
 		}
 
-		public List<Assembly> Assemblies {
+		public Assembly Assembly {
 			get;
 			private set;
 		}
 
-		public ReflectionTestSuiteBuilder Builder {
-			get;
-			private set;
+		public override TestBuilder Parent {
+			get { return SuiteBuilder; }
 		}
 
-		public TestPathNode RootPath {
-			get;
-			private set;
-		}
-
-		public ReflectionTestCase RootTestCase {
-			get;
-			private set;
-		}
-
-		internal ReflectionTestSuite (ReflectionTestFramework framework)
+		public ReflectionTestAssemblyBuilder (ReflectionTestSuiteBuilder suite, Assembly assembly)
+			: base (TestSerializer.TestAssemblyIdentifier, assembly.GetName ().Name,
+				TestSerializer.GetStringParameter (assembly.FullName))
 		{
-			Framework = framework;
-			Assemblies = framework.Assemblies;
-			Builder = new ReflectionTestSuiteBuilder (this);
-
-			var rootPath = new TestPath (Builder.Host, null, Builder.Parameter);
-			RootPath = new TestPathNode (Builder.TreeRoot, rootPath);
-			RootTestCase = new ReflectionTestCase (RootPath);
+			SuiteBuilder = suite;
+			Assembly = assembly;
 		}
 
-		TestCase TestSuite.RootTestCase {
-			get { return RootTestCase; }
+		public override TestFilter Filter {
+			get { return null; }
 		}
 
-		TestPathNode IPathResolver.Node {
-			get { return RootPath; }
-		}
-
-		IPathResolver IPathResolver.Resolve (TestContext ctx, IPathNode node, string parameter)
+		protected override IEnumerable<TestBuilder> CreateChildren ()
 		{
-			if (!node.Identifier.Equals (TestSerializer.TestSuiteIdentifier))
-				throw new InternalErrorException ();
-			if (!node.ParameterType.Equals (TestSerializer.TestSuiteIdentifier))
-				throw new InternalErrorException ();
-			return RootPath;
+			foreach (var type in Assembly.ExportedTypes) {
+				var tinfo = type.GetTypeInfo ();
+				var attr = tinfo.GetCustomAttribute<AsyncTestFixtureAttribute> (true);
+				if (attr == null)
+					continue;
+
+				yield return new ReflectionTestFixtureBuilder (this, attr, tinfo);
+			}
 		}
 
+		protected override IEnumerable<TestHost> CreateParameterHosts ()
+		{
+			yield break;
+		}
 
+		internal override TestInvoker CreateInnerInvoker (TestPathNode node)
+		{
+			return new TestCollectionInvoker (this, node);
+		}
 	}
 }
 

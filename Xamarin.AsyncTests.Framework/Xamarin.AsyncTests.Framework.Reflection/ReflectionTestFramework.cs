@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Linq;
+using System.Collections.Generic;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
@@ -40,9 +41,8 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 			private set;
 		}
 
-		public Assembly Assembly {
-			get;
-			private set;
+		public List<Assembly> Assemblies {
+			get { return assemblies; }
 		}
 
 		public Assembly[] Dependencies {
@@ -55,19 +55,25 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 		}
 
 		public override ITestConfigurationProvider ConfigurationProvider {
-			get { return provider; }
+			get { return providers; }
 		}
 
 		string name;
-		ITestConfigurationProvider provider;
+		ReflectionConfigurationProviderCollection providers;
+		List<Assembly> assemblies;
 
 		public ReflectionTestFramework (Assembly assembly, params Assembly[] dependencies)
 		{
-			Assembly = RootAssembly = assembly;
+			RootAssembly = assembly;
+			assemblies = new List<Assembly> ();
+
+			name = RootAssembly.GetName ().Name;
+			providers = new ReflectionConfigurationProviderCollection (name);
+
 			Dependencies = dependencies;
 
 			ResolveDependencies ();
-			CheckDependencies ();
+			CheckDependencies (assembly);
 			Resolve ();
 		}
 
@@ -83,39 +89,43 @@ namespace Xamarin.AsyncTests.Framework.Reflection
 
 		void Resolve ()
 		{
-			DependencyInjector.RegisterAssembly (Assembly);
+			DependencyInjector.RegisterAssembly (RootAssembly);
 			var cattrs = RootAssembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().ToList ();
 			if (cattrs.Count == 0)
-				throw new InternalErrorException ("Assembly '{0}' is not a Xamarin.AsyncTests test suite.", Assembly);
-			else if (cattrs.Count > 1)
-				throw new InternalErrorException ("Assembly '{0}' contains multiple '[AsyncTestSuite]' attributes.", Assembly);
-			var cattr = cattrs.First ();
-			var type = cattr.Type;
+				throw new InternalErrorException ("Assembly '{0}' is not a Xamarin.AsyncTests test suite.", RootAssembly);
 
-			if (cattr.IsReference) {
-				Assembly = type.GetTypeInfo ().Assembly;
-				DependencyInjector.RegisterAssembly (Assembly);
-				cattrs = Assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().ToList ();
-				if (cattrs.Count == 0)
-					throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') is not a Xamarin.AsyncTests test suite.", Assembly, RootAssembly);
-				else if (cattrs.Count > 1)
-					throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') contains multiple '[AsyncTestSuite]' attributes.", Assembly, RootAssembly);
-				cattr = cattrs.First ();
+			foreach (var cattr in cattrs) {
+				var type = cattr.Type;
+				Assembly assembly;
 
-				if (cattr.IsReference)
-					throw new InternalErrorException ("Assembly '{0}' references '{1}', which is a reference itself.", RootAssembly, Assembly);
-				type = cattr.Type;
-			} else {
-				Assembly = RootAssembly;
+				if (cattr.IsReference) {
+					assembly = type.GetTypeInfo ().Assembly;
+					DependencyInjector.RegisterAssembly (assembly);
+					var refcattrs = assembly.GetCustomAttributes<AsyncTestSuiteAttribute> ().ToList ();
+					if (refcattrs.Count == 0)
+						throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') is not a Xamarin.AsyncTests test suite.", assembly, RootAssembly);
+					else if (refcattrs.Count > 1)
+						throw new InternalErrorException ("Referenced assembly '{0}' (referenced by '{1}') contains multiple '[AsyncTestSuite]' attributes.", assembly, RootAssembly);
+
+					if (refcattrs [0].IsReference)
+						throw new InternalErrorException ("Assembly '{0}' references '{1}', which is a reference itself.", RootAssembly, assembly);
+					type = refcattrs [0].Type;
+				} else {
+					assembly = RootAssembly;
+				}
+
+				CheckDependencies (assembly);
+
+				assemblies.Add (assembly);
+				providers.Add ((ITestConfigurationProvider)DependencyInjector.Get (type));
 			}
 
-			provider = (ITestConfigurationProvider)DependencyInjector.Get (type);
-			name = Assembly.GetName ().Name;
+			providers.Resolve ();
 		}
 
-		void CheckDependencies ()
+		static void CheckDependencies (Assembly assembly)
 		{
-			var cattrs = Assembly.GetCustomAttributes<RequireDependencyAttribute> ();
+			var cattrs = assembly.GetCustomAttributes<RequireDependencyAttribute> ();
 			foreach (var cattr in cattrs) {
 				if (!DependencyInjector.IsAvailable (cattr.Type))
 					throw new InternalErrorException ("Missing '{0}' dependency.", cattr.Type);

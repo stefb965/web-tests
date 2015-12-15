@@ -1,10 +1,10 @@
 ﻿//
-// AsyncTestSuiteAttribute.cs
+// MartinTest.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,26 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Framework;
+using Xamarin.WebTests.TestFramework;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.WebTests
 {
-	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
-	public class AsyncTestSuiteAttribute : Attribute
+	[AsyncTestFixture]
+	public class MartinTest
 	{
-		public Type Type {
-			get;
-			private set;
-		}
-
-		public bool IsReference {
-			get;
-			private set;
-		}
-
-		public AsyncTestSuiteAttribute (Type type, bool isReference = false)
+		[Martin]
+		[AsyncTest]
+		public async Task HelloWorld (TestContext ctx, CancellationToken cancellationToken)
 		{
-			Type = type;
-			IsReference = isReference;
+			ctx.LogMessage ("Hello World!");
 		}
 	}
 }

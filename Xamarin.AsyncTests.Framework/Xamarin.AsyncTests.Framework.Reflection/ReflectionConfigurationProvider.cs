@@ -1,10 +1,10 @@
 ﻿//
-// AsyncTestSuiteAttribute.cs
+// ReflectionConfigurationProvider.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2015 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +24,41 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Reflection;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests
+namespace Xamarin.AsyncTests.Framework.Reflection
 {
-	[AttributeUsage (AttributeTargets.Assembly, AllowMultiple = true)]
-	public class AsyncTestSuiteAttribute : Attribute
+	class ReflectionConfigurationProvider : ITestConfigurationProvider
 	{
-		public Type Type {
+		public Assembly Assembly {
 			get;
 			private set;
 		}
 
-		public bool IsReference {
+		public string Name {
 			get;
 			private set;
 		}
 
-		public AsyncTestSuiteAttribute (Type type, bool isReference = false)
+		public IEnumerable<TestFeature> Features {
+			get;
+			private set;
+		}
+
+		public IEnumerable<TestCategory> Categories {
+			get;
+			private set;
+		}
+
+		public ReflectionConfigurationProvider (ITestConfigurationProvider provider)
 		{
-			Type = type;
-			IsReference = isReference;
+			Assembly = provider.GetType ().GetTypeInfo ().Assembly;
+			Name = provider.Name;
+			Features = provider.Features;
+			Categories = provider.Categories;
 		}
+
 	}
 }
 
