@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.MonoTests
 			ctx.LogMessage ("Hello Mono World!");
 		}
 			
+		[Martin]
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoClient)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
