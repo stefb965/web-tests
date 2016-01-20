@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				factory.Install (monoProvider);
 
 				if (settings.InstallTlsProvider != null && provider.Provider.ID == settings.InstallTlsProvider.Value)
-					MonoTlsProviderFactory.InstallProvider (provider.Provider);
+					MonoTlsProviderFactory.SetDefaultProvider (provider.Provider.Name);
 			}
 		}
 
