@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
@@ -44,6 +45,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			else if (Parameters.AskForClientCertificate)
 				settings.AskForClientCertificate = true;
 			#endif
+
+			if (MonoParameters != null && MonoParameters.ServerCiphers != null)
+				settings.EnabledCiphers = MonoParameters.ServerCiphers.ToArray ();
 
 			if (MonoParameters != null) {
 				#if FIXME

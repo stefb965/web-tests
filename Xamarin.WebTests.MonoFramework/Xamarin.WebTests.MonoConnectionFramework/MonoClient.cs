@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Net;
@@ -38,6 +39,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
 		{
+			if (MonoParameters != null && MonoParameters.ClientCiphers != null)
+				settings.EnabledCiphers = MonoParameters.ClientCiphers.ToArray ();
+
 			if (MonoParameters != null) {
 				#if FIXME
 				settings.RequestCipherSuites = MonoParameters.ClientCiphers;
