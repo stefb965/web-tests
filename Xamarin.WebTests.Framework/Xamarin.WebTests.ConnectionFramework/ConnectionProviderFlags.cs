@@ -37,7 +37,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		SupportsAeadCiphers		= 8,
 		SupportsEcDheCiphers		= 16,
 		SupportsClientCertificates	= 32,
-		IsExplicit			= 64
+		IsExplicit			= 64,
+		OverridesCipherSelection	= 128
 	}
 }
 
