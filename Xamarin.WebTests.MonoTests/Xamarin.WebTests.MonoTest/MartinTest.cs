@@ -39,17 +39,20 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		[Martin]
-		[AsyncTest]
-		public async Task HelloWorld (TestContext ctx, CancellationToken cancellationToken)
-		{
-			ctx.LogMessage ("Hello Mono World!");
-		}
-			
-		[Martin]
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoClient)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
+			MonoConnectionTestProvider provider,
+			SimpleConnectionParameters parameters,
+			SimpleConnectionTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[Martin]
+		[AsyncTest]
+		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
+		public async Task TestClient2 (TestContext ctx, CancellationToken cancellationToken,
 			MonoConnectionTestProvider provider,
 			SimpleConnectionParameters parameters,
 			SimpleConnectionTestRunner runner)
