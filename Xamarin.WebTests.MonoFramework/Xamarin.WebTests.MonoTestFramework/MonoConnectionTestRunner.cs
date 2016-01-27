@@ -112,8 +112,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			var serverOverridesCipher = (provider.Server.Flags & ConnectionProviderFlags.OverridesCipherSelection) != 0;
 
 			if (Parameters.ValidateCipherList) {
-				if (clientOverridesCipher || serverOverridesCipher)
-					ctx.IgnoreThisTest ();
 				if (!CipherList.ValidateCipherList (provider, Parameters.ClientCiphers))
 					ctx.IgnoreThisTest ();
 				if (!CipherList.ValidateCipherList (provider, Parameters.ServerCiphers))
@@ -129,6 +127,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			if (clientOverridesCipher) {
 				if ((Parameters.ExpectedClientCipher != null || Parameters.ExpectedCipher != null) &&
 				    (Parameters.ServerCiphers == null || Parameters.ServerCiphers.Count > 2))
+					ctx.IgnoreThisTest ();
+				if (Parameters.ClientCiphers == null && Parameters.ServerCiphers != null)
 					ctx.IgnoreThisTest ();
 			}
 
