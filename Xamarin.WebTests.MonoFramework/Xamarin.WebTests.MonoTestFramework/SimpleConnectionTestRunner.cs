@@ -82,6 +82,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 				yield return SimpleConnectionType.SimpleTls10;
 				yield return SimpleConnectionType.SimpleTls11;
 				yield return SimpleConnectionType.SimpleTls12;
+				yield return SimpleConnectionType.DefaultCipherTls10;
+				yield return SimpleConnectionType.DefaultCipherTls11;
+				yield return SimpleConnectionType.DefaultCipherTls12;
 				yield return SimpleConnectionType.CipherSelectionOrder;
 				yield return SimpleConnectionType.CipherSelectionOrder2;
 				yield break;
@@ -146,12 +149,25 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case SimpleConnectionType.SimpleTls11:
 				parameters.ProtocolVersion = ProtocolVersions.Tls11;
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
 				break;
 
 			case SimpleConnectionType.SimpleTls12:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
+				break;
+
+			case SimpleConnectionType.DefaultCipherTls10:
+				parameters.ProtocolVersion = ProtocolVersions.Tls10;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+				break;
+
+			case SimpleConnectionType.DefaultCipherTls11:
+				parameters.ProtocolVersion = ProtocolVersions.Tls11;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+				break;
+
+			case SimpleConnectionType.DefaultCipherTls12:
+				parameters.ProtocolVersion = ProtocolVersions.Tls12;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
 				break;
 
 			case SimpleConnectionType.SelectCiphersTls10:
