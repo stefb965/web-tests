@@ -1,5 +1,5 @@
 ﻿//
-// MartinTest.cs
+// SimpleTests.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -37,7 +37,7 @@ namespace Xamarin.WebTests.MonoTests
 	using MonoTestFeatures;
 
 	[AsyncTestFixture]
-	public class MartinTest
+	public class SimpleTests
 	{
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.SimpleMonoClient)]
