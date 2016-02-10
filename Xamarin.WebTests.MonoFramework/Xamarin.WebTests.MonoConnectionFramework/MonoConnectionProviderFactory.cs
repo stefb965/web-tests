@@ -39,7 +39,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public const string NewTlsID = "e5ff34f1-8b7a-4aa6-aff9-24719d709693";
 		public const string OldTlsID = "cf8baa0d-c6ed-40ae-b512-dec8d097e9af";
 		public const string DefaultTlsID = "809e77d5-56cc-4da8-b9f0-45e65ba9cceb";
+
+		// Mobile only
 		const string MobileOldTlsID = "97d31751-d0b3-4707-99f7-a6456b972a19";
+		const string AppleTlsID = "981af8af-a3a3-419a-9f01-a518e3a17c1c";
 
 		public static readonly Guid NewTlsGuid = new Guid (NewTlsID);
 
@@ -47,6 +50,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		const ConnectionProviderFlags NewTlsFlags = OldTlsFlags | ConnectionProviderFlags.SupportsTls12 |
 			ConnectionProviderFlags.SupportsAeadCiphers | // ConnectionProviderFlags.SupportsEcDheCiphers |
 			ConnectionProviderFlags.SupportsClientCertificates;
+		const ConnectionProviderFlags AppleTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
+			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.OverridesCipherSelection;
 
 		internal MonoConnectionProviderFactory ()
 		{
@@ -110,6 +116,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			switch (type) {
 			case ConnectionProviderType.OldTLS:
 				return OldTlsFlags;
+			case ConnectionProviderType.NewTLS:
+				return NewTlsFlags;
+			case ConnectionProviderType.AppleTLS:
+				return AppleTlsFlags;
 			default:
 				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", type));
 			}
@@ -122,6 +132,10 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			case OldTlsID:
 			case MobileOldTlsID:
 				return ConnectionProviderType.OldTLS;
+			case NewTlsID:
+				return ConnectionProviderType.NewTLS;
+			case AppleTlsID:
+				return ConnectionProviderType.AppleTLS;
 			default:
 				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", id));
 			}

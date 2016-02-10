@@ -40,7 +40,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		OpenSsl,
 
 		// Manually started custom client / server
-		Manual
+		Manual,
+
+		AppleTLS,
+
+		MartinTest,
 	}
 }
 
