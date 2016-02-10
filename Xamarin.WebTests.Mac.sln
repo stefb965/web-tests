@@ -29,7 +29,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MonoFramew
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MonoTests", "Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj", "{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MacAppleTls", "Xamarin.WebTests.MacAppleTls\Xamarin.WebTests.MacAppleTls.csproj", "{3F83338C-722B-4158-BFD0-19A855BB7049}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Xamarin.WebTests.MacAppleTls", "Mac\Xamarin.WebTests.MacAppleTls\Xamarin.WebTests.MacAppleTls.csproj", "{3F83338C-722B-4158-BFD0-19A855BB7049}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

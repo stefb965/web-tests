@@ -72,63 +72,63 @@
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <ItemGroup>
-    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.UI\Xamarin.AsyncTests.UI.csproj">
       <Project>{49780FD0-2761-4C20-ACC5-5956FFEBD51F}</Project>
       <Name>Xamarin.AsyncTests.UI</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests\Xamarin.WebTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests\Xamarin.WebTests.csproj">
       <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
       <Name>Xamarin.WebTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
       <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
       <Name>Xamarin.WebTests.MonoTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mac\Xamarin.WebTests.PortableSecurity.Mac\Xamarin.WebTests.PortableSecurity.Mac.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Mac\Xamarin.WebTests.PortableSecurity.Mac.csproj">
       <Project>{BC0385D6-52A8-41D1-9E72-3AF768C42661}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Mac</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mac\Xamarin.WebTests.TestProvider.Mac\Xamarin.WebTests.TestProvider.Mac.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.Mac\Xamarin.WebTests.TestProvider.Mac.csproj">
       <Project>{9390670C-C319-4817-95FC-7C83E9B708E3}</Project>
       <Name>Xamarin.WebTests.TestProvider.Mac</Name>
     </ProjectReference>
-    <ProjectReference Include="..\Mac\Mono.Security.Interface\Mono.Security.Interface.csproj">
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
       <Project>{D8CF5744-B13E-4134-A4BF-9E219261C1BF}</Project>
       <Name>Mono.Security.Interface</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="..\Xamarin.AsyncTests.MacUI\AppDelegate.cs">
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\AppDelegate.cs">
       <Link>AppDelegate.cs</Link>
     </Compile>
-    <Compile Include="..\Xamarin.AsyncTests.MacUI\AppDelegate.designer.cs">
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\AppDelegate.designer.cs">
       <Link>AppDelegate.designer.cs</Link>
     </Compile>
-    <Compile Include="..\Mac\Xamarin.WebTests.MacUI\MacMain.cs">
+    <Compile Include="..\Xamarin.WebTests.MacUI\MacMain.cs">
       <Link>MacMain.cs</Link>
     </Compile>
-    <Compile Include="..\Mac\Xamarin.WebTests.MacUI\BuiltinTestServer.cs">
+    <Compile Include="..\Xamarin.WebTests.MacUI\BuiltinTestServer.cs">
       <Link>BuiltinTestServer.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <InterfaceDefinition Include="..\Xamarin.AsyncTests.MacUI\MainMenu.xib">
+    <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainMenu.xib">
       <Link>MainMenu.xib</Link>
     </InterfaceDefinition>
   </ItemGroup>
