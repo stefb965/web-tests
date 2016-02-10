@@ -40,6 +40,8 @@ namespace Xamarin.WebTests.MonoTestFeatures
 		public MonoConnectionTestProviderAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 			: base (filter, flags)
 		{
+			// FIXME
+			Optional = true;
 		}
 
 		public bool Optional {

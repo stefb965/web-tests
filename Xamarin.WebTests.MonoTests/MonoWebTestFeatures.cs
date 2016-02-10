@@ -29,9 +29,11 @@ using Xamarin.AsyncTests;
 using Xamarin.WebTests;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTests;
+using Xamarin.WebTests.MonoConnectionFramework;
 
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), "MonoWebTests", typeof (SharedWebTestFeatures))]
 [assembly: DependencyProvider (typeof (MonoWebTestFeatures.Provider))]
+[assembly: RequireDependency (typeof (MonoConnectionProviderFactory))]
 
 namespace Xamarin.WebTests.MonoTests
 {

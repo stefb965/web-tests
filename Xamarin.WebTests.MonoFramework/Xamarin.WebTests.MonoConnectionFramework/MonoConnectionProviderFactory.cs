@@ -36,8 +36,17 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 	{
 		int initialized;
 
-		public static readonly Guid NewTlsID = new Guid ("e5ff34f1-8b7a-4aa6-aff9-24719d709693");
-		public static readonly Guid OldTlsID = new Guid ("cf8baa0d-c6ed-40ae-b512-dec8d097e9af");
+		public const string NewTlsID = "e5ff34f1-8b7a-4aa6-aff9-24719d709693";
+		public const string OldTlsID = "cf8baa0d-c6ed-40ae-b512-dec8d097e9af";
+		public const string DefaultTlsID = "809e77d5-56cc-4da8-b9f0-45e65ba9cceb";
+		const string MobileOldTlsID = "97d31751-d0b3-4707-99f7-a6456b972a19";
+
+		public static readonly Guid NewTlsGuid = new Guid (NewTlsID);
+
+		const ConnectionProviderFlags OldTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
+		const ConnectionProviderFlags NewTlsFlags = OldTlsFlags | ConnectionProviderFlags.SupportsTls12 |
+			ConnectionProviderFlags.SupportsAeadCiphers | // ConnectionProviderFlags.SupportsEcDheCiphers |
+			ConnectionProviderFlags.SupportsClientCertificates;
 
 		internal MonoConnectionProviderFactory ()
 		{
@@ -49,12 +58,72 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				throw new InvalidOperationException ();
 
 			var providers = DependencyInjector.GetCollection<IMonoTlsProviderFactory> ();
-			foreach (var provider in providers) {
-				var monoProvider = new MonoConnectionProvider (factory, provider.ConnectionProviderType, provider.ConnectionProviderFlags, provider.Name, provider.Provider);
-				factory.Install (monoProvider);
+			if (providers.Count == 0) {
+				var provider = MonoTlsProviderFactory.GetDefaultProvider ();
+				if (provider != null)
+					AddProvider (factory, settings, new DefaultProvider (provider));
+			}
 
-				if (settings.InstallTlsProvider != null && provider.Provider.ID == settings.InstallTlsProvider.Value)
-					MonoTlsProviderFactory.SetDefaultProvider (provider.Provider.Name);
+			foreach (var provider in providers) {
+				AddProvider (factory, settings, provider);
+			}
+		}
+
+		void AddProvider (ConnectionProviderFactory factory, IDefaultConnectionSettings settings, IMonoTlsProviderFactory provider)
+		{
+			var monoProvider = new MonoConnectionProvider (factory, provider.ConnectionProviderType, provider.ConnectionProviderFlags, provider.Name, provider.Provider);
+			factory.Install (monoProvider);
+
+			if (settings.InstallTlsProvider != null && provider.Provider.ID == settings.InstallTlsProvider.Value)
+				MonoTlsProviderFactory.SetDefaultProvider (provider.Provider.Name);
+		}
+
+		class DefaultProvider : IMonoTlsProviderFactory
+		{
+			MonoTlsProvider provider;
+			ConnectionProviderType type;
+			ConnectionProviderFlags flags;
+
+			public DefaultProvider (MonoTlsProvider provider)
+			{
+				this.provider = provider;
+				type = GetConnectionProviderType (provider.ID);
+				flags = GetConnectionProviderFlags (type);
+			}
+
+			public string Name {
+				get { return provider.Name; }
+			}
+			public MonoTlsProvider Provider {
+				get { return provider; }
+			}
+			public ConnectionProviderType ConnectionProviderType {
+				get { return type; }
+			}
+			public ConnectionProviderFlags ConnectionProviderFlags {
+				get { return flags; }
+			}
+		}
+
+		static ConnectionProviderFlags GetConnectionProviderFlags (ConnectionProviderType type)
+		{
+			switch (type) {
+			case ConnectionProviderType.OldTLS:
+				return OldTlsFlags;
+			default:
+				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", type));
+			}
+		}
+
+		static ConnectionProviderType GetConnectionProviderType (Guid id)
+		{
+			switch (id.ToString ().ToLowerInvariant ()) {
+			case DefaultTlsID:
+			case OldTlsID:
+			case MobileOldTlsID:
+				return ConnectionProviderType.OldTLS;
+			default:
+				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", id));
 			}
 		}
 

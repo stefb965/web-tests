@@ -124,5 +124,13 @@
       <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
       <Name>Xamarin.WebTests.MonoTests</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{D8CF5744-B13E-4134-A4BF-9E219261C1BF}</Project>
+      <Name>Mono.Security.Interface</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
