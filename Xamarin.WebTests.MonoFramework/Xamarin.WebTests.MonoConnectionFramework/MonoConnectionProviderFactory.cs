@@ -98,7 +98,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			}
 
 			public string Name {
-				get { return provider.Name; }
+				get { return type.ToString (); }
 			}
 			public MonoTlsProvider Provider {
 				get { return provider; }
