@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.TestFramework
 		protected virtual bool GetParameters (TestContext ctx, out ConnectionParameters parameters)
 		{
 			bool useSSL;
-			if (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL) {
+			if (((listenerFlags & ListenerFlags.SSL) == 0) && (!ctx.TryGetParameter<bool> (out useSSL, "UseSSL") || !useSSL)) {
 				parameters = null;
 				return false;
 			}

@@ -25,7 +25,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		public bool InstallDefaultCertificateValidator {
-			get { return false; }
+			get { return true; }
 		}
 
 		public ISslStreamProvider DefaultSslStreamProvider {
