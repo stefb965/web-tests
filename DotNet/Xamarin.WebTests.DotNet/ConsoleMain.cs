@@ -14,7 +14,7 @@ namespace Xamarin.WebTests.DotNet
 		{
 			DependencyInjector.RegisterAssembly (typeof(ConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof(WebDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<WebTestFeatures> (() => new WebTestFeatures ());
+
 			Program.Run (typeof (WebTestFeatures).Assembly, args);
 		}
 	}
