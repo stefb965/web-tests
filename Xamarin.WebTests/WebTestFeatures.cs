@@ -142,12 +142,45 @@ namespace Xamarin.WebTests
 			#endregion
 		}
 
+		[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+		public class UseProxyKindAttribute : FixedTestParameterAttribute
+		{
+			public override Type Type {
+				get { return typeof(ProxyKind); }
+			}
+
+			public override object Value {
+				get { return kind; }
+			}
+
+			public override string Identifier {
+				get { return identifier; }
+			}
+
+			public ProxyKind Kind {
+				get { return kind; }
+			}
+
+			readonly string identifier;
+			readonly ProxyKind kind;
+
+			public UseProxyKindAttribute (ProxyKind kind)
+			{
+				this.kind = kind;
+				this.identifier = Type.Name;
+			}
+		}
+
 		[AttributeUsage (AttributeTargets.Parameter | AttributeTargets.Property, AllowMultiple = false)]
 		public class SelectProxyKindAttribute : TestParameterAttribute, ITestParameterSource<ProxyKind>
 		{
 			public SelectProxyKindAttribute (string filter = null, TestFlags flags = TestFlags.Browsable)
 				: base (filter, flags)
 			{
+			}
+
+			public bool IncludeSSL {
+				get; set;
 			}
 
 			public IEnumerable<ProxyKind> GetParameters (TestContext ctx, string filter)
@@ -170,7 +203,7 @@ namespace Xamarin.WebTests
 
 				yield return ProxyKind.Unauthenticated;
 
-				if (ctx.IsEnabled (Instance.SSL))
+				if (IncludeSSL && ctx.IsEnabled (Instance.SSL))
 					yield return ProxyKind.SSL;
 			}
 		}

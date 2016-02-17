@@ -41,6 +41,7 @@ namespace Xamarin.WebTests.Tests
 	using ConnectionFramework;
 	using HttpHandlers;
 	using HttpFramework;
+	using TestFramework;
 	using TestRunners;
 	using Resources;
 	using Server;
@@ -63,11 +64,6 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture (Timeout = 30000)]
 	public class TestProxy : ITestHost<ProxyServer>
 	{
-		[WebTestFeatures.SelectProxyKind]
-		public ProxyKind Kind {
-			get; set;
-		}
-
 		readonly static IPortableEndPoint address;
 		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
@@ -88,7 +84,9 @@ namespace Xamarin.WebTests.Tests
 			if (!hasNetwork)
 				throw new InvalidOperationException ();
 
-			switch (Kind) {
+			var kind = ctx.GetParameter<ProxyKind> ();
+
+			switch (kind) {
 			case ProxyKind.Simple:
 				return new ProxyServer (address.CopyWithPort (9999), address.CopyWithPort (9998));
 
@@ -130,10 +128,13 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task Run (
-			TestContext ctx, [TestHost] ProxyServer server,
-			[ProxyHandler] Handler handler, CancellationToken cancellationToken)
+			TestContext ctx,
+			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
+			[TestHost] ProxyServer server,
+			[ProxyHandler] Handler handler,
+			CancellationToken cancellationToken)
 		{
-			if (Kind == ProxyKind.Unauthenticated)
+			if (kind == ProxyKind.Unauthenticated)
 				return TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
@@ -144,18 +145,33 @@ namespace Xamarin.WebTests.Tests
 
 		[AsyncTest]
 		public Task RunAuthentication (
-			TestContext ctx, [TestHost] ProxyServer server,
-			[AuthenticationType] AuthenticationType authType,  [ProxyHandler] Handler handler,
+			TestContext ctx,
+			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
+			[TestHost] ProxyServer server,
+			[AuthenticationType] AuthenticationType authType,
+			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
 			var authHandler = new AuthenticationHandler (authType, handler);
-			if (Kind == ProxyKind.Unauthenticated)
+			if (kind == ProxyKind.Unauthenticated)
 				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken, false,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			else
 				return TestRunner.RunTraditional (
 					ctx, server, authHandler, cancellationToken, false);
+		}
+
+		[Work]
+		[AsyncTest]
+		[WebTestFeatures.UseProxyKindAttribute (ProxyKind.SSL)]
+		public Task RunSsl (
+			TestContext ctx,
+			[TestHost] ProxyServer server,
+			[ProxyHandler] Handler handler,
+			CancellationToken cancellationToken)
+		{
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
 		}
 	}
 }
