@@ -219,6 +219,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			try {
 				await Task.WhenAll (serverTask, clientTask, t1, t2);
+			} catch (ConnectionFinishedException) {
+				throw;
 			} catch (Exception ex) {
 				Exception error = null;
 				CopyError (ctx, ref error, clientTask);
