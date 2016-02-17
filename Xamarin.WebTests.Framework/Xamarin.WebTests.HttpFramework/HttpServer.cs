@@ -55,6 +55,7 @@ namespace Xamarin.WebTests.HttpFramework
 		Listener listener;
 
 		TestContext currentCtx;
+		int countRequests;
 
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
@@ -167,6 +168,10 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
+		public int CountRequests {
+			get { return countRequests; }
+		}
+
 		public Uri RegisterHandler (Handler handler)
 		{
 			var path = string.Format ("/{0}/{1}/", handler.GetType (), ++nextId);
@@ -200,6 +205,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected virtual bool HandleConnection (TestContext ctx, HttpConnection connection)
 		{
+			++countRequests;
 			var request = connection.ReadRequest ();
 			return HandleConnection (ctx, connection, request);
 		}

@@ -35,6 +35,7 @@ using System.Security.Cryptography.X509Certificates;
 
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.Tests
 {
@@ -127,20 +128,23 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		public Task Run (
+		public async Task Run (
 			TestContext ctx,
 			[WebTestFeatures.SelectProxyKind (IncludeSSL = true)] ProxyKind kind,
 			[TestHost] ProxyServer server,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
+			var oldCount = server.CountRequests;
 			if (kind == ProxyKind.Unauthenticated)
-				return TestRunner.RunTraditional (
+				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false,
 					HttpStatusCode.ProxyAuthenticationRequired, WebExceptionStatus.ProtocolError);
 			else
-				return TestRunner.RunTraditional (
+				await TestRunner.RunTraditional (
 					ctx, server, handler, cancellationToken, false);
+			var newCount = server.CountRequests;
+			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 
 		[AsyncTest]
@@ -165,13 +169,16 @@ namespace Xamarin.WebTests.Tests
 		[Work]
 		[AsyncTest]
 		[WebTestFeatures.UseProxyKindAttribute (ProxyKind.SSL)]
-		public Task RunSsl (
+		public async Task RunSsl (
 			TestContext ctx,
 			[TestHost] ProxyServer server,
 			[ProxyHandler] Handler handler,
 			CancellationToken cancellationToken)
 		{
-			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			var oldCount = server.CountRequests;
+			await TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
+			var newCount = server.CountRequests;
+			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 
 		[Work]
