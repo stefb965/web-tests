@@ -38,10 +38,6 @@ namespace Xamarin.WebTests.TestFramework
 
 	public sealed class SharedWebTestFeatures : ITestConfigurationProvider, ISingletonInstance
 	{
-		public readonly TestFeature Mono38;
-		public readonly TestFeature Mono381;
-		public readonly TestFeature Mono361;
-
 		public static SharedWebTestFeatures Instance {
 			get { return DependencyInjector.Get<SharedWebTestFeatures> (); }
 		}
@@ -60,10 +56,6 @@ namespace Xamarin.WebTests.TestFramework
 
 		public IEnumerable<TestFeature> Features {
 			get {
-				yield return Mono38;
-				yield return Mono381;
-				yield return Mono361;
-
 				yield return ExperimentalAttribute.Instance;
 				yield return IncludeNotWorkingAttribute.Instance;
 
@@ -84,12 +76,6 @@ namespace Xamarin.WebTests.TestFramework
 
 		SharedWebTestFeatures ()
 		{
-			Mono38 = new TestFeature (
-				"Mono38", "Mono 3.8.0", () => HasMonoVersion (new Version (3, 8, 0)));
-			Mono381 = new TestFeature (
-				"Mono381", "Mono 3.8.1", () => HasMonoVersion (new Version (3, 8, 1)));
-			Mono361 = new TestFeature (
-				"Mono361", "Mono 3.6.1", () => HasMonoVersion (new Version (3, 6, 1)));
 		}
 
 		public static bool HasMonoVersion (Version version)

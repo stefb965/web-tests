@@ -168,12 +168,10 @@ namespace Xamarin.WebTests
 						yield return ProxyKind.NtlmAuth;
 				}
 
-				if (ctx.IsEnabled (SharedWebTestFeatures.Instance.Mono361)) {
-					yield return ProxyKind.Unauthenticated;
+				yield return ProxyKind.Unauthenticated;
 
-					if (ctx.IsEnabled (Instance.SSL))
-						yield return ProxyKind.SSL;
-				}
+				if (ctx.IsEnabled (Instance.SSL))
+					yield return ProxyKind.SSL;
 			}
 		}
 
@@ -219,30 +217,6 @@ namespace Xamarin.WebTests
 		{
 			public override TestFeature Feature {
 				get { return WebTestFeatures.Instance.Proxy; }
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono38Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return SharedWebTestFeatures.Instance.Mono38; }
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono381Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return SharedWebTestFeatures.Instance.Mono381; }
-			}
-		}
-
-		[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-		public class Mono61Attribute : TestFeatureAttribute
-		{
-			public override TestFeature Feature {
-				get { return SharedWebTestFeatures.Instance.Mono361; }
 			}
 		}
 
