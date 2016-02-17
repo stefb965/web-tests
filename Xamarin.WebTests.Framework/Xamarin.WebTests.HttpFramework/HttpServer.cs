@@ -76,7 +76,7 @@ namespace Xamarin.WebTests.HttpFramework
 				}
 			}
 
-			uri = new Uri (string.Format ("http{0}://{1}:{2}/", sslStreamProvider != null ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
+			uri = new Uri (string.Format ("http{0}://{1}:{2}/", UseSSL ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
 		protected Listener Listener {
