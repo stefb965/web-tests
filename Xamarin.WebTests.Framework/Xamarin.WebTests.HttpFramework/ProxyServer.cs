@@ -86,6 +86,11 @@ namespace Xamarin.WebTests.HttpFramework
 			return proxy;
 		}
 
+		public static IWebProxy CreateSimpleProxy (Uri uri)
+		{
+			return new SimpleProxy (uri);
+		}
+
 		class SimpleProxy : IWebProxy
 		{
 			readonly Uri uri;

@@ -173,5 +173,16 @@ namespace Xamarin.WebTests.Tests
 		{
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, false);
 		}
+
+		[Work]
+		[AsyncTest]
+		[ExpectedException (typeof (NotSupportedException))]
+		public void InvalidProxyScheme (TestContext ctx)
+		{
+			var url = string.Format ("https://{0}:8888/", address.Address);
+			var request = (HttpWebRequest)WebRequest.Create (url);
+			var requestExt = DependencyInjector.GetExtension<HttpWebRequest,IHttpWebRequestExtension> (request);
+			requestExt.SetProxy (ProxyServer.CreateSimpleProxy (new Uri (url)));
+		}
 	}
 }
