@@ -24,22 +24,60 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
-using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests
 {
+	using TestFramework;
+	using HttpFramework;
+	using HttpHandlers;
+	using Server;
+
 	[AsyncTestFixture]
 	public class MartinTest
 	{
+		Handler CreateAuthMaybeNone (Handler handler, AuthenticationType authType)
+		{
+			if (authType == AuthenticationType.None)
+				return handler;
+			var auth = new AuthenticationHandler (authType, handler);
+			return auth;
+		}
+
+		void ConfigureWebClient (WebClient client, Handler handler, CancellationToken cancellationToken)
+		{
+			cancellationToken.Register (() => client.CancelAsync ());
+			var authHandler = handler as AuthenticationHandler;
+			if (authHandler != null)
+				client.Credentials = authHandler.GetCredentials ();
+		}
+
 		[Martin]
 		[AsyncTest]
-		public async Task HelloWorld (TestContext ctx, CancellationToken cancellationToken)
+		public async Task TestMartin (
+			TestContext ctx, [HttpServer (ListenerFlags.SSL)] HttpServer server,
+			CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Hello World!");
+			var post = new PostHandler ("Martin Test", HttpContent.HelloWorld);
+
+			var handler = CreateAuthMaybeNone (post, AuthenticationType.NTLM);
+
+			await handler.RunWithContext (ctx, server, async (uri) => {
+				using (var client = new WebClient ()) {
+					ConfigureWebClient (client, handler, cancellationToken);
+
+					var stream = await client.OpenWriteTaskAsync (uri, "PUT");
+
+					using (var writer = new StreamWriter (stream)) {
+						await post.Content.WriteToAsync (writer);
+					}
+				}
+			});
 		}
 	}
 }
