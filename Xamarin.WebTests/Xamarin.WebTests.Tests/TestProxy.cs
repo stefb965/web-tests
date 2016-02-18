@@ -167,7 +167,6 @@ namespace Xamarin.WebTests.Tests
 					ctx, server, authHandler, cancellationToken, false);
 		}
 
-		[Work]
 		[AsyncTest]
 		[WebTestFeatures.UseProxyKindAttribute (ProxyKind.SSL)]
 		public async Task RunSsl (
@@ -182,7 +181,6 @@ namespace Xamarin.WebTests.Tests
 			ctx.Assert (newCount, Is.GreaterThan (oldCount), "used proxy");
 		}
 
-		[Work]
 		[AsyncTest]
 		[ExpectedException (typeof (NotSupportedException))]
 		public void InvalidProxyScheme (TestContext ctx)
