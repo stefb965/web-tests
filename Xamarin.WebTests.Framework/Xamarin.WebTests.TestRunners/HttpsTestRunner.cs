@@ -170,6 +170,13 @@ namespace Xamarin.WebTests.TestRunners
 					ClientAbortsHandshake = true
 				};
 
+			case ConnectionTestType.MartinTest:
+				return new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					// ClientCertificateValidator = acceptAll,
+					GlobalValidationParameters = new CertificateValidationParameters { Validator = acceptAll },
+					// ExpectTrustFailure = true, ClientAbortsHandshake = true
+				};
+
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -195,6 +202,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override HttpConnection CreateConnection (TestContext ctx, Stream stream)
 		{
 			try {
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection");
 				var connection = base.CreateConnection (ctx, stream);
 
 				/*
@@ -206,6 +214,7 @@ namespace Xamarin.WebTests.TestRunners
 				 *
 				 */
 				var haveReq = connection.HasRequest();
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection #1: {0}", haveReq);
 				if (Parameters.ClientAbortsHandshake) {
 					ctx.Assert (haveReq, Is.False, "expected client to abort handshake");
 					return null;
@@ -213,7 +222,8 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (haveReq, Is.True, "expected non-empty request");
 				}
 				return connection;
-			} catch {
+			} catch (Exception ex) {
+				ctx.LogDebug (5, "HttpTestRunner - CreateConnection ex: {0}", ex);
 				if (Parameters.ClientAbortsHandshake)
 					return null;
 				throw;
