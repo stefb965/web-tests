@@ -38,6 +38,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			AskForClientCertificate = other.AskForClientCertificate;
 			RequireClientCertificate = other.RequireClientCertificate;
 			EnableDebugging = other.EnableDebugging;
+
+			if (other.GlobalValidationParameters != null)
+				GlobalValidationParameters = (CertificateValidationParameters)other.GlobalValidationParameters.Clone ();
 		}
 
 		object ICloneable.Clone ()
@@ -101,6 +104,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public bool EnableDebugging {
 			get;
 			set;
+		}
+
+		public CertificateValidationParameters GlobalValidationParameters {
+			get; set;
 		}
 	}
 }
