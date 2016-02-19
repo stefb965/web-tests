@@ -185,8 +185,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return;
 
 			var io = inner as IOException;
-			if (io != null && io.InnerException is ObjectDisposedException)
-				return;
+			if (io != null) {
+				if (io.InnerException is ObjectDisposedException)
+					return;
+				if (error != null)
+					return;
+			}
 
 			if (error == null) {
 				error = inner;
