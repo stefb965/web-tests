@@ -76,5 +76,9 @@ d0e61bdd
 		<Type>System.Net.Sockets.SocketError</Type>
 		<Type>System.Net.Sockets.SocketFlags</Type>
 		<Type>System.Net.Sockets.SocketShutdown</Type>
+		<!-- Misc Certificate APIs -->
+		<Type>System.Security.Cryptography.AsnEncodedData</Type>
+		<Type>System.Security.Cryptography.Oid</Type>
+		<Type>System.Security.Cryptography.X509Certificates.PublicKey</Type>
     </IncludeTypes>
 </CustomAssemblyDefinition>
