@@ -283,6 +283,11 @@ namespace Xamarin.AsyncTests.Console
 			global::System.Console.WriteLine (message, args);
 		}
 
+		internal static void Debug (string message)
+		{
+			SD.Debug.WriteLine (message);
+		}
+
 		internal static void Debug (string message, params object[] args)
 		{
 			SD.Debug.WriteLine (message, args);
