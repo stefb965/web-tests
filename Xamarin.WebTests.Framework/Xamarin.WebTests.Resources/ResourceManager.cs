@@ -11,8 +11,11 @@ namespace Xamarin.WebTests.Resources
 	public static class ResourceManager
 	{
 		static readonly ICertificateProvider provider;
+		static readonly byte[] cacertData;
 		static readonly X509Certificate cacert;
+		static readonly byte[] serverCertNoKeyData;
 		static readonly X509Certificate serverCertNoKey;
+		static readonly byte[] selfServerCertNoKeyData;
 		static readonly X509Certificate selfServerCertNoKey;
 		static readonly X509Certificate serverCert;
 		static readonly X509Certificate selfServerCert;
@@ -28,6 +31,11 @@ namespace Xamarin.WebTests.Resources
 		static readonly X509Certificate clientCertRsaOnly;
 		static readonly X509Certificate clientCertDheOnly;
 
+		static readonly byte[] tlsTestXamDevData;
+		static readonly X509Certificate tlsTestXamDev;
+		static readonly byte[] tlsTestXamDevCAData;
+		static readonly X509Certificate tlsTestXamDevCA;
+
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -35,9 +43,12 @@ namespace Xamarin.WebTests.Resources
 		static ResourceManager ()
 		{
 			provider = DependencyInjector.Get<ICertificateProvider> ();
-			cacert = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem"));
-			serverCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-cert.pem"));
-			selfServerCertNoKey = provider.GetCertificateFromData (ResourceManager.ReadResource ("CA.server-self.pem"));
+			cacertData = ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem");
+			cacert = provider.GetCertificateFromData (cacertData);
+			serverCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert.pem");
+			serverCertNoKey = provider.GetCertificateFromData (serverCertNoKeyData);
+			selfServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-self.pem");
+			selfServerCertNoKey = provider.GetCertificateFromData (selfServerCertNoKeyData);
 			selfServerCert = provider.GetCertificateWithKey (ReadResource ("CA.server-self.pfx"), "monkey");
 			serverCert = provider.GetCertificateWithKey (ReadResource ("CA.server-cert.pfx"), "monkey");
 			invalidServerCert = provider.GetCertificateWithKey (ReadResource ("CA.invalid-server-cert.pfx"), "monkey");
@@ -51,6 +62,11 @@ namespace Xamarin.WebTests.Resources
 			invalidServerCertRsa512 = provider.GetCertificateWithKey (ReadResource ("CA.server-cert-rsa512.pfx"), "monkey");
 			clientCertRsaOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
 			clientCertDheOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
+
+			tlsTestXamDevData = ResourceManager.ReadResource ("CA.tlstest-xamdev.pem");
+			tlsTestXamDev = provider.GetCertificateFromData (tlsTestXamDevData);
+			tlsTestXamDevCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-ca.pem");
+			tlsTestXamDevCA = provider.GetCertificateFromData (tlsTestXamDevCAData);
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -130,6 +146,28 @@ namespace Xamarin.WebTests.Resources
 				return serverCertNoKey;
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKey;
+			case CertificateResourceType.TlsTestXamDev:
+				return tlsTestXamDev;
+			case CertificateResourceType.TlsTestXamDevCA:
+				return tlsTestXamDevCA;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		public static byte[] GetCertificateData (CertificateResourceType type)
+		{
+			switch (type) {
+			case CertificateResourceType.HamillerTubeCA:
+				return cacertData;
+			case CertificateResourceType.ServerCertificateFromLocalCA:
+				return serverCertNoKeyData;
+			case CertificateResourceType.SelfSignedServerCertificate:
+				return selfServerCertNoKeyData;
+			case CertificateResourceType.TlsTestXamDev:
+				return tlsTestXamDevData;
+			case CertificateResourceType.TlsTestXamDevCA:
+				return tlsTestXamDevCAData;
 			default:
 				throw new InvalidOperationException ();
 			}
