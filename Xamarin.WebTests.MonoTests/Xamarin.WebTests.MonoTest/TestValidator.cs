@@ -37,7 +37,6 @@ using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	[Martin]
 	[AsyncTestFixture]
 	public class TestValidator
 	{
@@ -47,7 +46,7 @@ namespace Xamarin.WebTests.MonoTests
 			var validator = CertificateValidationHelper.GetValidator (null);
 			ctx.Assert (validator, Is.Not.Null, "has validator");
 
-			var certs = GetCertificates ();
+			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
 
 			var result = validator.ValidateCertificate (string.Empty, false, certs);
 			AssertSuccess (ctx, result);
@@ -59,7 +58,7 @@ namespace Xamarin.WebTests.MonoTests
 			var validator = CertificateValidationHelper.GetValidator (null);
 			ctx.Assert (validator, Is.Not.Null, "has validator");
 
-			var certs = GetCertificates ();
+			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
 
 			var result = validator.ValidateCertificate ("invalid.xamdev-error.com", false, certs);
 			AssertError (ctx, result);
@@ -71,19 +70,41 @@ namespace Xamarin.WebTests.MonoTests
 			var validator = CertificateValidationHelper.GetValidator (null);
 			ctx.Assert (validator, Is.Not.Null, "has validator");
 
-			var certs = GetCertificates ();
+			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
 
 			var result = validator.ValidateCertificate ("tlstest-1.xamdev.com", false, certs);
 			AssertSuccess (ctx, result);
 		}
 
-		X509CertificateCollection GetCertificates ()
+		[AsyncTest]
+		public void TestSelfSigned (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var validator = CertificateValidationHelper.GetValidator (null);
+			ctx.Assert (validator, Is.Not.Null, "has validator");
+
+			var certs = GetCertificates (CertificateResourceType.SelfSignedServerCertificate);
+
+			var result = validator.ValidateCertificate (string.Empty, false, certs);
+			AssertError (ctx, result);
+		}
+
+		[AsyncTest]
+		public void TestHamillerTube (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var validator = CertificateValidationHelper.GetValidator (null);
+			ctx.Assert (validator, Is.Not.Null, "has validator");
+
+			var certs = GetCertificates (CertificateResourceType.ServerCertificateFromLocalCA, CertificateResourceType.HamillerTubeCA);
+
+			var result = validator.ValidateCertificate (string.Empty, false, certs);
+			AssertError (ctx, result);
+		}
+
+		X509CertificateCollection GetCertificates (params CertificateResourceType[] types)
 		{
 			var certs = new X509CertificateCollection ();
-			var certData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDev);
-			var certCAData = ResourceManager.GetCertificateData (CertificateResourceType.TlsTestXamDevCA);
-			certs.Add (new X509Certificate2 (certData));
-			certs.Add (new X509Certificate2 (certCAData));
+			foreach (var type in types)
+				certs.Add (new X509Certificate2 (ResourceManager.GetCertificateData (type)));
 			return certs;
 		}
 
