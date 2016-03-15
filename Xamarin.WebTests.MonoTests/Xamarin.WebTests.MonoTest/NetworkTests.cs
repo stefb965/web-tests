@@ -29,15 +29,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
-using Xamarin.AsyncTests.Framework;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.MonoTestFeatures;
 
 namespace Xamarin.WebTests.MonoTests
 {
-	using MonoConnectionFramework;
-	using MonoTestFramework;
-	using MonoTestFeatures;
-
 	[Martin]
 	[Network]
 	[AsyncTestFixture]
