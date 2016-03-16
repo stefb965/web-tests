@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class SelfSignedServerData : CertificateInfo
 	{
-		public SelfSignedServerData ()
-			: base (CertificateResourceType.SelfSignedServerCertificate)
+		public SelfSignedServerData (byte[] rawData)
+			: base (CertificateResourceType.SelfSignedServerCertificate, rawData)
 		{
 		}
 

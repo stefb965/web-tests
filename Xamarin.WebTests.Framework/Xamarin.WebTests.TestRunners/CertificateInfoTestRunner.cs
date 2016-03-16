@@ -30,7 +30,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.Resources;
 
-namespace Xamarin.WebTests.Framework
+namespace Xamarin.WebTests.TestRunners
 {
 	public static class CertificateInfoTestRunner
 	{

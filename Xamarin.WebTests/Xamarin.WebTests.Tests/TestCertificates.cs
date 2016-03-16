@@ -25,15 +25,53 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Security.Cryptography.X509Certificates;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.Resources;
 using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.TestRunners;
 
 namespace Xamarin.WebTests.Tests
 {
-	[Martin]
+	[AsyncTestFixture]
 	public class TestCertificates
 	{
-		public TestCertificates ()
+		[AsyncTest]
+		[CertificateResourceType (CertificateResourceType.HamillerTubeCA)]
+		public void TestSimpleCertificate (TestContext ctx)
 		{
+			Run (ctx);
+		}
+
+		[AsyncTest]
+		[CertificateResourceType (CertificateResourceType.TlsTestXamDev)]
+		public void TestSimpleCertificate2 (TestContext ctx)
+		{
+			Run (ctx);
+		}
+
+		[AsyncTest]
+		[CertificateResourceType (CertificateResourceType.TlsTestXamDevCA)]
+		public void TestSimpleCertificate3 (TestContext ctx)
+		{
+			Run (ctx);
+		}
+
+		[AsyncTest]
+		[CertificateResourceType (CertificateResourceType.SelfSignedServerCertificate)]
+		public void TestSimpleCertificate4 (TestContext ctx)
+		{
+			Run (ctx);
+		}
+
+		void Run (TestContext ctx)
+		{
+			var type = ctx.GetParameter<CertificateResourceType> ();
+			var data = ResourceManager.GetCertificateData (type);
+			var info = ResourceManager.GetCertificateInfo (type);
+			var cert = new X509Certificate2 (data);
+
+			CertificateInfoTestRunner.TestManagedCertificate (ctx, cert, info);
 		}
 	}
 }

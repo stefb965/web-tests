@@ -41,10 +41,10 @@ namespace Xamarin.WebTests.Resources
 			0x05, 0x00
 		};
 
-		protected CertificateInfo (CertificateResourceType type)
+		protected CertificateInfo (CertificateResourceType type, byte[] rawData)
 		{
 			this.type = type;
-			rawData = ResourceManager.GetCertificate (type).GetRawCertData ();
+			this.rawData = rawData;
 		}
 
 		public CertificateResourceType ResourceType {

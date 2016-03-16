@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class HamillerTubeCAData : CertificateInfo
 	{
-		public HamillerTubeCAData ()
-			: base (CertificateResourceType.HamillerTubeCA)
+		public HamillerTubeCAData (byte[] rawData)
+			: base (CertificateResourceType.HamillerTubeCA, rawData)
 		{
 		}
 

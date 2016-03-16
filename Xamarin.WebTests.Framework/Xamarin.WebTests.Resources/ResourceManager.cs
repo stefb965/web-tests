@@ -36,6 +36,11 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] tlsTestXamDevCAData;
 		static readonly X509Certificate tlsTestXamDevCA;
 
+		static readonly HamillerTubeCAData hamillerTubeCAInfo;
+		static readonly TlsTestXamDevData tlsTestXamDevInfo;
+		static readonly TlsTestXamDevCAData tlsTestXamDevCAInfo;
+		static readonly SelfSignedServerData selfSignedServerInfo;
+
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -67,6 +72,11 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDev = provider.GetCertificateFromData (tlsTestXamDevData);
 			tlsTestXamDevCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-ca.pem");
 			tlsTestXamDevCA = provider.GetCertificateFromData (tlsTestXamDevCAData);
+
+			hamillerTubeCAInfo = new HamillerTubeCAData (cacertData);
+			selfSignedServerInfo = new SelfSignedServerData (selfServerCertNoKeyData);
+			tlsTestXamDevInfo = new TlsTestXamDevData (tlsTestXamDevData);
+			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -182,6 +192,22 @@ namespace Xamarin.WebTests.Resources
 				return serverCertHash;
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return serverSelfHash;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		public static CertificateInfo GetCertificateInfo (CertificateResourceType type)
+		{
+			switch (type) {
+			case CertificateResourceType.HamillerTubeCA:
+				return hamillerTubeCAInfo;
+			case CertificateResourceType.SelfSignedServerCertificate:
+				return selfSignedServerInfo;
+			case CertificateResourceType.TlsTestXamDev:
+				return tlsTestXamDevInfo;
+			case CertificateResourceType.TlsTestXamDevCA:
+				return tlsTestXamDevCAInfo;
 			default:
 				throw new InvalidOperationException ();
 			}
