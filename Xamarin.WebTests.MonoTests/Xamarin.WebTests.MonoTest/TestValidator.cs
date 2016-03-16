@@ -35,6 +35,7 @@ using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTestFeatures;
 using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.Resources;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTests
 {
@@ -45,8 +46,19 @@ namespace Xamarin.WebTests.MonoTests
 		[AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.Default)]
 		public void Run (TestContext ctx,
-					       ValidationTestParameters parameters,
-					ValidationTestRunner runner)
+				 ValidationTestParameters parameters,
+				 ValidationTestRunner runner)
+		{
+			runner.Run (ctx);
+		}
+
+		[Martin]
+		[AsyncTest]
+		[ConnectionProviderType (ConnectionProviderType.MartinTest)]
+		[ValidationTestCategory (ValidationTestCategory.UseProvider)]
+		public void RunWithProvider (TestContext ctx,
+		                             ValidationTestParameters parameters,
+		                             ValidationTestRunner runner)
 		{
 			runner.Run (ctx);
 		}

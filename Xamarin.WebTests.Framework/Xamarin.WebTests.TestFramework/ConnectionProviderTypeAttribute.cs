@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestCategory.cs
+// ConnectionProviderTypeAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,13 +25,38 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.ConnectionFramework;
+
+namespace Xamarin.WebTests.TestFramework
 {
-	public enum ValidationTestCategory
+	[AttributeUsage (AttributeTargets.Method, AllowMultiple = false)]
+	public class ConnectionProviderTypeAttribute : FixedTestParameterAttribute
 	{
-		Default,
-		UseProvider,
-		MartinTest
+		public override Type Type {
+			get { return typeof (ConnectionProviderType); }
+		}
+
+		public override object Value {
+			get { return type; }
+		}
+
+		public override string Identifier {
+			get { return identifier; }
+		}
+
+		public ConnectionProviderType ProviderType {
+			get { return type; }
+		}
+
+		readonly string identifier;
+		readonly ConnectionProviderType type;
+
+		public ConnectionProviderTypeAttribute (ConnectionProviderType type)
+		{
+			this.type = type;
+			this.identifier = Type.Name;
+		}
 	}
 }
 
