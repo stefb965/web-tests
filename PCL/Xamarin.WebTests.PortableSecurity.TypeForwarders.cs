@@ -55,6 +55,8 @@
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.AsnEncodedData))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.Oid))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.PublicKey))]
+[assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.X500DistinguishedName))]
+[assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.X500DistinguishedNameFlags))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.X509Certificate))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.X509Certificate2))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(System.Security.Cryptography.X509Certificates.X509Certificate2Collection))]

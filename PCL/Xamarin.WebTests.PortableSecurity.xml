@@ -80,6 +80,8 @@ d0e61bdd
 		<Type>System.Security.Cryptography.AsnEncodedData</Type>
 		<Type>System.Security.Cryptography.Oid</Type>
 		<Type>System.Security.Cryptography.X509Certificates.PublicKey</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X500DistinguishedName</Type>
+		<Type>System.Security.Cryptography.X509Certificates.X500DistinguishedNameFlags</Type>
 		<Type>System.Security.Cryptography.X509Certificates.X509Certificate2</Type>
 		<Type>System.Security.Cryptography.X509Certificates.X509Certificate2Collection</Type>
     </IncludeTypes>
