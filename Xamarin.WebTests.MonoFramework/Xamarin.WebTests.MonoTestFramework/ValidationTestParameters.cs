@@ -25,7 +25,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
@@ -53,6 +55,47 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Identifier; }
 		}
 
+		List<CertificateResourceType> types = new List<CertificateResourceType> ();
+		bool? expectSuccess;
+		int? expectError;
+
+		public IReadOnlyCollection<CertificateResourceType> Types {
+			get {
+				return types;
+			}
+		}
+
+		public string Host {
+			get; set;
+		}
+
+		public bool ExpectSuccess {
+			get {
+				if (expectSuccess == null)
+					throw new InvalidOperationException ();
+				return expectSuccess.Value;
+			}
+			set {
+				expectSuccess = value;
+			}
+		}
+
+		public int? ExpectError {
+			get {
+				return expectError;
+			}
+			set {
+				if (expectSuccess != null && expectSuccess.Value)
+					throw new InvalidOperationException ();
+				expectError = value;
+			}
+		}
+
+		internal void Add (CertificateResourceType type)
+		{
+			types.Add (type);
+		}
+
 		public ValidationTestParameters (ValidationTestCategory category, ValidationTestType type, string identifier)
 		{
 			Category = category;
@@ -62,7 +105,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		protected virtual ValidationTestParameters Clone ()
 		{
-			return new ValidationTestParameters (Category, Type, Identifier);
+			var cloned = new ValidationTestParameters (Category, Type, Identifier);
+			cloned.types.AddRange (types);
+			cloned.Host = Host;
+			cloned.expectSuccess = expectSuccess;
+			cloned.expectError = expectError;
+			return cloned;
 		}
 
 		object ICloneable.Clone ()

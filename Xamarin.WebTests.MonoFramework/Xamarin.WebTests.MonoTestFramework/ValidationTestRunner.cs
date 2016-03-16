@@ -27,10 +27,14 @@
 using System;
 using System.Text;
 using System.Linq;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
+using System.Security.Cryptography.X509Certificates;
+using Mono.Security.Interface;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
@@ -57,6 +61,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			switch (category) {
 			case ValidationTestCategory.Default:
+				yield return ValidationTestType.EmptyHost;
+				yield return ValidationTestType.WrongHost;
+				yield return ValidationTestType.Success;
+				yield return ValidationTestType.RejectSelfSigned;
+				yield return ValidationTestType.RejectHamillerTube;
+				yield break;
+
+			case ValidationTestCategory.MartinTest:
 				yield return ValidationTestType.MartinTest;
 				yield break;
 
@@ -89,7 +101,41 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			switch (type) {
 			case ValidationTestType.MartinTest:
+				goto case ValidationTestType.Success;
+
+			case ValidationTestType.EmptyHost:
+				parameters.Host = string.Empty;
+				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.ExpectSuccess = true;
 				break;
+
+			case ValidationTestType.WrongHost:
+				parameters.Host = "invalid.xamdev-error.com";
+				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.ExpectSuccess = false;
+				break;
+
+			case ValidationTestType.Success:
+				parameters.Host = "tlstest-1.xamdev.com";
+				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.ExpectSuccess = true;
+				break;
+
+			case ValidationTestType.RejectSelfSigned:
+				parameters.Host = string.Empty;
+				parameters.Add (CertificateResourceType.SelfSignedServerCertificate);
+				parameters.ExpectSuccess = false;
+				break;
+
+			case ValidationTestType.RejectHamillerTube:
+				parameters.Host = string.Empty;
+				parameters.Add (CertificateResourceType.ServerCertificateFromLocalCA);
+				parameters.Add (CertificateResourceType.HamillerTubeCA);
+				parameters.ExpectSuccess = false;
+				break;;
 
 			default:
 				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
@@ -102,6 +148,45 @@ namespace Xamarin.WebTests.MonoTestFramework
 		public void Run (TestContext ctx)
 		{
 			ctx.LogMessage ("RUN: {0}", this);
+
+			var validator = GetValidator ();
+			ctx.Assert (validator, Is.Not.Null, "has validator");
+
+			var certificates = GetCertificates ();
+
+			var result = validator.ValidateCertificate (Parameters.Host, false, certificates);
+			AssertResult (ctx, result);
+		}
+
+		ICertificateValidator GetValidator ()
+		{
+			return CertificateValidationHelper.GetValidator (null);
+		}
+
+		X509CertificateCollection GetCertificates ()
+		{
+			var certs = new X509CertificateCollection ();
+			foreach (var type in Parameters.Types)
+				certs.Add (new X509Certificate2 (ResourceManager.GetCertificateData (type)));
+			return certs;
+		}
+
+		void AssertResult (TestContext ctx, ValidationResult result)
+		{
+			if (Parameters.ExpectSuccess) {
+				ctx.Assert (result, Is.Not.Null, "has result");
+				ctx.Assert (result.Trusted, Is.True, "trusted");
+				ctx.Assert (result.UserDenied, Is.False, "not user denied");
+				ctx.Assert (result.ErrorCode, Is.EqualTo (0), "error code");
+			} else {
+				ctx.Assert (result, Is.Not.Null, "has result");
+				ctx.Assert (result.Trusted, Is.False, "not trusted");
+				ctx.Assert (result.UserDenied, Is.False, "not user denied");
+				if (Parameters.ExpectError != null)
+					ctx.Assert (result.ErrorCode, Is.EqualTo (Parameters.ExpectError.Value), "error code");
+				else
+					ctx.Assert (result.ErrorCode, Is.Not.EqualTo (0), "error code");
+			}
 		}
 
 		protected internal static Task FinishedTask {

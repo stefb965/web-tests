@@ -29,7 +29,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	public enum ValidationTestCategory
 	{
-		Default
+		Default,
+		MartinTest
 	}
 }
 

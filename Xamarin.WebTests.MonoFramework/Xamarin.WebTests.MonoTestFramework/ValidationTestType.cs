@@ -29,7 +29,13 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	public enum ValidationTestType
 	{
-		MartinTest
+		EmptyHost,
+		WrongHost,
+
+		MartinTest,
+		Success,
+		RejectSelfSigned,
+		RejectHamillerTube
 	}
 }
 

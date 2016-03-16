@@ -44,98 +44,21 @@ namespace Xamarin.WebTests.MonoTests
 		[Martin]
 		[AsyncTest]
 		[ValidationTestCategory (ValidationTestCategory.Default)]
+		public void Run (TestContext ctx,
+					       ValidationTestParameters parameters,
+					ValidationTestRunner runner)
+		{
+			runner.Run (ctx);
+		}
+
+		[Martin]
+		[AsyncTest]
+		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
 		public void MartinTest (TestContext ctx,
 		                       	ValidationTestParameters parameters,
 		                        ValidationTestRunner runner)
 		{
 			runner.Run (ctx);
-		}
-
-		[AsyncTest]
-		public void TestEmptyHost (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var validator = CertificateValidationHelper.GetValidator (null);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
-
-			var result = validator.ValidateCertificate (string.Empty, false, certs);
-			AssertSuccess (ctx, result);
-		}
-
-		[AsyncTest]
-		public void TestWrongHost (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var validator = CertificateValidationHelper.GetValidator (null);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
-
-			var result = validator.ValidateCertificate ("invalid.xamdev-error.com", false, certs);
-			AssertError (ctx, result);
-		}
-
-		[AsyncTest]
-		public void TestSuccess (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var validator = CertificateValidationHelper.GetValidator (null);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certs = GetCertificates (CertificateResourceType.TlsTestXamDev, CertificateResourceType.TlsTestXamDevCA);
-
-			var result = validator.ValidateCertificate ("tlstest-1.xamdev.com", false, certs);
-			AssertSuccess (ctx, result);
-		}
-
-		[AsyncTest]
-		public void TestSelfSigned (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var validator = CertificateValidationHelper.GetValidator (null);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certs = GetCertificates (CertificateResourceType.SelfSignedServerCertificate);
-
-			var result = validator.ValidateCertificate (string.Empty, false, certs);
-			AssertError (ctx, result);
-		}
-
-		[AsyncTest]
-		public void TestHamillerTube (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var validator = CertificateValidationHelper.GetValidator (null);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certs = GetCertificates (CertificateResourceType.ServerCertificateFromLocalCA, CertificateResourceType.HamillerTubeCA);
-
-			var result = validator.ValidateCertificate (string.Empty, false, certs);
-			AssertError (ctx, result);
-		}
-
-		X509CertificateCollection GetCertificates (params CertificateResourceType[] types)
-		{
-			var certs = new X509CertificateCollection ();
-			foreach (var type in types)
-				certs.Add (new X509Certificate2 (ResourceManager.GetCertificateData (type)));
-			return certs;
-		}
-
-		void AssertSuccess (TestContext ctx, ValidationResult result)
-		{
-			ctx.Assert (result, Is.Not.Null, "has result");
-			ctx.Assert (result.Trusted, Is.True, "trusted");
-			ctx.Assert (result.UserDenied, Is.False, "not user denied");
-			ctx.Assert (result.ErrorCode, Is.EqualTo (0), "error code");
-		}
-
-		void AssertError (TestContext ctx, ValidationResult result, int? expectedError = null)
-		{
-			ctx.Assert (result, Is.Not.Null, "has result");
-			ctx.Assert (result.Trusted, Is.False, "not trusted");
-			ctx.Assert (result.UserDenied, Is.False, "not user denied");
-			if (expectedError != null)
-				ctx.Assert (result.ErrorCode, Is.EqualTo (expectedError.Value), "error code");
-			else
-				ctx.Assert (result.ErrorCode, Is.Not.EqualTo (0), "error code");
 		}
 	}
 }
