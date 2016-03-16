@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Resources
 		}
 
 		const string subject = "/CN=Hamiller-Tube.local/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/emailAddress=martin.baulig@xamarin.com";
+		const string managedSubject = "E=martin.baulig@xamarin.com, OU=Engineering, O=Xamarin, S=Massachusetts, C=US, CN=Hamiller-Tube.local";
 
 		static readonly byte[] hash = new byte[] {
 			0xaa, 0xab, 0x62, 0x5a, 0x1f, 0x5e, 0xa1, 0xdb, 0xdb, 0xb6, 0x58, 0xfb, 0x36, 0x06, 0x13, 0xbe, 0x49, 0xe6, 0x7a, 0xec
@@ -115,6 +116,14 @@ namespace Xamarin.WebTests.Resources
 
 		static readonly CertificateNameInfo subjectName = new CertificateNameInfo (0x2f32c9b8L, 0xa40240fL, subjectName_rawData, subjectName_rawDataCanon, subject);
 		static readonly CertificateNameInfo issuerName = new CertificateNameInfo (0x2f32c9b8L, 0xa40240fL, subjectName_rawData, subjectName_rawDataCanon, subject);
+
+		public override string ManagedSubjectName {
+			get { return managedSubject; }
+		}
+
+		public override string ManagedIssuerName {
+			get { return managedSubject; }
+		}
 
 		public override byte[] Hash {
 			get { return hash; }

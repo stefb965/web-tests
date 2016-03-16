@@ -38,6 +38,9 @@ namespace Xamarin.WebTests.Resources
 		const string subject = "/CN=Hamiller-Tube.local/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/emailAddress=martin.baulig@xamarin.com";
 		const string issuer = "/CN=Hamiller-Tube.local/C=US/ST=Massachusetts/O=Xamarin/OU=Engineering/emailAddress=martin.baulig@xamarin.com";
 
+		const string managedSubject = "E=martin.baulig@xamarin.com, OU=Engineering, O=Xamarin, S=Massachusetts, C=US, CN=Hamiller-Tube.local";
+		const string managedIssuer = "E=martin.baulig@xamarin.com, OU=Engineering, O=Xamarin, S=Massachusetts, C=US, CN=Hamiller-Tube.local";
+
 		internal static readonly byte[] hash = new byte[] {
 			0xec, 0x73, 0x2f, 0xee, 0xe4, 0x93, 0xa9, 0x16, 0x35, 0xe6, 0xbd, 0xc1, 0x83, 0x77, 0xee, 0xb3,
 			0xc1, 0x1d, 0x6e, 0x16
@@ -119,6 +122,18 @@ namespace Xamarin.WebTests.Resources
 			0x0a, 0xb4, 0x24, 0xa6, 0xb7, 0xce, 0x58, 0x0e, 0x16, 0x86, 0x91, 0xa6, 0x5e, 0x45, 0x62, 0xd7,
 			0x2b, 0x75, 0x08, 0x84, 0x09, 0x15, 0xb1, 0x7a, 0x39, 0x02, 0x03, 0x01, 0x00, 0x01
 		};
+
+		public override string ManagedSubjectName {
+			get {
+				return managedSubject;
+			}
+		}
+
+		public override string ManagedIssuerName {
+			get {
+				return managedIssuer;
+			}
+		}
 
 		public override byte[] Hash {
 			get {

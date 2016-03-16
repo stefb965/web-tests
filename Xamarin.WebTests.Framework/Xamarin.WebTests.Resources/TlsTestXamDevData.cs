@@ -37,6 +37,8 @@ namespace Xamarin.WebTests.Resources
 
 		const string subject = "/C=US/ST=California/L=San Francisco/O=Xamarin Inc./CN=*.xamdev.com";
 		const string issuer = "/C=US/O=DigiCert Inc/CN=DigiCert SHA2 Secure Server CA";
+		const string managedSubject = "CN=*.xamdev.com, O=Xamarin Inc., L=San Francisco, S=California, C=US";
+		const string managedIssuer = "CN=DigiCert SHA2 Secure Server CA, O=DigiCert Inc, C=US";
 
 		internal static readonly byte[] hash = new byte[] {
 			0x32, 0xa9, 0x9d, 0xc2, 0xce, 0x76, 0xe0, 0x67, 0xcc, 0x0d, 0xc0, 0x37, 0x30, 0xb8, 0x7c, 0xaa,
@@ -110,6 +112,18 @@ namespace Xamarin.WebTests.Resources
 				0x1b, 0xe0, 0xd3, 0xa9, 0xec, 0xae, 0x9c, 0x66, 0xbc, 0xd6, 0x30, 0x53, 0x09, 0xf7, 0x2e, 0x48,
 				0x34, 0x7c, 0x4b, 0x40, 0xfa, 0xd9, 0xc0, 0x0b, 0x2b, 0x02, 0x03, 0x01, 0x00, 0x01
 		};
+
+		public override string ManagedSubjectName {
+			get {
+				return managedSubject;
+			}
+		}
+
+		public override string ManagedIssuerName {
+			get {
+				return managedIssuer;
+			}
+		}
 
 		public override byte[] Hash {
 			get {

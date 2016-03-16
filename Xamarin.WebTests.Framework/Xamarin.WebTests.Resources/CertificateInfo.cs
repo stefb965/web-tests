@@ -59,6 +59,9 @@ namespace Xamarin.WebTests.Resources
 			}
 		}
 
+		public abstract string ManagedSubjectName { get; }
+		public abstract string ManagedIssuerName { get; }
+
 		public abstract byte[] Hash { get; }
 		public abstract CertificateNameInfo IssuerName { get; }
 		public abstract string IssuerNameString { get; }
