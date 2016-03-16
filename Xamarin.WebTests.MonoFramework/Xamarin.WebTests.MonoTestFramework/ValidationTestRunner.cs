@@ -180,7 +180,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 		{
 			var certs = new X509CertificateCollection ();
 			foreach (var type in Parameters.Types)
-				certs.Add (new X509Certificate2 (ResourceManager.GetCertificateData (type)));
+				certs.Add (new X509Certificate (ResourceManager.GetCertificateData (type)));
 			return certs;
 		}
 

@@ -51,27 +51,6 @@ namespace Xamarin.WebTests.MonoTests
 		{
 			runner.Run (ctx);
 		}
-
-		[Martin]
-		[AsyncTest]
-		[ConnectionProviderType (ConnectionProviderType.MartinTest)]
-		[ValidationTestCategory (ValidationTestCategory.UseProvider)]
-		public void RunWithProvider (TestContext ctx,
-		                             ValidationTestParameters parameters,
-		                             ValidationTestRunner runner)
-		{
-			runner.Run (ctx);
-		}
-
-		[Martin]
-		[AsyncTest]
-		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
-		public void MartinTest (TestContext ctx,
-		                       	ValidationTestParameters parameters,
-		                        ValidationTestRunner runner)
-		{
-			runner.Run (ctx);
-		}
 	}
 }
 
