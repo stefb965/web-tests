@@ -1,10 +1,11 @@
 ﻿//
-// NetworkTests.cs
+// ValidationTestCategory.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
 // Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +25,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
-
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.MonoTestFramework
 {
-	[Network]
-	[AsyncTestFixture]
-	public class NetworkTests
+	public enum ValidationTestCategory
 	{
-		[AsyncTest]
-		public async Task TestWebClient (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var wc = new WebClient ();
-			var result = await wc.DownloadStringTaskAsync ("https://tlstest-1.xamdev.com/").ConfigureAwait (false);
-			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
-		}
+		Default
 	}
 }
 

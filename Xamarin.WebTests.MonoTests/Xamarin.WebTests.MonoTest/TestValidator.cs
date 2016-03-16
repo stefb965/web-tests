@@ -33,6 +33,7 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.MonoTestFeatures;
+using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.Resources;
 
 namespace Xamarin.WebTests.MonoTests
@@ -40,6 +41,16 @@ namespace Xamarin.WebTests.MonoTests
 	[AsyncTestFixture]
 	public class TestValidator
 	{
+		[Martin]
+		[AsyncTest]
+		[ValidationTestCategory (ValidationTestCategory.Default)]
+		public void MartinTest (TestContext ctx,
+		                       	ValidationTestParameters parameters,
+		                        ValidationTestRunner runner)
+		{
+			runner.Run (ctx);
+		}
+
 		[AsyncTest]
 		public void TestEmptyHost (TestContext ctx, CancellationToken cancellationToken)
 		{

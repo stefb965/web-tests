@@ -73,6 +73,13 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleCertificateHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\IOSAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\NetworkAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestParameters.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestType.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestCategory.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\ValidationTestParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\ValidationTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.MonoTestFeatures\ValidationTestCategoryAttribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

@@ -1,10 +1,11 @@
 ﻿//
-// NetworkTests.cs
+// ValidationTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
 // Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,27 +25,46 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.MonoTestFeatures
 {
-	[Network]
-	[AsyncTestFixture]
-	public class NetworkTests
+	using MonoTestFramework;
+
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class ValidationTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ValidationTestParameters>
 	{
-		[AsyncTest]
-		public async Task TestWebClient (TestContext ctx, CancellationToken cancellationToken)
+		public ValidationTestType? Type {
+			get; set;
+		}
+
+		public ValidationTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
-			var wc = new WebClient ();
-			var result = await wc.DownloadStringTaskAsync ("https://tlstest-1.xamdev.com/").ConfigureAwait (false);
-			ctx.Assert (result.Length, Is.GreaterThan (0), "result");
+		}
+
+		public ValidationTestParametersAttribute (ValidationTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<ValidationTestParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ValidationTestCategory> ();
+
+			var parameters = ValidationTestRunner.GetParameters (ctx, category);
+			if (Type != null)
+				return parameters.Where (p => p.Type == Type);
+
+			return parameters;
 		}
 	}
+
 }
 
