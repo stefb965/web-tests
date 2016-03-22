@@ -50,8 +50,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		List<CertificateResourceType> types = new List<CertificateResourceType> ();
-		bool? expectSuccess;
-		int? expectError;
 
 		public IReadOnlyCollection<CertificateResourceType> Types {
 			get {
@@ -63,29 +61,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
-		public bool ExpectSuccess {
-			get {
-				if (expectSuccess == null)
-					throw new InvalidOperationException ();
-				return expectSuccess.Value;
-			}
-			set {
-				expectSuccess = value;
-			}
-		}
-
-		public int? ExpectError {
-			get {
-				return expectError;
-			}
-			set {
-				if (expectSuccess != null && expectSuccess.Value)
-					throw new InvalidOperationException ();
-				expectError = value;
-			}
-		}
-
-		internal void Add (CertificateResourceType type)
+		public void Add (CertificateResourceType type)
 		{
 			types.Add (type);
 		}
@@ -102,8 +78,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Identifier = other.Identifier;
 			types.AddRange (other.types);
 			Host = other.Host;
-			expectSuccess = other.expectSuccess;
-			expectError = other.expectError;
 		}
 
 		object ICloneable.Clone ()

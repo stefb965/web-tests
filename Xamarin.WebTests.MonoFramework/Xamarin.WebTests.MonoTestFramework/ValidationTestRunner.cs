@@ -64,24 +64,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return certs;
 		}
 
-		protected void AssertResult (TestContext ctx, ValidationResult result)
-		{
-			if (Parameters.ExpectSuccess) {
-				ctx.Assert (result, Is.Not.Null, "has result");
-				ctx.Assert (result.Trusted, Is.True, "trusted");
-				ctx.Assert (result.UserDenied, Is.False, "not user denied");
-				ctx.Assert (result.ErrorCode, Is.EqualTo (0), "error code");
-			} else {
-				ctx.Assert (result, Is.Not.Null, "has result");
-				ctx.Assert (result.Trusted, Is.False, "not trusted");
-				ctx.Assert (result.UserDenied, Is.False, "not user denied");
-				if (Parameters.ExpectError != null)
-					ctx.Assert (result.ErrorCode, Is.EqualTo (Parameters.ExpectError.Value), "error code");
-				else
-					ctx.Assert (result.ErrorCode, Is.Not.EqualTo (0), "error code");
-			}
-		}
-
 		protected internal static Task FinishedTask {
 			get { return Task.FromResult<object> (null); }
 		}

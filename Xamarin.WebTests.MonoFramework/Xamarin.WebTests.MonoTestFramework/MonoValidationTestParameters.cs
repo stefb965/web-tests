@@ -47,6 +47,33 @@ namespace Xamarin.WebTests.MonoTestFramework
 			: base (other)
 		{
 			Type = other.Type;
+			expectSuccess = other.expectSuccess;
+			expectError = other.expectError;
+		}
+
+		bool? expectSuccess;
+		int? expectError;
+
+		public bool ExpectSuccess {
+			get {
+				if (expectSuccess == null)
+					throw new InvalidOperationException ();
+				return expectSuccess.Value;
+			}
+			set {
+				expectSuccess = value;
+			}
+		}
+
+		public int? ExpectError {
+			get {
+				return expectError;
+			}
+			set {
+				if (expectSuccess != null && expectSuccess.Value)
+					throw new InvalidOperationException ();
+				expectError = value;
+			}
 		}
 
 		public override ValidationTestParameters DeepClone ()
