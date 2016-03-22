@@ -86,6 +86,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get { return Task.FromResult<object> (null); }
 		}
 
+		protected virtual void PreRun (TestContext ctx)
+		{
+		}
+
+		protected virtual void PostRun (TestContext ctx)
+		{
+		}
+
 		#region ITestInstance implementation
 
 		public Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -95,12 +103,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.Run (() => PreRun (ctx));
 		}
 
 		public virtual Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return FinishedTask;
+			return Task.Run (() => PostRun (ctx));
 		}
 
 		public Task Destroy (TestContext ctx, CancellationToken cancellationToken)
