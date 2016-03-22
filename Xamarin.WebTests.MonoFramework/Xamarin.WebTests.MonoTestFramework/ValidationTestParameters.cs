@@ -50,10 +50,17 @@ namespace Xamarin.WebTests.MonoTestFramework
 		}
 
 		List<CertificateResourceType> types = new List<CertificateResourceType> ();
+		List<CertificateResourceType> trustedRoots = new List<CertificateResourceType> ();
 
 		public IReadOnlyCollection<CertificateResourceType> Types {
 			get {
 				return types;
+			}
+		}
+
+		public IReadOnlyCollection<CertificateResourceType> TrustedRoots {
+			get {
+				return trustedRoots;
 			}
 		}
 
@@ -64,6 +71,11 @@ namespace Xamarin.WebTests.MonoTestFramework
 		public void Add (CertificateResourceType type)
 		{
 			types.Add (type);
+		}
+
+		public void AddTrustedRoot (CertificateResourceType type)
+		{
+			trustedRoots.Add (type);
 		}
 
 		public ValidationTestParameters (ValidationTestCategory category, string identifier)
@@ -77,6 +89,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Category = other.Category;
 			Identifier = other.Identifier;
 			types.AddRange (other.types);
+			trustedRoots.AddRange (other.trustedRoots);
 			Host = other.Host;
 		}
 
