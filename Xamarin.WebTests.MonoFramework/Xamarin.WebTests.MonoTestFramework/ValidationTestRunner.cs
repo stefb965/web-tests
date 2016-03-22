@@ -54,36 +54,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Parameters = parameters;
 		}
 
+		public abstract void Run (TestContext ctx);
 
-		public void Run (TestContext ctx)
-		{
-			ctx.LogMessage ("RUN: {0}", this);
-
-			var validator = GetValidator (ctx);
-			ctx.Assert (validator, Is.Not.Null, "has validator");
-
-			var certificates = GetCertificates ();
-
-			var result = validator.ValidateCertificate (Parameters.Host, false, certificates);
-			AssertResult (ctx, result);
-		}
-
-		ICertificateValidator GetValidator (TestContext ctx)
-		{
-			if (Parameters.Category == ValidationTestCategory.UseProvider) {
-				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
-				ConnectionProviderType providerType;
-				if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
-					providerType = ConnectionProviderType.DotNet;
-
-				var provider = (MonoConnectionProvider)factory.GetProvider (providerType);
-				return CertificateValidationHelper.GetValidator (provider.MonoTlsProvider, null);
-			} else {
-				return CertificateValidationHelper.GetValidator (null);
-			}
-		}
-
-		X509CertificateCollection GetCertificates ()
+		protected X509CertificateCollection GetCertificates ()
 		{
 			var certs = new X509CertificateCollection ();
 			foreach (var type in Parameters.Types)
@@ -91,7 +64,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return certs;
 		}
 
-		void AssertResult (TestContext ctx, ValidationResult result)
+		protected void AssertResult (TestContext ctx, ValidationResult result)
 		{
 			if (Parameters.ExpectSuccess) {
 				ctx.Assert (result, Is.Not.Null, "has result");

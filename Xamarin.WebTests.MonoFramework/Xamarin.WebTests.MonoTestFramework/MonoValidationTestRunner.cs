@@ -148,6 +148,34 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			return parameters;
 		}
+
+		public override void Run (TestContext ctx)
+		{
+			ctx.LogMessage ("RUN: {0}", this);
+
+			var validator = GetValidator (ctx);
+			ctx.Assert (validator, Is.Not.Null, "has validator");
+
+			var certificates = GetCertificates ();
+
+			var result = validator.ValidateCertificate (Parameters.Host, false, certificates);
+			AssertResult (ctx, result);
+		}
+
+		ICertificateValidator GetValidator (TestContext ctx)
+		{
+			if (Parameters.Category == ValidationTestCategory.UseProvider) {
+				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+				ConnectionProviderType providerType;
+				if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))
+					providerType = ConnectionProviderType.DotNet;
+
+				var provider = (MonoConnectionProvider)factory.GetProvider (providerType);
+				return CertificateValidationHelper.GetValidator (provider.MonoTlsProvider, null);
+			} else {
+				return CertificateValidationHelper.GetValidator (null);
+			}
+		}
 	}
 }
 
