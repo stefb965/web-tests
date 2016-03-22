@@ -33,15 +33,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	using MonoTestFeatures;
 
-	[ValidationTestParameters]
-	public class ValidationTestParameters : ITestParameter, ICloneable
+	public abstract class ValidationTestParameters : ITestParameter, ICloneable
 	{
 		public ValidationTestCategory Category {
-			get;
-			private set;
-		}
-
-		public ValidationTestType Type {
 			get;
 			private set;
 		}
@@ -96,27 +90,28 @@ namespace Xamarin.WebTests.MonoTestFramework
 			types.Add (type);
 		}
 
-		public ValidationTestParameters (ValidationTestCategory category, ValidationTestType type, string identifier)
+		public ValidationTestParameters (ValidationTestCategory category, string identifier)
 		{
 			Category = category;
-			Type = type;
 			Identifier = identifier;
 		}
 
-		protected virtual ValidationTestParameters Clone ()
+		protected ValidationTestParameters (ValidationTestParameters other)
 		{
-			var cloned = new ValidationTestParameters (Category, Type, Identifier);
-			cloned.types.AddRange (types);
-			cloned.Host = Host;
-			cloned.expectSuccess = expectSuccess;
-			cloned.expectError = expectError;
-			return cloned;
+			Category = other.Category;
+			Identifier = other.Identifier;
+			types.AddRange (other.types);
+			Host = other.Host;
+			expectSuccess = other.expectSuccess;
+			expectError = other.expectError;
 		}
 
 		object ICloneable.Clone ()
 		{
-			return Clone ();
+			return DeepClone ();
 		}
+
+		public abstract ValidationTestParameters DeepClone ();
 	}
 }
 

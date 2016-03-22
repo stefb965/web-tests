@@ -42,16 +42,11 @@ namespace Xamarin.WebTests.MonoTestFramework
 {
 	using MonoTestFeatures;
 
-	[ValidationTestRunner]
-	public class ValidationTestRunner : ITestInstance, IDisposable
+	public abstract class ValidationTestRunner : ITestInstance, IDisposable
 	{
 		public ValidationTestParameters Parameters {
 			get;
 			private set;
-		}
-
-		public ValidationTestType Type {
-			get { return Parameters.Type; }
 		}
 
 		public ValidationTestRunner (ValidationTestParameters parameters)
@@ -59,94 +54,6 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Parameters = parameters;
 		}
 
-		public static IEnumerable<ValidationTestType> GetTestTypes (TestContext ctx, ValidationTestCategory category)
-		{
-			switch (category) {
-			case ValidationTestCategory.Default:
-			case ValidationTestCategory.UseProvider:
-				yield return ValidationTestType.EmptyHost;
-				yield return ValidationTestType.WrongHost;
-				yield return ValidationTestType.Success;
-				yield return ValidationTestType.RejectSelfSigned;
-				yield return ValidationTestType.RejectHamillerTube;
-				yield break;
-
-			case ValidationTestCategory.MartinTest:
-				yield return ValidationTestType.MartinTest;
-				yield break;
-
-			default:
-				ctx.AssertFail ("Unspported validation category: '{0}.", category);
-				yield break;
-			}
-		}
-
-		public static IEnumerable<ValidationTestParameters> GetParameters (TestContext ctx, ValidationTestCategory category)
-		{
-			return GetTestTypes (ctx, category).Select (t => Create (ctx, category, t));
-		}
-
-		static ValidationTestParameters CreateParameters (ValidationTestCategory category, ValidationTestType type, params object[] args)
-		{
-			var sb = new StringBuilder ();
-			sb.Append (type);
-			foreach (var arg in args) {
-				sb.AppendFormat (":{0}", arg);
-			}
-			var name = sb.ToString ();
-
-			return new ValidationTestParameters (category, type, name);
-		}
-
-		static ValidationTestParameters Create (TestContext ctx, ValidationTestCategory category, ValidationTestType type)
-		{
-			var parameters = CreateParameters (category, type);
-
-			switch (type) {
-			case ValidationTestType.MartinTest:
-				goto case ValidationTestType.Success;
-
-			case ValidationTestType.EmptyHost:
-				parameters.Host = string.Empty;
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
-				parameters.ExpectSuccess = true;
-				break;
-
-			case ValidationTestType.WrongHost:
-				parameters.Host = "invalid.xamdev-error.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
-				parameters.ExpectSuccess = false;
-				break;
-
-			case ValidationTestType.Success:
-				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
-				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
-				parameters.ExpectSuccess = true;
-				break;
-
-			case ValidationTestType.RejectSelfSigned:
-				parameters.Host = string.Empty;
-				parameters.Add (CertificateResourceType.SelfSignedServerCertificate);
-				parameters.ExpectSuccess = false;
-				break;
-
-			case ValidationTestType.RejectHamillerTube:
-				parameters.Host = string.Empty;
-				parameters.Add (CertificateResourceType.ServerCertificateFromLocalCA);
-				parameters.Add (CertificateResourceType.HamillerTubeCA);
-				parameters.ExpectSuccess = false;
-				break;;
-
-			default:
-				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);
-				break;
-			}
-
-			return parameters;
-		}
 
 		public void Run (TestContext ctx)
 		{
@@ -251,7 +158,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public override string ToString ()
 		{
-			return string.Format ("[ValidationTestRunner: {0}]", Parameters.Identifier);
+			return string.Format ("[{0}: {1}]", GetType ().Name, Parameters.Identifier);
 		}
 	}
 }

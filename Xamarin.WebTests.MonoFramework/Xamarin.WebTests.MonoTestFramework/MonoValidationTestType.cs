@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestType.cs
+// MonoValidationTestType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -27,7 +27,7 @@
 using System;
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	public enum ValidationTestType
+	public enum MonoValidationTestType
 	{
 		EmptyHost,
 		WrongHost,

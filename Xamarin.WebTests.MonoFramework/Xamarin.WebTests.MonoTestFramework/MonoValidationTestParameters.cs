@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestRunnerAttribute.cs
+// MonoValidationTestParameters.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,23 +25,33 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-
-namespace Xamarin.WebTests.MonoTestFeatures
+namespace Xamarin.WebTests.MonoTestFramework
 {
-	using MonoTestFramework;
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class ValidationTestRunnerAttribute : TestHostAttribute, ITestHost<ValidationTestRunner>
+	using MonoTestFeatures;
+
+	[MonoValidationTestParameters]
+	public class MonoValidationTestParameters : ValidationTestParameters
 	{
-		public ValidationTestRunnerAttribute ()
-			: base (typeof (ValidationTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
-		{
+		public MonoValidationTestType Type {
+			get;
+			private set;
 		}
 
-		public ValidationTestRunner CreateInstance (TestContext ctx)
+		public MonoValidationTestParameters (ValidationTestCategory category, MonoValidationTestType type, string identifier)
+			: base (category, identifier)
 		{
-			var parameters = ctx.GetParameter<ValidationTestParameters> ();
-			return new ValidationTestRunner (parameters);
+			Type = type;
+		}
+
+		protected MonoValidationTestParameters (MonoValidationTestParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+		}
+
+		public override ValidationTestParameters DeepClone ()
+		{
+			return new MonoValidationTestParameters (this);
 		}
 	}
 }

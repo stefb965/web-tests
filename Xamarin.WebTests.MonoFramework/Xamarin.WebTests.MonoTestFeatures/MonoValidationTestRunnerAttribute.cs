@@ -1,10 +1,11 @@
 ﻿//
-// TestValidator.cs
+// MonoValidationTestRunnerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
 // Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,31 +25,24 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Security.Cryptography.X509Certificates;
-using Mono.Security.Interface;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
-using Xamarin.WebTests.MonoTestFramework;
-using Xamarin.WebTests.Resources;
-using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.MonoTestFeatures
 {
-	[AsyncTestFixture]
-	public class TestValidator
+	using MonoTestFramework;
+
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class MonoValidationTestRunnerAttribute : TestHostAttribute, ITestHost<MonoValidationTestRunner>
 	{
-		[AsyncTest]
-		[ValidationTestCategory (ValidationTestCategory.Default)]
-		public void Run (TestContext ctx,
-				 MonoValidationTestParameters parameters,
-				 MonoValidationTestRunner runner)
+		public MonoValidationTestRunnerAttribute ()
+			: base (typeof (MonoValidationTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
 		{
-			runner.Run (ctx);
+		}
+
+		public MonoValidationTestRunner CreateInstance (TestContext ctx)
+		{
+			var parameters = ctx.GetParameter<MonoValidationTestParameters> ();
+			return new MonoValidationTestRunner (parameters);
 		}
 	}
 }

@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestParametersAttribute.cs
+// MonoValidationTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -34,31 +34,31 @@ namespace Xamarin.WebTests.MonoTestFeatures
 	using MonoTestFramework;
 
 	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class ValidationTestParametersAttribute : TestParameterAttribute, ITestParameterSource<ValidationTestParameters>
+	public class MonoValidationTestParametersAttribute : TestParameterAttribute, ITestParameterSource<MonoValidationTestParameters>
 	{
-		public ValidationTestType? Type {
+		public MonoValidationTestType? Type {
 			get; set;
 		}
 
-		public ValidationTestParametersAttribute (string filter = null)
+		public MonoValidationTestParametersAttribute (string filter = null)
 			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 		}
 
-		public ValidationTestParametersAttribute (ValidationTestType type)
+		public MonoValidationTestParametersAttribute (MonoValidationTestType type)
 			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 			Type = type;
 		}
 
-		public IEnumerable<ValidationTestParameters> GetParameters (TestContext ctx, string filter)
+		public IEnumerable<MonoValidationTestParameters> GetParameters (TestContext ctx, string filter)
 		{
 			if (filter != null)
 				throw new NotImplementedException ();
 
 			var category = ctx.GetParameter<ValidationTestCategory> ();
 
-			var parameters = ValidationTestRunner.GetParameters (ctx, category);
+			var parameters = MonoValidationTestRunner.GetParameters (ctx, category);
 			if (Type != null)
 				return parameters.Where (p => p.Type == Type);
 
