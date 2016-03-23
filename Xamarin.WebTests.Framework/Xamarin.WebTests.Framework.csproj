@@ -166,9 +166,10 @@
     <Compile Include="Xamarin.WebTests.Resources\HamillerTubeCAData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\SelfSignedServerData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevCAData.cs" />
-    <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevData.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevExpiredData.cs" />
     <Compile Include="Xamarin.WebTests.Resources\CertificateNameInfo.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\CertificateInfoTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\TlsTestXamDevNewData.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
@@ -222,8 +223,11 @@
     <EmbeddedResource Include="..\CA\tlstest-xamdev-ca.pem">
       <Link>CA\tlstest-xamdev-ca.pem</Link>
     </EmbeddedResource>
-    <EmbeddedResource Include="..\CA\tlstest-xamdev.pem">
-      <Link>CA\tlstest-xamdev.pem</Link>
+    <EmbeddedResource Include="..\CA\tlstest-xamdev-expired.pem">
+      <Link>CA\tlstest-xamdev-expired.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\tlstest-xamdev-new.pem">
+      <Link>CA\tlstest-xamdev-new.pem</Link>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

@@ -1,5 +1,5 @@
 ﻿//
-// TlsTestXamDevData.cs
+// TlsTestXamDevExpiredData.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -28,10 +28,10 @@ using System;
 
 namespace Xamarin.WebTests.Resources
 {
-	public class TlsTestXamDevData : CertificateInfo
+	public class TlsTestXamDevExpiredData : CertificateInfo
 	{
-		public TlsTestXamDevData (byte[] rawData)
-			: base (CertificateResourceType.TlsTestXamDev, rawData)
+		public TlsTestXamDevExpiredData (byte[] rawData)
+			: base (CertificateResourceType.TlsTestXamDevExpired, rawData)
 		{
 		}
 

@@ -31,13 +31,16 @@ namespace Xamarin.WebTests.Resources
 		static readonly X509Certificate clientCertRsaOnly;
 		static readonly X509Certificate clientCertDheOnly;
 
-		static readonly byte[] tlsTestXamDevData;
-		static readonly X509Certificate tlsTestXamDev;
+		static readonly byte[] tlsTestXamDevExpiredData;
+		static readonly X509Certificate tlsTestXamDevExpired;
+		static readonly byte[] tlsTestXamDevNewData;
+		static readonly X509Certificate tlsTestXamDevNew;
 		static readonly byte[] tlsTestXamDevCAData;
 		static readonly X509Certificate tlsTestXamDevCA;
 
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
-		static readonly TlsTestXamDevData tlsTestXamDevInfo;
+		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
+		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
 		static readonly TlsTestXamDevCAData tlsTestXamDevCAInfo;
 		static readonly SelfSignedServerData selfSignedServerInfo;
 
@@ -68,14 +71,19 @@ namespace Xamarin.WebTests.Resources
 			clientCertRsaOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-rsaonly.pfx"), "monkey");
 			clientCertDheOnly = provider.GetCertificateWithKey (ReadResource ("CA.client-cert-dheonly.pfx"), "monkey");
 
-			tlsTestXamDevData = ResourceManager.ReadResource ("CA.tlstest-xamdev.pem");
-			tlsTestXamDev = provider.GetCertificateFromData (tlsTestXamDevData);
+			tlsTestXamDevExpiredData = ResourceManager.ReadResource ("CA.tlstest-xamdev-expired.pem");
+			tlsTestXamDevExpired = provider.GetCertificateFromData (tlsTestXamDevExpiredData);
+
+			tlsTestXamDevNewData = ResourceManager.ReadResource ("CA.tlstest-xamdev-new.pem");
+			tlsTestXamDevNew = provider.GetCertificateFromData (tlsTestXamDevNewData);
+
 			tlsTestXamDevCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-ca.pem");
 			tlsTestXamDevCA = provider.GetCertificateFromData (tlsTestXamDevCAData);
 
 			hamillerTubeCAInfo = new HamillerTubeCAData (cacertData);
 			selfSignedServerInfo = new SelfSignedServerData (selfServerCertNoKeyData);
-			tlsTestXamDevInfo = new TlsTestXamDevData (tlsTestXamDevData);
+			tlsTestXamDevNewInfo = new TlsTestXamDevNewData (tlsTestXamDevNewData);
+			tlsTestXamDevExpiredInfo = new TlsTestXamDevExpiredData (tlsTestXamDevExpiredData);
 			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
 		}
 
@@ -157,7 +165,10 @@ namespace Xamarin.WebTests.Resources
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKey;
 			case CertificateResourceType.TlsTestXamDev:
-				return tlsTestXamDev;
+			case CertificateResourceType.TlsTestXamDevExpired:
+				return tlsTestXamDevExpired;
+			case CertificateResourceType.TlsTestXamDevNew:
+				return tlsTestXamDevNew;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCA;
 			default:
@@ -175,7 +186,10 @@ namespace Xamarin.WebTests.Resources
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKeyData;
 			case CertificateResourceType.TlsTestXamDev:
-				return tlsTestXamDevData;
+			case CertificateResourceType.TlsTestXamDevExpired:
+				return tlsTestXamDevExpiredData;
+			case CertificateResourceType.TlsTestXamDevNew:
+				return tlsTestXamDevNewData;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCAData;
 			default:
@@ -205,7 +219,10 @@ namespace Xamarin.WebTests.Resources
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfSignedServerInfo;
 			case CertificateResourceType.TlsTestXamDev:
-				return tlsTestXamDevInfo;
+			case CertificateResourceType.TlsTestXamDevExpired:
+				return tlsTestXamDevExpiredInfo;
+			case CertificateResourceType.TlsTestXamDevNew:
+				return tlsTestXamDevNewInfo;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCAInfo;
 			default:
@@ -213,6 +230,7 @@ namespace Xamarin.WebTests.Resources
 			}
 		}
 
+		[Obsolete]
 		public static bool TryLookupByHash (string hash, out CertificateResourceType type)
 		{
 			switch (hash.ToUpperInvariant ()) {

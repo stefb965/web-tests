@@ -109,21 +109,21 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case MonoValidationTestType.EmptyHost:
 				parameters.Host = string.Empty;
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
 				parameters.ExpectSuccess = true;
 				break;
 
 			case MonoValidationTestType.WrongHost:
 				parameters.Host = "invalid.xamdev-error.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
 				parameters.ExpectSuccess = false;
 				break;
 
 			case MonoValidationTestType.Success:
 				parameters.Host = "tlstest-1.xamdev.com";
-				parameters.Add (CertificateResourceType.TlsTestXamDev);
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
 				parameters.ExpectSuccess = true;
 				break;
