@@ -229,6 +229,15 @@
     <EmbeddedResource Include="..\CA\tlstest-xamdev-new.pem">
       <Link>CA\tlstest-xamdev-new.pem</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\intermediate-ca.pem">
+      <Link>CA\intermediate-ca.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\intermediate-server.pem">
+      <Link>CA\intermediate-server.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\intermediate-server.pfx">
+      <Link>CA\intermediate-server.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />

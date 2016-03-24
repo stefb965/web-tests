@@ -37,7 +37,9 @@ namespace Xamarin.WebTests.Resources
 		TlsTestXamDev,
 		TlsTestXamDevNew,
 		TlsTestXamDevExpired,
-		TlsTestXamDevCA
+		TlsTestXamDevCA,
+		IntermediateCA,
+		IntermediateServer
 	}
 }
 

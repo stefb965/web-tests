@@ -38,6 +38,11 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] tlsTestXamDevCAData;
 		static readonly X509Certificate tlsTestXamDevCA;
 
+		static readonly byte[] intermediateCAData;
+		static readonly X509Certificate intermediateCA;
+		static readonly byte[] intermediateServerData;
+		static readonly X509Certificate intermediateServer;
+
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
@@ -79,6 +84,11 @@ namespace Xamarin.WebTests.Resources
 
 			tlsTestXamDevCAData = ResourceManager.ReadResource ("CA.tlstest-xamdev-ca.pem");
 			tlsTestXamDevCA = provider.GetCertificateFromData (tlsTestXamDevCAData);
+
+			intermediateCAData = ResourceManager.ReadResource ("CA.intermediate-ca.pem");
+			intermediateCA = provider.GetCertificateFromData (intermediateCAData);
+			intermediateServerData = ResourceManager.ReadResource ("CA.intermediate-server.pem");
+			intermediateServer = provider.GetCertificateWithKey (ResourceManager.ReadResource ("CA.intermediate-server.pfx"), "monkey");
 
 			hamillerTubeCAInfo = new HamillerTubeCAData (cacertData);
 			selfSignedServerInfo = new SelfSignedServerData (selfServerCertNoKeyData);
