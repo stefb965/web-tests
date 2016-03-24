@@ -34,20 +34,21 @@ namespace Xamarin.WebTests.TestRunners
 {
 	public static class CertificateInfoTestRunner
 	{
-		public static void TestManagedCertificate (TestContext ctx, X509Certificate2 cert, CertificateInfo expected)
+		public static void TestManagedCertificate (TestContext ctx, X509Certificate2 cert, CertificateInfo expected, bool debug = false)
 		{
 			var subject = cert.SubjectName;
+			if (debug)
+				ctx.LogMessage ("MANAGED SUBJECT: {0}", subject.Name);
 			if (ctx.Expect (subject, Is.Not.Null, "SubjectName")) {
 				ctx.Expect (subject.Name, Is.EqualTo (expected.ManagedSubjectName), "SubjectName.Name");
 			}
 
 			var issuer = cert.IssuerName;
+			if (debug)
+				ctx.LogMessage ("MANAGED ISSUER: {0}", issuer.Name);
 			if (ctx.Expect (issuer, Is.Not.Null, "IssuerName")) {
 				ctx.Expect (issuer.Name, Is.EqualTo (expected.ManagedIssuerName), "IssuerName.Name");
 			}
-
-			ctx.LogMessage (cert.Subject);
-			ctx.LogMessage (cert.Issuer);
 
 			ctx.Expect (cert.Subject, Is.EqualTo (expected.ManagedSubjectName), "Subject");
 			ctx.Expect (cert.Issuer, Is.EqualTo (expected.ManagedIssuerName), "Issue");

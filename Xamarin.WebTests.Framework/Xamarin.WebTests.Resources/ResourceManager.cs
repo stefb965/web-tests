@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.Resources
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
 		static readonly TlsTestXamDevCAData tlsTestXamDevCAInfo;
 		static readonly SelfSignedServerData selfSignedServerInfo;
+		static readonly IntermediateCAData intermediateCAInfo;
 
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
@@ -95,6 +96,7 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDevNewInfo = new TlsTestXamDevNewData (tlsTestXamDevNewData);
 			tlsTestXamDevExpiredInfo = new TlsTestXamDevExpiredData (tlsTestXamDevExpiredData);
 			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
+			intermediateCAInfo = new IntermediateCAData (intermediateCAData);
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -181,6 +183,10 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevNew;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCA;
+			case CertificateResourceType.IntermediateCA:
+				return intermediateCA;
+			case CertificateResourceType.IntermediateServer:
+				return intermediateServer;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -202,6 +208,10 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevNewData;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCAData;
+			case CertificateResourceType.IntermediateCA:
+				return intermediateCAData;
+			case CertificateResourceType.IntermediateServer:
+				return intermediateServerData;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -235,6 +245,8 @@ namespace Xamarin.WebTests.Resources
 				return tlsTestXamDevNewInfo;
 			case CertificateResourceType.TlsTestXamDevCA:
 				return tlsTestXamDevCAInfo;
+			case CertificateResourceType.IntermediateCA:
+				return intermediateCAInfo;
 			default:
 				throw new InvalidOperationException ();
 			}
