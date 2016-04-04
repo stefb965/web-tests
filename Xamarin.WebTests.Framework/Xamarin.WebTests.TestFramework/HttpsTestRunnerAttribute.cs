@@ -83,15 +83,22 @@ namespace Xamarin.WebTests.TestFramework
 			if (parameters.ListenAddress == null)
 				parameters.ListenAddress = serverEndPoint;
 
+			var flags = listenerFlags | ListenerFlags.SSL;
+
+			bool reuseConnection;
+			if (ctx.TryGetParameter<bool> (out reuseConnection, "ReuseConnection") && reuseConnection)
+				flags |= ListenerFlags.ReuseConnection;
+
 			Uri uri;
-			if (parameters.TargetHost == null) {
+			if (parameters.ExternalServer != null) {
+				uri = parameters.ExternalServer;
+				flags |= ListenerFlags.ExternalServer;
+			} else if (parameters.TargetHost == null) {
 				parameters.TargetHost = parameters.EndPoint.HostName;
 				uri = new Uri (string.Format ("https://{0}:{1}/", parameters.EndPoint.Address, parameters.EndPoint.Port));
 			} else {
 				uri = new Uri (string.Format ("https://{0}/", parameters.TargetHost));
 			}
-
-			var flags = GetListenerFlags (ctx);
 
 			return new HttpsTestRunner (parameters.EndPoint, parameters, provider, uri, flags);
 		}

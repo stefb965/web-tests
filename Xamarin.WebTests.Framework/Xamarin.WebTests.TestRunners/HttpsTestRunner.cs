@@ -68,6 +68,10 @@ namespace Xamarin.WebTests.TestRunners
 			private set;
 		}
 
+		protected bool ExternalServer {
+			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
+		}
+
 		public ISslStreamProvider SslStreamProvider {
 			get;
 			private set;
@@ -224,28 +228,46 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.RejectClientCertificate;
+				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
+					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/")
+				};
 
 			default:
 				throw new InternalErrorException ();
 			}
 		}
 
-		public Task Run (TestContext ctx, CancellationToken cancellationToken)
+		Handler CreateHandler (TestContext ctx)
 		{
-			var handler = new HelloWorldHandler ("hello");
-			return Run (ctx, handler, cancellationToken);
+			if (ExternalServer)
+				return null;
+			else
+				return new HelloWorldHandler ("hello");
 		}
 
-		public Task Run (TestContext ctx, Handler handler, CancellationToken cancellationToken)
+		public Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
+			var handler = CreateHandler (ctx);
 			var impl = new MyRunner (this, server, handler);
-			if (Parameters.ExpectTrustFailure)
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.TrustFailure);
-			else if (Parameters.ExpectWebException)
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.InternalServerError, WebExceptionStatus.AnyErrorStatus);
+
+			HttpStatusCode expectedStatus;
+			WebExceptionStatus expectedException;
+
+			if (Parameters.ExpectTrustFailure) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.TrustFailure;
+			} else if (Parameters.ExpectWebException) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.AnyErrorStatus;
+			} else {
+				expectedStatus = HttpStatusCode.OK;
+				expectedException = WebExceptionStatus.Success;
+			}
+
+			if (ExternalServer)
+				return impl.RunExternal (ctx, cancellationToken, Uri, expectedStatus, expectedException);
 			else
-				return impl.Run (ctx, cancellationToken, HttpStatusCode.OK, WebExceptionStatus.Success);
+				return impl.Run (ctx, cancellationToken, expectedStatus, expectedException);
 		}
 
 		protected Request CreateRequest (TestContext ctx, Uri uri)
@@ -315,8 +337,10 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			server = new MyServer (this);
-			await server.Initialize (ctx, cancellationToken);
+			if (!ExternalServer) {
+				server = new MyServer (this);
+				await server.Initialize (ctx, cancellationToken);
+			}
 		}
 
 		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
@@ -333,12 +357,14 @@ namespace Xamarin.WebTests.TestRunners
 			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))
 				SetGlobalValidationCallback (ctx, GlobalValidator);
 
-			await server.PreRun (ctx, cancellationToken);
+			if (!ExternalServer)
+				await server.PreRun (ctx, cancellationToken);
 		}
 
 		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			await server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
+			if (!ExternalServer)
+				await server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
 
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
@@ -349,10 +375,12 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			try {
-				await server.Destroy (ctx, cancellationToken);
-			} finally {
-				server = null;
+			if (!ExternalServer) {
+				try {
+					await server.Destroy (ctx, cancellationToken);
+				} finally {
+					server = null;
+				}
 			}
 		}
 
@@ -360,15 +388,24 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var traditionalRequest = (TraditionalRequest)request;
 			var response = await traditionalRequest.SendAsync (ctx, cancellationToken);
+			if (!response.IsSuccess)
+				return response;
 
 			var provider = DependencyInjector.Get<ICertificateProvider> ();
 
 			var certificate = traditionalRequest.RequestExt.GetCertificate ();
 			ctx.Assert (certificate, Is.Not.Null, "certificate");
-			ctx.Assert (provider.AreEqual (certificate, Parameters.ServerCertificate), "correct certificate");
 
-			if (!response.IsSuccess)
-				return response;
+			var expectedCert = Parameters.ServerCertificate;
+			if (ExternalServer) {
+				if (expectedCert == null && Parameters.CertificateType != null)
+					expectedCert = ResourceManager.GetCertificate (Parameters.CertificateType.Value);
+			} else {
+				ctx.Assert (expectedCert, Is.Not.Null, "must set Parameters.ServerCertificate");
+			}
+
+			if (expectedCert != null)
+				ctx.Assert (provider.AreEqual (certificate, expectedCert), "correct certificate");
 
 			var clientCertificate = traditionalRequest.RequestExt.GetClientCertificate ();
 			if ((Parameters.AskForClientCertificate || Parameters.RequireClientCertificate) && Parameters.ClientCertificate != null) {
@@ -447,6 +484,10 @@ namespace Xamarin.WebTests.TestRunners
 				: base (server, handler)
 			{
 				this.parent = runner;
+			}
+
+			protected override string Name {
+				get { return string.Format ("[{0}:{1}]", parent.GetType ().Name, parent.Parameters.Identifier); }
 			}
 
 			protected override Request CreateRequest (TestContext ctx, Uri uri)
