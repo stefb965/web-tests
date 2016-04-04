@@ -229,7 +229,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
-					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/")
+					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/"),
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None
 				};
 
 			default:
@@ -369,7 +371,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
 
-			if (HasFlag (GlobalValidationFlags.MustInvoke))
+			if (HasFlag (GlobalValidationFlags.MustInvoke) || HasFlag (GlobalValidationFlags.CheckChain))
 				ctx.Assert (globalValidatorInvoked, Is.EqualTo (1), "global validator has been invoked");
 		}
 
