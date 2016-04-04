@@ -103,12 +103,12 @@ namespace Xamarin.WebTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Work]
+		[Martin]
 		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.HttpsCertificateValidators)]
 		public async Task TestMartinHttpWorking (TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
-			HttpsTestParameters parameters, HttpsTestRunner runner)
+			HttpsTestParameters parameters, HttpsServer server, HttpsTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}

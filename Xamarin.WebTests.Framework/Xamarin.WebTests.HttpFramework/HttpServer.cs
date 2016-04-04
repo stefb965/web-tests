@@ -60,7 +60,7 @@ namespace Xamarin.WebTests.HttpFramework
 		static long nextId;
 		Dictionary<string,Handler> handlers = new Dictionary<string, Handler> ();
 
-		public HttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ISslStreamProvider sslStreamProvider = null, ConnectionParameters parameters = null)
+		public HttpServer (IPortableEndPoint clientEndPoint, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters = null, ISslStreamProvider sslStreamProvider = null)
 		{
 			this.listenAddress = listenAddress;
 			this.flags = flags;
