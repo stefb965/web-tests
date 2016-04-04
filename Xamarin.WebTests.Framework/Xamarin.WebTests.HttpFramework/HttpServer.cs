@@ -80,6 +80,20 @@ namespace Xamarin.WebTests.HttpFramework
 			uri = new Uri (string.Format ("http{0}://{1}:{2}/", UseSSL ? "s" : "", clientEndPoint.Address, clientEndPoint.Port));
 		}
 
+		public HttpServer (Uri uri, IPortableEndPoint listenAddress, ListenerFlags flags, ConnectionParameters parameters, ISslStreamProvider sslStreamProvider = null)
+		{
+			this.uri = uri;
+			this.listenAddress = listenAddress;
+			this.flags = flags | ListenerFlags.SSL;
+			this.sslStreamProvider = sslStreamProvider;
+			this.parameters = parameters;
+
+			if (this.sslStreamProvider == null) {
+				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
+				this.sslStreamProvider = factory.DefaultSslStreamProvider;
+			}
+		}
+
 		protected Listener Listener {
 			get { return listener; }
 		}
