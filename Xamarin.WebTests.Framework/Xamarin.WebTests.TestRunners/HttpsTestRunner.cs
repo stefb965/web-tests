@@ -196,6 +196,13 @@ namespace Xamarin.WebTests.TestRunners
 						GlobalValidationFlags.MustInvoke | GlobalValidationFlags.AlwaysSucceed
 				};
 
+			case ConnectionTestType.CheckChain:
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+
 			case ConnectionTestType.MartinTest:
 				goto case ConnectionTestType.RejectClientCertificate;
 
@@ -303,12 +310,22 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
+			return GlobalValidator (savedContext, certificate, chain, errors);
+		}
+
+		bool GlobalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
 			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
-				savedContext.AssertFail ("Global validator has been invoked!");
+				ctx.AssertFail ("Global validator has been invoked!");
 				return false;
 			}
 
 			++globalValidatorInvoked;
+
+			if (HasFlag (GlobalValidationFlags.CheckChain)) {
+				CertificateInfoTestRunner.CheckCallbackChain (ctx, Parameters, certificate, chain, errors);
+				return true;
+			}
 
 			if (HasFlag (GlobalValidationFlags.AlwaysFail))
 				return false;
@@ -320,6 +337,13 @@ namespace Xamarin.WebTests.TestRunners
 
 		public override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (HasFlag (GlobalValidationFlags.CheckChain)) {
+				Parameters.GlobalValidationFlags |= GlobalValidationFlags.SetToTestRunner;
+			} else {
+				ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
+				ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+			}
+
 			if (HasFlag (GlobalValidationFlags.SetToNull))
 				SetGlobalValidationCallback (ctx, null);
 			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))

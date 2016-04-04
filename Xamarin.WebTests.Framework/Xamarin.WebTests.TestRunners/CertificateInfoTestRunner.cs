@@ -25,10 +25,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.Resources;
+using Xamarin.WebTests.TestFramework;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -85,6 +87,26 @@ namespace Xamarin.WebTests.TestRunners
 						ctx.Expect (publicKeyParams.Oid.Value, Is.EqualTo (expected.PublicKeyAlgorithmOid), "PublicKey.EncodedParameters.Oid.Value");
 					ctx.Expect (publicKeyParams.RawData, Is.EqualTo (expected.PublicKeyParameters), "PublicKey.EncodedParameters.RawData");
 				}
+			}
+		}
+
+		public static void CheckCallbackChain (TestContext ctx, ConnectionTestParameters parameters,
+		                                       X509Certificate certificate, X509Chain chain,
+		                                       SslPolicyErrors errors)
+		{
+			if (parameters.ExpectPolicyErrors != null)
+				ctx.Expect (errors, Is.EqualTo (parameters.ExpectPolicyErrors.Value));
+
+			if (parameters.ExpectChainStatus != null && ctx.Expect (chain, Is.Not.Null, "chain")) {
+				if (ctx.Expect (chain.ChainStatus, Is.Not.Null, "chain.ChainStatus")) {
+					ctx.Expect (chain.ChainStatus.Length, Is.EqualTo (1), "chain.ChainStatus.Length");
+					ctx.Expect (chain.ChainStatus[0].Status, Is.EqualTo (parameters.ExpectChainStatus.Value), "chain.ChainStatus.Status");
+					ctx.LogMessage ("STATUS: {0}", chain.ChainStatus[0].Status);
+				}
+				if (ctx.Expect (chain.ChainElements, Is.Not.Null, "chain.ChainElements")) {
+					ctx.Expect (chain.ChainElements.Count, Is.EqualTo (1), "chain.ChainElements.Count");
+				}
+				ctx.LogMessage ("ELEMENTS: {0}", chain.ChainElements[0].ChainElementStatus[0].Status);
 			}
 		}
 	}

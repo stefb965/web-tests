@@ -265,6 +265,9 @@ namespace Xamarin.WebTests.TestRunners
 			else if (Parameters.GlobalValidationFlags != 0)
 				ctx.AssertFail ("Invalid GlobalValidationFlags");
 
+			ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
+			ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+
 			return base.PreRun (ctx, cancellationToken);
 		}
 
