@@ -51,6 +51,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		List<CertificateResourceType> types = new List<CertificateResourceType> ();
 		List<CertificateResourceType> trustedRoots = new List<CertificateResourceType> ();
+		List<CertificateResourceType> expectedChain;
 
 		public IReadOnlyCollection<CertificateResourceType> Types {
 			get {
@@ -61,6 +62,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 		public IReadOnlyCollection<CertificateResourceType> TrustedRoots {
 			get {
 				return trustedRoots;
+			}
+		}
+
+		public IReadOnlyList<CertificateResourceType> ExpectedChain {
+			get {
+				return expectedChain;
 			}
 		}
 
@@ -78,6 +85,13 @@ namespace Xamarin.WebTests.MonoTestFramework
 			trustedRoots.Add (type);
 		}
 
+		public void AddExpectedChainEntry (CertificateResourceType type)
+		{
+			if (expectedChain == null)
+				expectedChain = new List<CertificateResourceType> ();
+			expectedChain.Add (type);
+		}
+
 		public ValidationTestParameters (ValidationTestCategory category, string identifier)
 		{
 			Category = category;
@@ -90,6 +104,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 			Identifier = other.Identifier;
 			types.AddRange (other.types);
 			trustedRoots.AddRange (other.trustedRoots);
+			if (other.expectedChain != null) {
+				expectedChain = new List<CertificateResourceType> ();
+				expectedChain.AddRange (other.expectedChain);
+			}
 			Host = other.Host;
 		}
 
