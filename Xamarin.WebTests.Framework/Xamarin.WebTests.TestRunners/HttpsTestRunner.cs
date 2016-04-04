@@ -227,12 +227,15 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
 				};
 
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.ExternalServer:
 				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
 					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/"),
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.None
 				};
+
+			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.ExternalServer;
 
 			default:
 				throw new InternalErrorException ();

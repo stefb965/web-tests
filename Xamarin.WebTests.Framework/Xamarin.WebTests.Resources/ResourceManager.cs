@@ -178,7 +178,6 @@ namespace Xamarin.WebTests.Resources
 				return serverCertNoKey;
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKey;
-			case CertificateResourceType.TlsTestXamDev:
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpired;
 			case CertificateResourceType.TlsTestXamDevNew:
@@ -203,7 +202,6 @@ namespace Xamarin.WebTests.Resources
 				return serverCertNoKeyData;
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfServerCertNoKeyData;
-			case CertificateResourceType.TlsTestXamDev:
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpiredData;
 			case CertificateResourceType.TlsTestXamDevNew:
@@ -240,7 +238,6 @@ namespace Xamarin.WebTests.Resources
 				return hamillerTubeCAInfo;
 			case CertificateResourceType.SelfSignedServerCertificate:
 				return selfSignedServerInfo;
-			case CertificateResourceType.TlsTestXamDev:
 			case CertificateResourceType.TlsTestXamDevExpired:
 				return tlsTestXamDevExpiredInfo;
 			case CertificateResourceType.TlsTestXamDevNew:

@@ -33,8 +33,6 @@ namespace Xamarin.WebTests.Resources
 		HamillerTubeCA,
 		ServerCertificateFromLocalCA,
 		SelfSignedServerCertificate,
-		[Obsolete]
-		TlsTestXamDev,
 		TlsTestXamDevNew,
 		TlsTestXamDevExpired,
 		TlsTestXamDevCA,

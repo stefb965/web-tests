@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
-		[CertificateResourceType (CertificateResourceType.TlsTestXamDev)]
+		[CertificateResourceType (CertificateResourceType.TlsTestXamDevExpired)]
 		public void TestSimpleCertificate2 (TestContext ctx)
 		{
 			Run (ctx);
