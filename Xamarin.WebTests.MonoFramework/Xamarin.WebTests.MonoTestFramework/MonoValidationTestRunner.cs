@@ -105,7 +105,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			switch (type) {
 			case MonoValidationTestType.MartinTest:
-				goto case MonoValidationTestType.Success;
+				parameters.Host = "tlstest-1.xamdev.com";
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.ExpectSuccess = true;
+				parameters.UseProvider = true;
+				break;
 
 			case MonoValidationTestType.EmptyHost:
 				parameters.Host = string.Empty;
@@ -164,7 +169,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		ICertificateValidator GetValidator (TestContext ctx)
 		{
-			if (Parameters.Category == ValidationTestCategory.UseProvider) {
+			if (Parameters.UseProvider || Parameters.Category == ValidationTestCategory.UseProvider) {
 				var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 				ConnectionProviderType providerType;
 				if (!ctx.TryGetParameter<ConnectionProviderType> (out providerType))

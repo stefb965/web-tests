@@ -47,12 +47,17 @@ namespace Xamarin.WebTests.MonoTestFramework
 			: base (other)
 		{
 			Type = other.Type;
+			UseProvider = other.UseProvider;
 			expectSuccess = other.expectSuccess;
 			expectError = other.expectError;
 		}
 
 		bool? expectSuccess;
 		int? expectError;
+
+		public bool UseProvider {
+			get; set;
+		}
 
 		public bool ExpectSuccess {
 			get {
