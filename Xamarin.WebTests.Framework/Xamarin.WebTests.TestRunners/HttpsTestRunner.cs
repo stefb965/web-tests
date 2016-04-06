@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[HttpsTestRunner]
-	[FriendlyName ("[HttpsTestRunner2]")]
+	[FriendlyName ("[HttpsTestRunner]")]
 	public class HttpsTestRunner : AbstractConnection
 	{
 		public ConnectionTestProvider Provider {
@@ -235,7 +235,11 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.ExternalServer;
+				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
+					ExternalServer = new Uri ("https://tlstest.xamdev.com/"),
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None
+				};
 
 			default:
 				throw new InternalErrorException ();
