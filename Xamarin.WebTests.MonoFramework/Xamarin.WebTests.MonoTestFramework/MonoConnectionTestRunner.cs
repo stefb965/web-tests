@@ -67,12 +67,10 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		public MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
+		protected MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;
-
-			ConnectionHandler = CreateConnectionHandler ();
 		}
 
 		public static MonoConnectionTestFlags GetConnectionFlags (TestContext ctx, MonoConnectionTestCategory category)
@@ -134,6 +132,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 					ctx.IgnoreThisTest ();
 			}
 
+			ConnectionHandler = CreateConnectionHandler ();
 			ConnectionHandler.InitializeConnection (ctx);
 			base.InitializeConnection (ctx);
 		}

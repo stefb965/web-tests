@@ -243,7 +243,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				goto case SimpleConnectionType.DefaultCipherTls12;
+				goto case SimpleConnectionType.CipherSelectionOrder;
 
 			default:
 				ctx.AssertFail ("Unsupported connection type: '{0}'.", type);
