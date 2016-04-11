@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			ExpectedCipher = other.ExpectedCipher;
 		}
 
-		public ICollection<CipherSuiteCode> ClientCiphers {
+		public IList<CipherSuiteCode> ClientCiphers {
 			get; set;
 		}
 

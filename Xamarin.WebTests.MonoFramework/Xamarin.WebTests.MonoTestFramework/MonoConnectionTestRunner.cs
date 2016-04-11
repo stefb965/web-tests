@@ -195,6 +195,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 					return CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
 				else
 					return CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
+			case ExpectedCipherType.FirstClientCipher:
+				return Parameters.ClientCiphers[0];
 			default:
 				throw new InvalidOperationException ();
 			}

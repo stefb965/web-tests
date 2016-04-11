@@ -32,7 +32,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 		None = 0,
 		DefaultTls10,
 		DefaultTls11,
-		DefaultTls12
+		DefaultTls12,
+		FirstClientCipher
 	}
 }
 
