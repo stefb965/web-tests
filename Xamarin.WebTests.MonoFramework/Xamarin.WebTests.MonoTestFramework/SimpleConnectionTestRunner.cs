@@ -161,20 +161,17 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 			case SimpleConnectionType.DefaultCipherTls10:
 				parameters.ProtocolVersion = ProtocolVersions.Tls10;
-				parameters.ExpectedClientCipher2 = ExpectedCipherType.DefaultTls10;
-				parameters.ExpectedServerCipher2 = ExpectedCipherType.DefaultTls10;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
 				break;
 
 			case SimpleConnectionType.DefaultCipherTls11:
 				parameters.ProtocolVersion = ProtocolVersions.Tls11;
-				parameters.ExpectedClientCipher2 = ExpectedCipherType.DefaultTls11;
-				parameters.ExpectedServerCipher2 = ExpectedCipherType.DefaultTls11;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
 				break;
 
 			case SimpleConnectionType.DefaultCipherTls12:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
-				parameters.ExpectedClientCipher2 = ExpectedCipherType.DefaultTls12;
-				parameters.ExpectedServerCipher2 = ExpectedCipherType.DefaultTls12;
+				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
 				break;
 
 			case SimpleConnectionType.SelectCiphersTls10:
@@ -231,23 +228,21 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ClientCiphers = new CipherSuiteCode[] {
 					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA,
 					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-					CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
 				};
-				parameters.ExpectedServerCipher2 = ExpectedCipherType.FirstClientCipher;
+				parameters.ExpectedServerCipher = CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA;
 				break;
 
 			case SimpleConnectionType.CipherSelectionOrder2:
 				parameters.ProtocolVersion = ProtocolVersions.Tls12;
 				parameters.ClientCiphers = new CipherSuiteCode[] {
 					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA,
-					CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384,
 					CipherSuiteCode.TLS_RSA_WITH_AES_128_CBC_SHA
 				};
-				parameters.ExpectedServerCipher2 = ExpectedCipherType.DefaultTls12;
+				parameters.ExpectedServerCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_128_CBC_SHA;
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				goto case SimpleConnectionType.CipherSelectionOrder2;
+				goto case SimpleConnectionType.DefaultCipherTls10;
 
 			default:
 				ctx.AssertFail ("Unsupported connection type: '{0}'.", type);

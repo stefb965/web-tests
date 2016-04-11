@@ -28,9 +28,7 @@ using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	using ConnectionFramework;
-
-	public interface IMonoCommonConnection : ICommonConnection
+	public interface IMonoCommonConnection
 	{
 		bool SupportsConnectionInfo {
 			get;
