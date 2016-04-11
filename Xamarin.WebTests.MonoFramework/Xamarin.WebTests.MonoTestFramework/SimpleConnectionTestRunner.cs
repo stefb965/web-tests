@@ -240,14 +240,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				parameters.ProtocolVersion = ProtocolVersions.Tls12;
-				parameters.ClientCiphers = new CipherSuiteCode[] {
-					// CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-					CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA,
-					CipherSuiteCode.TLS_RSA_WITH_AES_256_CBC_SHA
-				};
-				parameters.ExpectedCipher = CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
-				break;
+				goto case SimpleConnectionType.DefaultCipherTls10;
 
 			default:
 				ctx.AssertFail ("Unsupported connection type: '{0}'.", type);
