@@ -46,11 +46,13 @@ namespace Xamarin.WebTests.MonoTestFramework
 				ClientCiphers = new List<CipherSuiteCode> (other.ClientCiphers);
 
 			ExpectedClientCipher = other.ExpectedClientCipher;
+			ExpectedClientCipher2 = other.ExpectedClientCipher2;
 			ExpectClientAlert = other.ExpectClientAlert;
 
 			if (other.ServerCiphers != null)
 				ServerCiphers = new List<CipherSuiteCode> (other.ServerCiphers);
 			ExpectedServerCipher = other.ExpectedServerCipher;
+			ExpectedServerCipher2 = other.ExpectedServerCipher2;
 			ExpectServerAlert = other.ExpectServerAlert;
 			ExpectedCipher = other.ExpectedCipher;
 		}
@@ -59,7 +61,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
+		[Obsolete ("KILL")]
 		public CipherSuiteCode? ExpectedClientCipher {
+			get; set;
+		}
+
+		public ExpectedCipherType ExpectedClientCipher2 {
 			get; set;
 		}
 
@@ -71,7 +78,12 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
+		[Obsolete ("KILL")]
 		public CipherSuiteCode? ExpectedServerCipher {
+			get; set;
+		}
+
+		public ExpectedCipherType ExpectedServerCipher2 {
 			get; set;
 		}
 
@@ -79,6 +91,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
+		[Obsolete ("KILL")]
 		public CipherSuiteCode? ExpectedCipher {
 			get; set;
 		}

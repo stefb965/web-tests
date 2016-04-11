@@ -177,6 +177,31 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
+		CipherSuiteCode GetExpectedCipher (ConnectionProvider provider, ExpectedCipherType type)
+		{
+			bool supportsEcDhe = (provider.Flags & ConnectionProviderFlags.SupportsEcDheCiphers) != 0;
+			switch (type) {
+			case ExpectedCipherType.DefaultTls10:
+				if (supportsEcDhe)
+					return CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA;
+				else
+					return CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+			case ExpectedCipherType.DefaultTls11:
+				if (supportsEcDhe)
+					return CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_CBC_SHA;
+				else
+					return CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_CBC_SHA;
+			case ExpectedCipherType.DefaultTls12:
+				if (supportsEcDhe)
+					return CipherSuiteCode.TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384;
+				else
+					return CipherSuiteCode.TLS_DHE_RSA_WITH_AES_256_GCM_SHA384;
+			default:
+				throw new InvalidOperationException ();
+			}
+		}
+
+		[Obsolete ("KILL", true)]
 		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
 		{
 			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
@@ -187,22 +212,30 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
 		}
 
+		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, ExpectedCipherType expected)
+		{
+			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
+			var connectionInfo = connection.GetConnectionInfo ();
+
+			if (!ctx.Expect (connectionInfo, Is.Not.Null, "connection info"))
+				return false;
+
+			var cipher = GetExpectedCipher (connection.Provider, expected);
+			return ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
+		}
+
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var monoClient = Client as IMonoClient;
 			var monoServer = Server as IMonoServer;
 
 			bool ok = true;
-			if (monoClient != null) {
-				var expectedCipher = Parameters.ExpectedClientCipher ?? Parameters.ExpectedCipher;
-				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoClient, expectedCipher.Value);
+			if (monoClient != null && Parameters.ExpectedClientCipher2 != ExpectedCipherType.None) {
+				ok &= CheckCipher (ctx, monoClient, Parameters.ExpectedClientCipher2);
 			}
 
-			if (ok && monoServer != null) {
-				var expectedCipher = Parameters.ExpectedServerCipher ?? Parameters.ExpectedCipher;
-				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoServer, expectedCipher.Value);
+			if (ok && monoServer != null && Parameters.ExpectedServerCipher2 != ExpectedCipherType.None) {
+				ok &= CheckCipher (ctx, monoServer, Parameters.ExpectedServerCipher2);
 			}
 
 			if (!IsManualConnection && Parameters.ProtocolVersion != null) {

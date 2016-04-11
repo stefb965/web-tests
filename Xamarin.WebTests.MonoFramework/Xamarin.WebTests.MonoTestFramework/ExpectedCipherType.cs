@@ -1,10 +1,11 @@
 ﻿//
-// IMonoCommonConnection.cs
+// ExpectedCipherType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,19 +25,14 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Mono.Security.Interface;
-
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	using ConnectionFramework;
-
-	public interface IMonoCommonConnection : ICommonConnection
+	public enum ExpectedCipherType
 	{
-		bool SupportsConnectionInfo {
-			get;
-		}
-
-		MonoTlsConnectionInfo GetConnectionInfo ();
+		None = 0,
+		DefaultTls10,
+		DefaultTls11,
+		DefaultTls12
 	}
 }
 
