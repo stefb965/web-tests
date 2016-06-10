@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C1C0128B-77B3-4F23-894A-08573F1CDCB8}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Mono.Btls.TestProvider.Console</RootNamespace>
+    <AssemblyName>Mono.Btls.TestProvider.Console</AssemblyName>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\Mono.Btls.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release</OutputPath>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="Mono.Security" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Mono.Btls.TestFramework\Mono.Btls.TestFramework.csproj">
+      <Project>{5F811A0D-6424-4FFD-B636-87A7E7230729}</Project>
+      <Name>Mono.Btls.TestFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+      <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
+      <Name>Xamarin.AsyncTests</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+      <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
+      <Name>Xamarin.AsyncTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.TestProvider.Console\Xamarin.WebTests.TestProvider.Console.csproj">
+      <Project>{142D593E-5162-4C41-94CD-9656052F58EC}</Project>
+      <Name>Xamarin.WebTests.TestProvider.Console</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
+      <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
+      <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+      <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
+      <Name>Xamarin.WebTests.MonoFramework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+      <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
+      <Name>Xamarin.WebTests.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\web-tests\Console\Mono.Security.Interface\Mono.Security.Interface.csproj">
+      <Project>{26D9F399-1FD5-4796-AE59-E42D0FBA0EF2}</Project>
+      <Name>Mono.Security.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Mono.Btls\Mono.Btls.csproj">
+      <Project>{5653B617-C664-4434-BCD0-7ECFA7C7D953}</Project>
+      <Name>Mono.Btls</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Mono.Btls.Interface\Mono.Btls.Interface.csproj">
+      <Project>{D80C5935-1EFE-4341-A550-CD4574B8681D}</Project>
+      <Name>Mono.Btls.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Mono.Security.Providers.Btls\Mono.Security.Providers.Btls.csproj">
+      <Project>{D0E0CC0D-DE3F-4C99-9913-05C3FE99F5D9}</Project>
+      <Name>Mono.Security.Providers.Btls</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="..\..\Mono.Btls.TestProvider\Mono.Btls.TestProvider.projitems" Label="Shared" Condition="Exists('..\..\Mono.Btls.TestProvider\Mono.Btls.TestProvider.projitems')" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+</Project>
