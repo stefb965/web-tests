@@ -31,6 +31,7 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Mono.Security" />
+    <Reference Include="Mono.Security.Providers.Btls" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -40,31 +41,31 @@
       <Project>{5F811A0D-6424-4FFD-B636-87A7E7230729}</Project>
       <Name>Mono.Btls.TestFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.TestProvider.Console\Xamarin.WebTests.TestProvider.Console.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.Console\Xamarin.WebTests.TestProvider.Console.csproj">
       <Project>{142D593E-5162-4C41-94CD-9656052F58EC}</Project>
       <Name>Xamarin.WebTests.TestProvider.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
       <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Mono.Security.Interface\Mono.Security.Interface.csproj">
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
       <Project>{26D9F399-1FD5-4796-AE59-E42D0FBA0EF2}</Project>
       <Name>Mono.Security.Interface</Name>
     </ProjectReference>

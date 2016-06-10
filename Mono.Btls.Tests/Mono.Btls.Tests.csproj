@@ -41,19 +41,19 @@
     <Compile Include="Mono.Btls.Tests\TestBoringCertificates.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\web-tests\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\web-tests\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+    <ProjectReference Include="..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\web-tests\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\web-tests\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
@@ -67,10 +67,10 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Xamarin.WebTests.PortableSecurity">
-      <HintPath>..\web-tests\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
+      <HintPath>..\PCL\Xamarin.WebTests.PortableSecurity.dll</HintPath>
     </Reference>
     <Reference Include="Mono.Btls.Interface">
-      <HintPath>..\Mono.Btls.Interface\Mono.Btls.Interface.dll</HintPath>
+      <HintPath>..\PCL\Mono.Btls.Interface.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

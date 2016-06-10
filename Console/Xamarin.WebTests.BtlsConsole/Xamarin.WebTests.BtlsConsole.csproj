@@ -31,21 +31,22 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="Mono.Security" />
+    <Reference Include="Mono.Security.Providers.Btls" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ConsoleMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
       <Name>Xamarin.AsyncTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests.Console\Xamarin.AsyncTests.Console.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.Console\Xamarin.AsyncTests.Console.csproj">
       <Project>{8FA04E17-8E60-45C4-A9A7-51C5047CCABF}</Project>
       <Name>Xamarin.AsyncTests.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.AsyncTests.Framework\Xamarin.AsyncTests.Framework.csproj">
       <Project>{BEC2B807-EF3B-4013-B828-B3BB2AC1620D}</Project>
       <Name>Xamarin.AsyncTests.Framework</Name>
     </ProjectReference>
@@ -53,11 +54,11 @@
       <Project>{C1C0128B-77B3-4F23-894A-08573F1CDCB8}</Project>
       <Name>Mono.Btls.TestProvider.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.Framework\Xamarin.WebTests.Framework.csproj">
       <Project>{85371459-6509-4D96-A95D-862399E0F0BE}</Project>
       <Name>Xamarin.WebTests.Framework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoFramework\Xamarin.WebTests.MonoFramework.csproj">
       <Project>{B8CB90A7-E1E9-4104-8E9E-3954FC5FC0FC}</Project>
       <Name>Xamarin.WebTests.MonoFramework</Name>
     </ProjectReference>
@@ -65,7 +66,7 @@
       <Project>{09AD5105-7A0F-4C4A-BA25-7FC73A4992F8}</Project>
       <Name>Mono.Btls.Tests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.PortableSecurity.Console\Xamarin.WebTests.PortableSecurity.Console.csproj">
       <Project>{926ED252-2819-43C0-A534-F662F4E4F87B}</Project>
       <Name>Xamarin.WebTests.PortableSecurity.Console</Name>
     </ProjectReference>
@@ -73,19 +74,15 @@
       <Project>{5F811A0D-6424-4FFD-B636-87A7E7230729}</Project>
       <Name>Mono.Btls.TestFramework</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Xamarin.WebTests.TestProvider.Console\Xamarin.WebTests.TestProvider.Console.csproj">
+    <ProjectReference Include="..\Xamarin.WebTests.TestProvider.Console\Xamarin.WebTests.TestProvider.Console.csproj">
       <Project>{142D593E-5162-4C41-94CD-9656052F58EC}</Project>
       <Name>Xamarin.WebTests.TestProvider.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\FluffyOctoDuck\FluffyOctoDuck.csproj">
-      <Project>{5653B617-C664-4434-BCD0-7ECFA7C7D953}</Project>
-      <Name>Mono.Btls</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
+    <ProjectReference Include="..\..\Xamarin.WebTests.MonoTests\Xamarin.WebTests.MonoTests.csproj">
       <Project>{68C3567C-A1C1-4A0A-94E9-60BA4BD5CC39}</Project>
       <Name>Xamarin.WebTests.MonoTests</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\web-tests\Console\Mono.Security.Interface\Mono.Security.Interface.csproj">
+    <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
       <Project>{26D9F399-1FD5-4796-AE59-E42D0FBA0EF2}</Project>
       <Name>Mono.Security.Interface</Name>
     </ProjectReference>
