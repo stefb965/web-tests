@@ -19,7 +19,7 @@
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>false</ExternalConsole>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>--debug --log-level=4 --category=Martin</Commandlineparameters>
+    <Commandlineparameters>--debug --log-level=1 --category=Martin</Commandlineparameters>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <Optimize>true</Optimize>
@@ -89,6 +89,10 @@
     <ProjectReference Include="..\Mono.Btls.Interface\Mono.Btls.Interface.csproj">
       <Project>{D80C5935-1EFE-4341-A550-CD4574B8681D}</Project>
       <Name>Mono.Btls.Interface</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Xamarin.WebTests\Xamarin.WebTests.csproj">
+      <Project>{E93E8622-665B-44D6-B36A-89C93B5B3532}</Project>
+      <Name>Xamarin.WebTests</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />

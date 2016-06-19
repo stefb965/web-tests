@@ -75,7 +75,7 @@ namespace Mono.Btls.Tests
 			runner.Run (ctx);
 		}
 
-		[Martin]
+		[Work]
 		[AsyncTest]
 		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
 		[ValidationTestCategory (ValidationTestCategory.MartinTest)]

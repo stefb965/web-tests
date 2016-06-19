@@ -6,9 +6,11 @@ using Mono.Btls.TestProvider;
 using Xamarin.WebTests.MonoTestFramework;
 using Xamarin.WebTests.TestProvider;
 using Xamarin.WebTests.MonoTests;
+using Xamarin.WebTests;
 
-[assembly: AsyncTestSuite (typeof (BoringTlsTestFeatures), true)]
+[assembly: AsyncTestSuite (typeof (WebTestFeatures), true)]
 [assembly: AsyncTestSuite (typeof (MonoWebTestFeatures), true)]
+[assembly: AsyncTestSuite (typeof (BoringTlsTestFeatures), true)]
 
 namespace Xamarin.WebTests.BtlsConsole
 {
