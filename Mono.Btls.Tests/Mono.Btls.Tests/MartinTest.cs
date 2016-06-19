@@ -39,13 +39,14 @@ using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.Server;
 using Xamarin.WebTests.TestRunners;
 using Xamarin.WebTests.ConnectionFramework;
+using Xamarin.WebTests.HttpHandlers;
 
 namespace Mono.Btls.Tests
 {
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		[Martin]
+		[Work]
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
@@ -124,7 +125,7 @@ namespace Mono.Btls.Tests
 			ctx.LogMessage ("STORE COUNT: {0}", store.GetCount ());
 		}
 
-		[Martin]
+		[Work]
 		[AsyncTest]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
@@ -136,6 +137,14 @@ namespace Mono.Btls.Tests
 			return runner.Run (ctx, cancellationToken);
 		}
 
+		[Martin]
+		[AsyncTest]
+		public Task TestWebServer (TestContext ctx, CancellationToken cancellationToken,
+		                           [HttpServer (ListenerFlags.SSL)] HttpServer server)
+		{
+			var handler = new HelloWorldHandler ("Hello World");
+			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
 	}
 }
 
