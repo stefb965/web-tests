@@ -28,16 +28,18 @@ using System;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.ConnectionFramework;
 using Xamarin.WebTests.MonoConnectionFramework;
+using Mono.Security.Interface;
 using Mono.Btls.TestFramework;
 using Mono.Btls.TestProvider;
 using Mono.Btls.Interface;
 using Mono.Btls;
+using System.Net;
 
 [assembly: DependencyProvider (typeof (BoringTlsDependencyProvider))]
 
 namespace Mono.Btls.TestProvider
 {
-	public class BoringTlsDependencyProvider : IDependencyProvider
+	public class BoringTlsDependencyProvider : IDefaultConnectionSettings, IDependencyProvider
 	{
 		const ConnectionProviderFlags DefaultFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 		const ConnectionProviderFlags BoringTlsFlags = DefaultFlags | ConnectionProviderFlags.SupportsTls12 |
@@ -52,6 +54,24 @@ namespace Mono.Btls.TestProvider
 			factory.RegisterProvider ("BoringTLS", boringTls, ConnectionProviderType.BoringTLS, BoringTlsFlags);
 
 			BtlsProvider.EnsureTrustedRoots ();
+
+			DependencyInjector.RegisterDefaults<IDefaultConnectionSettings> (3, () => this);
+		}
+
+		public bool InstallDefaultCertificateValidator {
+			get { return true; }
+		}
+
+		public ISslStreamProvider DefaultSslStreamProvider {
+			get { return null; }
+		}
+
+		public SecurityProtocolType? SecurityProtocol {
+			get { return (SecurityProtocolType)0xfc0; }
+		}
+
+		public Guid? InstallTlsProvider {
+			get { return MonoConnectionProviderFactory.BoringTlsGuid; }
 		}
 	}
 }

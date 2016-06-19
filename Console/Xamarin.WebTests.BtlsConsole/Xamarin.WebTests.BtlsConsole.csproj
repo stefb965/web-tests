@@ -90,10 +90,6 @@
       <Project>{D80C5935-1EFE-4341-A550-CD4574B8681D}</Project>
       <Name>Mono.Btls.Interface</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Mono.Security.Providers.Btls\Mono.Security.Providers.Btls.csproj">
-      <Project>{D0E0CC0D-DE3F-4C99-9913-05C3FE99F5D9}</Project>
-      <Name>Mono.Security.Providers.Btls</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
