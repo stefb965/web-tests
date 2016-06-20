@@ -235,11 +235,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				return new HttpsTestParameters (category, type, name, CertificateResourceType.TlsTestXamDevNew) {
-					ExternalServer = new Uri ("https://tlstest.xamdev.com/"),
-					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
-					ExpectPolicyErrors = SslPolicyErrors.None
-				};
+				goto case ConnectionTestType.MissingClientCertificate;
 
 			default:
 				throw new InternalErrorException ();
