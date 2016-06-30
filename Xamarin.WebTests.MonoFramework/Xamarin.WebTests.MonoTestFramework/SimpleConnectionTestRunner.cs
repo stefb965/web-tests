@@ -274,6 +274,9 @@ namespace Xamarin.WebTests.MonoTestFramework
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.RequireClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
+				parameters.ClientCertificateIssuers = new string[] {
+					ResourceManager.LocalCACertificate.Subject
+				};
 				break;
 
 			default:

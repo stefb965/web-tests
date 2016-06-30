@@ -235,7 +235,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.MissingClientCertificate;
+				goto case ConnectionTestType.OptionalClientCertificate;
 
 			default:
 				throw new InternalErrorException ();

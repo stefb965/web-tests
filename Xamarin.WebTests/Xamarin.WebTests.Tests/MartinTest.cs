@@ -105,6 +105,17 @@ namespace Xamarin.WebTests
 
 		[Work]
 		[AsyncTest]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireSslStream)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		public async Task TestMartinSslStream2 (TestContext ctx, CancellationToken cancellationToken,
+			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
+			SslStreamTestParameters parameters, SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[Work]
+		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestMartinHttpWorking (TestContext ctx, CancellationToken cancellationToken,
 			[ConnectionTestProvider ("DotNet:DotNet")] ConnectionTestProvider provider,
@@ -113,7 +124,7 @@ namespace Xamarin.WebTests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[Martin]
+		[Work]
 		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task TestMartinHttp (TestContext ctx, CancellationToken cancellationToken,

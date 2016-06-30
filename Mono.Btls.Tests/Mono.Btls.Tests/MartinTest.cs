@@ -46,7 +46,7 @@ namespace Mono.Btls.Tests
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		[Work]
+		[Martin]
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
