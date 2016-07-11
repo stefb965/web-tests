@@ -55,6 +55,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		const ConnectionProviderFlags AppleTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
 			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
 			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.OverridesCipherSelection;
+		const ConnectionProviderFlags BoringTlsFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp |
+			ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
+			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.OverridesCipherSelection;
 
 		internal MonoConnectionProviderFactory ()
 		{
@@ -122,6 +125,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				return NewTlsFlags;
 			case ConnectionProviderType.AppleTLS:
 				return AppleTlsFlags;
+			case ConnectionProviderType.BoringTLS:
+				return BoringTlsFlags;
 			default:
 				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", type));
 			}
@@ -138,6 +143,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				return ConnectionProviderType.NewTLS;
 			case AppleTlsID:
 				return ConnectionProviderType.AppleTLS;
+			case BoringTlsID:
+				return ConnectionProviderType.BoringTLS;
 			default:
 				throw new NotSupportedException (string.Format ("Unknown TLS Provider: {0}", id));
 			}
