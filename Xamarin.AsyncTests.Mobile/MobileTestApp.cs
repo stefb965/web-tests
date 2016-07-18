@@ -145,10 +145,11 @@ namespace Xamarin.AsyncTests.Mobile
 			OnSessionChanged ();
 		}
 
-		int logLevel;
+		int? logLevel;
 		bool debugMode;
 		string category;
 		string features;
+		string customSettings;
 
 		void ParseSessionMode ()
 		{
@@ -163,10 +164,23 @@ namespace Xamarin.AsyncTests.Mobile
 			p.Add ("log-level=", v => logLevel = int.Parse (v));
 			p.Add ("category=", v => category = v);
 			p.Add ("features=", v => features = v);
+			p.Add ("set=", v => customSettings = v);
 
 			var args = p.Parse (options.Split (' '));
 
 			Debug ("ARGS #1: {0} - {1}:{2} - |{3}|{4}|", args.Count, debugMode, logLevel, category ?? "<null>", features ?? "<null>");
+
+			if (debugMode) {
+				Settings.LogLevel = -1;
+				Settings.LocalLogLevel = -1;
+				Settings.DisableTimeouts = true;
+			}
+
+			if (logLevel != null)
+				Settings.LogLevel = logLevel.Value;
+
+			if (customSettings != null)
+				ParseSettings (customSettings);
 
 			if (args.Count == 0) {
 				SessionMode = MobileSessionMode.Local;
@@ -194,6 +208,68 @@ namespace Xamarin.AsyncTests.Mobile
 			}
 		}
 
+		void ParseSettings (string arg)
+		{
+			var parts = arg.Split (',');
+			foreach (var part in parts) {
+				var pos = part.IndexOf ('=');
+				if (pos > 0) {
+					var key = part.Substring (0, pos);
+					var value = part.Substring (pos + 1);
+					Debug ("SET: |{0}|{1}|", key, value);
+					if (key[0] == '-')
+						throw new InvalidOperationException ();
+					Settings.SetValue (key, value);
+				} else if (part[0] == '-') {
+					var key = part.Substring (1);
+					Settings.RemoveValue (key);
+				} else {
+					throw new InvalidOperationException ();
+				}
+			}
+		}
+
+		bool ModifyConfiguration (TestConfiguration config)
+		{
+			bool modified = false;
+
+			if (category != null) {
+				if (string.Equals (category, "all", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.All;
+				else
+					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (category));
+				modified = true;
+			}
+
+			if (features != null) {
+				modified = true;
+				var parts = features.Split (',');
+				foreach (var part in parts) {
+					var name = part;
+					bool enable = true;
+					if (part[0] == '-') {
+						name = part.Substring (1);
+						enable = false;
+					} else if (part[0] == '+') {
+						name = part.Substring (1);
+						enable = true;
+					}
+
+					if (name.Equals ("all")) {
+						foreach (var feature in config.Features) {
+							if (feature.CanModify)
+								config.SetIsEnabled (feature, enable);
+						}
+					} else {
+						var feature = config.Features.First (f => f.Name.Equals (name));
+						config.SetIsEnabled (feature, enable);
+					}
+				}
+			}
+
+			return modified;
+		}
+
 		public Task Run ()
 		{
 			return OnRun ();
@@ -209,6 +285,7 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 
 			try {
+				MainLabel.Text = string.Format ("Running.");
 				StopButton.IsEnabled = true;
 				RunButton.IsEnabled = false;
 	
@@ -225,6 +302,7 @@ namespace Xamarin.AsyncTests.Mobile
 				var oldCts = Interlocked.Exchange (ref cts, null);
 				if (oldCts != null)
 					oldCts.Dispose ();
+				MainLabel.Text = string.Format ("Done running.");
 				StopButton.IsEnabled = false;
 				RunButton.IsEnabled = true;
 			}
@@ -401,6 +479,8 @@ namespace Xamarin.AsyncTests.Mobile
 
 				if (session == null)
 					return;
+
+				ModifyConfiguration (session.Configuration);
 
 				foreach (var category in session.Configuration.Categories) {
 					CategoryPicker.Items.Add (category.Name);
