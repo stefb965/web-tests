@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.TestFramework
 		List<CertificateResourceType> types = new List<CertificateResourceType> ();
 		List<CertificateResourceType> trustedRoots = new List<CertificateResourceType> ();
 		List<CertificateResourceType> expectedChain;
+		List<CertificateResourceType> expectedExtraStore;
 		bool? expectSuccess;
 		int? expectError;
 
@@ -79,6 +80,12 @@ namespace Xamarin.WebTests.TestFramework
 			}
 		}
 
+		public IReadOnlyList<CertificateResourceType> ExpectedExtraStore {
+			get {
+				return expectedExtraStore;
+			}
+		}
+
 		public string Host {
 			get; set;
 		}
@@ -100,6 +107,13 @@ namespace Xamarin.WebTests.TestFramework
 			expectedChain.Add (type);
 		}
 
+		public void AddExpectedExtraStore (CertificateResourceType type)
+		{
+			if (expectedExtraStore == null)
+				expectedExtraStore = new List<CertificateResourceType> ();
+			expectedExtraStore.Add (type);
+		}
+
 		public ValidationParameters ()
 		{
 		}
@@ -111,6 +125,10 @@ namespace Xamarin.WebTests.TestFramework
 			if (other.expectedChain != null) {
 				expectedChain = new List<CertificateResourceType> ();
 				expectedChain.AddRange (other.expectedChain);
+			}
+			if (other.expectedExtraStore != null) {
+				expectedExtraStore = new List<CertificateResourceType> ();
+				expectedExtraStore.AddRange (other.expectedExtraStore);
 			}
 			Host = other.Host;
 			expectSuccess = other.expectSuccess;

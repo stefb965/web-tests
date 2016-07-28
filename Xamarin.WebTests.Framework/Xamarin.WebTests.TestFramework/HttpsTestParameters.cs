@@ -61,6 +61,8 @@ namespace Xamarin.WebTests.TestFramework
 			ExpectTrustFailure = other.ExpectTrustFailure;
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
 			ExternalServer = other.ExternalServer;
+			if (other.ValidationParameters != null)
+				ValidationParameters = other.ValidationParameters.DeepClone ();
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -85,6 +87,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public Uri ExternalServer {
+			get; set;
+		}
+
+		public ValidationParameters ValidationParameters {
 			get; set;
 		}
 	}

@@ -236,10 +236,12 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				var parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateWithCA) {
-					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.AlwaysSucceed |
-					                                             GlobalValidationFlags.CheckChain,
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
 				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromLocalCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
 				return parameters;
 
 			default:
@@ -341,9 +343,16 @@ namespace Xamarin.WebTests.TestRunners
 
 			++globalValidatorInvoked;
 
+			bool result = errors == SslPolicyErrors.None;
+
+			if (Parameters.ValidationParameters != null) {
+				CertificateInfoTestRunner.CheckValidationResult (ctx, Parameters.ValidationParameters, certificate, chain, errors);
+				result = true;
+			}
+
 			if (HasFlag (GlobalValidationFlags.CheckChain)) {
 				CertificateInfoTestRunner.CheckCallbackChain (ctx, Parameters, certificate, chain, errors);
-				return true;
+				result = true;
 			}
 
 			if (HasFlag (GlobalValidationFlags.AlwaysFail))
@@ -351,7 +360,7 @@ namespace Xamarin.WebTests.TestRunners
 			else if (HasFlag (GlobalValidationFlags.AlwaysSucceed))
 				return true;
 
-			return errors == SslPolicyErrors.None;
+			return result;
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -366,7 +375,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (HasFlag (GlobalValidationFlags.CheckChain)) {
 				Parameters.GlobalValidationFlags |= GlobalValidationFlags.SetToTestRunner;
-			} else {
+			} else if (!HasFlag (GlobalValidationFlags.SetToTestRunner)) {
 				ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
 				ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
 			}
