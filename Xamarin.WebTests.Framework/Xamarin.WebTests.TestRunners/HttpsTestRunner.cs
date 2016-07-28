@@ -234,7 +234,7 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectPolicyErrors = SslPolicyErrors.None
 				};
 
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.ServerCertificateWithCA:
 				var parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateWithCA) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
