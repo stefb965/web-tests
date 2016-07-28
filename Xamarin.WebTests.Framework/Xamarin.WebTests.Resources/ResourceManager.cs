@@ -51,6 +51,9 @@ namespace Xamarin.WebTests.Resources
 		static readonly IntermediateCAData intermediateCAInfo;
 		static readonly IntermediateServerData intermediateServerInfo;
 
+		static readonly byte[] serverCertWithCAData;
+		static readonly X509Certificate serverCertWithCA;
+
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -99,6 +102,9 @@ namespace Xamarin.WebTests.Resources
 			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCAData);
 			intermediateCAInfo = new IntermediateCAData (intermediateCAData);
 			intermediateServerInfo = new IntermediateServerData (intermediateServerData);
+
+			serverCertWithCAData = ResourceManager.ReadResource ("CA.server-cert-with-ca.pfx");
+			serverCertWithCA = provider.GetCertificateWithKey (serverCertWithCAData, "monkey");
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -157,6 +163,10 @@ namespace Xamarin.WebTests.Resources
 			get { return clientCertDheOnly; }
 		}
 
+		public static X509Certificate ServerCertificateWithCA {
+			get { return serverCertWithCA; }
+		}
+
 		public static X509Certificate GetCertificateWithKey (CertificateResourceType type)
 		{
 			switch (type) {
@@ -188,6 +198,8 @@ namespace Xamarin.WebTests.Resources
 				return intermediateCA;
 			case CertificateResourceType.IntermediateServer:
 				return intermediateServer;
+			case CertificateResourceType.ServerCertificateWithCA:
+				return serverCertWithCA;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -212,6 +224,8 @@ namespace Xamarin.WebTests.Resources
 				return intermediateCAData;
 			case CertificateResourceType.IntermediateServer:
 				return intermediateServerData;
+			case CertificateResourceType.ServerCertificateWithCA:
+				return serverCertWithCAData;
 			default:
 				throw new InvalidOperationException ();
 			}

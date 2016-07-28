@@ -235,7 +235,12 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.OptionalClientCertificate;
+				var parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateWithCA) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner | GlobalValidationFlags.AlwaysSucceed |
+					                                             GlobalValidationFlags.CheckChain,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+				return parameters;
 
 			default:
 				throw new InternalErrorException ();
