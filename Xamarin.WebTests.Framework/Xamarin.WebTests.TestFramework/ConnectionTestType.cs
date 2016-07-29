@@ -54,7 +54,9 @@ namespace Xamarin.WebTests.TestFramework
 		CheckChain,
 		ExternalServer,
 
-		ServerCertificateWithCA
+		ServerCertificateWithCA,
+		TrustedRootCA,
+		HostNameMismatch
 	}
 }
 

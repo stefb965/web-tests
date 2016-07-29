@@ -242,27 +242,40 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters = new ValidationParameters ();
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromLocalCA);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = false;
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
-#if FIXME
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServer)) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
-					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+					// ExpectChainStatus = X509ChainStatusFlags.NoError
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
 				};
 				parameters.ValidationParameters = new ValidationParameters ();
 				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
-				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromLocalCA);
-				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServer);
+				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = false;
 				return parameters;
-#endif
 
+			case ConnectionTestType.TrustedRootCA:
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
 				};
 				parameters.ValidationParameters = new ValidationParameters ();
 				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.HostNameMismatch:
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch,
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = false;
 				return parameters;
 
 			default:

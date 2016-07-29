@@ -95,8 +95,14 @@ namespace Xamarin.WebTests.TestRunners
 		                                       X509Certificate certificate, X509Chain chain,
 		                                       SslPolicyErrors errors)
 		{
-			if (parameters.ExpectPolicyErrors != null)
-				ctx.Expect (errors, Is.EqualTo (parameters.ExpectPolicyErrors.Value));
+			if (parameters.ExpectPolicyErrors != null) {
+				// FIXME: AppleTls reports RemoteCertificateChainErrors instead of RemoteCertificateNameMismatch.
+				if (parameters.ExpectPolicyErrors.Value == SslPolicyErrors.RemoteCertificateNameMismatch) {
+					ctx.Expect (errors, Is.EqualTo (SslPolicyErrors.RemoteCertificateNameMismatch).Or.EqualTo (SslPolicyErrors.RemoteCertificateChainErrors));
+				} else {
+					ctx.Expect (errors, Is.EqualTo (parameters.ExpectPolicyErrors.Value));
+				}
+			}
 
 			if (parameters.ExpectChainStatus != null && ctx.Expect (chain, Is.Not.Null, "chain")) {
 				if (ctx.Expect (chain.ChainStatus, Is.Not.Null, "chain.ChainStatus")) {
@@ -125,6 +131,11 @@ namespace Xamarin.WebTests.TestRunners
 					}
 				}
 			}
+
+			if (parameters.ExpectSuccess)
+				ctx.Assert (errors, Is.EqualTo (SslPolicyErrors.None), "expecting success");
+			else
+				ctx.Assert (errors, Is.Not.EqualTo (SslPolicyErrors.None), "expecting failure");
 		}
 
 		public static bool ExpectCertificate (TestContext ctx, X509Certificate actual, CertificateResourceType expected, string message)
