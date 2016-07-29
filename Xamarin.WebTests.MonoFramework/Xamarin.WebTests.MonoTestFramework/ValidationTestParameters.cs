@@ -27,8 +27,7 @@
 using System;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.Resources;
-using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {

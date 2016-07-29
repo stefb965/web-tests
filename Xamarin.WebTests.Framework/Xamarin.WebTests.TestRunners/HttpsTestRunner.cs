@@ -244,6 +244,27 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
 				return parameters;
 
+			case ConnectionTestType.MartinTest:
+#if FIXME
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServer)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromLocalCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				return parameters;
+#endif
+
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				return parameters;
+
 			default:
 				throw new InternalErrorException ();
 			}
@@ -285,9 +306,12 @@ namespace Xamarin.WebTests.TestRunners
 		protected Request CreateRequest (TestContext ctx, Uri uri)
 		{
 			ctx.LogMessage ("Create request: {0}", uri);
-			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri);
+			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri, Parameters);
 
 			var request = new TraditionalRequest (webRequest);
+
+			if (Parameters.OverrideTargetHost != null)
+				request.RequestExt.Host = Parameters.OverrideTargetHost;
 
 			request.RequestExt.SetKeepAlive (true);
 

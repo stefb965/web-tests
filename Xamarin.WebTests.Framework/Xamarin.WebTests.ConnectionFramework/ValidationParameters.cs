@@ -29,7 +29,7 @@ using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.WebTests.Resources;
 
-namespace Xamarin.WebTests.TestFramework
+namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class ValidationParameters : ICloneable
 	{
