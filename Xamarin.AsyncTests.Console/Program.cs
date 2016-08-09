@@ -127,6 +127,7 @@ namespace Xamarin.AsyncTests.Console
 		string stdout;
 		string stderr;
 		string device;
+		string sdkroot;
 
 		public static void Run (Assembly assembly, string[] args)
 		{
@@ -185,6 +186,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("stderr=", v => stderr = v);
 			p.Add ("device=", v => device = v);
+			p.Add ("sdkroot=", v => sdkroot = v);
 			p.Add ("wrench", v => Wrench = true);
 			var remaining = p.Parse (args);
 
@@ -227,7 +229,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Simulator) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], false, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (arguments [0], false, sdkroot, stdout, stderr, device, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -235,7 +237,7 @@ namespace Xamarin.AsyncTests.Console
 			} else if (command == Command.Device) {
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (arguments [0], true, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (arguments [0], true, sdkroot, stdout, stderr, device, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -244,6 +246,15 @@ namespace Xamarin.AsyncTests.Console
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
 				Launcher = new MacLauncher (arguments [0], stdout, stderr);
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = GetLocalEndPoint ();
+			} else if (command == Command.Android) {
+				if (arguments.Count < 1)
+					throw new InvalidOperationException ("Expected activity argument");
+
+				Launcher = new DroidLauncher (arguments [0], stdout, stderr);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)
@@ -441,6 +452,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Simulator:
 			case Command.Device:
 			case Command.Mac:
+			case Command.Android:
 				return LaunchApplication (cancellationToken);
 			case Command.Result:
 				return ShowResult (cancellationToken);
@@ -564,6 +576,17 @@ namespace Xamarin.AsyncTests.Console
 			return modified;
 		}
 
+		bool IsSuccessResult {
+			get {
+				if (result.Status == TestStatus.Success)
+					return true;
+				else if (Wrench && result.Status == TestStatus.Ignored)
+					return true;
+				else
+					return false;
+			}
+		}
+
 		async Task<bool> RunLocal (CancellationToken cancellationToken)
 		{
 			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
@@ -582,7 +605,7 @@ namespace Xamarin.AsyncTests.Console
 
 			SaveResult ();
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		async Task<bool> ConnectToServer (CancellationToken cancellationToken)
@@ -609,7 +632,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		async Task<bool> LaunchApplication (CancellationToken cancellationToken)
@@ -665,7 +688,7 @@ namespace Xamarin.AsyncTests.Console
 
 			await server.Stop (cancellationToken);
 
-			return result.Status == TestStatus.Success;
+			return IsSuccessResult;
 		}
 
 		void SaveResult ()

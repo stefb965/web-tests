@@ -1,10 +1,10 @@
 ﻿//
-// TouchLauncher.cs
+// DroidLauncher.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -42,34 +42,19 @@ namespace Xamarin.AsyncTests.Console
 	using Remoting;
 	using Portable;
 
-	class TouchLauncher : ApplicationLauncher
+	class DroidLauncher : ApplicationLauncher
 	{
 		public string SdkRoot {
 			get;
 			private set;
 		}
 
-		public string MonoTouchRoot {
-			get;
-			private set;
-		}
-
-		public string MTouch {
-			get;
-			private set;
-		}
-
-		public string MLaunch {
+		public string Adb {
 			get;
 			private set;
 		}
 
 		public string Application {
-			get;
-			private set;
-		}
-
-		public bool LaunchOnDevice {
 			get;
 			private set;
 		}
@@ -84,77 +69,39 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public string DeviceName {
-			get;
-			private set;
-		}
-
-		public string ExtraMTouchArguments {
-			get;
-			private set;
-		}
-
 		Process process;
 		TaskCompletionSource<bool> tcs;
 
-		public TouchLauncher (string app, bool device, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
+		public DroidLauncher (string app, string stdout, string stderr)
 		{
 			Application = app;
-			LaunchOnDevice = device;
 			RedirectStdout = stdout;
 			RedirectStderr = stderr;
-			DeviceName = devname;
-			ExtraMTouchArguments = extraArgs;
-			SdkRoot = sdkroot;
 
-			MonoTouchRoot = Environment.GetEnvironmentVariable ("MONOTOUCH_ROOT");
-			if (String.IsNullOrEmpty (MonoTouchRoot))
-				MonoTouchRoot = "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current";
-
+			SdkRoot = Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
 			if (String.IsNullOrEmpty (SdkRoot)) {
-				SdkRoot = Environment.GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT");
-				if (String.IsNullOrEmpty (SdkRoot))
-					SdkRoot = "/Applications/Xcode.app/Contents/Developer";
+				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+				SdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
 			}
 
-			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
+			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
 
-			var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-			if (File.Exists (mlaunchPath))
-				MLaunch = mlaunchPath;
+
 		}
 
 		Process Launch (IPortableEndPoint address)
 		{
 			var args = new StringBuilder ();
-			if (LaunchOnDevice)
-				args.AppendFormat (" --launchdev={0}", Application);
-			else
-				args.AppendFormat (" --launchsim={0}", Application);
-			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS=connect {0}:{1}\"", address.Address, address.Port);
-			if (!string.IsNullOrWhiteSpace (RedirectStdout))
-				args.AppendFormat (" --stdout={0}", RedirectStdout);
-			if (!string.IsNullOrWhiteSpace (RedirectStderr))
-				args.AppendFormat (" --stderr={0}", RedirectStderr);
-			if (!string.IsNullOrWhiteSpace (DeviceName))
-				args.AppendFormat (" --devname={0}", DeviceName);
-			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			args.Append ("shell am start ");
+			args.Append ("-W -S ");
+			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'connect {0}:{1}\\' ", address.Address, address.Port);
+			args.Append (Application);
 
-			if (MLaunch != null)
-				args.Append (" --device=iPhone");
+			Program.Debug ("Launching apk: {0} {1}", Adb, args);
 
-			if (ExtraMTouchArguments != null) {
-				args.Append (" ");
-				args.Append (ExtraMTouchArguments);
-			}
-
-			var tool = (MLaunch != null) ? MLaunch : MTouch;
-
-			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
-
-			var psi = new ProcessStartInfo (tool, args.ToString ());
+			var psi = new ProcessStartInfo (Adb, args.ToString ());
 			psi.UseShellExecute = false;
-			psi.RedirectStandardInput = true;
+			// psi.RedirectStandardInput = true;
 
 			var process = Process.Start (psi);
 
@@ -197,4 +144,3 @@ namespace Xamarin.AsyncTests.Console
 		}
 	}
 }
-

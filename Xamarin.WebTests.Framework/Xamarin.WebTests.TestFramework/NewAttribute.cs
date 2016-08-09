@@ -1,10 +1,10 @@
 ﻿//
-// IPortableSupport.cs
+// NewAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,45 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Text;
+using Xamarin.AsyncTests;
 
-namespace Xamarin.AsyncTests.Portable
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IPortableSupport : ISingletonInstance
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class NewAttribute : TestCategoryAttribute
 	{
-		string GetStackTrace (bool full);
+		public static readonly TestCategory Instance = new TestCategory ("New");
 
-		string CurrentThreadId {
-			get;
-		}
-
-		bool IsMicrosoftRuntime {
-			get;
-		}
-
-		bool IsAndroid {
-			get;
-		}
-
-		bool IsIOS {
-			get;
-		}
-
-		bool IsMobile {
-			get;
-		}
-
-		bool HasAppleTls {
-			get;
-		}
-
-		Version MonoRuntimeVersion {
-			get;
-		}
-
-		Encoding ASCIIEncoding {
-			get;
+		public override TestCategory Category {
+			get { return Instance; }
 		}
 	}
 }
-
