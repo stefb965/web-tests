@@ -31,6 +31,7 @@ namespace Xamarin.WebTests.Resources
 	{
 		Invalid,
 		HamillerTubeCA,
+		HamillerTubeIM,
 		ServerCertificateFromLocalCA,
 		SelfSignedServerCertificate,
 		TlsTestXamDevNew,
@@ -38,7 +39,9 @@ namespace Xamarin.WebTests.Resources
 		TlsTestXamDevCA,
 		IntermediateCA,
 		IntermediateServer,
-		ServerCertificateWithCA
+		ServerCertificateWithCA,
+		ServerCertificateFromHamillerTubeIM,
+		ServerCertificateWithHamillerTubeIM
 	}
 }
 

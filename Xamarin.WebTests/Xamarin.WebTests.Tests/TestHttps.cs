@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 
-		[Martin]
+		[New]
 		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.TrustedRoots)]
 		public async Task TestTrustedRoots (TestContext ctx, CancellationToken cancellationToken,

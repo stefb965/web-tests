@@ -43,6 +43,9 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] intermediateServerData;
 		static readonly X509Certificate intermediateServer;
 
+		static readonly byte[] hamillerTubeIMData;
+		static readonly X509Certificate hamillerTubeIM;
+
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
 		static readonly TlsTestXamDevExpiredData tlsTestXamDevExpiredInfo;
@@ -54,6 +57,12 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] serverCertWithCAData;
 		static readonly X509Certificate serverCertWithCA;
 
+		static readonly byte[] serverCertFromTubeIMData;
+		static readonly X509Certificate serverCertFromTubeIM;
+
+		static readonly byte[] serverCertWithTubeIMData;
+		static readonly X509Certificate serverCertWithTubeIM;
+
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
 		const string serverSelfHash = "EC732FEEE493A91635E6BDC18377EEB3C11D6E16";
@@ -63,6 +72,8 @@ namespace Xamarin.WebTests.Resources
 			provider = DependencyInjector.Get<ICertificateProvider> ();
 			cacertData = ResourceManager.ReadResource ("CA.Hamiller-Tube-CA.pem");
 			cacert = provider.GetCertificateFromData (cacertData);
+			hamillerTubeIMData = ResourceManager.ReadResource ("CA.Hamiller-Tube-IM.pem");
+			hamillerTubeIM = provider.GetCertificateFromData (hamillerTubeIMData);
 			serverCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert.pem");
 			serverCertNoKey = provider.GetCertificateFromData (serverCertNoKeyData);
 			selfServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-self.pem");
@@ -105,6 +116,12 @@ namespace Xamarin.WebTests.Resources
 
 			serverCertWithCAData = ResourceManager.ReadResource ("CA.server-cert-with-ca.pfx");
 			serverCertWithCA = provider.GetCertificateWithKey (serverCertWithCAData, "monkey");
+
+			serverCertFromTubeIMData = ResourceManager.ReadResource ("CA.server-cert-im.pem");
+			serverCertFromTubeIM = provider.GetCertificateFromData (serverCertFromTubeIMData);
+
+			serverCertWithTubeIMData = ResourceManager.ReadResource ("CA.server-cert-im.pfx");
+			serverCertWithTubeIM = provider.GetCertificateWithKey (serverCertWithTubeIMData, "monkey");
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -184,6 +201,8 @@ namespace Xamarin.WebTests.Resources
 			switch (type) {
 			case CertificateResourceType.HamillerTubeCA:
 				return cacert;
+			case CertificateResourceType.HamillerTubeIM:
+				return hamillerTubeIM;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKey;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -200,6 +219,10 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServer;
 			case CertificateResourceType.ServerCertificateWithCA:
 				return serverCertWithCA;
+			case CertificateResourceType.ServerCertificateFromHamillerTubeIM:
+				return serverCertFromTubeIM;
+			case CertificateResourceType.ServerCertificateWithHamillerTubeIM:
+				return serverCertWithTubeIM;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -210,6 +233,8 @@ namespace Xamarin.WebTests.Resources
 			switch (type) {
 			case CertificateResourceType.HamillerTubeCA:
 				return cacertData;
+			case CertificateResourceType.HamillerTubeIM:
+				return hamillerTubeIMData;
 			case CertificateResourceType.ServerCertificateFromLocalCA:
 				return serverCertNoKeyData;
 			case CertificateResourceType.SelfSignedServerCertificate:
@@ -226,6 +251,10 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerData;
 			case CertificateResourceType.ServerCertificateWithCA:
 				return serverCertWithCAData;
+			case CertificateResourceType.ServerCertificateFromHamillerTubeIM:
+				return serverCertFromTubeIMData;
+			case CertificateResourceType.ServerCertificateWithHamillerTubeIM:
+				return serverCertWithTubeIMData;
 			default:
 				throw new InvalidOperationException ();
 			}

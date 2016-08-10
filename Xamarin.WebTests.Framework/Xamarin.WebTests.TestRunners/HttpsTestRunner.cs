@@ -246,16 +246,17 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
-				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServer)) {
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.ServerCertificateWithHamillerTubeIM)) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					// ExpectChainStatus = X509ChainStatusFlags.NoError
 					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
 				};
 				parameters.ValidationParameters = new ValidationParameters ();
-				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
-				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServer);
-				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
-				parameters.ValidationParameters.ExpectSuccess = false;
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromHamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
 			case ConnectionTestType.TrustedRootCA:

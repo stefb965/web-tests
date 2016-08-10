@@ -247,6 +247,15 @@
     <EmbeddedResource Include="..\CA\server-cert-with-ca.pfx">
       <Link>CA\server-cert-with-ca.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im.pfx">
+      <Link>CA\server-cert-im.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\Hamiller-Tube-IM.pem">
+      <Link>CA\Hamiller-Tube-IM.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\server-cert-im.pem">
+      <Link>CA\server-cert-im.pem</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Import Project="$(MSBuildProjectDirectory)\..\build\BuildTools.targets" />
