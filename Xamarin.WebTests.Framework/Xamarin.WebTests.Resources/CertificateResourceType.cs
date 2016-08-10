@@ -40,8 +40,15 @@ namespace Xamarin.WebTests.Resources
 		IntermediateCA,
 		IntermediateServer,
 		ServerCertificateWithCA,
-		ServerCertificateFromHamillerTubeIM,
-		ServerCertificateWithHamillerTubeIM
+
+		// Just the certificate
+		IntermediateServerCertificateBare,
+		// Same but without the private key
+		IntermediateServerCertificateNoKey,
+		// Certificate and Intermediate CA
+		IntermediateServerCertificate,
+		// Certificate, Intermediate CA and Root CA
+		IntermediateServerCertificateFull,
 	}
 }
 

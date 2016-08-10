@@ -128,7 +128,11 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.TrustedRoots:
 				yield return ConnectionTestType.ServerCertificateWithCA;
 				yield return ConnectionTestType.TrustedRootCA;
+				yield return ConnectionTestType.TrustedIntermediateCA;
 				yield return ConnectionTestType.HostNameMismatch;
+				yield return ConnectionTestType.IntermediateServerCertificate;
+				yield return ConnectionTestType.IntermediateServerCertificateFull;
+				yield return ConnectionTestType.IntermediateServerCertificateBare;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:

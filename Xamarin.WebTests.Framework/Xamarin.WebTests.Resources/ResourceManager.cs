@@ -57,11 +57,14 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] serverCertWithCAData;
 		static readonly X509Certificate serverCertWithCA;
 
-		static readonly byte[] serverCertFromTubeIMData;
-		static readonly X509Certificate serverCertFromTubeIM;
-
-		static readonly byte[] serverCertWithTubeIMData;
-		static readonly X509Certificate serverCertWithTubeIM;
+		static readonly byte[] intermediateServerCertData;
+		static readonly X509Certificate intermediateServerCert;
+		static readonly byte[] intermediateServerCertNoKeyData;
+		static readonly X509Certificate intermediateServerCertNoKey;
+		static readonly byte[] intermediateServerCertBareData;
+		static readonly X509Certificate intermediateServerCertBare;
+		static readonly byte[] intermediateServerCertFullData;
+		static readonly X509Certificate intermediateServerCertFull;
 
 		const string caCertHash = "AAAB625A1F5EA1DBDBB658FB360613BE49E67AEC";
 		const string serverCertHash = "68295BFCB5B109738399DFFF86A5BEDE0694F334";
@@ -117,11 +120,14 @@ namespace Xamarin.WebTests.Resources
 			serverCertWithCAData = ResourceManager.ReadResource ("CA.server-cert-with-ca.pfx");
 			serverCertWithCA = provider.GetCertificateWithKey (serverCertWithCAData, "monkey");
 
-			serverCertFromTubeIMData = ResourceManager.ReadResource ("CA.server-cert-im.pem");
-			serverCertFromTubeIM = provider.GetCertificateFromData (serverCertFromTubeIMData);
-
-			serverCertWithTubeIMData = ResourceManager.ReadResource ("CA.server-cert-im.pfx");
-			serverCertWithTubeIM = provider.GetCertificateWithKey (serverCertWithTubeIMData, "monkey");
+			intermediateServerCertData = ResourceManager.ReadResource ("CA.server-cert-im.pfx");
+			intermediateServerCert = provider.GetCertificateWithKey (intermediateServerCertData, "monkey");
+			intermediateServerCertNoKeyData = ResourceManager.ReadResource ("CA.server-cert-im.pem");
+			intermediateServerCertNoKey = provider.GetCertificateFromData (intermediateServerCertNoKeyData);
+			intermediateServerCertBareData = ResourceManager.ReadResource ("CA.server-cert-im-bare.pfx");
+			intermediateServerCertBare = provider.GetCertificateWithKey (intermediateServerCertBareData, "monkey");
+			intermediateServerCertFullData = ResourceManager.ReadResource ("CA.server-cert-im-full.pfx");
+			intermediateServerCertFull = provider.GetCertificateWithKey (intermediateServerCertFullData, "monkey");
 		}
 
 		public static X509Certificate LocalCACertificate {
@@ -219,10 +225,14 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServer;
 			case CertificateResourceType.ServerCertificateWithCA:
 				return serverCertWithCA;
-			case CertificateResourceType.ServerCertificateFromHamillerTubeIM:
-				return serverCertFromTubeIM;
-			case CertificateResourceType.ServerCertificateWithHamillerTubeIM:
-				return serverCertWithTubeIM;
+			case CertificateResourceType.IntermediateServerCertificate:
+				return intermediateServerCert;
+			case CertificateResourceType.IntermediateServerCertificateBare:
+				return intermediateServerCertBare;
+			case CertificateResourceType.IntermediateServerCertificateFull:
+				return intermediateServerCertFull;
+			case CertificateResourceType.IntermediateServerCertificateNoKey:
+				return intermediateServerCertNoKey;
 			default:
 				throw new InvalidOperationException ();
 			}
@@ -251,10 +261,14 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerData;
 			case CertificateResourceType.ServerCertificateWithCA:
 				return serverCertWithCAData;
-			case CertificateResourceType.ServerCertificateFromHamillerTubeIM:
-				return serverCertFromTubeIMData;
-			case CertificateResourceType.ServerCertificateWithHamillerTubeIM:
-				return serverCertWithTubeIMData;
+			case CertificateResourceType.IntermediateServerCertificate:
+				return intermediateServerCertData;
+			case CertificateResourceType.IntermediateServerCertificateBare:
+				return intermediateServerCertBareData;
+			case CertificateResourceType.IntermediateServerCertificateFull:
+				return intermediateServerCertFullData;
+			case CertificateResourceType.IntermediateServerCertificateNoKey:
+				return intermediateServerCertNoKeyData;
 			default:
 				throw new InvalidOperationException ();
 			}
