@@ -27,6 +27,7 @@
 using System;
 using Xamarin.WebTests.MonoTestFramework;
 using Mono.Btls.Interface;
+using Xamarin.WebTests.ConnectionFramework;
 
 namespace Mono.Btls.TestFramework
 {
@@ -75,7 +76,7 @@ namespace Mono.Btls.TestFramework
 			VerifyParamType = other.VerifyParamType;
 		}
 
-		public override ValidationTestParameters DeepClone ()
+		public override ValidationParameters DeepClone ()
 		{
 			return new BoringValidationTestParameters (this);
 		}
