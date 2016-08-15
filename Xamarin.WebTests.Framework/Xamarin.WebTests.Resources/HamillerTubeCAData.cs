@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.Resources
 		internal const string managedSubject = "E=martin.baulig@xamarin.com, OU=Engineering, O=Xamarin, S=Massachusetts, C=US, CN=Hamiller Tube CA";
 
 		internal static readonly byte [] hash = new byte [] {
-			0x84, 0x6e, 0x75, 0x9b, 0x64, 0x71, 0x56, 0xb9, 0x84, 0x2a, 0xa6, 0xe8, 0x5b, 0x9d, 0x63, 0xb6,
-			0x9e, 0x88, 0xa6, 0x3f
+			0x03, 0x2d, 0x4d, 0x42, 0x5d, 0x7c, 0x28, 0x39, 0x08, 0xba, 0xa8, 0xf2, 0xfd, 0x6c, 0x3c, 0xfc,
+			0x89, 0xfd, 0x38, 0xdf
 		};
 
 		internal static readonly byte [] publicKeyData = new byte [] {
@@ -105,14 +105,14 @@ namespace Xamarin.WebTests.Resources
 			0x6f, 0x6d
 		};
 
-		static readonly DateTime notBefore = new DateTime (2016, 8, 10, 14, 22, 46, DateTimeKind.Utc);
-		static readonly DateTime notAfter = new DateTime (2026, 8, 8, 14, 22, 46, DateTimeKind.Utc);
+		static readonly DateTime notBefore = new DateTime (2016, 8, 15, 18, 55, 55, DateTimeKind.Utc);
+		static readonly DateTime notAfter = new DateTime (2026, 8, 13, 18, 55, 55, DateTimeKind.Utc);
 
 		static readonly byte[] serialNumber = new byte[] {
-			0xca, 0x7c, 0x02, 0x04, 0x04, 0x37, 0xc4, 0x4c
+			0xb9, 0xac, 0x3c, 0x1f, 0x07, 0x66, 0x80, 0x82
 		};
 		static readonly byte[] serialNumberMono = new byte[] {
-			0x4c, 0xc4, 0x37, 0x04, 0x04, 0x02, 0x7c, 0xca, 0x00
+			0x82, 0x80, 0x66, 0x07, 0x1f, 0x3c, 0xac, 0xb9, 0x00
 		};
 
 		internal static readonly CertificateNameInfo subjectName = new CertificateNameInfo (0xde6d8cc5L, 0x9b329e9dL, subjectName_rawData, subjectName_rawDataCanon, subject);
