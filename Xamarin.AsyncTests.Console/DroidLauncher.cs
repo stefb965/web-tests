@@ -92,8 +92,6 @@ namespace Xamarin.AsyncTests.Console
 
 			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
 			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
-
-			helper = new DroidHelper (SdkRoot);
 		}
 
 		Process Launch (IPortableEndPoint address)

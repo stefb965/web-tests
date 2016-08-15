@@ -38,7 +38,8 @@ namespace Xamarin.AsyncTests.Console
 		Mac,
 		Android,
 		Result,
-		Avd
+		Avd,
+		Emulator
 	}
 }
 

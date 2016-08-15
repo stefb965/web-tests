@@ -25,7 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
@@ -50,12 +52,35 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string EmulatorTool {
+			get;
+			private set;
+		}
+
 		public DroidHelper (string sdkRoot)
 		{
 			SdkRoot = sdkRoot;
 
+			if (String.IsNullOrEmpty (SdkRoot))
+				SdkRoot = Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
+			if (String.IsNullOrEmpty (SdkRoot)) {
+				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+				SdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
+			}
+
 			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
 			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
+			EmulatorTool = Path.Combine (SdkRoot, "tools", "emulator");
+		}
+
+		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
+		{
+			var avds = await GetAvds (cancellationToken);
+			Program.Debug ("Available Adbs: {0}", string.Join (" ", avds));
+
+			if (!avds.Contains ("XamarinWebTests"))
+				await CreateAvd ("XamarinWebTests", "android-23", "armeabi-v7a", "Galaxy Nexus", true, cancellationToken);
+			return true;
 		}
 
 		static string[] SplitOutputLines (string output)
@@ -73,7 +98,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var output = await RunCommandWithOutput (AndroidTool, cancellationToken, "list", "avd", "-c");
+			var output = await RunCommandWithOutput (AndroidTool, "list avd -c", cancellationToken);
 			var avds = SplitOutputLines (output);
 
 			foreach (var avd in avds) {
@@ -97,11 +122,86 @@ namespace Xamarin.AsyncTests.Console
 			if (replace)
 				args.Append ("  --force");
 
-			var output = await RunCommand (AndroidTool, cancellationToken, args.ToString ());
+			var output = await RunCommand (AndroidTool, args.ToString (), cancellationToken);
 			Program.Debug ("CREATE AVD: {0}", output);
 		}
 
-		Task<bool> RunCommand (string command, CancellationToken cancellationToken, string args)
+		public async Task<bool> CheckEmulator (CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var running = await CheckEmulatorRunning (cancellationToken);
+			if (running)
+				return true;
+
+			await StartEmulator ("XamarinWebTests", "emulator.log", cancellationToken);
+
+			return await WaitForEmulator (cancellationToken);
+		}
+
+		internal async Task<bool> CheckEmulatorRunning (CancellationToken cancellationToken)
+		{
+			Program.Debug ("Checking for running emulator");
+			var output = await RunCommandWithOutput (Adb, "devices", cancellationToken);
+			var re = new Regex ("(emulator-\\d+)\\s+(device|offline)");
+			foreach (var line in SplitOutputLines (output)) {
+				Program.Debug ("ADB DEVICES: {0}", line);
+				var match = re.Match (line);
+				Program.Debug ("DO WE HAVE IT: {0}", match.Success);
+				if (!match.Success)
+					continue;
+
+				Program.Debug ("TEST: |{0}|{1}|", match.Groups [1].Value, match.Groups [2].Value);
+
+				if (match.Groups [2].Value.Equals ("offline")) {
+					Program.Debug ("Emulator is offline.");
+					continue;
+				} else if (!match.Groups [2].Value.Equals ("device")) {
+					continue;
+				}
+
+				var id = match.Groups [1].Value;
+
+				var getPropArgs = string.Format ("-s {0} shell getprop sys.boot_completed", id);
+				var getProp = await RunCommandWithOutput (Adb, getPropArgs, cancellationToken);
+				getProp = getProp.Trim ();
+
+				if (getProp.Equals ("1")) {
+					Program.Debug ("Emulator completed booting.");
+					return true;
+				} else {
+					Program.Debug ("Emulator still booting ...");
+				}
+			}
+
+			return false;
+		}
+
+		internal async Task<bool> WaitForEmulator (CancellationToken cancellationToken)
+		{
+			bool running;
+			var endtime = DateTime.Now + TimeSpan.FromMinutes (15);
+			do {
+				await Task.Delay (1000);
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				Program.Debug ("Wait for emulator {0}", DateTime.Now);
+
+				running = await CheckEmulatorRunning (cancellationToken);
+			} while (!running && DateTime.Now < endtime);
+			return running;
+		}
+
+		internal async Task StartEmulator (string name, string logfile, CancellationToken cancellationToken)
+		{
+			var args = string.Format ("@{0} > {1} 2>&1 &", name, logfile);
+			var shellArgs = string.Format ("-c \"{0} {1}\"", EmulatorTool, args);
+
+			var output = await RunCommandWithOutput ("/bin/sh", shellArgs, cancellationToken);
+			Program.Debug ("STARTED EMULATOR: {0}", output);
+		}
+
+		Task<bool> RunCommand (string command, string args, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<bool> ();
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
@@ -138,16 +238,15 @@ namespace Xamarin.AsyncTests.Console
 			return tcs.Task;
 		}
 
-		Task<string> RunCommandWithOutput (string command, CancellationToken cancellationToken, params string[] args)
+		Task<string> RunCommandWithOutput (string command, string args, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<string> ();
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 
 			Task.Run (() => {
-				var joinedArgs = string.Join (" ", args);
-				var tool = string.Join (" ", command, joinedArgs);
+				var tool = string.Join (" ", command, args);
 				try {
-					var psi = new ProcessStartInfo (command, joinedArgs);
+					var psi = new ProcessStartInfo (command, args);
 					psi.UseShellExecute = false;
 					psi.RedirectStandardInput = true;
 					psi.RedirectStandardOutput = true;

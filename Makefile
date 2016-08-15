@@ -196,11 +196,22 @@ Check-System::
 .Android-Run-All::
 	$(MAKE) TEST_CATEGORY=All .Android-Internal-Run
 
+.Android-Run-Work::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Work .Android-Internal-Run
+
+.Android-Run-New::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=New .Android-Internal-Run
+
+.Android-Run-Martin::
+	$(MAKE) ASYNCTESTS_ARGS="--features=+Experimental --debug --log-level=5" TEST_CATEGORY=Martin .Android-Internal-Run
+
 .Android-Internal-Build::
 	$(MONO) $(NUGET_EXE) restore $(EXTRA_NUGET_RESTORE_ARGS) Xamarin.WebTests.Android.sln
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' Xamarin.WebTests.Android.sln
 
 .Android-Internal-Install::
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) avd
+	$(MONO) $(ASYNCTESTS_CONSOLE_EXE) emulator
 	$(XBUILD) /p:Configuration='$(ANDROID_CONFIGURATION)' /t:Install $(WEBTESTS_ANDROID_PROJECT)
 
 .Android-Internal-Run::
