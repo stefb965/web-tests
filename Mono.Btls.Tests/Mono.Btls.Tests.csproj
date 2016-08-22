@@ -72,6 +72,9 @@
     <Reference Include="Mono.Btls.Interface">
       <HintPath>..\PCL\Mono.Btls.Interface.dll</HintPath>
     </Reference>
+    <Reference Include="Mono.Security.Interface">
+      <HintPath>..\PCL\Mono.Security.Interface.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
 </Project>

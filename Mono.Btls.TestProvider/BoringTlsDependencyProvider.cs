@@ -71,7 +71,13 @@ namespace Mono.Btls.TestProvider
 		}
 
 		public Guid? InstallTlsProvider {
-			get { return MonoConnectionProviderFactory.BoringTlsGuid; }
+			get {
+#if BTLS
+				return MonoConnectionProviderFactory.BoringTlsGuid;
+#else
+				return null;
+#endif
+			}
 		}
 	}
 }

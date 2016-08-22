@@ -35,6 +35,7 @@ using Xamarin.WebTests.MonoTestFeatures;
 using Xamarin.WebTests.MonoTestFramework;
 using Mono.Btls.Interface;
 using Mono.Btls.TestFramework;
+using Mono.Security.Interface;
 using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.Server;
 using Xamarin.WebTests.TestRunners;
@@ -46,7 +47,7 @@ namespace Mono.Btls.Tests
 	[AsyncTestFixture]
 	public class MartinTest
 	{
-		[Martin]
+		[Work]
 		[AsyncTest]
 		[MonoConnectionTestCategory (MonoConnectionTestCategory.MartinTest)]
 		public async Task TestClient (TestContext ctx, CancellationToken cancellationToken,
@@ -144,6 +145,21 @@ namespace Mono.Btls.Tests
 		{
 			var handler = new HelloWorldHandler ("Hello World");
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
+		}
+
+		[Martin]
+		[AsyncTest]
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		public void TestProvider (
+			TestContext ctx, CancellationToken cancellationToken,
+			[ConnectionTestProvider ("BoringTLS")] ConnectionTestProvider provider)
+		{
+			ctx.LogMessage ("TEST PROVIDER: {0}", provider);
+			var defaultProvider = MonoTlsProviderFactory.GetDefaultProvider ();
+			ctx.LogMessage ("DEFAULT TLS PROVIDER: {0} {1} {2}", defaultProvider, defaultProvider.Name, defaultProvider.ID);
+			var currentProvider = MonoTlsProviderFactory.GetProvider ();
+			ctx.LogMessage ("CURRENT TLS PROVIDER: {0} {1} {2}", currentProvider, currentProvider.Name, currentProvider.ID);
 		}
 	}
 }
