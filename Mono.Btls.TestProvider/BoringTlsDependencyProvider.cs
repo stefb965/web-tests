@@ -53,8 +53,6 @@ namespace Mono.Btls.TestProvider
 			var boringTls = BtlsProvider.GetProvider ();
 			factory.RegisterProvider ("BoringTLS", boringTls, ConnectionProviderType.BoringTLS, BoringTlsFlags);
 
-			BtlsProvider.EnsureTrustedRoots ();
-
 			DependencyInjector.RegisterDefaults<IDefaultConnectionSettings> (3, () => this);
 		}
 
