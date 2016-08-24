@@ -44,7 +44,7 @@ namespace Mono.Btls.TestProvider
 		const ConnectionProviderFlags DefaultFlags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 		const ConnectionProviderFlags BoringTlsFlags = DefaultFlags | ConnectionProviderFlags.SupportsTls12 |
 			ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers |
-			ConnectionProviderFlags.SupportsClientCertificates;
+			ConnectionProviderFlags.SupportsClientCertificates | ConnectionProviderFlags.SupportsTrustedRoots;
 		
 		public void Initialize ()
 		{
