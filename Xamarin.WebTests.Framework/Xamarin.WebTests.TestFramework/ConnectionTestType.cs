@@ -57,6 +57,7 @@ namespace Xamarin.WebTests.TestFramework
 		ServerCertificateWithCA,
 		TrustedRootCA,
 		TrustedIntermediateCA,
+		TrustedSelfSigned,
 		HostNameMismatch,
 		IntermediateServerCertificate,
 		IntermediateServerCertificateBare,
