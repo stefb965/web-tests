@@ -29,6 +29,7 @@ db81a78f
 		<Type>Mono.Btls.Interface.BtlsX509Purpose</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Store</Type>
 		<Type>Mono.Btls.Interface.BtlsX509StoreCtx</Type>
+		<Type>Mono.Btls.Interface.BtlsX509TrustKind</Type>
 		<Type>Mono.Btls.Interface.BtlsX509VerifyFlags</Type>
 		<Type>Mono.Btls.Interface.BtlsX509VerifyParam</Type>
 		<Type>Mono.Btls.Interface.VersionInfo</Type>
