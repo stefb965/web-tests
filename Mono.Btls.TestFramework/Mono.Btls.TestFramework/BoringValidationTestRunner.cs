@@ -291,11 +291,13 @@ namespace Mono.Btls.TestFramework
 		{
 			if (Parameters.TrustedRoots == null)
 				return;
+			var certificates = new X509CertificateCollection ();
 			foreach (var type in Parameters.TrustedRoots) {
-				var data = ResourceManager.GetCertificateData (type);
-				var x509 = BtlsProvider.CreateNative (data, BtlsX509Format.PEM);
-				store.AddTrustAnchor (x509);
+				var certificate = ResourceManager.GetCertificate (type);
+				certificates.Add (certificate);
 			}
+			var trust = BtlsX509TrustKind.TRUST_ALL;
+			store.AddLookup (certificates, trust);
 		}
 
 		protected void SetupChain (TestContext ctx)
