@@ -327,13 +327,14 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
-				parameters = new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+				goto case ConnectionTestType.HostNameMismatch;
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.NoError,
-					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Hamiller-Tube.local"
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "Intermediate-Server.local"
 				};
 				parameters.ValidationParameters = new ValidationParameters ();
-				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.SelfSignedServerCertificate);
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
 				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
 				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
 				// parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);

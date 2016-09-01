@@ -147,8 +147,8 @@ namespace Mono.Btls.Tests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken);
 		}
 
-		[Martin]
-		[AsyncTest]
+		// [Martin]
+		// [AsyncTest]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public void TestProvider (
