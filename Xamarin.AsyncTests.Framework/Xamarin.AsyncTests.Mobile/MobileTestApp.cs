@@ -1,5 +1,5 @@
 ﻿//
-// Xamarin.AsyncTests.Mobile.cs
+// MobileTestApp.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -33,12 +33,16 @@ using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Framework;
 using Xamarin.AsyncTests.Remoting;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.Forms;
 
 namespace Xamarin.AsyncTests.Mobile
 {
-	public class MobileTestApp : Application, TestApp
+	public class MobileTestApp : TestApp
 	{
+		public ISimpleUIController Controller {
+			get;
+			private set;
+		}
+
 		public TestFramework Framework {
 			get;
 			private set;
@@ -64,45 +68,11 @@ namespace Xamarin.AsyncTests.Mobile
 			private set;
 		}
 
-		public Label MainLabel {
-			get;
-			private set;
-		}
-
-		public Label StatusLabel {
-			get;
-			private set;
-		}
-
-		public Label StatisticsLabel {
-			get;
-			private set;
-		}
-
-		public StackLayout Content {
-			get;
-			private set;
-		}
-
-		public Button RunButton {
-			get;
-			private set;
-		}
-
-		public Button StopButton {
-			get;
-			private set;
-		}
-
-		public Picker CategoryPicker {
-			get;
-			private set;
-		}
-
 		public event EventHandler FinishedEvent;
 
-		public MobileTestApp (TestFramework framework, string options)
+		public MobileTestApp (ISimpleUIController controller, TestFramework framework, string options)
 		{
+			Controller = controller;
 			Framework = framework;
 
 			Settings = SettingsBag.CreateDefault ();
@@ -112,37 +82,9 @@ namespace Xamarin.AsyncTests.Mobile
 
 			Logger = new TestLogger (new MobileLogger (this));
 
-			MainLabel = new Label { HorizontalTextAlignment = TextAlignment.Start, Text = "Welcome to Xamarin AsyncTests!" };
+			Controller.CategoryChangedEvent += (sender, e) => OnCategoryChanged (e);
 
-			StatusLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
-
-			StatisticsLabel = new Label { HorizontalTextAlignment = TextAlignment.Start };
-
-			RunButton = new Button { Text = "Run", IsEnabled = false };
-
-			StopButton = new Button { Text = "Stop", IsEnabled = false };
-
-			var buttonLayout = new StackLayout {
-				HorizontalOptions = LayoutOptions.Center, Orientation = StackOrientation.Horizontal,
-				Children = { RunButton, StopButton }
-			};
-
-			CategoryPicker = new Picker {
-				HorizontalOptions = LayoutOptions.FillAndExpand, VerticalOptions = LayoutOptions.Center,
-			};
-			CategoryPicker.SelectedIndexChanged += (sender, e) => OnCategoryChanged ();;
-
-			Content = new StackLayout {
-				VerticalOptions = LayoutOptions.Center, Orientation = StackOrientation.Vertical,
-				Children = { MainLabel, StatusLabel, StatisticsLabel, buttonLayout, CategoryPicker }
-			};
-
-			MainPage = new ContentPage { Content = Content };
-
-			RunButton.Clicked += (s, e) => OnRun ();
-			StopButton.Clicked += (sender, e) => OnStop ();
-
-			OnSessionChanged ();
+			Controller.SessionChangedEvent += (sender, e) => OnSessionChanged ();
 		}
 
 		int? logLevel;
@@ -158,6 +100,8 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 			}
 
+			Debug ("Got XAMARIN_ASYNCTESTS_OPTIONS argument: '{0}'.", options);
+
 			var p = new NDesk.Options.OptionSet ();
 			p.Add ("debug", v => debugMode = true);
 			p.Add ("log-level=", v => logLevel = int.Parse (v));
@@ -165,9 +109,8 @@ namespace Xamarin.AsyncTests.Mobile
 			p.Add ("features=", v => features = v);
 			p.Add ("set=", v => customSettings = v);
 
-			var args = p.Parse (options.Split (' '));
-
-			Debug ("ARGS #1: {0} - {1}:{2} - |{3}|{4}|", args.Count, debugMode, logLevel, category ?? "<null>", features ?? "<null>");
+			var optArray = options.Split (new char [] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+			var args = p.Parse (optArray);
 
 			if (debugMode) {
 				Settings.LogLevel = -1;
@@ -216,10 +159,10 @@ namespace Xamarin.AsyncTests.Mobile
 					var key = part.Substring (0, pos);
 					var value = part.Substring (pos + 1);
 					Debug ("SET: |{0}|{1}|", key, value);
-					if (key[0] == '-')
+					if (key [0] == '-')
 						throw new InvalidOperationException ();
 					Settings.SetValue (key, value);
-				} else if (part[0] == '-') {
+				} else if (part [0] == '-') {
 					var key = part.Substring (1);
 					Settings.RemoveValue (key);
 				} else {
@@ -246,10 +189,10 @@ namespace Xamarin.AsyncTests.Mobile
 				foreach (var part in parts) {
 					var name = part;
 					bool enable = true;
-					if (part[0] == '-') {
+					if (part [0] == '-') {
 						name = part.Substring (1);
 						enable = false;
-					} else if (part[0] == '+') {
+					} else if (part [0] == '+') {
 						name = part.Substring (1);
 						enable = true;
 					}
@@ -284,10 +227,9 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 
 			try {
-				MainLabel.Text = string.Format ("Running.");
-				StopButton.IsEnabled = true;
-				RunButton.IsEnabled = false;
-	
+				Controller.Message ("Running.");
+				Controller.IsRunning = true;
+
 				var cancellationToken = cts.Token;
 
 				OnResetStatistics ();
@@ -301,9 +243,8 @@ namespace Xamarin.AsyncTests.Mobile
 				var oldCts = Interlocked.Exchange (ref cts, null);
 				if (oldCts != null)
 					oldCts.Dispose ();
-				MainLabel.Text = string.Format ("Done running.");
-				StopButton.IsEnabled = false;
-				RunButton.IsEnabled = true;
+				Controller.Message ("Done running.");
+				Controller.IsRunning = false;
 			}
 		}
 
@@ -315,8 +256,7 @@ namespace Xamarin.AsyncTests.Mobile
 				return;
 
 			try {
-				StopButton.IsEnabled = true;
-				RunButton.IsEnabled = false;
+				Controller.IsRunning = true;
 
 				var cancellationToken = cts.Token;
 
@@ -337,10 +277,15 @@ namespace Xamarin.AsyncTests.Mobile
 				var oldCts = Interlocked.Exchange (ref cts, null);
 				if (oldCts != null)
 					oldCts.Dispose ();
-				StopButton.IsEnabled = false;
+				Controller.IsRunning = false;
 				if (SessionMode != MobileSessionMode.Connect)
-					RunButton.IsEnabled = true;
+					Controller.CanRun = true;
 			}
+		}
+
+		public void Stop ()
+		{
+			OnStop ();
 		}
 
 		void OnStop ()
@@ -362,7 +307,7 @@ namespace Xamarin.AsyncTests.Mobile
 		TestServer server;
 		TestSession session;
 
-		protected override async void OnStart ()
+		public async void Start ()
 		{
 			bool finished;
 			do {
@@ -380,16 +325,16 @@ namespace Xamarin.AsyncTests.Mobile
 			switch (SessionMode) {
 			case MobileSessionMode.Local:
 				server = await TestServer.StartLocal (this, Framework, cancellationToken);
-				MainLabel.Text = "started local server.";
+				Controller.Message ("started local server.");
 				break;
 
 			case MobileSessionMode.Server:
-				MainLabel.Text = string.Format ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				Controller.Message ("Listening at is {0}:{1}.", EndPoint.Address, EndPoint.Port);
 				server = await TestServer.StartServer (this, EndPoint, Framework, cancellationToken);
 				break;
 
 			case MobileSessionMode.Connect:
-				MainLabel.Text = string.Format ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
+				Controller.Message ("Connecting to {0}:{1}.", EndPoint.Address, EndPoint.Port);
 				server = await TestServer.ConnectToRemote (this, EndPoint, Framework, cancellationToken);
 				break;
 
@@ -401,14 +346,14 @@ namespace Xamarin.AsyncTests.Mobile
 
 			session = await server.GetTestSession (CancellationToken.None);
 			OnSessionChanged ();
-			MainLabel.Text = string.Format ("Got test session {0} from {1}.", session.Name, server.App);
+			Controller.Message ("Got test session {0} from {1}.", session.Name, server.App);
 
 			Debug ("Got test session: {0}", session);
 
 			OnResetStatistics ();
 
 			if (SessionMode == MobileSessionMode.Local) {
-				RunButton.IsEnabled = true;
+				Controller.CanRun = true;
 				return false;
 			}
 
@@ -416,7 +361,7 @@ namespace Xamarin.AsyncTests.Mobile
 			Debug ("Wait for exit: {0}", running);
 
 			if (running && SessionMode != MobileSessionMode.Connect) {
-				RunButton.IsEnabled = true;
+				Controller.CanRun = true;
 				return false;
 			}
 
@@ -429,28 +374,18 @@ namespace Xamarin.AsyncTests.Mobile
 				Debug ("Failed to stop server: {0}", ex.Message);
 			}
 
-			MainLabel.Text = string.Format ("Done running.");
+			Controller.Message ("Done running.");
 			return true;
 		}
 
-		protected override void OnSleep ()
-		{
-			// Handle when your app sleeps
-		}
-
-		protected override void OnResume ()
-		{
-			// Handle when your app resumes
-		}
-
-		void Debug (string format, params object[] args)
+		void Debug (string format, params object [] args)
 		{
 			Debug (string.Format (format, args));
 		}
 
 		void Debug (string message)
 		{
-			SD.Debug.WriteLine (message);
+			Controller.DebugMessage (message);
 		}
 
 		void OnLogMessage (string message)
@@ -472,44 +407,50 @@ namespace Xamarin.AsyncTests.Mobile
 			try {
 				suppressCategoryChange = true;
 
-				CategoryPicker.Items.Clear ();
-				CategoryPicker.Items.Add ("All");
-				CategoryPicker.SelectedIndex = 0;
+				var categories = new List<string> ();
+				categories.Add ("All");
 
-				if (session == null)
+				var selected = 0;
+
+				Debug ("ON SESSION CHANGED: {0}", session);
+
+				if (session == null) {
+					Controller.SetCategories (categories, 0);
 					return;
+				}
 
 				ModifyConfiguration (session.Configuration);
 
-				foreach (var category in session.Configuration.Categories) {
-					CategoryPicker.Items.Add (category.Name);
-					if (category == session.Configuration.CurrentCategory)
-						CategoryPicker.SelectedIndex = CategoryPicker.Items.Count;
+				foreach (var item in session.Configuration.Categories) {
+					categories.Add (item.Name);
+					if (item == session.Configuration.CurrentCategory)
+						selected = categories.Count - 1;
 				}
+				Controller.SetCategories (categories, selected);
 			} finally {
 				suppressCategoryChange = false;
 			}
 		}
 
-		void OnCategoryChanged ()
+		void OnCategoryChanged (int selectedIdx)
 		{
 			if (suppressCategoryChange || session == null)
 				return;
 
-			if (CategoryPicker.SelectedIndex == 0) {
+			if (selectedIdx <= 0) {
 				session.Configuration.CurrentCategory = TestCategory.All;
 				return;
 			}
 
-			var selected = CategoryPicker.Items[CategoryPicker.SelectedIndex];
-			var category = session.Configuration.Categories.First (c => c.Name.Equals (selected));
-			session.Configuration.CurrentCategory = category;
+			var selected = Controller.Categories [selectedIdx];
+			var lookup = session.Configuration.Categories.FirstOrDefault (c => c.Name.Equals (selected));
+			session.Configuration.CurrentCategory = lookup ?? TestCategory.All;
 		}
 
 		void OnResetStatistics ()
 		{
-			StatusLabel.Text = string.Empty;
-			StatisticsLabel.Text = string.Empty;
+			Controller.StatusMessage (string.Empty);
+			Controller.StatisticsMessage (string.Empty);
 			countTests = countSuccess = countErrors = countIgnored = 0;
 		}
 
@@ -524,7 +465,7 @@ namespace Xamarin.AsyncTests.Mobile
 			case TestLoggerBackend.StatisticsEventType.Running:
 				++countTests;
 				Debug ("Running {0}", args.Name);
-				Device.BeginInvokeOnMainThread (() => StatusLabel.Text = string.Format ("Running {0}", args.Name));
+				Controller.StatusMessage ("Running {0}", args.Name);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Finished:
 				switch (args.Status) {
@@ -542,14 +483,12 @@ namespace Xamarin.AsyncTests.Mobile
 
 				Debug ("Finished {0}: {1}", args.Name, args.Status);
 
-				Device.BeginInvokeOnMainThread (() => {
-					StatusLabel.Text = string.Format ("Finished {0}: {1}", args.Name, args.Status);
-					StatisticsLabel.Text = string.Format ("{0} test run, {1} ignored, {2} passed, {3} errors.",
-						countTests, countIgnored, countSuccess, countErrors);
-				});
+				Controller.StatusMessage ("Finished {0}: {1}", args.Name, args.Status);
+				Controller.StatisticsMessage ("{0} test run, {1} ignored, {2} passed, {3} errors.",
+				                              countTests, countIgnored, countSuccess, countErrors);
 				break;
 			case TestLoggerBackend.StatisticsEventType.Reset:
-				Device.BeginInvokeOnMainThread (() => OnResetStatistics ());
+				OnResetStatistics ();
 				break;
 			}
 		}
@@ -563,7 +502,7 @@ namespace Xamarin.AsyncTests.Mobile
 				MobileApp = app;
 			}
 
-			protected override void OnLogEvent (LogEntry entry)
+			protected internal override void OnLogEvent (LogEntry entry)
 			{
 				switch (entry.Kind) {
 				case EntryKind.Debug:
@@ -583,7 +522,7 @@ namespace Xamarin.AsyncTests.Mobile
 				}
 			}
 
-			protected override void OnStatisticsEvent (StatisticsEventArgs args)
+			protected internal override void OnStatisticsEvent (StatisticsEventArgs args)
 			{
 				MobileApp.OnStatisticsEvent (args);
 			}

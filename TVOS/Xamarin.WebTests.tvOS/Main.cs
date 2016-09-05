@@ -1,10 +1,10 @@
 ﻿//
-// ApplicationLauncher.cs
+// Main.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -23,21 +23,24 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
-using System;
-using System.Threading;
-using System.Threading.Tasks;
+using UIKit;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.TestProvider;
+using Xamarin.WebTests.Resources;
 
-namespace Xamarin.AsyncTests.Remoting
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.WebTestFeatures), true)]
+[assembly: AsyncTestSuite (typeof (Xamarin.WebTests.MonoTests.MonoWebTestFeatures), true)]
+
+namespace Xamarin.WebTests.tvOS
 {
-	using Portable;
-
-	public abstract class ApplicationLauncher
+	public class Application
 	{
-		public abstract void LaunchApplication (string args);
-
-		public abstract Task<bool> WaitForExit ();
-
-		public abstract void StopApplication ();
+		// This is the main entry point of the application.
+		static void Main (string [] args)
+		{
+			// if you want to use a different Application Delegate class from "AppDelegate"
+			// you can specify it here.
+			UIApplication.Main (args, null, "AppDelegate");
+		}
 	}
 }
-

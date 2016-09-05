@@ -1,10 +1,10 @@
 ﻿//
-// ApplicationLauncher.cs
+// ISimpleUIController.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,18 +26,47 @@
 using System;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 
-namespace Xamarin.AsyncTests.Remoting
+namespace Xamarin.AsyncTests.Mobile
 {
-	using Portable;
-
-	public abstract class ApplicationLauncher
+	public interface ISimpleUIController
 	{
-		public abstract void LaunchApplication (string args);
+		void DebugMessage (string message);
 
-		public abstract Task<bool> WaitForExit ();
+		void Message (string message);
 
-		public abstract void StopApplication ();
+		void Message (string format, params object[] args);
+
+		void StatusMessage (string message);
+
+		void StatusMessage (string format, params object[] args);
+
+		void StatisticsMessage (string message);
+
+		void StatisticsMessage (string format, params object [] args);
+
+		bool IsRunning {
+			get; set;
+		}
+
+		bool CanRun {
+			get; set;
+		}
+
+		IList<string> Categories {
+			get;
+		}
+
+		void SetCategories (IList<string> categories, int selected);
+
+		int SelectedCategory {
+			get; set;
+		}
+
+		event EventHandler SessionChangedEvent;
+
+		event EventHandler<int> CategoryChangedEvent;
 	}
 }
 

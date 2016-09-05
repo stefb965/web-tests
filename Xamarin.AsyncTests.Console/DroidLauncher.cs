@@ -94,12 +94,12 @@ namespace Xamarin.AsyncTests.Console
 			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
 		}
 
-		Process Launch (IPortableEndPoint address)
+		Process Launch (string launchArgs)
 		{
 			var args = new StringBuilder ();
 			args.Append ("shell am start ");
 			args.Append ("-W -S ");
-			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'connect {0}:{1}\\' ", address.Address, address.Port);
+			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", launchArgs);
 			args.Append (Application);
 
 			Program.Debug ("Launching apk: {0} {1}", Adb, args);
@@ -133,9 +133,9 @@ namespace Xamarin.AsyncTests.Console
 			return true;
 		}
 
-		public override void LaunchApplication (IPortableEndPoint address)
+		public override void LaunchApplication (string args)
 		{
-			process = Launch (address);
+			process = Launch (args);
 		}
 
 		public override Task<bool> WaitForExit ()
