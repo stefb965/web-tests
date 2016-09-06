@@ -19,16 +19,20 @@ db81a78f
     <ImportAssembly>mscorlib</ImportAssembly>
     <ImportAssembly>System</ImportAssembly>
     <IncludeTypes>
+		<Type>Mono.Btls.Interface.BtlsObject</Type>
 		<Type>Mono.Btls.Interface.BtlsProvider</Type>
 		<Type>Mono.Btls.Interface.BtlsX509</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Chain</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Error</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Format</Type>
+		<Type>Mono.Btls.Interface.BtlsX509Lookup</Type>
+		<Type>Mono.Btls.Interface.BtlsX509LookupMethod</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Name</Type>
-		<Type>Mono.Btls.Interface.BtlsX509Object</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Purpose</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Store</Type>
 		<Type>Mono.Btls.Interface.BtlsX509StoreCtx</Type>
+		<Type>Mono.Btls.Interface.BtlsX509StoreManager</Type>
+		<Type>Mono.Btls.Interface.BtlsX509StoreType</Type>
 		<Type>Mono.Btls.Interface.BtlsX509TrustKind</Type>
 		<Type>Mono.Btls.Interface.BtlsX509VerifyFlags</Type>
 		<Type>Mono.Btls.Interface.BtlsX509VerifyParam</Type>
