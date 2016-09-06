@@ -326,6 +326,9 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.ExpectSuccess = false;
 				return parameters;
 
+			case ConnectionTestType.CertificateStore:
+				throw new NotImplementedException ();
+
 			case ConnectionTestType.MartinTest:
 				goto case ConnectionTestType.HostNameMismatch;
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
