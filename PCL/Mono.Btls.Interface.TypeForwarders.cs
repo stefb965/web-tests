@@ -10,7 +10,6 @@
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Error))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Format))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Lookup))]
-[assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509LookupMethod))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Name))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Purpose))]
 [assembly: System.Runtime.CompilerServices.TypeForwardedToAttribute(typeof(Mono.Btls.Interface.BtlsX509Store))]

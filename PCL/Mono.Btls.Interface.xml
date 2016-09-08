@@ -26,7 +26,6 @@ db81a78f
 		<Type>Mono.Btls.Interface.BtlsX509Error</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Format</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Lookup</Type>
-		<Type>Mono.Btls.Interface.BtlsX509LookupMethod</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Name</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Purpose</Type>
 		<Type>Mono.Btls.Interface.BtlsX509Store</Type>
