@@ -38,7 +38,7 @@
     <WarningLevel>4</WarningLevel>
     <ExternalConsole>false</ExternalConsole>
     <ConsolePause>false</ConsolePause>
-    <Commandlineparameters>--debug --log-level=1 --category=Martin</Commandlineparameters>
+    <Commandlineparameters>--debug --log-level=1 --category=Martin --features=+CertificateStore</Commandlineparameters>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
