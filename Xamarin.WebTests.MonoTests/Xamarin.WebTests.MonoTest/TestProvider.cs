@@ -24,13 +24,29 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.TestFramework;
+using Xamarin.WebTests.MonoTestFeatures;
+using Mono.Security.Interface;
+
 namespace Xamarin.WebTests.MonoTests
 {
+	[Global]
+	[AsyncTestFixture]
 	public class TestProvider
 	{
-		public TestProvider ()
+		[AsyncTest]
+		public void TestDefaultProvider (TestContext ctx)
 		{
+			ctx.LogMessage ("TEST DEFAULT PROVIDER!");
+			var provider = MonoTlsProviderFactory.GetDefaultProvider ();
+			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", provider);
+			var current = MonoTlsProviderFactory.GetProvider ();
+			ctx.LogMessage ("TEST CURRENT PROVIDER #1: {0}", current);
 		}
 	}
 }
-
