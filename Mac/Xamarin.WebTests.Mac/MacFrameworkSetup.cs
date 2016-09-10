@@ -1,5 +1,5 @@
 ﻿//
-// TestProvider.cs
+// MacFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,36 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
-using Mono.Security.Interface;
 
-namespace Xamarin.WebTests.MonoTests
+namespace Xamarin.WebTests.MacUI
 {
-	[Global]
-	[AsyncTestFixture]
-	public class TestProvider
+	using MonoTestFramework;
+	using MonoConnectionFramework;
+
+	class MacFrameworkSetup : IMonoFrameworkSetup
 	{
-		[AsyncTest]
-		public void TestDefaultProvider (TestContext ctx)
-		{
-			ctx.LogMessage ("TEST DEFAULT PROVIDER!");
-			var defaultProvider = MonoTlsProviderFactory.GetDefaultProvider ();
-			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", defaultProvider);
-			var currentProvider = MonoTlsProviderFactory.GetProvider ();
-			ctx.LogMessage ("TEST CURRENT PROVIDER #1: {0}", currentProvider);
+		public string Name {
+			get { return "Xamarin.WebTests.Mac"; }
+		}
 
-			var setup = DependencyInjector.Get<IMonoFrameworkSetup> ();
-			ctx.LogMessage ("SETUP: {0} - {1} - {2}:{3}", setup.Name, setup.TlsProviderName, setup.DefaultTlsProvider, setup.CurrentTlsProvider);
+		public string TlsProviderName {
+			get {
+#if APPLETLS
+				return "appletls";
+#else
+				return "old";
+#endif
+			}
+		}
 
-			ctx.Assert (defaultProvider.ID, Is.EqualTo (setup.DefaultTlsProvider), "Default TLS Provider");
-			ctx.Assert (currentProvider.ID, Is.EqualTo (setup.CurrentTlsProvider), "Current TLS Provider");
+		public Guid CurrentTlsProvider {
+			get {
+#if APPLETLS
+				return MonoConnectionProviderFactory.AppleTlsGuid;
+#else
+				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+#endif
+			}
+		}
+
+		public Guid DefaultTlsProvider {
+			get {
+#if APPLETLS
+				return MonoConnectionProviderFactory.AppleTlsGuid;
+#else
+				return MonoConnectionProviderFactory.MobileOldTlsGuid;
+#endif
+			}
 		}
 	}
 }
+
