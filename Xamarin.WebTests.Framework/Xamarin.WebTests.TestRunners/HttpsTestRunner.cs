@@ -335,6 +335,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.ServerCertificateWithCA;
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.NoError,

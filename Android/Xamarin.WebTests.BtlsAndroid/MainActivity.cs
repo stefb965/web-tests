@@ -36,6 +36,7 @@ namespace Xamarin.WebTests.Android
 			base.OnCreate (bundle);
 
 			var options = Intent.GetStringExtra ("XAMARIN_ASYNCTESTS_OPTIONS");
+			options = "connect 127.0.0.1:8888 --category=Martin";
 
 			Forms.Init (this, bundle);
 
