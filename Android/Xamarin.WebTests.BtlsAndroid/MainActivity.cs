@@ -44,6 +44,7 @@ namespace Xamarin.WebTests.Android
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (BoringTlsTestFeatures).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new DroidFrameworkSetup ());
 
 			Framework = TestFramework.GetLocalFramework (typeof (MainActivity).Assembly);
 

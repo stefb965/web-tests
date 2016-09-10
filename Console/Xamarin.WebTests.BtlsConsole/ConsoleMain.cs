@@ -22,6 +22,7 @@ namespace Xamarin.WebTests.BtlsConsole
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (BoringTlsDependencyProvider).Assembly);
+			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new ConsoleFrameworkSetup ());
 
 			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}
