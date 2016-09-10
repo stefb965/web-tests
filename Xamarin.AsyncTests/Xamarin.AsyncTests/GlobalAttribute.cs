@@ -1,10 +1,10 @@
 ﻿//
-// TestCategory.cs
+// GlobalAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,37 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-
 namespace Xamarin.AsyncTests
 {
-	public class TestCategory
+	public class GlobalAttribute : TestCategoryAttribute
 	{
-		public string Name {
-			get;
-			private set;
-		}
-
-		public bool IsBuiltin {
-			get;
-			private set;
-		}
-
-		public bool IsExplicit {
-			get; set;
-		}
-
-		public TestCategory (string name)
-		{
-			Name = name;
-		}
-
-		public static readonly TestCategory All = new TestCategory ("All") { IsBuiltin = true };
-
-		public static readonly TestCategory Global = new TestCategory ("Global") { IsBuiltin = true };
-
-		public override string ToString ()
-		{
-			return string.Format ("[TestCategory: Name={0}]", Name);
+		public override TestCategory Category {
+			get { return TestCategory.Global; }
 		}
 	}
 }
