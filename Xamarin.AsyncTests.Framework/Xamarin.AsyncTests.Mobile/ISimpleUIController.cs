@@ -54,6 +54,10 @@ namespace Xamarin.AsyncTests.Mobile
 			get; set;
 		}
 
+		bool IsRemote {
+			get; set;
+		}
+
 		IList<string> Categories {
 			get;
 		}

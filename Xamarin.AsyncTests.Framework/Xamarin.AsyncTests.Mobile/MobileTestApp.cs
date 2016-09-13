@@ -352,8 +352,6 @@ namespace Xamarin.AsyncTests.Mobile
 
 			Debug ("Got test session: {0}", session);
 
-			session.ConfigurationChangedEvent += (sender, e) => OnSessionConfigurationChanged ();
-
 			OnResetStatistics ();
 
 			if (SessionMode == MobileSessionMode.Local) {
@@ -405,11 +403,6 @@ namespace Xamarin.AsyncTests.Mobile
 		}
 
 		bool suppressCategoryChange;
-
-		void OnSessionConfigurationChanged ()
-		{
-			Debug ("CONFIGURATION CHANGED!");
-		}
 
 		void OnSessionChanged ()
 		{
