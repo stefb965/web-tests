@@ -346,11 +346,13 @@ namespace Xamarin.AsyncTests.Mobile
 
 			Debug ("Got server: {0}", server);
 
-			session = await server.GetTestSession (CancellationToken.None);
+			session = server.Session;
 			OnSessionChanged ();
 			Controller.Message ("Got test session {0} from {1}.", session.Name, server.App);
 
 			Debug ("Got test session: {0}", session);
+
+			session.ConfigurationChangedEvent += (sender, e) => OnSessionConfigurationChanged ();
 
 			OnResetStatistics ();
 
@@ -403,6 +405,11 @@ namespace Xamarin.AsyncTests.Mobile
 		}
 
 		bool suppressCategoryChange;
+
+		void OnSessionConfigurationChanged ()
+		{
+			Debug ("CONFIGURATION CHANGED!");
+		}
 
 		void OnSessionChanged ()
 		{
