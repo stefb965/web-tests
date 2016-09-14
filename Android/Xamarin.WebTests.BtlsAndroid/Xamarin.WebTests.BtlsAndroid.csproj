@@ -160,5 +160,9 @@
       <Project>{5F811A0D-6424-4FFD-B636-87A7E7230729}</Project>
       <Name>Mono.Btls.TestFramework</Name>
     </ProjectReference>
+    <ProjectReference Include="..\Mono.Btls.Interface\Mono.Btls.Interface.csproj">
+      <Project>{41525242-3E25-4CBE-8212-77A9F23BE4A3}</Project>
+      <Name>Mono.Btls.Interface</Name>
+    </ProjectReference>
   </ItemGroup>
 </Project>
