@@ -38,11 +38,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get;
 		}
 
-		Guid CurrentTlsProvider {
-			get;
-		}
-
-		Guid DefaultTlsProvider {
+		Guid TlsProvider {
 			get;
 		}
 	}

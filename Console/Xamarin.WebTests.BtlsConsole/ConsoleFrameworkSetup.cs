@@ -46,19 +46,13 @@ namespace Xamarin.WebTests.BtlsConsole
 			}
 		}
 
-		public Guid CurrentTlsProvider {
+		public Guid TlsProvider {
 			get {
 #if BTLS
 				return MonoConnectionProviderFactory.BoringTlsGuid;
 #else
 				return MonoConnectionProviderFactory.LegacyTlsGuid;
 #endif
-			}
-		}
-
-		public Guid DefaultTlsProvider {
-			get {
-				return MonoConnectionProviderFactory.LegacyTlsGuid;
 			}
 		}
 	}

@@ -42,13 +42,7 @@ namespace Xamarin.WebTests.Console
 			}
 		}
 
-		public Guid CurrentTlsProvider {
-			get {
-				return MonoConnectionProviderFactory.LegacyTlsGuid;
-			}
-		}
-
-		public Guid DefaultTlsProvider {
+		public Guid TlsProvider {
 			get {
 				return MonoConnectionProviderFactory.LegacyTlsGuid;
 			}

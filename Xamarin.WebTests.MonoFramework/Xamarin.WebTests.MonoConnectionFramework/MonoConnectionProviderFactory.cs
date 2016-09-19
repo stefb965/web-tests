@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 			var providers = DependencyInjector.GetCollection<IMonoTlsProviderFactory> ();
 			if (providers.Count == 0) {
-				var provider = MonoTlsProviderFactory.GetDefaultProvider ();
+				var provider = MonoTlsProviderFactory.GetProvider ();
 				if (provider != null)
 					AddProvider (factory, settings, new DefaultProvider (provider));
 			}
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			factory.Install (monoProvider);
 
 			if (settings.InstallTlsProvider != null && provider.Provider.ID == settings.InstallTlsProvider.Value)
-				MonoTlsProviderFactory.SetDefaultProvider (provider.Provider.Name);
+				MonoTlsProviderFactory.Initialize (provider.Provider.Name);
 		}
 
 		class DefaultProvider : IMonoTlsProviderFactory
