@@ -1,5 +1,5 @@
 ﻿//
-// IMonoFrameworkSetup.cs
+// ITestFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -26,9 +26,9 @@
 using System;
 using Xamarin.AsyncTests;
 
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	public interface IMonoFrameworkSetup : ISingletonInstance
+	public interface ITestFrameworkSetup : ISingletonInstance
 	{
 		string Name {
 			get;

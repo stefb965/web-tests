@@ -27,10 +27,10 @@ using System;
 
 namespace Xamarin.WebTests.Console
 {
-	using MonoTestFramework;
+	using TestFramework;
 	using MonoConnectionFramework;
 
-	class ConsoleFrameworkSetup : IMonoFrameworkSetup
+	class ConsoleFrameworkSetup : ITestFrameworkSetup
 	{
 		public string Name {
 			get { return "Xamarin.WebTests.Console"; }

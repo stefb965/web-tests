@@ -30,8 +30,6 @@ using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.MonoTestFramework;
-using Xamarin.WebTests.MonoTestFeatures;
 using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.MonoTests
@@ -47,7 +45,7 @@ namespace Xamarin.WebTests.MonoTests
 			var defaultProvider = MonoTlsProviderFactory.GetProvider ();
 			ctx.LogMessage ("TEST DEFAULT PROVIDER #1: {0}", defaultProvider);
 
-			var setup = DependencyInjector.Get<IMonoFrameworkSetup> ();
+			var setup = DependencyInjector.Get<ITestFrameworkSetup> ();
 			ctx.LogMessage ("SETUP: {0} - {1} - {2}", setup.Name, setup.TlsProviderName, setup.TlsProvider);
 
 			ctx.Assert (defaultProvider.ID, Is.EqualTo (setup.TlsProvider), "TLS Provider");

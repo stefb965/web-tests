@@ -4,6 +4,7 @@ using Xamarin.AsyncTests.Console;
 using Mono.Btls.Tests;
 using Mono.Btls.TestProvider;
 using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.TestProvider;
 using Xamarin.WebTests.MonoTests;
 using Xamarin.WebTests;
@@ -22,7 +23,7 @@ namespace Xamarin.WebTests.BtlsConsole
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (BoringTlsDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<IMonoFrameworkSetup> (() => new ConsoleFrameworkSetup ());
+			DependencyInjector.RegisterDependency<ITestFrameworkSetup> (() => new ConsoleFrameworkSetup ());
 
 			Program.Run (typeof (ConsoleMain).Assembly, args);
 		}
