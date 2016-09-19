@@ -15,17 +15,17 @@ using Xamarin.WebTests;
 
 namespace Xamarin.WebTests.BtlsConsole
 {
-	class ConsoleMain
+	class BtlsConsoleMain
 	{
 		public static void Main (string[] args)
 		{
-			DependencyInjector.RegisterAssembly (typeof (ConsoleMain).Assembly);
+			DependencyInjector.RegisterAssembly (typeof (BtlsConsoleMain).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MonoTestFrameworkDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (BoringTlsDependencyProvider).Assembly);
-			DependencyInjector.RegisterDependency<ITestFrameworkSetup> (() => new ConsoleFrameworkSetup ());
+			DependencyInjector.RegisterDependency<ITestFrameworkSetup> (() => new BtlsConsoleFrameworkSetup ());
 
-			Program.Run (typeof (ConsoleMain).Assembly, args);
+			Program.Run (typeof (BtlsConsoleMain).Assembly, args);
 		}
 	}
 }

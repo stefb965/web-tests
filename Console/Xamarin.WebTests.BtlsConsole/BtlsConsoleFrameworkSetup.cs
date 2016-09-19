@@ -1,5 +1,5 @@
 ﻿//
-// ConsoleFrameworkSetup.cs
+// BtlsConsoleFrameworkSetup.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.BtlsConsole
 	using TestFramework;
 	using MonoConnectionFramework;
 
-	class ConsoleFrameworkSetup : ITestFrameworkSetup
+	class BtlsConsoleFrameworkSetup : ITestFrameworkSetup
 	{
 		public string Name {
 			get { return "Xamarin.WebTests.BtlsConsole"; }

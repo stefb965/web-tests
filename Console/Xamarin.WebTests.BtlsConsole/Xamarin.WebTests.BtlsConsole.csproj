@@ -46,9 +46,9 @@
     <Reference Include="Mono.Security.Providers.Btls" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ConsoleMain.cs" />
+    <Compile Include="BtlsConsoleMain.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ConsoleFrameworkSetup.cs" />
+    <Compile Include="BtlsConsoleFrameworkSetup.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
