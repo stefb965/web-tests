@@ -73,12 +73,17 @@ namespace Xamarin.WebTests.TestFramework
 			var supportsSslStream = (provider.Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
 			var supportsHttps = (provider.Flags & ConnectionProviderFlags.SupportsHttp) != 0;
 			var supportsTrustedRoots = (provider.Flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
+			var supportsTls12 = (provider.Flags & ConnectionProviderFlags.SupportsTls12) != 0;
 
 			if ((Flags & ConnectionTestFlags.RequireSslStream) != 0 && !supportsSslStream)
 				return false;
 			if ((Flags & ConnectionTestFlags.RequireHttp) != 0 && !supportsHttps)
 				return false;
 			if ((Flags & ConnectionTestFlags.RequireTrustedRoots) != 0 && !supportsTrustedRoots)
+				return false;
+			if ((Flags & ConnectionTestFlags.RequireTls12) != 0 && !supportsTls12)
+				return false;
+			if ((Flags & ConnectionTestFlags.RequireBtls) != 0 && provider.Type != ConnectionProviderType.BoringTLS)
 				return false;
 
 			var match = MatchesFilter (provider, filter);

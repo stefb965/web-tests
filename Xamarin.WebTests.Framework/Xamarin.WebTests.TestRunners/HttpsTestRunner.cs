@@ -334,8 +334,47 @@ namespace Xamarin.WebTests.TestRunners
 				};
 				return parameters;
 
+			case ConnectionTestType.WildcardServerCertificate:
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "martin.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.WildcardServerCertificateShort:
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "test0001.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.ServerCertificateWithCA;
+				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, OverrideTargetHost = "martin.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
 
 			default:
 				throw new InternalErrorException ();

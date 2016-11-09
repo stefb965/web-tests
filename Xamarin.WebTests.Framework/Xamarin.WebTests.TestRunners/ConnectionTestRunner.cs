@@ -140,6 +140,11 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.CertificateStore;
 				yield break;
 
+			case ConnectionTestCategory.WildcardServer:
+				yield return ConnectionTestType.WildcardServerCertificate;
+				yield return ConnectionTestType.WildcardServerCertificateShort;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
 				yield break;
@@ -176,6 +181,8 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.TrustedRoots:
 			case ConnectionTestCategory.CertificateStore:
 				return supportsTrustedRoots;
+			case ConnectionTestCategory.WildcardServer:
+				return supportsSslStream;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:

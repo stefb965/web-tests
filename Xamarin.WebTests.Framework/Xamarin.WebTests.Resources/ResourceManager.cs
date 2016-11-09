@@ -66,6 +66,15 @@ namespace Xamarin.WebTests.Resources
 		static readonly byte[] intermediateServerCertFullData;
 		static readonly X509Certificate intermediateServerCertFull;
 
+		static readonly byte[] wildcardServerCertData;
+		static readonly X509Certificate wildcardServerCert;
+		static readonly byte[] wildcardServerCertNoKeyData;
+		static readonly X509Certificate wildcardServerCertNoKey;
+		static readonly byte[] wildcardServerCertBareData;
+		static readonly X509Certificate wildcardServerCertBare;
+		static readonly byte[] wildcardServerCertFullData;
+		static readonly X509Certificate wildcardServerCertFull;
+
 		static readonly byte[] trustedIMCAData;
 		static readonly X509Certificate trustedIMCA;
 		static readonly byte[] serverCertTrustedIMBareData;
@@ -135,6 +144,15 @@ namespace Xamarin.WebTests.Resources
 			intermediateServerCertBare = provider.GetCertificateWithKey (intermediateServerCertBareData, "monkey");
 			intermediateServerCertFullData = ResourceManager.ReadResource ("CA.server-cert-im-full.pfx");
 			intermediateServerCertFull = provider.GetCertificateWithKey (intermediateServerCertFullData, "monkey");
+
+			wildcardServerCertData = ResourceManager.ReadResource ("CA.wildcard-server.pfx");
+			wildcardServerCert = provider.GetCertificateWithKey (wildcardServerCertData, "monkey");
+			wildcardServerCertNoKeyData = ResourceManager.ReadResource ("CA.wildcard-server.pem");
+			wildcardServerCertNoKey = provider.GetCertificateFromData (wildcardServerCertNoKeyData);
+			wildcardServerCertBareData = ResourceManager.ReadResource ("CA.wildcard-server-bare.pfx");
+			wildcardServerCertBare = provider.GetCertificateWithKey (wildcardServerCertBareData, "monkey");
+			wildcardServerCertFullData = ResourceManager.ReadResource ("CA.wildcard-server-full.pfx");
+			wildcardServerCertFull = provider.GetCertificateWithKey (wildcardServerCertFullData, "monkey");
 
 			trustedIMCAData = ResourceManager.ReadResource ("CA.trusted-im-ca.pem");
 			trustedIMCA = provider.GetCertificateFromData (trustedIMCAData);
@@ -248,6 +266,14 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerCertFull;
 			case CertificateResourceType.IntermediateServerCertificateNoKey:
 				return intermediateServerCertNoKey;
+			case CertificateResourceType.WildcardServerCertificate:
+				return wildcardServerCert;
+			case CertificateResourceType.WildcardServerCertificateBare:
+				return wildcardServerCertBare;
+			case CertificateResourceType.WildcardServerCertificateFull:
+				return wildcardServerCertFull;
+			case CertificateResourceType.WildcardServerCertificateNoKey:
+				return wildcardServerCertNoKey;
 			case CertificateResourceType.TrustedIntermediateCA:
 				return trustedIMCA;
 			case CertificateResourceType.ServerFromTrustedIntermediataCA:
@@ -290,6 +316,14 @@ namespace Xamarin.WebTests.Resources
 				return intermediateServerCertFullData;
 			case CertificateResourceType.IntermediateServerCertificateNoKey:
 				return intermediateServerCertNoKeyData;
+			case CertificateResourceType.WildcardServerCertificate:
+				return wildcardServerCertData;
+			case CertificateResourceType.WildcardServerCertificateBare:
+				return wildcardServerCertBareData;
+			case CertificateResourceType.WildcardServerCertificateFull:
+				return wildcardServerCertFullData;
+			case CertificateResourceType.WildcardServerCertificateNoKey:
+				return wildcardServerCertNoKeyData;
 			case CertificateResourceType.TrustedIntermediateCA:
 				return trustedIMCAData;
 			case CertificateResourceType.ServerFromTrustedIntermediataCA:

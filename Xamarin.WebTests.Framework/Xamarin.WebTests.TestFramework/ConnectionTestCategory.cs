@@ -47,6 +47,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		TrustedRoots,
 		CertificateStore,
+		WildcardServer,
 
 		MartinTest,
 	}

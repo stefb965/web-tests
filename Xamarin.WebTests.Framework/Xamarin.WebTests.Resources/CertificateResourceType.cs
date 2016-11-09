@@ -50,6 +50,15 @@ namespace Xamarin.WebTests.Resources
 		// Certificate, Intermediate CA and Root CA
 		IntermediateServerCertificateFull,
 
+		// Just the certificate
+		WildcardServerCertificateBare,
+		// Same but without the private key
+		WildcardServerCertificateNoKey,
+		// Certificate and Intermediate CA
+		WildcardServerCertificate,
+		// Certificate, Intermediate CA and Root CA
+		WildcardServerCertificateFull,
+
 		// Install this in the local certificate trust store.
 		TrustedIntermediateCA,
 		// Server certificate from TrustedIntermediateCA

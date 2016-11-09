@@ -276,6 +276,18 @@
     <EmbeddedResource Include="..\CA\server-cert-trusted-im-bare.pfx">
       <Link>CA\server-cert-trusted-im-bare.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\wildcard-server.pfx">
+      <Link>CA\wildcard-server.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\wildcard-server.pem">
+      <Link>CA\wildcard-server.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\wildcard-server-full.pfx">
+      <Link>CA\wildcard-server-full.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\wildcard-server-bare.pfx">
+      <Link>CA\wildcard-server-bare.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

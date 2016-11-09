@@ -63,6 +63,9 @@ namespace Xamarin.WebTests.TestFramework
 		IntermediateServerCertificateBare,
 		IntermediateServerCertificateFull,
 
+		WildcardServerCertificate,
+		WildcardServerCertificateShort,
+
 		CertificateStore
 	}
 }
