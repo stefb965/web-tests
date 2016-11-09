@@ -298,6 +298,7 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
 				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
