@@ -72,11 +72,6 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (ListenerFlags & ListenerFlags.ExternalServer) != 0; }
 		}
 
-		public ISslStreamProvider SslStreamProvider {
-			get;
-			private set;
-		}
-
 		new public HttpsTestParameters Parameters {
 			get { return (HttpsTestParameters)base.Parameters; }
 		}
@@ -84,7 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 		MyServer server;
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
-		                         ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
+		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
@@ -592,7 +587,8 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			public MyServer (HttpsTestRunner parent)
-				: base (parent.Uri, parent.Parameters.ListenAddress, parent.ListenerFlags, parent.Parameters, parent.SslStreamProvider)
+				: base (parent.Uri, parent.Parameters.ListenAddress, parent.ListenerFlags, parent.Parameters,
+				        parent.Provider.Server.SslStreamProvider)
 			{
 				Parent = parent;
 			}
