@@ -56,6 +56,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		void Close ();
+
+		bool SupportsConnectionInfo {
+			get;
+		}
+
+		IConnectionInfo GetConnectionInfo ();
 	}
 }
 

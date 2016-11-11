@@ -74,6 +74,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (ProtocolVersions)stream.SslProtocol; }
 		}
 
+		public bool SupportsConnectionInfo {
+			get { return false; }
+		}
+
+		public IConnectionInfo GetConnectionInfo ()
+		{
+			throw new InvalidOperationException ();
+		}
+
 		public void Close ()
 		{
 			stream.Dispose ();
