@@ -140,9 +140,9 @@ namespace Xamarin.WebTests.MonoTestProvider
 				this.info = info;
 			}
 
-			public CipherSuiteCode CipherSuiteCode {
+			public ushort CipherSuiteCode {
 				get {
-					return info.CipherSuiteCode;
+					return (ushort)info.CipherSuiteCode;
 				}
 			}
 		}

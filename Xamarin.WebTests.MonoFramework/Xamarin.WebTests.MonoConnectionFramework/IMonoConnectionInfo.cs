@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	public interface IMonoConnectionInfo
 	{
-		CipherSuiteCode CipherSuiteCode {
+		ushort CipherSuiteCode {
 			get;
 		}
 	}
