@@ -123,6 +123,18 @@ namespace Xamarin.WebTests.MonoTestProvider
 #endif
 		}
 
+		static string GetServerName (MonoTlsConnectionInfo info)
+		{
+#if !__MOBILE__
+			var type = typeof (MonoTlsConnectionInfo);
+			var peerDomainName = type.GetProperty ("PeerDomainName");
+			var getPeerDomainName = peerDomainName.GetGetMethod ();
+			return (string)getPeerDomainName.Invoke (info, new object [0]);
+#else
+			return info.PeerDomainName;
+#endif
+		}
+
 		public IConnectionInfo GetConnectionInfo (IMonoSslStream stream)
 		{
 			var info = stream.GetConnectionInfo ();
@@ -143,6 +155,12 @@ namespace Xamarin.WebTests.MonoTestProvider
 			public ushort CipherSuiteCode {
 				get {
 					return (ushort)info.CipherSuiteCode;
+				}
+			}
+
+			public string ServerName {
+				get {
+					return GetServerName (info);
 				}
 			}
 		}

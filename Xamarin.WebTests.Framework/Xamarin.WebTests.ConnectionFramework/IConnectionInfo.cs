@@ -32,5 +32,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		ushort CipherSuiteCode {
 			get;
 		}
+
+		string ServerName {
+			get;
+		}
 	}
 }
