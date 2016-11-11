@@ -65,6 +65,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return protocols; }
 		}
 
+		public override bool SupportsMonoExtensions {
+			get { return false; }
+		}
+
 		public override IClient CreateClient (ConnectionParameters parameters)
 		{
 			return new DotNetClient (this, parameters, SslStreamProvider);

@@ -189,20 +189,17 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var monoClient = Client as IMonoClient;
-			var monoServer = Server as IMonoServer;
-
 			bool ok = true;
-			if (monoClient != null) {
+			if (Client.Provider.SupportsMonoExtensions) {
 				var expectedCipher = Parameters.ExpectedClientCipher ?? Parameters.ExpectedCipher;
 				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoClient, expectedCipher.Value);
+					ok &= CheckCipher (ctx, Client, expectedCipher.Value);
 			}
 
-			if (ok && monoServer != null) {
+			if (ok && Server.Provider.SupportsMonoExtensions) {
 				var expectedCipher = Parameters.ExpectedServerCipher ?? Parameters.ExpectedCipher;
 				if (expectedCipher != null)
-					ok &= CheckCipher (ctx, monoServer, expectedCipher.Value);
+					ok &= CheckCipher (ctx, Server, expectedCipher.Value);
 			}
 
 			if (!IsManualConnection && Parameters.ProtocolVersion != null) {

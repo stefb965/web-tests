@@ -90,6 +90,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return (Flags & ConnectionProviderFlags.SupportsHttp) != 0; }
 		}
 
+		public abstract bool SupportsMonoExtensions {
+			get;
+		}
+
 		public virtual X509Certificate GetCertificateFromData (byte[] data)
 		{
 			return new X509Certificate (data);

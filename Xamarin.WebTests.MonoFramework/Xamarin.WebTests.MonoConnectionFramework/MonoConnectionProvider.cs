@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return name; }
 		}
 
-		public bool SupportsMonoExtensions {
+		public override bool SupportsMonoExtensions {
 			get { return tlsProvider.SupportsMonoExtensions; }
 		}
 
