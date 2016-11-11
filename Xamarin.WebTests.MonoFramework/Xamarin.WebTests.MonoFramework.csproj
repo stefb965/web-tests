@@ -42,7 +42,6 @@
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\MonoSslStream.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\ConnectionType.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoClient.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoCommonConnection.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\IMonoServer.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionHelper.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoConnectionParameters.cs" />

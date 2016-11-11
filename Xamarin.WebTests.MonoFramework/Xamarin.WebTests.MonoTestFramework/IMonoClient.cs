@@ -28,7 +28,7 @@ using Xamarin.WebTests.ConnectionFramework;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	public interface IMonoClient : IClient, IMonoCommonConnection
+	public interface IMonoClient : IClient
 	{
 	}
 }

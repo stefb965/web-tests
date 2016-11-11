@@ -61,11 +61,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return provider; }
 		}
 
-		public bool SupportsConnectionInfo {
+		public override bool SupportsConnectionInfo {
 			get { return provider.SupportsMonoExtensions; }
 		}
 
-		public IConnectionInfo GetConnectionInfo ()
+		public override IConnectionInfo GetConnectionInfo ()
 		{
 			return monoSslStream.GetConnectionInfo ();
 		}

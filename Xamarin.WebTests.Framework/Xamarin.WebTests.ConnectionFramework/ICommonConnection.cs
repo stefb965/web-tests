@@ -50,6 +50,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool SupportsConnectionInfo {
+			get;
+		}
+
+		IConnectionInfo GetConnectionInfo ();
+
 		Stream Stream {
 			get;
 		}

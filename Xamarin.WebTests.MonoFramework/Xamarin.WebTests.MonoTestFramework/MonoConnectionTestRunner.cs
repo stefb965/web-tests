@@ -177,14 +177,14 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
-		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
+		protected bool CheckCipher (TestContext ctx, ICommonConnection connection, CipherSuiteCode cipher)
 		{
 			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
 			var connectionInfo = connection.GetConnectionInfo ();
 
 			if (!ctx.Expect (connectionInfo, Is.Not.Null, "connection info"))
 				return false;
-			return ctx.Expect (connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
+			return ctx.Expect ((CipherSuiteCode)connectionInfo.CipherSuiteCode, Is.EqualTo (cipher), "expected cipher");
 		}
 
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)

@@ -97,6 +97,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new NotSupportedException ();
 			}
 		}
+
+		public bool SupportsConnectionInfo {
+			get { return false; }
+		}
+
+		public IConnectionInfo GetConnectionInfo ()
+		{
+			throw new NotSupportedException ();
+		}
 	}
 }
 

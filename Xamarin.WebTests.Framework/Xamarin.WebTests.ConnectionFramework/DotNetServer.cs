@@ -29,6 +29,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return true; }
 		}
 
+		public override bool SupportsConnectionInfo {
+			get { return false; }
+		}
+
+		public override IConnectionInfo GetConnectionInfo ()
+		{
+			throw new InvalidOperationException ();
+		}
+
 		protected override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			var server = await sslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);

@@ -89,6 +89,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return innerStream as IStreamInstrumentation; }
 		}
 
+		public abstract bool SupportsConnectionInfo {
+			get;
+		}
+
+		public abstract IConnectionInfo GetConnectionInfo ();
+
 		Stream CreateStream (Socket socket)
 		{
 			if (Parameters.UseStreamInstrumentation)
