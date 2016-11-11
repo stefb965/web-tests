@@ -49,7 +49,7 @@ namespace Mono.Btls.TestFramework
 			get; set;
 		}
 
-		public bool ExpectSuccess {
+		new public bool ExpectSuccess {
 			get; set;
 		}
 
