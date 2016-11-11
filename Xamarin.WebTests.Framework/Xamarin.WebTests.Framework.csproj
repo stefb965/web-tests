@@ -175,6 +175,7 @@
     <Compile Include="Xamarin.WebTests.TestFramework\NewAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

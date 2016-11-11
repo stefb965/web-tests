@@ -1,5 +1,5 @@
 ﻿//
-// IMonoConnectionInfo.cs
+// IConnectionInfo.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,11 +24,10 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Mono.Security.Interface;
 
-namespace Xamarin.WebTests.MonoConnectionFramework
+namespace Xamarin.WebTests.ConnectionFramework
 {
-	public interface IMonoConnectionInfo
+	public interface IConnectionInfo
 	{
 		ushort CipherSuiteCode {
 			get;

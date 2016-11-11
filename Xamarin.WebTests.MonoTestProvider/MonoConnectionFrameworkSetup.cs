@@ -123,7 +123,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 #endif
 		}
 
-		public IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream)
+		public IConnectionInfo GetConnectionInfo (IMonoSslStream stream)
 		{
 			var info = stream.GetConnectionInfo ();
 			if (info == null)
@@ -131,7 +131,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			return new MonoConnectionInfo (info);
 		}
 
-		class MonoConnectionInfo : IMonoConnectionInfo
+		class MonoConnectionInfo : IConnectionInfo
 		{
 			MonoTlsConnectionInfo info;
 

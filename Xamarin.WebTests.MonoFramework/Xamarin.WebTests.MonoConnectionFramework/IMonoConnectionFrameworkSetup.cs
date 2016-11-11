@@ -54,6 +54,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		ICertificateValidator GetCertificateValidator (MonoTlsSettings settings);
 
-		IMonoConnectionInfo GetConnectionInfo (IMonoSslStream stream);
+		IConnectionInfo GetConnectionInfo (IMonoSslStream stream);
 	}
 }

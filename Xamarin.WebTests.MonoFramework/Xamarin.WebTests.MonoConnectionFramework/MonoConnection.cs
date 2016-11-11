@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return provider.SupportsMonoExtensions; }
 		}
 
-		public IMonoConnectionInfo GetConnectionInfo ()
+		public IConnectionInfo GetConnectionInfo ()
 		{
 			return monoSslStream.GetConnectionInfo ();
 		}
