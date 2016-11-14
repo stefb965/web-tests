@@ -83,6 +83,39 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
+		[New]
+		[AsyncTest]
+		[ConnectionTestCategory (ConnectionTestCategory.TrustedRoots)]
+		public async Task TestTrustedRoots (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, SslStreamTestParameters parameters,
+			SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[Martin]
+		// [AsyncTest]
+		[CertificateStore]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+		[ConnectionTestCategory (ConnectionTestCategory.CertificateStore)]
+		public async Task TestCertificateStore (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, SslStreamTestParameters parameters,
+			SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[New]
+		[AsyncTest]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
+		[ConnectionTestCategory (ConnectionTestCategory.WildcardServer)]
+		public async Task TestWildcardServer (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, SslStreamTestParameters parameters,
+			SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
 		[Martin]
 		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]

@@ -79,7 +79,6 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-
 		[New]
 		[AsyncTest]
 		[ConnectionTestCategory (ConnectionTestCategory.TrustedRoots)]

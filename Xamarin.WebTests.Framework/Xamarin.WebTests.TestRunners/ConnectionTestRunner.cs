@@ -85,7 +85,6 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.Default;
 				yield return ConnectionTestType.AcceptFromLocalCA;
 				yield return ConnectionTestType.RejectAll;
-				yield return ConnectionTestType.CheckServerName;
 				yield break;
 
 			case ConnectionTestCategory.HttpsWithDotNet:
@@ -135,6 +134,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.IntermediateServerCertificate;
 				yield return ConnectionTestType.IntermediateServerCertificateFull;
 				yield return ConnectionTestType.IntermediateServerCertificateBare;
+				yield return ConnectionTestType.CheckServerName;
 				yield break;
 
 			case ConnectionTestCategory.CertificateStore:

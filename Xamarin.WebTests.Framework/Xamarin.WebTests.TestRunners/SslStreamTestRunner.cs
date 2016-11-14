@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
+		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object [] args)
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
@@ -176,6 +176,33 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true
 				};
 
+			case ConnectionTestType.CheckChain:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+
+#if FIXME
+			case ConnectionTestType.ExternalServer:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.TlsTestXamDevNew)) {
+					ExternalServer = new Uri ("https://tlstest-1.xamdev.com/"),
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None
+				};
+#endif
+
+			case ConnectionTestType.ServerCertificateWithCA:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateWithCA) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.ServerCertificateFromLocalCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = false;
+				return parameters;
+
 			case ConnectionTestType.TrustedRootCA:
 				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
@@ -186,11 +213,124 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
-			case ConnectionTestType.CheckServerName:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptSelfSigned, TargetHost = "martin.Hamiller-Tube.local",
-					ExpectServerName = "martin.Hamiller-Tube.local"
+			case ConnectionTestType.TrustedIntermediateCA:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Intermediate-Server.local"
 				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.TrustedSelfSigned:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.SelfSignedServerCertificate);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.HostNameMismatch:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch,
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = false;
+				return parameters;
+
+			case ConnectionTestType.IntermediateServerCertificate:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Intermediate-Server.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.IntermediateServerCertificateFull:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateFull)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Intermediate-Server.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.IntermediateServerCertificateBare:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.IntermediateServerCertificateBare)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors, TargetHost = "Intermediate-Server.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.IntermediateServerCertificateNoKey);
+				parameters.ValidationParameters.ExpectSuccess = false;
+				return parameters;
+
+			case ConnectionTestType.CertificateStore:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.ServerFromTrustedIntermediateCABare)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Trusted-IM-Server.local"
+				};
+				return parameters;
+
+			case ConnectionTestType.WildcardServerCertificate:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "martin.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.WildcardServerCertificateShort:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "test0001.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.CheckServerName:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
+					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
+					ExpectChainStatus = X509ChainStatusFlags.NoError,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "martin.Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
+				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				parameters.ExpectServerName = "martin.Hamiller-Tube.local";
+				return parameters;
 
 			default:
 				throw new InternalErrorException ();
