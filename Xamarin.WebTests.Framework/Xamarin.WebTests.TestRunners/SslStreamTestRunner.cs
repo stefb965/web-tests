@@ -420,6 +420,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		void InstallTestRunnerCallback (TestContext ctx)
 		{
+			ctx.LogDebug (0, "Install test runner callback!");
 			savedContext = ctx;
 			Parameters.ClientCertificateValidator = new CertificateValidator (TestRunnerCallback);
 		}
@@ -437,7 +438,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool LocalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
-			ctx.LogMessage ("Local validator: {0}", localValidatorInvoked);
+			ctx.LogDebug (0, "Local validator: {0}", localValidatorInvoked);
 			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
 				ctx.AssertFail ("Local validator has been invoked!");
 				return false;
@@ -465,7 +466,7 @@ namespace Xamarin.WebTests.TestRunners
 			return result;
 		}
 
-		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override void InitializeConnection (TestContext ctx)
 		{
 			if (HasFlag (GlobalValidationFlags.CheckChain))
 				Parameters.GlobalValidationFlags |= GlobalValidationFlags.SetToTestRunner;
@@ -481,10 +482,10 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
 			}
 
-			return base.PreRun (ctx, cancellationToken);
+			base.InitializeConnection (ctx);
 		}
 
-		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		protected override void FinalizeConnection (TestContext ctx)
 		{
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
@@ -492,7 +493,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (HasFlag (GlobalValidationFlags.MustInvoke) || HasFlag (GlobalValidationFlags.CheckChain))
 				ctx.Assert (localValidatorInvoked, Is.EqualTo (1), "local validator has been invoked");
 
-			return base.PostRun (ctx, cancellationToken);
+			base.FinalizeConnection (ctx);
 		}
 	}
 }

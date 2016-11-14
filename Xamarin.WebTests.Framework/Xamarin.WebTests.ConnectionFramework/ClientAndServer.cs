@@ -118,6 +118,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
+		protected virtual void FinalizeConnection (TestContext ctx)
+		{
+		}
+
 		protected virtual Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;

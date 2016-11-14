@@ -207,6 +207,7 @@ namespace Xamarin.WebTests.TestRunners
 		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			ConnectionHandler.Shutdown (ctx);
+			FinalizeConnection (ctx);
 			return base.Shutdown (ctx, cancellationToken);
 		}
 	}
