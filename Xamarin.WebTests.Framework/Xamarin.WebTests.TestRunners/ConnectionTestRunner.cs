@@ -85,6 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.Default;
 				yield return ConnectionTestType.AcceptFromLocalCA;
 				yield return ConnectionTestType.RejectAll;
+				yield return ConnectionTestType.CheckServerName;
 				yield break;
 
 			case ConnectionTestCategory.HttpsWithDotNet:

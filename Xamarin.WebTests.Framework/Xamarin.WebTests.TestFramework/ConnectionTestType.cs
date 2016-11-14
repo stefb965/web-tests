@@ -66,6 +66,8 @@ namespace Xamarin.WebTests.TestFramework
 		WildcardServerCertificate,
 		WildcardServerCertificateShort,
 
+		CheckServerName,
+
 		CertificateStore
 	}
 }

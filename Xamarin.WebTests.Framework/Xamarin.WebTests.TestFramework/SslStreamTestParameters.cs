@@ -50,6 +50,7 @@ namespace Xamarin.WebTests.TestFramework
 			Type = other.Type;
 			ExpectClientException = other.ExpectClientException;
 			ExpectServerException = other.ExpectServerException;
+			ExpectServerName = other.ExpectServerName;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -62,6 +63,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public bool ExpectServerException {
+			get; set;
+		}
+
+		public string ExpectServerName {
 			get; set;
 		}
 	}

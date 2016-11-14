@@ -355,7 +355,7 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.ExpectSuccess = true;
 				return parameters;
 
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.CheckServerName:
 				parameters = new HttpsTestParameters (category, type, name, ResourceManager.GetCertificate (CertificateResourceType.WildcardServerCertificate)) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.NoError,
@@ -368,6 +368,9 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.ExpectSuccess = true;
 				parameters.ExpectServerName = "martin.Hamiller-Tube.local";
 				return parameters;
+
+			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.CheckServerName;
 
 			default:
 				throw new InternalErrorException ();

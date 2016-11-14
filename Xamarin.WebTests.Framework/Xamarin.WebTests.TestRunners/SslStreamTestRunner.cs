@@ -174,6 +174,22 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true
 				};
 
+			case ConnectionTestType.TrustedRootCA:
+				parameters = new SslStreamTestParameters (category, type, name, ResourceManager.ServerCertificateFromCA) {
+					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
+					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Hamiller-Tube.local"
+				};
+				parameters.ValidationParameters = new ValidationParameters ();
+				parameters.ValidationParameters.AddTrustedRoot (CertificateResourceType.HamillerTubeCA);
+				parameters.ValidationParameters.ExpectSuccess = true;
+				return parameters;
+
+			case ConnectionTestType.CheckServerName:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptSelfSigned, TargetHost = "martin.Hamiller-Tube.local",
+					ExpectServerName = "martin.Hamiller-Tube.local"
+				};
+
 			default:
 				throw new InternalErrorException ();
 			}
@@ -207,6 +223,12 @@ namespace Xamarin.WebTests.TestRunners
 			if (!IsManualConnection && Server.Parameters.AskForClientCertificate && Client.Parameters.ClientCertificate != null)
 				ctx.Expect (Client.SslStream.HasLocalCertificate, "client has local certificate");
 
+			if (Parameters.ExpectServerName != null) {
+				ctx.Assert (Server.SslStream.SupportsConnectionInfo, "Server.SslStream.SupportsConnectionInfo");
+				var info = Server.SslStream.GetConnectionInfo ();
+				if (ctx.Expect (info, Is.Not.Null, "Server.SslStream.GetConnectionInfo()"))
+					ctx.Expect (info.ServerName, Is.EqualTo (Parameters.ExpectServerName), "ServerName");
+			}
 		}
 
 		protected override void OnWaitForServerConnectionCompleted (TestContext ctx, Task task)
