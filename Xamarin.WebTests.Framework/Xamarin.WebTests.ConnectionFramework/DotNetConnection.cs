@@ -132,6 +132,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return FinishedTask;
 		}
 
+		public override void Stop (TestContext ctx)
+		{
+			;
+		}
+
 		void StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var endpoint = GetEndPoint ();

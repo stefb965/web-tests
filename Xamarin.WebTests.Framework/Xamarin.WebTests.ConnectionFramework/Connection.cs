@@ -41,10 +41,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override Task Destroy (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => Close ());
+			return Task.Run (() => {
+				Stop (ctx);
+				Close ();
+			});
 		}
 
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
+
+		public abstract void Stop (TestContext ctx);
 
 		public abstract Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 

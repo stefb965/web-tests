@@ -106,6 +106,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			throw new NotSupportedException ();
 		}
+
+		public override void Stop (TestContext ctx)
+		{
+			;
+		}
 	}
 }
 
