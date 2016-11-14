@@ -78,6 +78,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
+			SslStreamTestParameters parameters;
+
 			switch (type) {
 			case ConnectionTestType.Default:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
@@ -160,7 +162,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.RequestClientCertificate;
+				goto case ConnectionTestType.TrustedRootCA;
 
 			case ConnectionTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
@@ -258,9 +260,15 @@ namespace Xamarin.WebTests.TestRunners
 			base.OnWaitForClientConnectionCompleted (ctx, task);
 		}
 
+		bool HasFlag (GlobalValidationFlags flag)
+		{
+			return (Parameters.GlobalValidationFlags & flag) == flag;
+		}
+
 		RemoteCertificateValidationCallback savedGlobalCallback;
 		TestContext savedContext;
 		bool restoreGlobalCallback;
+		int localValidatorInvoked;
 
 		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
 		{
@@ -270,23 +278,68 @@ namespace Xamarin.WebTests.TestRunners
 			restoreGlobalCallback = true;
 		}
 
+		void InstallTestRunnerCallback (TestContext ctx)
+		{
+			savedContext = ctx;
+			Parameters.ClientCertificateValidator = new CertificateValidator (TestRunnerCallback);
+		}
+
 		bool GlobalValidator (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
 		{
 			savedContext.AssertFail ("Global validator has been invoked!");
 			return false;
 		}
 
+		bool TestRunnerCallback (object sender, X509Certificate certificate, X509Chain chain, SslPolicyErrors sslPolicyErrors)
+		{
+			return LocalValidator (savedContext, certificate, chain, sslPolicyErrors);
+		}
+
+		bool LocalValidator (TestContext ctx, X509Certificate certificate, X509Chain chain, SslPolicyErrors errors)
+		{
+			ctx.LogMessage ("Local validator: {0}", localValidatorInvoked);
+			if (HasFlag (GlobalValidationFlags.MustNotInvoke)) {
+				ctx.AssertFail ("Local validator has been invoked!");
+				return false;
+			}
+
+			++localValidatorInvoked;
+
+			bool result = errors == SslPolicyErrors.None;
+
+			if (Parameters.ValidationParameters != null) {
+				CertificateInfoTestRunner.CheckValidationResult (ctx, Parameters.ValidationParameters, certificate, chain, errors);
+				result = true;
+			}
+
+			if (HasFlag (GlobalValidationFlags.CheckChain)) {
+				CertificateInfoTestRunner.CheckCallbackChain (ctx, Parameters, certificate, chain, errors);
+				result = true;
+			}
+
+			if (HasFlag (GlobalValidationFlags.AlwaysFail))
+				return false;
+			else if (HasFlag (GlobalValidationFlags.AlwaysSucceed))
+				return true;
+
+			return result;
+		}
+
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			savedGlobalCallback = ServicePointManager.ServerCertificateValidationCallback;
+			if (HasFlag (GlobalValidationFlags.CheckChain))
+				Parameters.GlobalValidationFlags |= GlobalValidationFlags.SetToTestRunner;
 
-			if (Parameters.GlobalValidationFlags == GlobalValidationFlags.MustNotInvoke)
+			if (HasFlag (GlobalValidationFlags.MustNotInvoke))
 				SetGlobalValidationCallback (ctx, GlobalValidator);
+			else if (HasFlag (GlobalValidationFlags.SetToTestRunner))
+				InstallTestRunnerCallback (ctx);
 			else if (Parameters.GlobalValidationFlags != 0)
 				ctx.AssertFail ("Invalid GlobalValidationFlags");
-
-			ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
-			ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+			else {
+				ctx.Assert (Parameters.ExpectChainStatus, Is.Null, "Parameters.ExpectChainStatus");
+				ctx.Assert (Parameters.ExpectPolicyErrors, Is.Null, "Parameters.ExpectPolicyErrors");
+			}
 
 			return base.PreRun (ctx, cancellationToken);
 		}
@@ -295,6 +348,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
+
+			if (HasFlag (GlobalValidationFlags.MustInvoke) || HasFlag (GlobalValidationFlags.CheckChain))
+				ctx.Assert (localValidatorInvoked, Is.EqualTo (1), "local validator has been invoked");
 
 			return base.PostRun (ctx, cancellationToken);
 		}

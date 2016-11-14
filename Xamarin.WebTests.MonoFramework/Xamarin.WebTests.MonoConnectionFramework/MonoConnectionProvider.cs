@@ -175,16 +175,27 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public Task<MonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
-			return CreateClientStreamAsync (stream, targetHost, parameters, new MSI.MonoTlsSettings (), cancellationToken);
+			return CreateClientStreamAsync (stream, targetHost, parameters, null, cancellationToken);
 		}
 
 		public async Task<MonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
 			var protocol = GetProtocol (parameters, false);
 
+			if (settings == null)
+				settings = MSI.MonoTlsSettings.CopyDefaultSettings ();
+
 			CallbackHelpers.AddCertificateValidator (settings, parameters.ClientCertificateValidator);
 			CallbackHelpers.AddCertificateSelector (settings, parameters.ClientCertificateSelector);
 			var clientCertificates = CallbackHelpers.GetClientCertificates (parameters);
+
+			if (parameters.ValidationParameters != null && parameters.ValidationParameters.TrustedRoots != null) {
+				settings.TrustAnchors = new X509CertificateCollection ();
+				foreach (var trustedRoot in parameters.ValidationParameters.TrustedRoots) {
+					var trustedRootCert = ResourceManager.GetCertificate (trustedRoot);
+					settings.TrustAnchors.Add (trustedRootCert);
+				}
+			}
 
 			var sslStream = tlsProvider.CreateSslStream (stream, false, settings);
 			var monoSslStream = new MonoSslStream (sslStream);
