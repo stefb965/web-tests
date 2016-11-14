@@ -79,7 +79,7 @@ namespace Xamarin.WebTests.TestRunners
 		MyServer server;
 
 		public HttpsTestRunner (IPortableEndPoint endpoint, HttpsTestParameters parameters,
-		                        ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
+					ConnectionTestProvider provider, Uri uri, ListenerFlags flags)
 			: base (endpoint, parameters)
 		{
 			Provider = provider;
@@ -87,7 +87,7 @@ namespace Xamarin.WebTests.TestRunners
 			Uri = uri;
 		}
 
-		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object[] args)
+		static string GetTestName (ConnectionTestCategory category, ConnectionTestType type, params object [] args)
 		{
 			var sb = new StringBuilder ();
 			sb.Append (type);
@@ -366,6 +366,7 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.WildcardServerCertificateNoKey);
 				parameters.ValidationParameters.AddExpectedExtraStore (CertificateResourceType.HamillerTubeIM);
 				parameters.ValidationParameters.ExpectSuccess = true;
+				parameters.ExpectServerName = "martin.Hamiller-Tube.local";
 				return parameters;
 
 			default:
@@ -588,7 +589,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			public MyServer (HttpsTestRunner parent)
 				: base (parent.Uri, parent.Parameters.ListenAddress, parent.ListenerFlags, parent.Parameters,
-				        parent.Provider.Server.SslStreamProvider)
+					parent.Provider.Server.SslStreamProvider)
 			{
 				Parent = parent;
 			}
@@ -631,6 +632,13 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Expect (connection.SslStream.IsAuthenticated, "server is authenticated");
 				if (Parameters.RequireClientCertificate)
 					ctx.Expect (connection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
+
+				if (Parameters.ExpectServerName != null) {
+					ctx.Assert (connection.SslStream.SupportsConnectionInfo, "SslStream.SupportsConnectionInfo");
+					var info = connection.SslStream.GetConnectionInfo ();
+					if (ctx.Expect (info, Is.Not.Null, "SslStream.GetConnectionInfo()"))
+						ctx.Expect (info.ServerName, Is.EqualTo (Parameters.ExpectServerName), "ServerName");
+				}
 
 				return base.HandleConnection (ctx, connection);
 			}

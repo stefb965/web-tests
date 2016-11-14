@@ -62,6 +62,7 @@ namespace Xamarin.WebTests.TestFramework
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
 			ExternalServer = other.ExternalServer;
 			OverrideTargetHost = other.OverrideTargetHost;
+			ExpectServerName = other.ExpectServerName;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -90,6 +91,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public string OverrideTargetHost {
+			get; set;
+		}
+
+		public string ExpectServerName {
 			get; set;
 		}
 	}
