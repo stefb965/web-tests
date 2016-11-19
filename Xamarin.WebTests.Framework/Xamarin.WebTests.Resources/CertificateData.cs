@@ -53,6 +53,8 @@ namespace Xamarin.WebTests.Resources
 
 		public abstract bool GetCertificate (CertificateResourceType type, out X509Certificate certificate);
 
+		public abstract bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate);
+
 		public abstract bool GetCertificateData (CertificateResourceType type, out byte[] data);
 
 

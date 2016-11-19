@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.Resources
 		TlsTestXamDevCA,
 		IntermediateCA,
 		IntermediateServer,
+		IntermediateServerWithKey,
 		ServerCertificateWithCA,
 
 		MonkeyCertificate,

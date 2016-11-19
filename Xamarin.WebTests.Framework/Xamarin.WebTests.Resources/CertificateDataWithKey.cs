@@ -29,15 +29,118 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.Resources
 {
-	public abstract class CertificateDataWithKey : CertificateData
+	using ConnectionFramework;
+
+	public class CertificateDataWithKey : CertificateData
 	{
-		public CertificateDataWithKey (string name)
+		CertificateDataFromPFX pfxData;
+		CertificateDataFromPFX barePfxData;
+		CertificateDataFromPFX fullPfxData;
+		CertificateDataFromPEM pemData;
+
+		public CertificateDataWithKey (
+			string name, string password,
+			CertificateResourceType type, CertificateResourceType? noKeyType = null,
+			CertificateResourceType? bareType = null, CertificateResourceType? fullType = null)
 			: base (name)
 		{
+			Type = type;
+			NoKeyType = noKeyType;
+			BareType = bareType;
+			FullType = fullType;
+
+			pfxData = new CertificateDataFromPFX (name, password, type);
+			if (bareType != null)
+				barePfxData = new CertificateDataFromPFX (name + "-bare", password, bareType.Value);
+			if (fullType != null)
+				fullPfxData = new CertificateDataFromPFX (name + "-full", password, fullType.Value);
+			if (noKeyType != null)
+				pemData = new CertificateDataFromPEM (name, noKeyType.Value);
 		}
 
-		public abstract CertificateData PublicCertificate {
+		public CertificateResourceType Type {
 			get;
+			private set;
+		}
+
+		public CertificateResourceType? NoKeyType {
+			get;
+			private set;
+		}
+
+		public CertificateResourceType? BareType {
+			get;
+			private set;
+		}
+
+		public CertificateResourceType? FullType {
+			get;
+			private set;
+		}
+
+		public override byte[] Data {
+			get { return pemData.Data; }
+		}
+
+		public override X509Certificate Certificate {
+			get { return pemData.Certificate; }
+		}
+
+		public override bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate)
+		{
+			if (type == Type) {
+				certificate = pfxData.Certificate;
+				return true;
+			} else if (BareType != null && type == BareType.Value) {
+				certificate = barePfxData.Certificate;
+				return true;
+			} else if (FullType != null && type == FullType.Value) {
+				certificate = fullPfxData.Certificate;
+				return true;
+			} else {
+				certificate = null;
+				return false;
+			}
+		}
+
+		public override bool GetCertificate (CertificateResourceType type, out X509Certificate certificate)
+		{
+			if (NoKeyType != null && type == NoKeyType.Value) {
+				certificate = pemData.Certificate;
+				return true;
+			} else if (type == Type) {
+				certificate = pfxData.Certificate;
+				return true;
+			} else if (BareType != null && type == BareType.Value) {
+				certificate = barePfxData.Certificate;
+				return true;
+			} else if (FullType != null && type == FullType.Value) {
+				certificate = fullPfxData.Certificate;
+				return true;
+			} else {
+				certificate = null;
+				return false;
+			}
+		}
+
+		public override bool GetCertificateData (CertificateResourceType type, out byte[] data)
+		{
+			if (NoKeyType != null && type == NoKeyType.Value) {
+				data = pemData.Data;
+				return true;
+			} else if (type == Type) {
+				data = pfxData.Data;
+				return true;
+			} else if (BareType != null && type == BareType.Value) {
+				data = barePfxData.Data;
+				return true;
+			} else if (FullType != null && type == FullType.Value) {
+				data = fullPfxData.Data;
+				return true;
+			} else {
+				data = null;
+				return false;
+			}
 		}
 	}
 }

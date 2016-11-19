@@ -70,8 +70,7 @@ namespace Xamarin.WebTests.TestFramework
 				return false;
 			}
 
-			var certificate = ResourceManager.SelfSignedServerCertificate;
-			parameters = new ConnectionParameters ("http", certificate);
+			parameters = new ConnectionParameters ("http", CertificateResourceType.SelfSignedServerCertificate);
 			return true;
 		}
 

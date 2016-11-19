@@ -6,6 +6,8 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
+	using Resources;
+
 	public class ConnectionParameters : ITestParameter, ICloneable
 	{
 		public string Identifier {
@@ -17,7 +19,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Identifier; }
 		}
 
-		public ConnectionParameters (string identifier, X509Certificate serverCertificate)
+		public ConnectionParameters (string identifier, CertificateResourceType serverCertificate)
 		{
 			Identifier = identifier;
 			ServerCertificate = serverCertificate;
@@ -76,7 +78,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public X509Certificate ClientCertificate {
+		public CertificateResourceType? ClientCertificate {
 			get; set;
 		}
 
@@ -88,7 +90,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get; set;
 		}
 
-		public X509Certificate ServerCertificate {
+		public CertificateResourceType ServerCertificate {
 			get; set;
 		}
 

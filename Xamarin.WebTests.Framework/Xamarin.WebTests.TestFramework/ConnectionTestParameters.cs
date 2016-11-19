@@ -29,6 +29,7 @@ using System.Security.Cryptography.X509Certificates;
 namespace Xamarin.WebTests.TestFramework
 {
 	using ConnectionFramework;
+	using Resources;
 
 	public abstract class ConnectionTestParameters : ConnectionParameters
 	{
@@ -37,7 +38,7 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, X509Certificate certificate)
+		public ConnectionTestParameters (ConnectionTestCategory category, string identifier, CertificateResourceType certificate)
 			: base (identifier, certificate)
 		{
 			Category = category;

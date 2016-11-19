@@ -126,7 +126,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 			var name = sb.ToString ();
 
-			return new SimpleConnectionParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+			return new SimpleConnectionParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
 				ClientCertificateValidator = AcceptAnyCertificate
 			};
 		}
@@ -136,8 +136,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 			var parameters = CreateParameters (category, type);
 
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
-			var acceptFromCA = certificateProvider.AcceptFromCA (ResourceManager.LocalCACertificate);
+			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.GetCertificate (CertificateResourceType.SelfSignedServerCertificate));
+			var acceptFromCA = certificateProvider.AcceptFromCA (ResourceManager.GetCertificate (CertificateResourceType.HamillerTubeCA));
 
 			bool clientSupportsEcDhe;
 			bool serverSupportsEcDhe;
@@ -167,7 +167,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.ValidateCertificate:
-				parameters.ServerCertificate = ResourceManager.ServerCertificateFromCA;
+				parameters.ServerCertificate = CertificateResourceType.ServerCertificateFromLocalCA;
 				parameters.ClientCertificateValidator = acceptFromCA;
 				break;
 
@@ -217,7 +217,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				 * FIXME:
 				 * SslStream with Mono's old implementation fails here.
 				 */
-				parameters.ClientCertificate = ResourceManager.MonkeyCertificate;
+				parameters.ClientCertificate = CertificateResourceType.MonkeyCertificate;
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.AskForClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
@@ -228,7 +228,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				 * Require client certificate.
 				 *
 				 */
-				parameters.ClientCertificate = ResourceManager.MonkeyCertificate;
+				parameters.ClientCertificate = CertificateResourceType.MonkeyCertificate;
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.RequireClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
@@ -242,7 +242,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				 * Require client certificate.
 				 *
 				 */
-				parameters.ClientCertificate = ResourceManager.MonkeyCertificate;
+				parameters.ClientCertificate = CertificateResourceType.MonkeyCertificate;
 				parameters.ClientCertificateValidator = acceptSelfSigned;
 				parameters.RequireClientCertificate = true;
 				parameters.ServerCertificateValidator = acceptFromCA;
@@ -270,7 +270,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				parameters.ServerCertificate = ResourceManager.GetCertificateWithKey (CertificateResourceType.SelfSignedServerCertificate);
+				parameters.ServerCertificate = CertificateResourceType.SelfSignedServerCertificate;
 				break;
 
 			default:

@@ -11,26 +11,9 @@ namespace Xamarin.WebTests.Resources
 
 	public static class ResourceManager
 	{
-		static readonly ICertificateProvider provider;
-
-		static readonly CertificateData serverCert;
-		static readonly CertificateData selfServerCert;
-
-		static readonly CertificateData invalidServerCert;
-		static readonly CertificateData invalidClientCert;
-		static readonly CertificateData invalidClientCaCert;
-		static readonly CertificateData invalidClientCertRsa512;
-
-		static readonly CertificateData monkeyCert;
-		static readonly CertificateData penguinCert;
-		static readonly CertificateData serverCertRsaOnly;
-		static readonly CertificateData serverCertDheOnly;
-		static readonly CertificateData invalidServerCertRsa512;
-		static readonly CertificateData clientCertRsaOnly;
-		static readonly CertificateData clientCertDheOnly;
+		static readonly CertificateDataWithKey selfServerCert;
 
 		static readonly CertificateDataFromPEM hamillerTubeCA;
-		static readonly CertificateDataFromPEM serverSelf;
 
 		static readonly CertificateDataFromPEM tlsTestXamDevExpired;
 		static readonly CertificateDataFromPEM tlsTestXamDevNew;
@@ -38,7 +21,7 @@ namespace Xamarin.WebTests.Resources
 
 		static readonly CertificateDataFromPEM intermediateCA;
 
-		static readonly CertificateDataFromPFXandPEM intermediateServer;
+		static readonly CertificateDataWithKey intermediateServer;
 
 		static readonly HamillerTubeCAData hamillerTubeCAInfo;
 		static readonly TlsTestXamDevNewData tlsTestXamDevNewInfo;
@@ -47,15 +30,6 @@ namespace Xamarin.WebTests.Resources
 		static readonly SelfSignedServerData selfSignedServerInfo;
 		static readonly IntermediateCAData intermediateCAInfo;
 		static readonly IntermediateServerData intermediateServerInfo;
-
-		static readonly CertificateDataFromPFX serverCertWithCA;
-
-		static readonly CertificateDataFromPEM trustedIMCA;
-
-		static readonly byte[] serverCertTrustedIMBareData;
-		static readonly X509Certificate serverCertTrustedIMBare;
-		static readonly byte[] serverCertTrustedIMData;
-		static readonly X509Certificate serverCertTrustedIM;
 
 		static List<CertificateData> registeredCertificates;
 
@@ -67,28 +41,25 @@ namespace Xamarin.WebTests.Resources
 		{
 			registeredCertificates = new List<CertificateData> ();
 
-			provider = DependencyInjector.Get<ICertificateProvider> ();
-
 			hamillerTubeCA = Register (new CertificateDataFromPEM ("Hamiller-Tube-CA", CertificateResourceType.HamillerTubeCA));
 			Register (new CertificateDataFromPEM ("Hamiller-Tube-IM", CertificateResourceType.HamillerTubeIM));
-			Register (new CertificateDataFromPEM ("server-cert", CertificateResourceType.ServerCertificateFromLocalCA));
-			serverSelf = Register (new CertificateDataFromPEM ("server-self", CertificateResourceType.SelfSignedServerCertificate));
+			Register (new CertificateDataWithKey (
+				"server-cert", "monkey", CertificateResourceType.ServerCertificateFromLocalCA, CertificateResourceType.ServerCertificateFromLocalCA));
+			selfServerCert = Register (new CertificateDataWithKey (
+				"server-self", "monkey", CertificateResourceType.SelfSignedServerCertificate, CertificateResourceType.SelfSignedServerCertificate));
 
-			serverCert = Register (new CertificateDataFromPFX ("server-cert", "monkey", CertificateResourceType.ServerCertificateFromLocalCA));
-			selfServerCert = Register (new CertificateDataFromPFX ("server-self", "monkey", CertificateResourceType.SelfSignedServerCertificate));
+			Register (new CertificateDataFromPFX ("invalid-server-cert", "monkey", CertificateResourceType.InvalidServerCertificateV1));
+			Register (new CertificateDataFromPFX ("invalid-client-cert", "monkey", CertificateResourceType.InvalidClientCertificateV1));
+			Register (new CertificateDataFromPFX ("invalid-client-ca-cert", "monkey", CertificateResourceType.InvalidClientCaCertificate));
+			Register (new CertificateDataFromPFX ("client-cert-rsa512", "monkey", CertificateResourceType.InvalidClientCertificateRsa512));
 
-			invalidServerCert = Register (new CertificateDataFromPFX ("invalid-server-cert", "monkey", CertificateResourceType.InvalidServerCertificateV1));
-			invalidClientCert = Register (new CertificateDataFromPFX ("invalid-client-cert", "monkey", CertificateResourceType.InvalidClientCertificateV1));
-			invalidClientCaCert = Register (new CertificateDataFromPFX ("invalid-client-ca-cert", "monkey", CertificateResourceType.InvalidClientCaCertificate));
-			invalidClientCertRsa512 = Register (new CertificateDataFromPFX ("client-cert-rsa512", "monkey", CertificateResourceType.InvalidClientCertificateRsa512));
-
-			monkeyCert = Register (new CertificateDataFromPFX ("monkey", "monkey", CertificateResourceType.MonkeyCertificate));
-			penguinCert = Register (new CertificateDataFromPFX ("penguin", "penguin", CertificateResourceType.PenguinCertificate));
-			serverCertRsaOnly = Register (new CertificateDataFromPFX ("server-cert-rsaonly", "monkey", CertificateResourceType.ServerCertificateRsaOnly));
-			serverCertDheOnly = Register (new CertificateDataFromPFX ("server-cert-dhonly", "monkey", CertificateResourceType.ServerCertificateDheOnly));
-			invalidServerCertRsa512 = Register (new CertificateDataFromPFX ("server-cert-rsa512", "monkey", CertificateResourceType.InvalidServerCertificateRsa512));
-			clientCertRsaOnly = Register (new CertificateDataFromPFX ("client-cert-rsaonly", "monkey", CertificateResourceType.ClientCertificateRsaOnly));
-			clientCertDheOnly = Register (new CertificateDataFromPFX ("client-cert-dheonly", "monkey", CertificateResourceType.ClientCertificateDheOnly));
+			Register (new CertificateDataFromPFX ("monkey", "monkey", CertificateResourceType.MonkeyCertificate));
+			Register (new CertificateDataFromPFX ("penguin", "penguin", CertificateResourceType.PenguinCertificate));
+			Register (new CertificateDataFromPFX ("server-cert-rsaonly", "monkey", CertificateResourceType.ServerCertificateRsaOnly));
+			Register (new CertificateDataFromPFX ("server-cert-dhonly", "monkey", CertificateResourceType.ServerCertificateDheOnly));
+			Register (new CertificateDataFromPFX ("server-cert-rsa512", "monkey", CertificateResourceType.InvalidServerCertificateRsa512));
+			Register (new CertificateDataFromPFX ("client-cert-rsaonly", "monkey", CertificateResourceType.ClientCertificateRsaOnly));
+			Register (new CertificateDataFromPFX ("client-cert-dheonly", "monkey", CertificateResourceType.ClientCertificateDheOnly));
 
 			tlsTestXamDevExpired = Register (new CertificateDataFromPEM ("tlstest-xamdev-expired", CertificateResourceType.TlsTestXamDevExpired));
 			tlsTestXamDevNew = Register (new CertificateDataFromPEM ("tlstest-xamdev-new", CertificateResourceType.TlsTestXamDevNew));
@@ -96,34 +67,34 @@ namespace Xamarin.WebTests.Resources
 
 			intermediateCA = Register (new CertificateDataFromPEM ("intermediate-ca", CertificateResourceType.IntermediateCA));
 
-			intermediateServer = Register (new CertificateDataFromPFXandPEM ("intermediate-server", "monkey", CertificateResourceType.IntermediateServer));
+			intermediateServer = Register (new CertificateDataWithKey (
+				"intermediate-server", "monkey", CertificateResourceType.IntermediateServerWithKey, CertificateResourceType.IntermediateServer));
 
 			hamillerTubeCAInfo = new HamillerTubeCAData (hamillerTubeCA);
-			selfSignedServerInfo = new SelfSignedServerData (serverSelf);
+			selfSignedServerInfo = new SelfSignedServerData (selfServerCert);
 			tlsTestXamDevNewInfo = new TlsTestXamDevNewData (tlsTestXamDevNew);
 			tlsTestXamDevExpiredInfo = new TlsTestXamDevExpiredData (tlsTestXamDevExpired);
 			tlsTestXamDevCAInfo = new TlsTestXamDevCAData (tlsTestXamDevCA);
 			intermediateCAInfo = new IntermediateCAData (intermediateCA);
 			intermediateServerInfo = new IntermediateServerData (intermediateServer);
 
-			serverCertWithCA = Register (new CertificateDataFromPFX ("server-cert-with-ca", "monkey", CertificateResourceType.ServerCertificateWithCA));
+			Register (new CertificateDataFromPFX ("server-cert-with-ca", "monkey", CertificateResourceType.ServerCertificateWithCA));
 
-			Register (new CertificateDataWithIntermediate (
+			Register (new CertificateDataWithKey (
 				"server-cert-im", "monkey", CertificateResourceType.IntermediateServerCertificate,
-				CertificateResourceType.IntermediateServerCertificateBare, CertificateResourceType.IntermediateServerCertificateFull,
-				CertificateResourceType.IntermediateServerCertificateNoKey));
+				CertificateResourceType.IntermediateServerCertificateNoKey, CertificateResourceType.IntermediateServerCertificateBare,
+				CertificateResourceType.IntermediateServerCertificateFull));
 
-			Register (new CertificateDataWithIntermediate (
+			Register (new CertificateDataWithKey (
 				"wildcard-server", "monkey", CertificateResourceType.WildcardServerCertificate,
-				CertificateResourceType.WildcardServerCertificateBare, CertificateResourceType.WildcardServerCertificateFull,
-				CertificateResourceType.WildcardServerCertificateNoKey));
+				CertificateResourceType.WildcardServerCertificateNoKey, CertificateResourceType.WildcardServerCertificateBare,
+				CertificateResourceType.WildcardServerCertificateFull));
 
-			trustedIMCA = Register (new CertificateDataFromPEM ("trusted-im-ca", CertificateResourceType.TrustedIntermediateCA));
+			Register (new CertificateDataFromPEM ("trusted-im-ca", CertificateResourceType.TrustedIntermediateCA));
 
-			serverCertTrustedIMBareData = ResourceManager.ReadResource ("CA.server-cert-trusted-im-bare.pfx");
-			serverCertTrustedIMBare = provider.GetCertificateWithKey (serverCertTrustedIMBareData, "monkey");
-			serverCertTrustedIMData = ResourceManager.ReadResource ("CA.server-cert-trusted-im.pfx");
-			serverCertTrustedIM = provider.GetCertificateWithKey (serverCertTrustedIMData, "monkey");
+			Register (new CertificateDataWithKey (
+				"server-cert-trusted-im", "monkey", CertificateResourceType.ServerFromTrustedIntermediataCA,
+				null, CertificateResourceType.IntermediateServerCertificateBare, null));
 		}
 
 		static T Register<T> (T data)
@@ -133,76 +104,15 @@ namespace Xamarin.WebTests.Resources
 			return data;
 		}
 
-		public static X509Certificate LocalCACertificate {
-			get { return hamillerTubeCA.Certificate; }
-		}
-
-		public static X509Certificate InvalidServerCertificateV1 {
-			get { return invalidServerCert.Certificate; }
-		}
-
-		public static X509Certificate SelfSignedServerCertificate {
-			get { return selfServerCert.Certificate; }
-		}
-
-		public static X509Certificate ServerCertificateFromCA {
-			get { return serverCert.Certificate; }
-		}
-
-		public static X509Certificate InvalidClientCertificateV1 {
-			get { return invalidClientCert.Certificate; }
-		}
-
-		public static X509Certificate InvalidClientCaCertificate {
-			get { return invalidClientCaCert.Certificate; }
-		}
-
-		public static X509Certificate InvalidClientCertificateRsa512 {
-			get { return invalidClientCertRsa512.Certificate; }
-		}
-
-		public static X509Certificate MonkeyCertificate {
-			get { return monkeyCert.Certificate; }
-		}
-
-		public static X509Certificate PenguinCertificate {
-			get { return penguinCert.Certificate; }
-		}
-
-		public static X509Certificate ServerCertificateRsaOnly {
-			get { return serverCertRsaOnly.Certificate; }
-		}
-
-		public static X509Certificate ServerCertificateDheOnly {
-			get { return serverCertDheOnly.Certificate; }
-		}
-
-		public static X509Certificate InvalidServerCertificateRsa512 {
-			get { return invalidServerCertRsa512.Certificate; }
-		}
-
-		public static X509Certificate ClientCertificateRsaOnly {
-			get { return clientCertRsaOnly.Certificate; }
-		}
-
-		public static X509Certificate ClientCertificateDheOnly {
-			get { return clientCertDheOnly.Certificate; }
-		}
-
-		public static X509Certificate ServerCertificateWithCA {
-			get { return serverCertWithCA.Certificate; }
-		}
-
 		public static X509Certificate GetCertificateWithKey (CertificateResourceType type)
 		{
-			switch (type) {
-			case CertificateResourceType.ServerCertificateFromLocalCA:
-				return serverCert.Certificate;
-			case CertificateResourceType.SelfSignedServerCertificate:
-				return selfServerCert.Certificate;
-			default:
-				throw new InvalidOperationException ();
+			foreach (var registered in registeredCertificates) {
+				X509Certificate certificate;
+				if (registered.GetCertificateWithKey (type, out certificate))
+					return certificate;
 			}
+
+			throw new InvalidOperationException ();
 		}
 
 		public static X509Certificate GetCertificate (CertificateResourceType type)
@@ -213,14 +123,7 @@ namespace Xamarin.WebTests.Resources
 					return certificate;
 			}
 
-			switch (type) {
-			case CertificateResourceType.ServerFromTrustedIntermediataCA:
-				return serverCertTrustedIM;
-			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
-				return serverCertTrustedIMBare;
-			default:
-				throw new InvalidOperationException ();
-			}
+			throw new InvalidOperationException ();
 		}
 
 		public static byte[] GetCertificateData (CertificateResourceType type)
@@ -231,14 +134,7 @@ namespace Xamarin.WebTests.Resources
 					return data;
 			}
 
-			switch (type) {
-			case CertificateResourceType.ServerFromTrustedIntermediataCA:
-				return serverCertTrustedIMData;
-			case CertificateResourceType.ServerFromTrustedIntermediateCABare:
-				return serverCertTrustedIMBareData;
-			default:
-				throw new InvalidOperationException ();
-			}
+			throw new InvalidOperationException ();
 		}
 
 		public static string GetCertificateHash (CertificateResourceType type)

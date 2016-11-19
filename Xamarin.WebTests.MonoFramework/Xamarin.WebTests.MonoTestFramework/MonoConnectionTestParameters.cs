@@ -32,6 +32,7 @@ using Xamarin.AsyncTests;
 namespace Xamarin.WebTests.MonoTestFramework
 {
 	using ConnectionFramework;
+	using Resources;
 
 	public abstract class MonoConnectionTestParameters : MonoConnectionParameters
 	{
@@ -44,7 +45,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			get; set;
 		}
 
-		public MonoConnectionTestParameters (MonoConnectionTestCategory category, string identifier, X509Certificate certificate)
+		public MonoConnectionTestParameters (MonoConnectionTestCategory category, string identifier, CertificateResourceType certificate)
 			: base (identifier, certificate)
 		{
 			Category = category;

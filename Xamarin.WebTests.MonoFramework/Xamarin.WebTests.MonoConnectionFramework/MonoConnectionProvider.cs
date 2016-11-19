@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		public MonoSslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var settings = new MSI.MonoTlsSettings ();
-			var certificate = parameters.ServerCertificate;
+			var certificate = ResourceManager.GetCertificateWithKey (parameters.ServerCertificate);
 
 			var protocol = GetProtocol (parameters, true);
 			CallbackHelpers.AddCertificateValidator (settings, parameters.ServerCertificateValidator);
@@ -154,7 +154,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public async Task<MonoSslStream> CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
-			var certificate = parameters.ServerCertificate;
+			var certificate = ResourceManager.GetCertificateWithKey (parameters.ServerCertificate);
 			var protocol = GetProtocol (parameters, true);
 
 			CallbackHelpers.AddCertificateValidator (settings, parameters.ServerCertificateValidator);

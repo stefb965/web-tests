@@ -36,6 +36,8 @@ using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.MonoConnectionFramework
 {
+	using Resources;
+
 	static class CallbackHelpers
 	{
 		internal static SslProtocols GetSslProtocol ()
@@ -67,7 +69,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				return null;
 
 			var clientCertificateCollection = new X509CertificateCollection ();
-			var certificate = parameters.ClientCertificate;
+			var certificate = ResourceManager.GetCertificate (parameters.ClientCertificate.Value);
 			clientCertificateCollection.Add (certificate);
 
 			return clientCertificateCollection;

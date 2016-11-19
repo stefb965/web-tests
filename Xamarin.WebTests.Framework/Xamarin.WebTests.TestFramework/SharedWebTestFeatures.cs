@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.TestFramework
 			var factory = DependencyInjector.Get<ConnectionProviderFactory> ();
 			if (factory.FrameworkSetup.InstallDefaultCertificateValidator) {
 				var provider = DependencyInjector.Get<ICertificateProvider> ();
-				var defaultValidator = provider.AcceptThisCertificate (ResourceManager.SelfSignedServerCertificate);
+				var defaultValidator = provider.AcceptThisCertificate (ResourceManager.GetCertificate (CertificateResourceType.SelfSignedServerCertificate));
 				provider.InstallDefaultValidator (defaultValidator);
 			}
 		}

@@ -66,7 +66,6 @@ namespace Xamarin.WebTests.Tests
 	public class TestProxy : ITestHost<ProxyServer>
 	{
 		readonly static IPortableEndPoint address;
-		readonly static X509Certificate serverCertificate;
 		readonly static ConnectionParameters serverParameters;
 		readonly static bool hasNetwork;
 
@@ -76,8 +75,7 @@ namespace Xamarin.WebTests.Tests
 			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
 
-			serverCertificate = ResourceManager.SelfSignedServerCertificate;
-			serverParameters = new ConnectionParameters ("proxy", serverCertificate);
+			serverParameters = new ConnectionParameters ("proxy", CertificateResourceType.SelfSignedServerCertificate);
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)

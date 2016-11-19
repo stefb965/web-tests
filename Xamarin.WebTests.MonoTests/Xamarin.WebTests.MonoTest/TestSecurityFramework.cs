@@ -127,7 +127,8 @@ namespace Xamarin.WebTests.MonoTests
 		{
 			// FIXME: SecPKCS12Import actually imports the certificate and its private key into the keychain.
 			var appleCertificateProvider = DependencyInjector.Get<IAppleCertificateProvider> ();
-			ctx.Assert (appleCertificateProvider.IsInKeyChain (parameters.ServerCertificate), Is.False, "certificate must not be in keychain");
+			var serverCertificate = ResourceManager.GetCertificate (parameters.ServerCertificate);
+			ctx.Assert (appleCertificateProvider.IsInKeyChain (serverCertificate), Is.False, "certificate must not be in keychain");
 			await runner.Run (ctx, cancellationToken);
 		}
 	}

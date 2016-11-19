@@ -59,7 +59,7 @@ namespace Xamarin.WebTests.MonoTestFeatures
 			if (Type != null)
 				return new AppleCertificateHost (Type.Value);
 			else
-				return new AppleCertificateHost (ResourceManager.SelfSignedServerCertificate);
+				return new AppleCertificateHost (ResourceManager.GetCertificate (CertificateResourceType.SelfSignedServerCertificate));
 		}
 	}
 }

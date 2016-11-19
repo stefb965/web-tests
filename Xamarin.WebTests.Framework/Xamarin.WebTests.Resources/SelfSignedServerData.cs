@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class SelfSignedServerData : CertificateInfo
 	{
-		public SelfSignedServerData (CertificateDataFromPEM data)
-			: base (data)
+		public SelfSignedServerData (CertificateDataWithKey data)
+			: base (data.Type, data)
 		{
 		}
 

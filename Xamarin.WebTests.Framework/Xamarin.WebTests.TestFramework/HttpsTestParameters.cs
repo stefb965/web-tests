@@ -39,24 +39,17 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, X509Certificate certificate)
+
+		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, CertificateResourceType certificate)
 			: base (category, identifier, certificate)
 		{
 			Type = type;
-		}
-
-		public HttpsTestParameters (ConnectionTestCategory category, ConnectionTestType type, string identifier, CertificateResourceType certificate)
-			: base (category, identifier, null)
-		{
-			Type = type;
-			CertificateType = certificate;
 		}
 
 		protected HttpsTestParameters (HttpsTestParameters other)
 			: base (other)
 		{
 			Type = other.Type;
-			CertificateType = other.CertificateType;
 			ExpectWebException = other.ExpectWebException;
 			ExpectTrustFailure = other.ExpectTrustFailure;
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
@@ -68,10 +61,6 @@ namespace Xamarin.WebTests.TestFramework
 		public override ConnectionParameters DeepClone ()
 		{
 			return new HttpsTestParameters (this);
-		}
-
-		public CertificateResourceType? CertificateType {
-			get; set;
 		}
 
 		public bool ExpectWebException {

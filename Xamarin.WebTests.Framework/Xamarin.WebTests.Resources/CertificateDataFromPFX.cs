@@ -31,7 +31,7 @@ namespace Xamarin.WebTests.Resources
 {
 	using ConnectionFramework;
 
-	public class CertificateDataFromPFX : CertificateDataWithKey
+	public class CertificateDataFromPFX : CertificateData
 	{
 		byte[] data;
 		X509Certificate certificate;
@@ -58,8 +58,15 @@ namespace Xamarin.WebTests.Resources
 			get { return certificate; }
 		}
 
-		public override CertificateData PublicCertificate {
-			get { return null; }
+		public override bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate)
+		{
+			if (type == Type) {
+				certificate = Certificate;
+				return true;
+			} else {
+				certificate = null;
+				return false;
+			}
 		}
 
 		public override bool GetCertificate (CertificateResourceType type, out X509Certificate certificate)
