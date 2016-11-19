@@ -44,9 +44,9 @@ namespace Xamarin.WebTests.Resources
 			hamillerTubeCA = Register (new CertificateDataFromPEM ("Hamiller-Tube-CA", CertificateResourceType.HamillerTubeCA));
 			Register (new CertificateDataFromPEM ("Hamiller-Tube-IM", CertificateResourceType.HamillerTubeIM));
 			Register (new CertificateDataWithKey (
-				"server-cert", "monkey", CertificateResourceType.ServerCertificateFromLocalCA, CertificateResourceType.ServerCertificateFromLocalCA));
+				"server-cert", "monkey", CertificateResourceType.ServerCertificate2FromLocalCA, CertificateResourceType.ServerCertificateFromLocalCA));
 			selfServerCert = Register (new CertificateDataWithKey (
-				"server-self", "monkey", CertificateResourceType.SelfSignedServerCertificate, CertificateResourceType.SelfSignedServerCertificate));
+				"server-self", "monkey", CertificateResourceType.SelfSignedServerCertificate2, CertificateResourceType.SelfSignedServerCertificate));
 
 			Register (new CertificateDataFromPFX ("invalid-server-cert", "monkey", CertificateResourceType.InvalidServerCertificateV1));
 			Register (new CertificateDataFromPFX ("invalid-client-cert", "monkey", CertificateResourceType.InvalidClientCertificateV1));

@@ -75,7 +75,7 @@ namespace Xamarin.WebTests.Tests
 			address = support.GetEndpoint (0);
 			hasNetwork = !address.IsLoopback;
 
-			serverParameters = new ConnectionParameters ("proxy", CertificateResourceType.SelfSignedServerCertificate);
+			serverParameters = new ConnectionParameters ("proxy", CertificateResourceType.SelfSignedServerCertificate2);
 		}
 
 		public ProxyServer CreateInstance (TestContext ctx)

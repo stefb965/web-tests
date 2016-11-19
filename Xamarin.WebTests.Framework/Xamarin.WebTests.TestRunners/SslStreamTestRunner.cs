@@ -82,30 +82,30 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (type) {
 			case ConnectionTestType.Default:
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificateValidator = acceptAll
 				};
 
 			case ConnectionTestType.AcceptFromLocalCA:
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificateFromLocalCA) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificate2FromLocalCA) {
 					ClientCertificateValidator = acceptFromLocalCA
 				};
 
 			case ConnectionTestType.NoValidator:
-				// The default validator only allows ResourceManager.SelfSignedServerCertificate.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificateFromLocalCA) {
+				// The default validator only allows ResourceManager.SelfSignedServerCertificate2.
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificate2FromLocalCA) {
 					ExpectClientException = true
 				};
 
 			case ConnectionTestType.RejectAll:
 				// Explicit validator overrides the default ServicePointManager.ServerCertificateValidationCallback.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ExpectClientException = true, ClientCertificateValidator = rejectAll
 				};
 
 			case ConnectionTestType.UnrequestedClientCertificate:
 				// Provide a client certificate, but do not require it.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificate = CertificateResourceType.PenguinCertificate, ClientCertificateValidator = acceptSelfSigned,
 					ServerCertificateValidator = acceptNull
 				};
@@ -117,14 +117,14 @@ namespace Xamarin.WebTests.TestRunners
 				 * FIXME:
 				 * SslStream with Mono's old implementation fails here.
 				 */
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificate = CertificateResourceType.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 					AskForClientCertificate = true, ServerCertificateValidator = acceptFromLocalCA
 				};
 
 			case ConnectionTestType.RequireClientCertificate:
 				// Require client certificate.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificate = CertificateResourceType.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 					AskForClientCertificate = true, RequireClientCertificate = true,
 					ServerCertificateValidator = acceptFromLocalCA
@@ -140,14 +140,14 @@ namespace Xamarin.WebTests.TestRunners
 				 * FIXME:
 				 * Mono with the old TLS implementation throws SecureChannelFailure.
 				 */
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificateValidator = acceptSelfSigned, AskForClientCertificate = true,
 					ServerCertificateValidator = acceptNull
 				};
 
 			case ConnectionTestType.RejectClientCertificate:
 				// Reject client certificate.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificate = CertificateResourceType.MonkeyCertificate, ClientCertificateValidator = acceptSelfSigned,
 					ServerCertificateValidator = rejectAll, AskForClientCertificate = true,
 					ExpectClientException = true, ExpectServerException = true
@@ -155,7 +155,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MissingClientCertificate:
 				// Missing client certificate.
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificateValidator = acceptSelfSigned,
 					AskForClientCertificate = true, RequireClientCertificate = true,
 					ExpectClientException = true, ExpectServerException = true
@@ -165,19 +165,19 @@ namespace Xamarin.WebTests.TestRunners
 				goto case ConnectionTestType.TrustedRootCA;
 
 			case ConnectionTestType.MustNotInvokeGlobalValidator:
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					ClientCertificateValidator = acceptAll,
 					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke
 				};
 
 			case ConnectionTestType.MustNotInvokeGlobalValidator2:
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
 					ExpectClientException = true
 				};
 
 			case ConnectionTestType.CheckChain:
-				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				return new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateChainErrors | SslPolicyErrors.RemoteCertificateNameMismatch,
 					ExpectChainStatus = X509ChainStatusFlags.UntrustedRoot
@@ -204,7 +204,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.TrustedRootCA:
-				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificateFromLocalCA) {
+				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificate2FromLocalCA) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Hamiller-Tube.local"
 				};
@@ -226,7 +226,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.TrustedSelfSigned:
-				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 					GlobalValidationFlags = GlobalValidationFlags.SetToTestRunner,
 					ExpectChainStatus = X509ChainStatusFlags.NoError,
 					ExpectPolicyErrors = SslPolicyErrors.None, TargetHost = "Hamiller-Tube.local"
@@ -237,7 +237,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.HostNameMismatch:
-				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificateFromLocalCA) {
+				parameters = new SslStreamTestParameters (category, type, name, CertificateResourceType.ServerCertificate2FromLocalCA) {
 					GlobalValidationFlags = GlobalValidationFlags.CheckChain,
 					ExpectPolicyErrors = SslPolicyErrors.RemoteCertificateNameMismatch,
 				};

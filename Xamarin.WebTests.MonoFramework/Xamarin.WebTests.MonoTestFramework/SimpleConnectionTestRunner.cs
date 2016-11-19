@@ -126,7 +126,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 			var name = sb.ToString ();
 
-			return new SimpleConnectionParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate) {
+			return new SimpleConnectionParameters (category, type, name, CertificateResourceType.SelfSignedServerCertificate2) {
 				ClientCertificateValidator = AcceptAnyCertificate
 			};
 		}
@@ -136,7 +136,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			var parameters = CreateParameters (category, type);
 
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
-			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.GetCertificate (CertificateResourceType.SelfSignedServerCertificate));
+			var acceptSelfSigned = certificateProvider.AcceptThisCertificate (ResourceManager.GetCertificate (CertificateResourceType.SelfSignedServerCertificate2));
 			var acceptFromCA = certificateProvider.AcceptFromCA (ResourceManager.GetCertificate (CertificateResourceType.HamillerTubeCA));
 
 			bool clientSupportsEcDhe;
@@ -270,7 +270,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 				break;
 
 			case SimpleConnectionType.MartinTest:
-				parameters.ServerCertificate = CertificateResourceType.SelfSignedServerCertificate;
+				parameters.ServerCertificate = CertificateResourceType.SelfSignedServerCertificate2;
 				break;
 
 			default:
