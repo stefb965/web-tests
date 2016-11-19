@@ -86,23 +86,6 @@ namespace Xamarin.WebTests.Resources
 			get { return pemData.Certificate; }
 		}
 
-		public override bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate)
-		{
-			if (type == Type) {
-				certificate = pfxData.Certificate;
-				return true;
-			} else if (BareType != null && type == BareType.Value) {
-				certificate = barePfxData.Certificate;
-				return true;
-			} else if (FullType != null && type == FullType.Value) {
-				certificate = fullPfxData.Certificate;
-				return true;
-			} else {
-				certificate = null;
-				return false;
-			}
-		}
-
 		public override bool GetCertificate (CertificateResourceType type, out X509Certificate certificate)
 		{
 			if (NoKeyType != null && type == NoKeyType.Value) {

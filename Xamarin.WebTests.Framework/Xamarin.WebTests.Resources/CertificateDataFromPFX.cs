@@ -58,17 +58,6 @@ namespace Xamarin.WebTests.Resources
 			get { return certificate; }
 		}
 
-		public override bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate)
-		{
-			if (type == Type) {
-				certificate = Certificate;
-				return true;
-			} else {
-				certificate = null;
-				return false;
-			}
-		}
-
 		public override bool GetCertificate (CertificateResourceType type, out X509Certificate certificate)
 		{
 			if (type == Type) {

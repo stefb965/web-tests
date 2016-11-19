@@ -58,7 +58,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		public AppleCertificateHost (CertificateResourceType type)
 		{
-			CertificateAndKey = ResourceManager.GetCertificateWithKey (type);
+			CertificateAndKey = ResourceManager.GetCertificate (type);
 			provider = DependencyInjector.Get<IAppleCertificateProvider> ();
 			AppleCertificate = provider.GetAppleCertificate (CertificateAndKey);
 		}

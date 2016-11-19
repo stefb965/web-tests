@@ -53,21 +53,6 @@ namespace Xamarin.WebTests.Resources
 
 		public abstract bool GetCertificate (CertificateResourceType type, out X509Certificate certificate);
 
-		public abstract bool GetCertificateWithKey (CertificateResourceType type, out X509Certificate certificate);
-
 		public abstract bool GetCertificateData (CertificateResourceType type, out byte[] data);
-
-
-		/*
-		 * 			wildcardServerCertData = ResourceManager.ReadResource ("CA.wildcard-server.pfx");
-			wildcardServerCert = provider.GetCertificateWithKey (wildcardServerCertData, "monkey");
-			wildcardServerCertNoKeyData = ResourceManager.ReadResource ("CA.wildcard-server.pem");
-			wildcardServerCertNoKey = provider.GetCertificateFromData (wildcardServerCertNoKeyData);
-			wildcardServerCertBareData = ResourceManager.ReadResource ("CA.wildcard-server-bare.pfx");
-			wildcardServerCertBare = provider.GetCertificateWithKey (wildcardServerCertBareData, "monkey");
-			wildcardServerCertFullData = ResourceManager.ReadResource ("CA.wildcard-server-full.pfx");
-			wildcardServerCertFull = provider.GetCertificateWithKey (wildcardServerCertFullData, "monkey");
-*/
-
 	}
 }

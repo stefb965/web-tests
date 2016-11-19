@@ -104,17 +104,6 @@ namespace Xamarin.WebTests.Resources
 			return data;
 		}
 
-		public static X509Certificate GetCertificateWithKey (CertificateResourceType type)
-		{
-			foreach (var registered in registeredCertificates) {
-				X509Certificate certificate;
-				if (registered.GetCertificateWithKey (type, out certificate))
-					return certificate;
-			}
-
-			throw new InvalidOperationException ();
-		}
-
 		public static X509Certificate GetCertificate (CertificateResourceType type)
 		{
 			foreach (var registered in registeredCertificates) {
