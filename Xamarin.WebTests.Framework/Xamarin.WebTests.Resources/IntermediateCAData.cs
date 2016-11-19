@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class IntermediateCAData : CertificateInfo
 	{
-		public IntermediateCAData (byte[] rawData)
-			: base (CertificateResourceType.IntermediateCA, rawData)
+		public IntermediateCAData (CertificateDataFromPEM data)
+			: base (data)
 		{
 		}
 

@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class TlsTestXamDevNewData : CertificateInfo
 	{
-		public TlsTestXamDevNewData (byte[] rawData)
-			: base (CertificateResourceType.TlsTestXamDevNew, rawData)
+		public TlsTestXamDevNewData (CertificateData data)
+			: base (CertificateResourceType.TlsTestXamDevNew, data)
 		{
 		}
 

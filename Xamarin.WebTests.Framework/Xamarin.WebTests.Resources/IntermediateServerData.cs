@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class IntermediateServerData : CertificateInfo
 	{
-		public IntermediateServerData (byte[] rawData)
-			: base (CertificateResourceType.IntermediateServer, rawData)
+		public IntermediateServerData (CertificateDataFromPFXandPEM data)
+			: base (data.Type, data)
 		{
 		}
 

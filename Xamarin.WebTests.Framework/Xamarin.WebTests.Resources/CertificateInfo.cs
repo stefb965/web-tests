@@ -41,6 +41,18 @@ namespace Xamarin.WebTests.Resources
 			0x05, 0x00
 		};
 
+		protected CertificateInfo (CertificateDataFromPEM data)
+		{
+			this.type = data.Type;
+			this.rawData = data.Data;
+		}
+
+		protected CertificateInfo (CertificateResourceType type, CertificateData data)
+		{
+			this.type = type;
+			this.rawData = data.Data;
+		}
+
 		protected CertificateInfo (CertificateResourceType type, byte[] rawData)
 		{
 			this.type = type;
@@ -48,15 +60,11 @@ namespace Xamarin.WebTests.Resources
 		}
 
 		public CertificateResourceType ResourceType {
-			get {
-				return type;
-			}
+			get { return type; }
 		}
 
 		public byte[] RawData {
-			get {
-				return rawData;
-			}
+			get { return rawData; }
 		}
 
 		public abstract string ManagedSubjectName { get; }

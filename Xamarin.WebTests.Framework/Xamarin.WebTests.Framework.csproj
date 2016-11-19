@@ -176,6 +176,12 @@
     <Compile Include="Xamarin.WebTests.TestFramework\CertificateStoreAttribute.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionFrameworkSetup.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInfo.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateData.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateDataWithIntermediate.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateDataWithKey.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateDataFromPEM.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateDataFromPFX.cs" />
+    <Compile Include="Xamarin.WebTests.Resources\CertificateDataFromPFXandPEM.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

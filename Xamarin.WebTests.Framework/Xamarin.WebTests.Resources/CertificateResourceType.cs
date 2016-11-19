@@ -30,6 +30,13 @@ namespace Xamarin.WebTests.Resources
 	public enum CertificateResourceType
 	{
 		Invalid,
+
+		InvalidServerCertificateV1,
+		InvalidClientCertificateV1,
+		InvalidClientCaCertificate,
+		InvalidClientCertificateRsa512,
+		InvalidServerCertificateRsa512,
+
 		HamillerTubeCA,
 		HamillerTubeIM,
 		ServerCertificateFromLocalCA,
@@ -40,6 +47,13 @@ namespace Xamarin.WebTests.Resources
 		IntermediateCA,
 		IntermediateServer,
 		ServerCertificateWithCA,
+
+		MonkeyCertificate,
+		PenguinCertificate,
+		ServerCertificateRsaOnly,
+		ServerCertificateDheOnly,
+		ClientCertificateRsaOnly,
+		ClientCertificateDheOnly,
 
 		// Just the certificate
 		IntermediateServerCertificateBare,

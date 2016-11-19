@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class TlsTestXamDevCAData : CertificateInfo
 	{
-		public TlsTestXamDevCAData (byte[] rawData)
-			: base (CertificateResourceType.TlsTestXamDevCA, rawData)
+		public TlsTestXamDevCAData (CertificateDataFromPEM data)
+			: base (data)
 		{
 		}
 

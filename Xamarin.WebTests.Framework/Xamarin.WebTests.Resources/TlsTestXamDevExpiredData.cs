@@ -30,8 +30,8 @@ namespace Xamarin.WebTests.Resources
 {
 	public class TlsTestXamDevExpiredData : CertificateInfo
 	{
-		public TlsTestXamDevExpiredData (byte[] rawData)
-			: base (CertificateResourceType.TlsTestXamDevExpired, rawData)
+		public TlsTestXamDevExpiredData (CertificateDataFromPEM data)
+			: base (data)
 		{
 		}
 
