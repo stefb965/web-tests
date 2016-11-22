@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 
 namespace Xamarin.WebTests.BtlsConsole
 {
@@ -31,8 +32,10 @@ namespace Xamarin.WebTests.BtlsConsole
 	using MonoTestProvider;
 	using MonoConnectionFramework;
 	using ConnectionFramework;
+	using Mono.Btls.TestFramework;
+	using System.Globalization;
 
-	class BtlsConsoleFrameworkSetup : MonoConnectionFrameworkSetup
+	class BtlsConsoleFrameworkSetup : MonoConnectionFrameworkSetup, ITempDirectorySupport
 	{
 		public override string Name {
 			get { return "Xamarin.WebTests.BtlsConsole"; }
@@ -78,6 +81,35 @@ namespace Xamarin.WebTests.BtlsConsole
 				return UsingBtls;
 #endif
 			}
+		}
+
+		public string CreateTempDirectory ()
+		{
+			var temp = Path.GetTempPath ();
+			var guid = Guid.NewGuid ();
+			var path = Path.Combine (temp, guid.ToString ());
+			Directory.CreateDirectory (path);
+			return path;
+		}
+
+		public void DeleteTempDirectory (string path)
+		{
+			Directory.Delete (path);
+		}
+
+		public bool FileExists (string filename)
+		{
+			return File.Exists (filename);
+		}
+
+		public Stream CreateFile (string filename)
+		{
+			return File.Create (filename);
+		}
+
+		public void DeleteFile (string filename)
+		{
+			File.Delete (filename);
 		}
 	}
 }

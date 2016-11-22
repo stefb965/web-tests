@@ -1,11 +1,10 @@
 ﻿//
-// ValidationTestCategory.cs
+// TrustedCertificateType.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
-
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+namespace Mono.Btls.TestFramework
 {
-	public enum ValidationTestCategory
+	public enum TrustedCertificateType
 	{
-		Default,
-		AppleTls,
-		TrustedRoots,
-		MartinTest
+		TrustedDirectory,
+		TrustedDirectoryOldHash,
 	}
 }
-

@@ -80,8 +80,15 @@ namespace Xamarin.WebTests.Resources
 		TrustedIntermediateCA,
 		// Server certificate from TrustedIntermediateCA
 		ServerFromTrustedIntermediataCA,
+		// Same, but without the private key
+		ServerFromTrustedIntermediataCANoKey,
 		// Same, but without including the CA certificate in the .pfx
-		ServerFromTrustedIntermediateCABare
+		ServerFromTrustedIntermediateCABare,
+
+		DuplicateHashCA,
+		DuplicateHashInvalidCA,
+		DuplicateHashServer,
+		DuplicateHashServerNoKey,
+		DuplicateHashServerFull
 	}
 }
-

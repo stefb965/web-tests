@@ -1,5 +1,5 @@
 ﻿//
-// TestBoringValidator.cs
+// TestTrustedRoots.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -40,37 +40,25 @@ using Mono.Btls.TestFramework;
 namespace Mono.Btls.Tests
 {
 	[AsyncTestFixture]
-	public class TestBoringValidator
+	public class TestTrustedRoots
 	{
-		[Work]
+		[New]
 		[AsyncTest]
-		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
-		[ValidationTestCategory (ValidationTestCategory.Default)]
-		public void RunDefault (TestContext ctx,
-		                        MonoValidationTestParameters parameters,
-		                        MonoValidationTestRunner runner)
-		{
-			runner.Run (ctx);
-		}
-
-		[Work]
-		[AsyncTest]
-		[ValidationTestCategory (ValidationTestCategory.Default)]
-		public void TestStoreRunner (TestContext ctx,
-					     BoringX509StoreHost store,
-					     BoringValidationTestParameters parameters,
-					     BoringValidationTestRunner runner)
+		[ValidationTestCategory (ValidationTestCategory.TrustedRoots)]
+		public void Run (TestContext ctx,
+		                 TrustedRootTestParameters parameters,
+		                 TrustedRootTestRunner runner)
 		{
 			runner.Run (ctx);
 		}
 
 		[Martin]
-		// [AsyncTest]
+		[AsyncTest]
 		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
 		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
 		public void MartinTest (TestContext ctx,
-		                        MonoValidationTestParameters parameters,
-		                        MonoValidationTestRunner runner)
+		                        TrustedRootTestParameters parameters,
+		                        TrustedRootTestRunner runner)
 		{
 			runner.Run (ctx);
 		}

@@ -9,5 +9,5 @@ openssl pkcs12 -export -passout pass:monkey -out duplicate-hash-server.pfx -inke
 openssl x509 -in duplicate-hash-server.pem -text > duplicate-hash-server.cert
 openssl rsa -in duplicate-hash-server.key -text >> duplicate-hash-server.cert 
 
-openssl pkcs12 -export -passout pass:monkey -out duplicate-hash-with-ca.pfx -inkey duplicate-hash-server.key -in duplicate-hash-server.pem -certfile duplicate-hash-ca.pem
+openssl pkcs12 -export -passout pass:monkey -out duplicate-hash-server-full.pfx -inkey duplicate-hash-server.key -in duplicate-hash-server.pem -certfile duplicate-hash-ca.pem
 

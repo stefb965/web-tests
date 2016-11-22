@@ -117,7 +117,7 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[Martin]
-		[AsyncTest]
+		// [AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireTrustedRoots)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,

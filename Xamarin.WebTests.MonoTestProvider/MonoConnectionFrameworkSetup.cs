@@ -71,11 +71,11 @@ namespace Xamarin.WebTests.MonoTestProvider
 		{
 #if !__MOBILE__ && !__UNIFIED__
 			var type = typeof (MonoTlsProviderFactory);
-			var initialize = type.GetMethod ("Initialize", new Type [] { typeof (string) });
+			var initialize = type.GetMethod ("Initialize", new Type[] { typeof (string) });
 #if BTLS
 			if (initialize == null)
 				throw new NotSupportedException ("Your Mono runtime is too old to support BTLS!");
-			initialize.Invoke (null, new object [] { "btls" });
+			initialize.Invoke (null, new object[] { "btls" });
 			UsingBtls = true;
 #else
 			var providerEnvVar = Environment.GetEnvironmentVariable ("MONO_TLS_PROVIDER");
@@ -109,6 +109,23 @@ namespace Xamarin.WebTests.MonoTestProvider
 			return MonoTlsProviderFactory.CreateHttpListener (certificate, provider, settings);
 		}
 
+#if !__MOBILE__
+		static MethodInfo getPeerDomainNameMethod;
+		static MethodInfo setCertificateSearchPathsMethod;
+
+		static MonoConnectionFrameworkSetup ()
+		{
+			var connectionInfoType = typeof (MonoTlsConnectionInfo);
+			var peerDomainNameProp = connectionInfoType.GetProperty ("PeerDomainName");
+			getPeerDomainNameMethod = peerDomainNameProp.GetGetMethod ();
+
+			var tlsSettingsType = typeof (MonoTlsSettings);
+			var certificateSearchPathProp = tlsSettingsType.GetProperty ("CertificateSearchPaths");
+			if (certificateSearchPathProp != null)
+				setCertificateSearchPathsMethod = certificateSearchPathProp.GetSetMethod ();
+		}
+#endif
+
 		public ICertificateValidator GetCertificateValidator (MonoTlsSettings settings)
 		{
 #if !__MOBILE__
@@ -117,7 +134,7 @@ namespace Xamarin.WebTests.MonoTestProvider
 			if (getValidator != null)
 				return (ICertificateValidator)getValidator.Invoke (null, new object[] { settings });
 			getValidator = type.GetMethod ("GetValidator", new Type[] { typeof (MonoTlsSettings), typeof (MonoTlsProvider) });
-			return (ICertificateValidator) getValidator.Invoke (null, new object[] { settings, null });
+			return (ICertificateValidator)getValidator.Invoke (null, new object[] { settings, null });
 #else
 			return CertificateValidationHelper.GetValidator (settings);
 #endif
@@ -126,12 +143,28 @@ namespace Xamarin.WebTests.MonoTestProvider
 		static string GetServerName (MonoTlsConnectionInfo info)
 		{
 #if !__MOBILE__
-			var type = typeof (MonoTlsConnectionInfo);
-			var peerDomainName = type.GetProperty ("PeerDomainName");
-			var getPeerDomainName = peerDomainName.GetGetMethod ();
-			return (string)getPeerDomainName.Invoke (info, new object [0]);
+			return (string)getPeerDomainNameMethod.Invoke (info, new object[0]);
 #else
 			return info.PeerDomainName;
+#endif
+		}
+
+		public bool SupportsCertificateSearchPaths {
+			get {
+#if !__MOBILE__
+				return setCertificateSearchPathsMethod != null;
+#else
+				return false;
+#endif
+			}
+		}
+
+		public void SetCertificateSearchPaths (MonoTlsSettings settings, string[] searchPaths)
+		{
+#if !__MOBILE__
+			setCertificateSearchPathsMethod.Invoke (settings, new object[] { searchPaths });
+#else
+			throw new NotSupportedException ();
 #endif
 		}
 

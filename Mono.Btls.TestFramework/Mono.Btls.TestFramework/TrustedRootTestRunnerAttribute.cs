@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestCategory.cs
+// TrustedRootTestRunnerAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,23 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+using Xamarin.AsyncTests;
+
+namespace Mono.Btls.TestFramework
 {
-	public enum ValidationTestCategory
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class TrustedRootTestRunnerAttribute : TestHostAttribute, ITestHost<TrustedRootTestRunner>
 	{
-		Default,
-		AppleTls,
-		TrustedRoots,
-		MartinTest
+		public TrustedRootTestRunnerAttribute ()
+			: base (typeof (TrustedRootTestRunnerAttribute), TestFlags.Hidden | TestFlags.PathHidden)
+		{
+		}
+
+		public TrustedRootTestRunner CreateInstance (TestContext ctx)
+		{
+			var parameters = ctx.GetParameter<TrustedRootTestParameters> ();
+			return new TrustedRootTestRunner (parameters);
+		}
 	}
 }
 

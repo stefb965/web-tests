@@ -293,6 +293,21 @@
     <EmbeddedResource Include="..\CA\wildcard-server-bare.pfx">
       <Link>CA\wildcard-server-bare.pfx</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\duplicate-hash\duplicate-hash-ca.pem">
+      <Link>CA\duplicate-hash\duplicate-hash-ca.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\duplicate-hash\duplicate-hash-invalid-ca.pem">
+      <Link>CA\duplicate-hash\duplicate-hash-invalid-ca.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\duplicate-hash\duplicate-hash-server.pem">
+      <Link>CA\duplicate-hash\duplicate-hash-server.pem</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\duplicate-hash\duplicate-hash-server.pfx">
+      <Link>CA\duplicate-hash\duplicate-hash-server.pfx</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\CA\duplicate-hash\duplicate-hash-server-full.pfx">
+      <Link>CA\duplicate-hash\duplicate-hash-server-full.pfx</Link>
+    </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <ItemGroup>

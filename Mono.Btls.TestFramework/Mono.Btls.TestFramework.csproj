@@ -50,6 +50,13 @@
     <Compile Include="Mono.Btls.TestFramework\BoringValidationTestParametersAttribute.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringValidationTestType.cs" />
     <Compile Include="Mono.Btls.TestFramework\BoringVerifyParamType.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedRootTestRunner.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedRootTestType.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedRootTestParameters.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedRootTestParametersAttribute.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedRootTestRunnerAttribute.cs" />
+    <Compile Include="Mono.Btls.TestFramework\ITempDirectorySupport.cs" />
+    <Compile Include="Mono.Btls.TestFramework\TrustedCertificateType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Mono.Btls.TestFramework\" />
@@ -78,6 +85,9 @@
     </Reference>
     <Reference Include="Mono.Btls.PortableInterface">
       <HintPath>..\PCL\Mono.Btls.PortableInterface.dll</HintPath>
+    </Reference>
+    <Reference Include="Mono.Security.Interface">
+      <HintPath>..\PCL\Mono.Security.Interface.dll</HintPath>
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />

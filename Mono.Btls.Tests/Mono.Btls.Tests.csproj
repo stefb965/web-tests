@@ -39,6 +39,7 @@
     <Compile Include="Mono.Btls.Tests\MartinTest.cs" />
     <Compile Include="Mono.Btls.Tests\TestBoringValidator.cs" />
     <Compile Include="Mono.Btls.Tests\TestBoringCertificates.cs" />
+    <Compile Include="Mono.Btls.Tests\TestTrustedRoots.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">

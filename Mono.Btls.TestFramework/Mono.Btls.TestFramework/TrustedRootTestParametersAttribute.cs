@@ -1,5 +1,5 @@
 ﻿//
-// ValidationTestCategory.cs
+// TrustedRootTestParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -25,14 +25,44 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+using System.Linq;
+using System.Collections.Generic;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.MonoTestFramework;
+
+namespace Mono.Btls.TestFramework
 {
-	public enum ValidationTestCategory
+	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
+	public class TrustedRootTestParametersAttribute : TestParameterAttribute, ITestParameterSource<TrustedRootTestParameters>
 	{
-		Default,
-		AppleTls,
-		TrustedRoots,
-		MartinTest
+		public TrustedRootTestType? Type {
+			get; set;
+		}
+
+		public TrustedRootTestParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+		}
+
+		public TrustedRootTestParametersAttribute (TrustedRootTestType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
+		{
+			Type = type;
+		}
+
+		public IEnumerable<TrustedRootTestParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ValidationTestCategory> ();
+
+			var parameters = TrustedRootTestRunner.GetParameters (ctx, category);
+			if (Type != null)
+				return parameters.Where (p => p.Type == Type);
+
+			return parameters;
+		}
 	}
 }
 

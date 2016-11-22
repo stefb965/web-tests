@@ -94,7 +94,14 @@ namespace Xamarin.WebTests.Resources
 
 			Register (new CertificateDataWithKey (
 				"server-cert-trusted-im", "monkey", CertificateResourceType.ServerFromTrustedIntermediataCA,
-				null, CertificateResourceType.IntermediateServerCertificateBare, null));
+				CertificateResourceType.ServerFromTrustedIntermediataCANoKey,
+				CertificateResourceType.IntermediateServerCertificateBare, null));
+
+			Register (new CertificateDataFromPEM ("duplicate-hash.duplicate-hash-ca", CertificateResourceType.DuplicateHashCA));
+			Register (new CertificateDataFromPEM ("duplicate-hash.duplicate-hash-invalid-ca", CertificateResourceType.DuplicateHashInvalidCA));
+			Register (new CertificateDataWithKey (
+				"duplicate-hash.duplicate-hash-server", "monkey", CertificateResourceType.DuplicateHashServer,
+				CertificateResourceType.DuplicateHashServerNoKey, null, CertificateResourceType.DuplicateHashServerFull));
 		}
 
 		static T Register<T> (T data)

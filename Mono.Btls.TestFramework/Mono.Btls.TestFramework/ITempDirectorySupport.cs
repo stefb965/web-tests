@@ -1,11 +1,10 @@
 ﻿//
-// ValidationTestCategory.cs
+// ITempDirectorySupport.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
-
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -25,14 +24,21 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-namespace Xamarin.WebTests.MonoTestFramework
+using System.IO;
+using Xamarin.AsyncTests;
+
+namespace Mono.Btls.TestFramework
 {
-	public enum ValidationTestCategory
+	public interface ITempDirectorySupport : ISingletonInstance
 	{
-		Default,
-		AppleTls,
-		TrustedRoots,
-		MartinTest
+		string CreateTempDirectory ();
+
+		void DeleteTempDirectory (string path);
+
+		bool FileExists (string filename);
+
+		Stream CreateFile (string filename);
+
+		void DeleteFile (string filename);
 	}
 }
-
