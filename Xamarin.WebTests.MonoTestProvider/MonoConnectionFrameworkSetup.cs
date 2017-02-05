@@ -120,9 +120,9 @@ namespace Xamarin.WebTests.MonoTestProvider
 			getPeerDomainNameMethod = peerDomainNameProp.GetGetMethod ();
 
 			var tlsSettingsType = typeof (MonoTlsSettings);
-			var certificateSearchPathProp = tlsSettingsType.GetProperty ("CertificateSearchPaths");
+			var certificateSearchPathProp = tlsSettingsType.GetProperty ("CertificateSearchPaths", BindingFlags.Instance | BindingFlags.NonPublic);
 			if (certificateSearchPathProp != null)
-				setCertificateSearchPathsMethod = certificateSearchPathProp.GetSetMethod ();
+				setCertificateSearchPathsMethod = certificateSearchPathProp.SetMethod;
 		}
 #endif
 
