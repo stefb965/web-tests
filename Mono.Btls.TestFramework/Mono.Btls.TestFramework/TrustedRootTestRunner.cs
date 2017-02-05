@@ -353,6 +353,12 @@ namespace Mono.Btls.TestFramework
 		{
 			ctx.LogMessage ("TRUSTED ROOT TEST RUNNER: {0}", this);
 
+			var setup = DependencyInjector.Get<IMonoConnectionFrameworkSetup> ();
+			if (Parameters.CertificateSearchPaths != null && !setup.SupportsCertificateSearchPaths) {
+				ctx.IgnoreThisTest ();
+				return;
+			}
+
 			var validator = GetValidator (ctx);
 			ctx.Assert (validator, Is.Not.Null, "has validator");
 
