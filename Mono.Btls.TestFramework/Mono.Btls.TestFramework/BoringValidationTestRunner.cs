@@ -253,7 +253,7 @@ namespace Mono.Btls.TestFramework
 
 			store = BtlsProvider.CreateNativeStore ();
 			if (Parameters.AddTrustedRoots)
-				store.SetupCertificateStore ();
+				store.AddTrustedRoots ();
 			AddTrustedRoots (ctx);
 
 			chain = BtlsProvider.CreateNativeChain ();

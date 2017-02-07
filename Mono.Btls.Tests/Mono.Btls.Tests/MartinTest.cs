@@ -99,7 +99,7 @@ namespace Mono.Btls.Tests
 			chain.Add (tlsTestCa);
 
 			var store = BtlsProvider.CreateNativeStore ();
-			store.SetupCertificateStore ();
+			store.AddTrustedRoots ();
 
 			var storeCtx = BtlsProvider.CreateNativeStoreCtx ();
 			storeCtx.Initialize (store, chain);
