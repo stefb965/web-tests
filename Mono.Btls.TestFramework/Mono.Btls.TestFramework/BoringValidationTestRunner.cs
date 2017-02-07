@@ -80,6 +80,10 @@ namespace Mono.Btls.TestFramework
 				yield return BoringValidationTestType.MartinTest;
 				yield break;
 
+			case ValidationTestCategory.MartinTest:
+				yield return BoringValidationTestType.MartinTest;
+				yield break;
+
 			default:
 				ctx.AssertFail ("Unspported validation category: '{0}.", category);
 				yield break;
@@ -225,6 +229,7 @@ namespace Mono.Btls.TestFramework
 			case BoringValidationTestType.MartinTest:
 				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
 				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				parameters.VerifyParamType = BoringVerifyParamType.None;
 				parameters.AddTrustedRoots = true;
 				parameters.ExpectSuccess = true;
 				break;
@@ -248,7 +253,7 @@ namespace Mono.Btls.TestFramework
 
 			store = BtlsProvider.CreateNativeStore ();
 			if (Parameters.AddTrustedRoots)
-				store.AddTrustedRoots ();
+				store.SetupCertificateStore ();
 			AddTrustedRoots (ctx);
 
 			chain = BtlsProvider.CreateNativeChain ();

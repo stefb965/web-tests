@@ -241,7 +241,12 @@ namespace Mono.Btls.TestFramework
 				break;
 
 			case TrustedRootTestType.MartinTest:
-				goto case TrustedRootTestType.DuplicateHashNewAndOld;
+				parameters.Add (CertificateResourceType.TlsTestXamDevNew);
+				parameters.Add (CertificateResourceType.TlsTestXamDevCA);
+				// parameters.VerifyParamType = BoringVerifyParamType.None;
+				// parameters.AddTrustedRoots = true;
+				parameters.ExpectSuccess = true;
+				break;
 
 			default:
 				ctx.AssertFail ("Unsupported validation type: '{0}'.", type);

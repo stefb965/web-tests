@@ -65,12 +65,13 @@ namespace Mono.Btls.Tests
 		}
 
 		[Martin]
-		// [AsyncTest]
-		[ConnectionProviderType (ConnectionProviderType.BoringTLS)]
+		[AsyncTest]
+		// [ConnectionProviderType (ConnectionProviderType.BoringTLS)]
 		[ValidationTestCategory (ValidationTestCategory.MartinTest)]
 		public void MartinTest (TestContext ctx,
-		                        MonoValidationTestParameters parameters,
-		                        MonoValidationTestRunner runner)
+		                        BoringX509StoreHost store,
+		                        BoringValidationTestParameters parameters,
+		                        BoringValidationTestRunner runner)
 		{
 			runner.Run (ctx);
 		}

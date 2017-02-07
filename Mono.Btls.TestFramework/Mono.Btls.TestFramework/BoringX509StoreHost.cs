@@ -67,7 +67,7 @@ namespace Mono.Btls.TestFramework
 			return Task.Run (() => {
 				store = BtlsProvider.CreateNativeStore ();
 				if (loadTrustedRoots)
-					store.AddTrustedRoots ();
+					store.SetupCertificateStore ();
 			});
 		}
 
