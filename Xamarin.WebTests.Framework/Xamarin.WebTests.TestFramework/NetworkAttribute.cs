@@ -1,10 +1,10 @@
 ﻿//
-// ConnectionHelper.cs
+// NetworkAttribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,34 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
 
-namespace Xamarin.WebTests.ConnectionFramework
+namespace Xamarin.WebTests.TestFramework
 {
-	static class ConnectionHelper
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class NetworkAttribute : TestFeatureAttribute
 	{
-		internal static string PrintEndPoint (IPEndPoint endpoint)
-		{
-			return string.Format ("{0}:{1}", endpoint.Address, endpoint.Port);
+		public override TestFeature Feature {
+			get { return Instance; }
 		}
 
-		internal static IPEndPoint ParseEndPoint (string text)
-		{
-			var pos = text.IndexOf (":");
-			if (pos < 0)
-				return new IPEndPoint (IPAddress.Parse (text), 4433);
-			var address = IPAddress.Parse (text.Substring (0, pos));
-			var port = int.Parse (text.Substring (pos + 1));
-			return new IPEndPoint (address, port);
-		}
-
-		internal static IPortableEndPoint GetEndPoint (IPEndPoint endpoint)
-		{
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetEndpoint (endpoint.Address.ToString (), endpoint.Port);
-		}
+		public static readonly TestFeature Instance = new TestFeature (
+			"Network", "Has internet access", true);
 	}
 }
 

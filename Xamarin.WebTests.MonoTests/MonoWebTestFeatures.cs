@@ -60,9 +60,7 @@ namespace Xamarin.WebTests.MonoTests
 				yield return MobileAttribute.Instance;
 				yield return IOSAttribute.Instance;
 				yield return SecurityFrameworkAttribute.Instance;
-				yield return NetworkAttribute.Instance;
 				yield return AppleTlsAttribute.Instance;
-				yield return Tls12Attribute.Instance;
 			}
 		}
 

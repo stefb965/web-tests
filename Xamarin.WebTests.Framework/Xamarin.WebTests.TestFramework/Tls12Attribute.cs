@@ -1,10 +1,11 @@
 ﻿//
-// NetworkAttribute.cs
+// Tls12Attribute.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2016 Xamarin, Inc.
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
+
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -26,19 +27,25 @@
 using System;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.MonoTestFramework;
+using Xamarin.WebTests.ConnectionFramework;
 
-namespace Xamarin.WebTests.MonoTestFeatures
+namespace Xamarin.WebTests.TestFramework
 {
-	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
-	public class NetworkAttribute : TestFeatureAttribute
+	[AttributeUsage(AttributeTargets.Class | AttributeTargets.Method, AllowMultiple = false)]
+	public class Tls12Attribute : TestFeatureAttribute
 	{
-		public override TestFeature Feature {
+		public override TestFeature Feature
+		{
 			get { return Instance; }
 		}
 
 		public static readonly TestFeature Instance = new TestFeature (
-			"Network", "Has internet access", true);
+			"TLS12", "TLS 1.2 is supported", () => HasTls12());
+
+		static bool HasTls12()
+		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+			return setup.SupportsTls12;
+		}
 	}
 }
-

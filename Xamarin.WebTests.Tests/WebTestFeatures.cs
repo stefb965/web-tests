@@ -46,7 +46,6 @@ namespace Xamarin.WebTests
 	using HttpFramework;
 	using TestFramework;
 	using Resources;
-	using Features;
 	using Server;
 	using Tests;
 
@@ -78,6 +77,8 @@ namespace Xamarin.WebTests
 				yield return Proxy;
 				yield return ProxyAuth;
 				yield return ReuseConnection;
+				yield return NetworkAttribute.Instance;
+				yield return Tls12Attribute.Instance;
 			}
 		}
 

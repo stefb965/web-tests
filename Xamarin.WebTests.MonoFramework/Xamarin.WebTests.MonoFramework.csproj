@@ -69,7 +69,6 @@
     <Compile Include="Xamarin.WebTests.MonoTestFramework\AppleCertificateHost.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleCertificateHostAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\IOSAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFeatures\NetworkAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\ValidationTestParameters.cs" />
     <Compile Include="Xamarin.WebTests.MonoTestFramework\MonoValidationTestType.cs" />
@@ -82,7 +81,6 @@
     <Compile Include="Xamarin.WebTests.MonoTestFeatures\AppleTlsAttribute.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\IMonoConnectionFrameworkSetup.cs" />
     <Compile Include="Xamarin.WebTests.MonoConnectionFramework\IMonoConnectionInfo.cs" />
-    <Compile Include="Xamarin.WebTests.MonoTestFeatures\Tls12Attribute.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\Portable\$(TargetFrameworkVersion)\Microsoft.Portable.CSharp.targets" />
   <Target Name="PackageForAndroid" />
