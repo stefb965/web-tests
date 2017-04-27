@@ -1,0 +1,35 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" DefaultTargets="Build">
+	<PropertyGroup>
+		<JenkinsTarget Condition="'$(JenkinsTarget)' == ''">Console</JenkinsTarget>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'ConsoleAppleTls'">
+		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'ConsoleLegacy'">
+		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+	</PropertyGroup>
+	<Target Name="BuildSolution" Returns="@(Filtered)">
+		<MSBuild Projects="$(SolutionFile)" Targets="Build" Properties="Configuration=$(ProjectConfiguration)">
+			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs" />
+		</MSBuild>
+		<ItemGroup>
+			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
+		</ItemGroup>
+		<PropertyGroup>
+			<MainAssemblyOutput>@(_MainAssemblyOutput)</MainAssemblyOutput>
+		</PropertyGroup>
+	</Target>
+	<Target Name="Build" DependsOnTargets="BuildSolution">
+		<Message Text="TARGET OUTPUT: $(MainAssemblyOutput)" />
+	</Target>
+
+</Project>
