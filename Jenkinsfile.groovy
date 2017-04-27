@@ -44,16 +44,13 @@ def provisionXA (String lane)
 node ('jenkins-mac-1') {
 	timestamps {
 		stage ('checkout') {
-			sh 'pwd'
-			sh 'ls -l'
-			checkout scm
-//			dir ('web-tests') {
-//				git url: 'git@github.com:xamarin/web-tests.git'
-//				sh 'git clean -xffd'
-//			}
-//			dir ('QA') {
-//				git url: 'git@github.com:xamarin/QualityAssurance.git'
-//			}
+			dir ('web-tests') {
+				git url: 'git@github.com:xamarin/web-tests.git'
+				sh 'git clean -xffd'
+			}
+			dir ('QA') {
+				git url: 'git@github.com:xamarin/QualityAssurance.git'
+			}
 		}
 		stage ('provision') {
 			provisionMono (params.QA_USE_MONO_LANE)
