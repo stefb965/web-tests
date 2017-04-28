@@ -36,7 +36,7 @@ def provisionXM ()
 	provision ('XM', params.QA_USE_XM_LANE)
 }
 
-def provisionXA (String lane)
+def provisionXA ()
 {
 	provision ('XA', params.QA_USE_XA_LANE)
 }
