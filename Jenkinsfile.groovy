@@ -90,6 +90,7 @@ def buildAll ()
 	echo "TARGET LIST: $targetList"
 	if (targetList.size() == 0) {
 		echo "NOTHING TO DO!"
+		currentBuild.result = "NOT_BUILT"
 		return
 	}
 	
