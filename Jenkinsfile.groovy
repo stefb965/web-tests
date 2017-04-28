@@ -64,7 +64,7 @@ def enableXA ()
 def build (String targets)
 {
 	dir ('web-tests') {
-		bat 'msbuild' 'Jenkinsfile.targets' "/p:Configuration=$(targets)"
+		sh "msbuild Jenkinsfile.targets /p:Configuration=$(targets)"
 	}
 }
 
