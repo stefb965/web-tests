@@ -1,4 +1,11 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
     <Target Name="PackageForAndroid" />
-    <Target Name="SignAndroidPackage" />
+    <Target Name="SignAndroidPackage" Condition="'$(AndroidPackage)' != 'true'" />
+	<Target Name="JenkinsBuild" DependsOnTargets="Build; SignAndroidPackage" />
+	<Target Name="JenkinsGetApkFile" Outputs="@(MyOutputs)">
+		<ItemGroup>
+			<MyOutDir Include="$(OutDir)" />
+			<MyOutputs Include="%(MyOutDir.FullPath)$(AndroidPackageName)-Signed.apk" />
+		</ItemGroup>
+	</Target>
 </Project>

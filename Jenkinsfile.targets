@@ -28,35 +28,36 @@
 		<MainAssembly>Xamarin.WebTests.Mac.app</MainAssembly>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Android-Btls'">
-		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<ProjectConfiguration>DebugBtls</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Android.sln</SolutionFile>
 		<AndroidProjectFile>Android/Xamarin.WebTests.Android/Xamarin.WebTests.Android.csproj</AndroidProjectFile>
+		<AndroidPackageName>com.xamarin.webtests.android</AndroidPackageName>
 		<MainAssembly>Xamarin.WebTests.Android</MainAssembly>
 	</PropertyGroup>
 	<Target Name="NuGetRestore">
 		<Exec Command="nuget restore $(SolutionFile)" />
 	</Target>
 	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="NuGetRestore">
-		<MSBuild Projects="$(SolutionFile)" Targets="Build" Properties="Configuration=$(ProjectConfiguration)">
+		<MSBuild Projects="$(SolutionFile)" Targets="Build; JenkinsBuild" Properties="Configuration=$(ProjectConfiguration)">
 			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs" />
 		</MSBuild>
 
 		<Message Text="CHILD OUTPUTS: %(_ChildOutputs.Identity)" />
 
-		<MSBuild Projects="$(AndroidProjectFile)" Targets="_Sign"
-			Properties="Configuration=$(ProjectConfiguration)"
-			Condition="'$(AndroidProjectFile)' != ''">
-			<Output TaskParameter="TargetOutputs" ItemName="_ApkFileSigned" />
+		<MSBuild Projects="$(AndroidProjectFile)"
+				Targets="JenkinsGetApkFile"
+				Properties="Configuration=$(ProjectConfiguration);AndroidPackageName=$(AndroidPackageName)"
+				Condition="'$(AndroidProjectFile)' != ''" >
+			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs2" />
 		</MSBuild>
 
-		<Message Text="THE DROID: $(ApkFileSigned) - $(_ApkFileSigned) - @(_ApkFileSigned)" />
-		<Message Text="CHILD OUTPUTS: %(_ChildOutputs.Identity)" />
+		<Message Text="CHILD OUTPUTS 2: %(_ChildOutputs2.Identity)" />
 
 		<ItemGroup Condition="'$(AndroidProjectFile)' == ''">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
 		<ItemGroup Condition="'$(AndroidProjectFile)' != ''">
-			<_MainAssemblyOutput Include="@(_ApkFileSigned)" Condition="'%(Extension)' == '.apk'" />
+			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
 		</ItemGroup>
 
 		<PropertyGroup>
@@ -65,7 +66,6 @@
 	</Target>
 	<Target Name="Build" DependsOnTargets="BuildSolution">
 		<Message Text="TARGET OUTPUT: $(MainAssemblyOutput)" />
-		<Message Text="ANDROID: $(ApkFileSigned)" />
 	</Target>
 
 </Project>
