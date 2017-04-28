@@ -1,6 +1,7 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0" DefaultTargets="Build">
 	<PropertyGroup>
 		<JenkinsTarget Condition="'$(JenkinsTarget)' == ''">Console</JenkinsTarget>
+		<XamarinAsyncTestsConsole>Xamarin.AsyncTests.Console</XamarinAsyncTestsConsole>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
@@ -59,13 +60,21 @@
 		<ItemGroup Condition="'$(AndroidProjectFile)' != ''">
 			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
 		</ItemGroup>
+		<ItemGroup>
+			<_AsyncTestsConsoleOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(XamarinAsyncTestsConsole)'" />
+		</ItemGroup>
 
 		<PropertyGroup>
 			<MainAssemblyOutput>@(_MainAssemblyOutput)</MainAssemblyOutput>
+			<AsyncTestsConsoleOutput>@(_AsyncTestsConsoleOutput)</AsyncTestsConsoleOutput>
 		</PropertyGroup>
+		
+		<Error Condition="!Exists('$(MainAssemblyOutput)')" Text="Main assembly '$(MainAssemblyOutput)' does not exist!" />
+		<Error Condition="!Exists('$(AsyncTestsConsoleOutput)')" Text="Console assembly '$(AsyncTestsConsoleOutput)' does not exist!" />
 	</Target>
 	<Target Name="Build" DependsOnTargets="BuildSolution">
-		<Message Text="TARGET OUTPUT: $(MainAssemblyOutput)" />
+		<Message Text="MAIN ASSEMBLY: $(MainAssemblyOutput)" Importance="high" />
+		<Message Text="CONSOLE ASSEMBLY: $(AsyncTestsConsoleOutput)" Importance="high" />
 	</Target>
 
 </Project>
