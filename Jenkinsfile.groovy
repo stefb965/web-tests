@@ -107,7 +107,7 @@ def runMartin ()
 	def resultOutput = outputDir + "/TestResult-Console-Martin.xml"
 	def junitResultOutput = outputDir + "/JUnitTestResult-Console-Martin.xml"
 	run ("Debug", "Martin", resultOutput, junitResultOutput)
-	junit keepLongStdio: true, testResults: "$outputDir/*.xml"
+	junit keepLongStdio: true, testResults: "**/out/martin/*.xml"
 }
 
 node ('jenkins-mac-1') {
