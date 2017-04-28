@@ -14,7 +14,7 @@
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'ConsoleLegacy'">
-		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
+		<ProjectConfiguration>DebugLegacy</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 	</PropertyGroup>
@@ -35,12 +35,14 @@
 		<AndroidPackageName>com.xamarin.webtests.android</AndroidPackageName>
 		<MainAssembly>Xamarin.WebTests.Android</MainAssembly>
 	</PropertyGroup>
+
 	<Target Name="_ValidateJenkinsTarget">
 		<Error Condition="'$(SolutionFile)' == ''" Text="Invalid jenkins configuration '$(JenkinsTarget)'" />
 	</Target>
 	<Target Name="NuGetRestore" DependsOnTargets="_ValidateJenkinsTarget">
 		<Exec Command="nuget restore $(SolutionFile)" />
 	</Target>
+
 	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="_ValidateJenkinsTarget; NuGetRestore">
 		<PropertyGroup Condition="'$(AndroidProjectFile)' != ''">
 			<IsAndroid>true</IsAndroid>
@@ -80,9 +82,20 @@
 		<Error Condition="!Exists('$(MainAssemblyOutput)')" Text="Main assembly '$(MainAssemblyOutput)' does not exist!" />
 		<Error Condition="!Exists('$(AsyncTestsConsoleOutput)')" Text="Console assembly '$(AsyncTestsConsoleOutput)' does not exist!" />
 	</Target>
+
 	<Target Name="Build" DependsOnTargets="BuildSolution">
 		<Message Text="MAIN ASSEMBLY: $(MainAssemblyOutput)" Importance="high" />
 		<Message Text="CONSOLE ASSEMBLY: $(AsyncTestsConsoleOutput)" Importance="high" />
+	</Target>
+	
+	<ItemGroup>
+		<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />
+	</ItemGroup>
+
+	<Target Name="MultiBuild">
+		<Message Importance="High" Text="Building Jenkins target: %(JenkinsTargets.Identity)" />
+		
+		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="JenkinsTarget=%(JenkinsTargets.Identity)" />
 	</Target>
 
 </Project>
