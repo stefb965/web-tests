@@ -8,12 +8,12 @@
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(JenkinsTarget)' == 'ConsoleAppleTls'">
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-AppleTls'">
 		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(JenkinsTarget)' == 'ConsoleLegacy'">
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-Legacy'">
 		<ProjectConfiguration>DebugLegacy</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>

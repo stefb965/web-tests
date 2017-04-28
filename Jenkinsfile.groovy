@@ -21,24 +21,73 @@ def provision (String product, String lane)
 	}
 }
 
-def provisionMono (String lane)
+def provisionMono ()
 {
-	provision ('Mono', lane)
+	provision ('Mono', params.QA_USE_MONO_LANE)
 }
 
-def provisionXI (String lane)
+def provisionXI ()
 {
-	provision ('XI', lane)
+	provision ('XI', params.QA_USE_XI_LANE)
 }
 
-def provisionXM (String lane)
+def provisionXM ()
 {
-	provision ('XM', lane)
+	provision ('XM', params.QA_USE_XM_LANE)
 }
 
 def provisionXA (String lane)
 {
-	provision ('XA', lane)
+	provision ('XA', params.QA_USE_XA_LANE)
+}
+
+def enableMono ()
+{
+	return params.QA_USE_MONO_LANE != ''
+}
+
+def enableXI ()
+{
+	return params.QA_USE_XI_LANE != ''
+}
+
+def enableXM ()
+{
+	return params.QA_USE_XM_LANE != ''
+}
+
+def enableXA ()
+{
+	return params.QA_USE_XA_LANE != ''
+}
+
+def build (String targets)
+{
+	dir ('web-tests') {
+		bat 'msbuild' 'Jenkinsfile.targets' "/p:Configuration=$(targets)"
+	}
+}
+
+def buildAll ()
+{
+	def targets = [ ]
+	if (enableMono ()) {
+		targets.Add ("Console")
+		targets.Add ("Console-AppleTls")
+		targets.Add ("Console-Legacy")
+	}
+	if (enableXI ()) {
+		targets.Add ("IOS-Debug")
+	}
+	if (enableXM ()) {
+		targets.Add ("Mac")
+	}
+	if (enableXA ()) {
+		targets.Add ("Android-Btls")
+	}
+	def targetList = targets.Join (':')
+	echo "TARGET LIST: $targetList"
+	build ($targetList)
 }
 
 node ('jenkins-mac-1') {
@@ -53,10 +102,13 @@ node ('jenkins-mac-1') {
 			}
 		}
 		stage ('provision') {
-			provisionMono (params.QA_USE_MONO_LANE)
-			provisionXI (params.QA_USE_XI_LANE)
-			provisionXM (params.QA_USE_XM_LANE)
-			provisionXA (params.QA_USE_XA_LANE)
+			provisionMono ()
+			provisionXI ()
+			provisionXM ()
+			provisionXA ()
+		}
+		stage ('build') {
+			buildAll ()
 		}
 		stage ('martin') {
 			def test = ['Foo','Bar','Monkey']
