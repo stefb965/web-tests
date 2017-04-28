@@ -72,10 +72,14 @@ def buildAll ()
 {
 	def builder = new StringBuilder ()
 	if (enableMono ()) {
-		builder.Append ("Console:Console-AppleTls:Console.Legacy")
+		builder.append ("Console:Console-AppleTls:Console.Legacy")
 	}
-	if (builder.size () > 0)
-		builder.Append (":")
+	if (builder.size () > 0) {
+		builder.append (":")
+	}
+	echo "TEST!"
+		
+		
 	if (enableXI ()) {
 		targets << "IOS-Debug"
 	}
