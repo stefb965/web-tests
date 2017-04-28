@@ -81,13 +81,19 @@ def buildAll ()
 		
 		
 	if (enableXI ()) {
-		targets << "IOS-Debug"
+		if (builder.size () > 0)
+			builder.append (":")
+		builder.append ("IOS-Debug")
 	}
 	if (enableXM ()) {
-		targets << "Mac"
+		if (builder.size () > 0)
+			builder.append (":")
+		builder.append ("Mac")
 	}
 	if (enableXA ()) {
-		targets << "Android-Btls"
+		if (builder.size () > 0)
+			builder.append (":")
+		builder.append ("Android-Btls")
 	}
 	echo "TEST #2"
 	def targetList = builder.ToString ()
