@@ -99,6 +99,7 @@
 	</Target>
 
 	<Target Name="RunConsole" DependsOnTargets="Build">
+		<Message Importance="High" Text="Running $(JenkinsTarget) $(TestCategory)" />
 		<PropertyGroup>
 			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
 			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
