@@ -96,7 +96,9 @@ def buildAll ()
 		builder.append ("Android-Btls")
 	}
 	echo "TEST #2"
-	def targetList = builder.ToString ()
+	String theTargets = builder
+	echo "TEST #3: $theTargets"
+	def targetList = builder.toString ()
 	echo "TARGET LIST: $targetList"
 	build ($targetList)
 }
