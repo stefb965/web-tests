@@ -70,17 +70,12 @@ def build (String targets)
 
 def buildAll ()
 {
-	def targets = [ ]
-	targets << "Foo"
-	echo "TEST!"
-	def stringList = [ "A", "B" ]
-	String result = stringList.Join (",")
-	echo "TEST #1: $result"
+	def builder = new StringBuilder ()
 	if (enableMono ()) {
-		targets << "Console"
-		targets << "Console-AppleTls"
-		targets << "Console-Legacy"
+		builder.Append ("Console:Console-AppleTls:Console.Legacy")
 	}
+	if (builder.size () > 0)
+		builder.Append (":")
 	if (enableXI ()) {
 		targets << "IOS-Debug"
 	}
@@ -91,9 +86,7 @@ def buildAll ()
 		targets << "Android-Btls"
 	}
 	echo "TEST #2"
-	def builder = new StringBuilder ()
-	echo "TEST #3"
-	def targetList = targets.Join (":")
+	def targetList = builder.ToString ()
 	echo "TARGET LIST: $targetList"
 	build ($targetList)
 }
