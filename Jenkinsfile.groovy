@@ -70,7 +70,7 @@ def build (String targets)
 
 def buildAll ()
 {
-	def targets = [ ]
+	def targets = new ArrayList<string> ()
 	targets << "Foo"
 	echo "TEST!"
 	if (enableMono ()) {
