@@ -100,14 +100,15 @@ def run (String configuration, String testCategory, String resultOutput, String 
 	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:Configuration=$configuration,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
 }
 
-def runMartin ()
+def runTests (String category)
 {
-	def outputDir = pwd() + "/out/martin"
+	def outputDir = pwd() + "/out/" + category
 	sh "mkdir -p $outputDir"
-	def resultOutput = outputDir + "/TestResult-Console-Martin.xml"
-	def junitResultOutput = outputDir + "/JUnitTestResult-Console-Martin.xml"
+	def resultOutput = outputDir + "/TestResult-Console-$category.xml"
+	def junitResultOutput = outputDir + "/JUnitTestResult-$category.xml"
 	run ("Debug", "Martin", resultOutput, junitResultOutput)
-	junit keepLongStdio: true, testResults: "**/out/martin/*.xml"
+	junit keepLongStdio: true, testResults: "out/$category/*.xml"
+	archiveArtifacts artifacts: "out/$category/*.xml", fingerprint: true
 }
 
 node ('jenkins-mac-1') {
@@ -134,9 +135,21 @@ node ('jenkins-mac-1') {
 		}
 		stage ('martin') {
 			dir ('web-tests') {
-				runMartin ()
+				runTests ('Martin')
 			}
+		}
+		stage ('work') {
+			dir ('web-tests') {
+				runTests ('Work')
+			}
+		}
+		stage ('all') {
+			dir ('web-tests') {
+				runTests ('All')
+			}
+		}
 
+//		stage ('Loop') {
 //			def test = ['Foo','Bar','Monkey']
 //			for (int i = 0; i < test.size(); i++) {
 //				def name = 'test ' + i
@@ -144,7 +157,7 @@ node ('jenkins-mac-1') {
 //					echo 'Hello: ' + i + ' ' + test[i]
 //				}
 //			}
-		}
+//		}
 //		stage ('result') {
 //			junit keepLongStdio: true, testResults: 'out/*.xml'
 //			archiveArtifacts artifacts: 'out/*.xml', fingerprint: true
