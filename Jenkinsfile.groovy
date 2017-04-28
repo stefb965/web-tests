@@ -63,7 +63,9 @@ def enableXA ()
 
 def build (String configuration)
 {
-	sh "msbuild Jenkinsfile.targets /p:Configuration=$configuration"
+	dir ('web-tests') {
+		sh "msbuild Jenkinsfile.targets /p:Configuration=$configuration"
+	}
 }
 
 def buildAll ()
@@ -100,16 +102,19 @@ def run (String configuration, String testCategory, String resultOutput, String 
 	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:Configuration=$configuration,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
 }
 
-def runTests (String category)
+def runTests (String configuration, String category)
 {
-	def outputDir = pwd() + "/out/" + category
-	sh "mkdir -p $outputDir"
-	def resultOutput = "$outputDir/TestResult-Console-${category}.xml"
-	def junitResultOutput = "$outputDir/JUnitTestResult-${category}.xml"
-	echo "TEST: $resultOutput"
-	run ("Debug", category, resultOutput, junitResultOutput)
-//	junit keepLongStdio: true, testResults: "out/$category/*.xml"
-	archiveArtifacts artifacts: "out/$category/*.xml", fingerprint: true
+	dir ('web-tests') {
+		def outputDir = "out/" + configuration + "/" + category
+		def outputDirAbs = pwd() + outputDir
+		sh "mkdir -p $outputDirAbs"
+		def resultOutput = "$outputDirAbs/TestResult-Console-${configuration}-${category}.xml"
+		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${configuration}-${category}.xml"
+		echo "TEST: $resultOutput"
+		run ("Debug", category, resultOutput, junitResultOutput)
+		junit keepLongStdio: true, testResults: "$outputDir/*.xml"
+		archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+	}
 }
 
 node ('jenkins-mac-1') {
@@ -130,24 +135,25 @@ node ('jenkins-mac-1') {
 			provisionXA ()
 		}
 		stage ('build') {
-			dir ('web-tests') {
-				buildAll ()
-			}
+			buildAll ()
 		}
 		stage ('martin') {
-			dir ('web-tests') {
-				runTests ('Martin')
-			}
+			runTests ('Debug', 'Martin')
 		}
 		stage ('work') {
-			dir ('web-tests') {
-				runTests ('Work')
-			}
+			runTests ('Debug', 'Work')
 		}
 		stage ('all') {
-			dir ('web-tests') {
-				runTests ('All')
-			}
+			runTests ('Debug', 'All')
+		}
+		stage ('martin-appletls') {
+			runTests ('Debug-AppleTls', 'Martin')
+		}
+		stage ('work-appletls') {
+			runTests ('Debug-AppleTls', 'Work')
+		}
+		stage ('all-appletls') {
+			runTests ('Debug-AppleTls', 'All')
 		}
 
 //		stage ('Loop') {
@@ -159,11 +165,11 @@ node ('jenkins-mac-1') {
 //				}
 //			}
 //		}
-		stage ('result') {
-			dir ('web-tests') {
-				junit keepLongStdio: true, testResults: "out/**/*.xml"
+//		stage ('result') {
+//			dir ('web-tests') {
+//				junit keepLongStdio: true, testResults: "out/**/*.xml"
 //				archiveArtifacts artifacts: "out/**/*.xml", fingerprint: true
-			}
-		}
+//			}
+//		}
 	}
 }
