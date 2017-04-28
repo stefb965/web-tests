@@ -74,19 +74,20 @@ def buildAll ()
 	targets << "Foo"
 	echo "TEST!"
 	if (enableMono ()) {
-		targets.Add ("Console")
-		targets.Add ("Console-AppleTls")
-		targets.Add ("Console-Legacy")
+		targets << "Console"
+		targets << "Console-AppleTls"
+		targets << "Console-Legacy"
 	}
 	if (enableXI ()) {
-		targets.Add ("IOS-Debug")
+		targets << "IOS-Debug"
 	}
 	if (enableXM ()) {
-		targets.Add ("Mac")
+		targets << "Mac"
 	}
 	if (enableXA ()) {
-		targets.Add ("Android-Btls")
+		targets << "Android-Btls"
 	}
+	echo "TEST #1"
 	def targetList = targets.Join (':')
 	echo "TARGET LIST: $targetList"
 	build ($targetList)
