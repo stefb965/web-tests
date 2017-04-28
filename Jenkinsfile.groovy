@@ -106,7 +106,7 @@ def runTests (String configuration, String category)
 {
 	dir ('web-tests') {
 		def outputDir = "out/" + configuration + "/" + category
-		def outputDirAbs = pwd() + outputDir
+		def outputDirAbs = pwd() + "/" + outputDir
 		sh "mkdir -p $outputDirAbs"
 		def resultOutput = "$outputDirAbs/TestResult-Console-${configuration}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${configuration}-${category}.xml"
