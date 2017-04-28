@@ -60,6 +60,11 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string JenkinsTestName {
+			get;
+			private set;
+		}
+
 		public IPEndPoint EndPoint {
 			get;
 			private set;
@@ -232,6 +237,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wrench", v => Wrench = true);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => OutputDirectory = v);
+			p.Add ("jenkins-test-name=", v => JenkinsTestName = v);
 			var remaining = p.Parse (args);
 
 			if (assembly != null) {
@@ -842,7 +848,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (result, JUnitResultOutput);
+				JUnitResultPrinter.Print (result, JUnitResultOutput, JenkinsTestName);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
@@ -863,7 +869,7 @@ namespace Xamarin.AsyncTests.Console
 			var ret = printer.Print ();
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput);
+				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput, JenkinsTestName);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 

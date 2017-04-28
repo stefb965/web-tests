@@ -101,11 +101,15 @@
 	<Target Name="RunConsole" DependsOnTargets="Build">
 		<Message Importance="High" Text="Running $(JenkinsTarget) $(TestCategory)" />
 		<PropertyGroup>
+			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
 			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
 			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
-			<CategoryArgument Condition="'$(TestCategory)' != ''">--category=$(TestCategory)</CategoryArgument>
+			<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
+			<JenkinsArguments>--jenkins --jenkins-test-name=$(JenkinsPackageName)</JenkinsArguments>
+			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
+			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
 		</PropertyGroup>
-		<Exec Command="$(MainAssemblyOutput) --jenkins $(CategoryArgument) --result=$(ResultOutput) --junit-result=$(JUnitResultOutput)" />
+		<Exec Command="$(MainAssemblyOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments)" />
 
 	</Target>
 

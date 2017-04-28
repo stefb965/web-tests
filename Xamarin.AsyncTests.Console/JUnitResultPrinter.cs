@@ -40,6 +40,10 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
+		public string JenkinsTestName {
+			get;
+		}
+
 		public bool ShowIgnored {
 			get { return showIgnored ?? true; }
 			set { showIgnored = value; }
@@ -47,19 +51,21 @@ namespace Xamarin.AsyncTests.Console
 
 		bool? showIgnored;
 
-		JUnitResultPrinter (TestResult result)
+		JUnitResultPrinter (TestResult result, string jenkinsTestName)
 		{
 			Result = result;
+			JenkinsTestName = jenkinsTestName;
 		}
 
-		public static void Print (TestResult result, string output)
+		public static void Print (TestResult result, string output, string jenkinsTestName)
 		{
 			var settings = new XmlWriterSettings {
 				Indent = true
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
-				var printer = new JUnitResultPrinter (result);
-				var root = new RootElement (result);
+				Debug ("PRINT: {0}", jenkinsTestName); 
+				var printer = new JUnitResultPrinter (result, jenkinsTestName);
+				var root = new RootElement (result, jenkinsTestName);
 				root.Visit ();
 				root.Node.WriteTo (writer);
 			}
@@ -150,17 +156,22 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public RootElement (TestResult result)
+			public string Package {
+				get;
+			}
+
+			public RootElement (TestResult result, string package)
 				: base (null, new XElement ("testsuites"), result)
 			{
 				Name = result.Path.Node.Name;
+				Package = package;
 			}
 
 			protected override void ResolveChildren (TestResult result)
 			{
 				if (result.HasChildren) {
 					foreach (var childResult in result.Children) {
-						var suite = new SuiteElement (this, childResult.Path, childResult);
+						var suite = new SuiteElement (this, childResult.Path, childResult, Package);
 						AddChild (suite);
 					}
 				}
@@ -177,9 +188,13 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
+			public string Package {
+				get;
+			}
+
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
-			public SuiteElement (Element parent, TestPath path, TestResult result)
+			public SuiteElement (Element parent, TestPath path, TestResult result, string package = null)
 				: base (parent, new XElement ("testsuite"), result)
 			{
 				Name = path.Name;
@@ -212,6 +227,9 @@ namespace Xamarin.AsyncTests.Console
 			protected override void Write ()
 			{
 				Node.SetAttributeValue ("name", Name);
+
+				if (Package != null)
+					Node.SetAttributeValue ("package", Package);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");
