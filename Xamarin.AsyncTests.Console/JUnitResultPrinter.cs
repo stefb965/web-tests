@@ -229,8 +229,8 @@ namespace Xamarin.AsyncTests.Console
 			{
 				if (Package != null) {
 					Node.SetAttributeValue ("package", Package);
-				} else {
 					Node.SetAttributeValue ("name", Package + "." + Name);
+				} else {
 					Node.SetAttributeValue ("name", Name);
 				}
 
