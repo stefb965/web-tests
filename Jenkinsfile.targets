@@ -87,15 +87,25 @@
 		<Message Text="MAIN ASSEMBLY: $(MainAssemblyOutput)" Importance="high" />
 		<Message Text="CONSOLE ASSEMBLY: $(AsyncTestsConsoleOutput)" Importance="high" />
 	</Target>
-	
-	<ItemGroup>
-		<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />
-	</ItemGroup>
 
 	<Target Name="MultiBuild">
+		<ItemGroup>
+			<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />
+		</ItemGroup>
+
 		<Message Importance="High" Text="Building Jenkins target: %(JenkinsTargets.Identity)" />
-		
+
 		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="JenkinsTarget=%(JenkinsTargets.Identity)" />
+	</Target>
+
+	<Target Name="RunConsole" DependsOnTargets="Build">
+		<PropertyGroup>
+			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
+			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
+			<CategoryArgument Condition="'$(TestCategory)' != ''">--category=$(TestCategory)</CategoryArgument>
+		</PropertyGroup>
+		<Exec Command="$(MainAssemblyOutput) --jenkins $(CategoryArgument) --result=$(ResultOutput) --junit-result=$(JUnitResultOutput)" />
+
 	</Target>
 
 </Project>

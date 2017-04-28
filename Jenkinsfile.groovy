@@ -61,12 +61,9 @@ def enableXA ()
 	return params.QA_USE_XA_LANE != 'NONE'
 }
 
-def build (String targets)
+def build (String configuration)
 {
-	echo "BUILD: $targets"
-	sh 'pwd'
-	sh 'ls -l'
-	sh "msbuild Jenkinsfile.targets /p:Configuration=$targets"
+	sh "msbuild Jenkinsfile.targets /p:Configuration=$configuration"
 }
 
 def buildAll ()
@@ -86,15 +83,28 @@ def buildAll ()
 	if (enableXA ()) {
 		targets << "Android-Btls"
 	}
-	def targetList = targets.join (":")
-	echo "TARGET LIST: $targetList"
-	if (targetList.size() == 0) {
-		echo "NOTHING TO DO!"
+	
+	if (targets.size() == 0) {
+		echo "No configurations enabled!"
 		currentBuild.result = "NOT_BUILT"
 		return
 	}
 	
+	def targetList = targets.join (":")
+	echo "TARGET LIST: $targetList"
 	build (targetList)
+}
+
+def run (String configuration, String testCategory, String resultOutput, String junitResultOutput)
+{
+	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:Configuration=$configuration,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+}
+
+def runMartin ()
+{
+	def resultOutput = pwd() + "/TestResult-Console-Martin.xml"
+	def junitResultOutput = pwd() + "/JUnitTestResult-Console-Martin.xml"
+	run ("Debug", "Martin", resultOutput, junitResultOutput)
 }
 
 node ('jenkins-mac-1') {
@@ -120,13 +130,21 @@ node ('jenkins-mac-1') {
 			}
 		}
 		stage ('martin') {
-			def test = ['Foo','Bar','Monkey']
-			for (int i = 0; i < test.size(); i++) {
-				def name = 'test ' + i
-				stage (name) {
-					echo 'Hello: ' + i + ' ' + test[i]
-				}
+			dir ('web-tests/out/martin') {
+				runMartin ()
 			}
+
+//			def test = ['Foo','Bar','Monkey']
+//			for (int i = 0; i < test.size(); i++) {
+//				def name = 'test ' + i
+//				stage (name) {
+//					echo 'Hello: ' + i + ' ' + test[i]
+//				}
+//			}
+		}
+		stage ('result') {
+			junit keepLongStdio: true, testResults: 'out/*.xml'
+			archiveArtifacts artifacts: 'out/*.xml', fingerprint: true
 		}
 	}
 }
