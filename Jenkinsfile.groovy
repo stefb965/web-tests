@@ -102,8 +102,9 @@ def run (String configuration, String testCategory, String resultOutput, String 
 
 def runMartin ()
 {
-	def resultOutput = pwd() + "/TestResult-Console-Martin.xml"
-	def junitResultOutput = pwd() + "/JUnitTestResult-Console-Martin.xml"
+	def outputDir = pwd() + "/out/martin"
+	def resultOutput = outputDir + "/TestResult-Console-Martin.xml"
+	def junitResultOutput = outputDir + "/JUnitTestResult-Console-Martin.xml"
 	run ("Debug", "Martin", resultOutput, junitResultOutput)
 }
 
@@ -130,7 +131,7 @@ node ('jenkins-mac-1') {
 			}
 		}
 		stage ('martin') {
-			dir ('web-tests/out/martin') {
+			dir ('web-tests') {
 				runMartin ()
 			}
 
