@@ -103,6 +103,7 @@ def run (String configuration, String testCategory, String resultOutput, String 
 def runMartin ()
 {
 	def outputDir = pwd() + "/out/martin"
+	sh "mkdir -p $outputDir"
 	def resultOutput = outputDir + "/TestResult-Console-Martin.xml"
 	def junitResultOutput = outputDir + "/JUnitTestResult-Console-Martin.xml"
 	run ("Debug", "Martin", resultOutput, junitResultOutput)
