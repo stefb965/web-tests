@@ -108,7 +108,7 @@ def runTests (String category)
 	def junitResultOutput = "$outputDir/JUnitTestResult-${category}.xml"
 	echo "TEST: $resultOutput"
 	run ("Debug", category, resultOutput, junitResultOutput)
-	junit keepLongStdio: true, testResults: "out/$category/*.xml"
+//	junit keepLongStdio: true, testResults: "out/$category/*.xml"
 	archiveArtifacts artifacts: "out/$category/*.xml", fingerprint: true
 }
 
@@ -159,9 +159,9 @@ node ('jenkins-mac-1') {
 //				}
 //			}
 //		}
-//		stage ('result') {
-//			junit keepLongStdio: true, testResults: 'out/*.xml'
-//			archiveArtifacts artifacts: 'out/*.xml', fingerprint: true
-//		}
+		stage ('result') {
+			junit keepLongStdio: true, testResults: "out/**/*.xml"
+//			archiveArtifacts artifacts: "out/**/*.xml", fingerprint: true
+		}
 	}
 }
