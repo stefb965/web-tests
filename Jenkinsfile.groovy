@@ -71,6 +71,8 @@ def build (String targets)
 def buildAll ()
 {
 	def targets = [ ]
+	targets << "Foo"
+	echo "TEST!"
 	if (enableMono ()) {
 		targets.Add ("Console")
 		targets.Add ("Console-AppleTls")
