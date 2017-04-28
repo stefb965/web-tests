@@ -108,7 +108,7 @@ def runTests (String configuration, String category)
 		def outputDir = "out/" + configuration + "/" + category
 		def outputDirAbs = pwd() + "/" + outputDir
 		sh "mkdir -p $outputDirAbs"
-		def resultOutput = "$outputDirAbs/TestResult-Console-${configuration}-${category}.xml"
+		def resultOutput = "$outputDirAbs/TestResult-${configuration}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${configuration}-${category}.xml"
 		echo "TEST: $resultOutput"
 		run ("Debug", category, resultOutput, junitResultOutput)
@@ -138,22 +138,22 @@ node ('jenkins-mac-1') {
 			buildAll ()
 		}
 		stage ('martin') {
-			runTests ('Debug', 'Martin')
+			runTests ('Console', 'Martin')
 		}
 		stage ('work') {
-			runTests ('Debug', 'Work')
+			runTests ('Console', 'Work')
 		}
 		stage ('all') {
-			runTests ('Debug', 'All')
+			runTests ('Console', 'All')
 		}
 		stage ('martin-appletls') {
-			runTests ('Debug-AppleTls', 'Martin')
+			runTests ('Console-AppleTls', 'Martin')
 		}
 		stage ('work-appletls') {
-			runTests ('Debug-AppleTls', 'Work')
+			runTests ('Console-AppleTls', 'Work')
 		}
 		stage ('all-appletls') {
-			runTests ('Debug-AppleTls', 'All')
+			runTests ('Console-AppleTls', 'All')
 		}
 
 //		stage ('Loop') {
