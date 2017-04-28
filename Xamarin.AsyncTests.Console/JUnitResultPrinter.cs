@@ -227,10 +227,12 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Write ()
 			{
-				Node.SetAttributeValue ("name", Name);
-
-				if (Package != null)
+				if (Package != null) {
 					Node.SetAttributeValue ("package", Package);
+				} else {
+					Node.SetAttributeValue ("name", Package + "." + Name);
+					Node.SetAttributeValue ("name", Name);
+				}
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");
