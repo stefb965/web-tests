@@ -63,9 +63,10 @@ def enableXA ()
 
 def build (String targets)
 {
-	dir ('web-tests') {
-		sh "msbuild Jenkinsfile.targets /p:Configuration=$targets"
-	}
+	echo "BUILD: $targets"
+	sh 'pwd'
+	sh 'ls -l'
+	sh "msbuild Jenkinsfile.targets /p:Configuration=$targets"
 }
 
 def buildAll ()
@@ -113,7 +114,9 @@ node ('jenkins-mac-1') {
 			provisionXA ()
 		}
 		stage ('build') {
-			buildAll ()
+			dir ('web-tests') {
+				buildAll ()
+			}
 		}
 		stage ('martin') {
 			def test = ['Foo','Bar','Monkey']
