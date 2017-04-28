@@ -145,9 +145,9 @@ node ('jenkins-mac-1') {
 //				}
 //			}
 		}
-		stage ('result') {
-			junit keepLongStdio: true, testResults: 'out/*.xml'
-			archiveArtifacts artifacts: 'out/*.xml', fingerprint: true
-		}
+//		stage ('result') {
+//			junit keepLongStdio: true, testResults: 'out/*.xml'
+//			archiveArtifacts artifacts: 'out/*.xml', fingerprint: true
+//		}
 	}
 }
