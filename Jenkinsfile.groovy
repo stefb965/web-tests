@@ -71,8 +71,6 @@ def build (String targets)
 def buildAll ()
 {
 	def targets = [ ]
-	targets << "Foo"
-	echo "TEST!"
 	if (enableMono ()) {
 		targets << "Console"
 		targets << "Console-AppleTls"
@@ -89,7 +87,12 @@ def buildAll ()
 	}
 	def targetList = targets.join (":")
 	echo "TARGET LIST: $targetList"
-	build ($targetList)
+	if (targetList.size() == 0) {
+		echo "NOTHING TO DO!"
+		return
+	}
+	
+	build (targetList)
 }
 
 node ('jenkins-mac-1') {
