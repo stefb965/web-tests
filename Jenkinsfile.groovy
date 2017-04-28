@@ -73,6 +73,9 @@ def buildAll ()
 	def targets = [ ]
 	targets << "Foo"
 	echo "TEST!"
+	def stringList = [ "A", "B" ]
+	String result = stringList.Join (",")
+	echo "TEST #1: $result"
 	if (enableMono ()) {
 		targets << "Console"
 		targets << "Console-AppleTls"
