@@ -40,7 +40,7 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string JenkinsTestName {
+		public string PackageName {
 			get;
 		}
 
@@ -51,21 +51,21 @@ namespace Xamarin.AsyncTests.Console
 
 		bool? showIgnored;
 
-		JUnitResultPrinter (TestResult result, string jenkinsTestName)
+		JUnitResultPrinter (TestResult result, string packageName)
 		{
 			Result = result;
-			JenkinsTestName = jenkinsTestName;
+			PackageName = packageName;
 		}
 
-		public static void Print (TestResult result, string output, string jenkinsTestName)
+		public static void Print (TestResult result, string output, string packageName)
 		{
 			var settings = new XmlWriterSettings {
 				Indent = true
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
-				Debug ("PRINT: {0}", jenkinsTestName); 
-				var printer = new JUnitResultPrinter (result, jenkinsTestName);
-				var root = new RootElement (result, jenkinsTestName);
+				Debug ("PRINT: {0}", packageName); 
+				var printer = new JUnitResultPrinter (result, packageName);
+				var root = new RootElement (printer, result);
 				root.Visit ();
 				root.Node.WriteTo (writer);
 			}
@@ -78,6 +78,10 @@ namespace Xamarin.AsyncTests.Console
 
 		abstract class Element
 		{
+			public JUnitResultPrinter Printer {
+				get;
+			}
+
 			public Element Parent {
 				get;
 			}
@@ -94,8 +98,9 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public Element (Element parent, XElement node, TestPath path)
+			public Element (JUnitResultPrinter printer, Element parent, XElement node, TestPath path)
 			{
+				Printer = printer;
 				Parent = parent;
 				Node = node;
 				Path = path;
@@ -126,8 +131,8 @@ namespace Xamarin.AsyncTests.Console
 
 			List<Element> children = new List<Element> ();
 
-			public ContainerElement (Element parent, XElement node, TestResult result)
-				: base (parent, node, result.Path)
+			public ContainerElement (JUnitResultPrinter printer, Element parent, XElement node, TestResult result)
+				: base (printer, parent, node, result.Path)
 			{
 				Result = result;
 			}
@@ -156,22 +161,17 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public string Package {
-				get;
-			}
-
-			public RootElement (TestResult result, string package)
-				: base (null, new XElement ("testsuites"), result)
+			public RootElement (JUnitResultPrinter printer, TestResult result)
+				: base (printer, null, new XElement ("testsuites"), result)
 			{
 				Name = result.Path.Node.Name;
-				Package = package;
 			}
 
 			protected override void ResolveChildren (TestResult result)
 			{
 				if (result.HasChildren) {
 					foreach (var childResult in result.Children) {
-						var suite = new SuiteElement (this, childResult.Path, childResult, Package);
+						var suite = new SuiteElement (this, childResult.Path, childResult);
 						AddChild (suite);
 					}
 				}
@@ -188,21 +188,12 @@ namespace Xamarin.AsyncTests.Console
 				get;
 			}
 
-			public string Package {
-				get;
-			}
-
 			public DateTime TimeStamp { get; } = new DateTime (DateTime.Now.Ticks, DateTimeKind.Unspecified);
 
-			public SuiteElement (Element parent, TestPath path, TestResult result, string package = null)
-				: base (parent, new XElement ("testsuite"), result)
+			public SuiteElement (Element parent, TestPath path, TestResult result)
+				: base (parent.Printer, parent, new XElement ("testsuite"), result)
 			{
-				if (package != null) {
-					Name = package + "." + path.Name;
-				} else {
-					Name = path.Name;
-					Package = package;
-				}
+				Name = path.Name;
 			}
 
 			protected override void ResolveChildren (TestResult result)
@@ -231,9 +222,9 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Write ()
 			{
-				if (Package != null) {
-					Node.SetAttributeValue ("package", Package);
-					Node.SetAttributeValue ("name", Package + "." + Name);
+				if (Printer.PackageName != null) {
+					Node.SetAttributeValue ("package", Printer.PackageName);
+					Node.SetAttributeValue ("name", Printer.PackageName + "." + Name);
 				} else {
 					Node.SetAttributeValue ("name", Name);
 				}
@@ -261,7 +252,7 @@ namespace Xamarin.AsyncTests.Console
 			StringBuilder errorOutput = new StringBuilder ();
 
 			public CaseElement (SuiteElement parent, TestResult result)
-				: base (parent, new XElement ("testcase"), result.Path)
+				: base (parent.Printer, parent, new XElement ("testcase"), result.Path)
 			{
 				Result = result;
 
