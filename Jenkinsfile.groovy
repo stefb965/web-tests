@@ -70,43 +70,24 @@ def build (String targets)
 
 def buildAll ()
 {
-	def builder = new StringBuilder ()
-	if (enableMono ()) {
-		builder.append ("Console:Console-AppleTls:Console.Legacy")
-	}
-	if (builder.size () > 0) {
-		builder.append (":")
-	}
+	def targets = [ ]
+	targets << "Foo"
 	echo "TEST!"
-		
-		
+	if (enableMono ()) {
+		targets << "Console"
+		targets << "Console-AppleTls"
+		targets << "Console-Legacy"
+	}
 	if (enableXI ()) {
-		if (builder.size () > 0)
-			builder.append (":")
-		builder.append ("IOS-Debug")
+		targets << "IOS-Debug"
 	}
 	if (enableXM ()) {
-		if (builder.size () > 0)
-			builder.append (":")
-		builder.append ("Mac")
+		targets << "Mac"
 	}
 	if (enableXA ()) {
-		if (builder.size () > 0)
-			builder.append (":")
-		builder.append ("Android-Btls")
+		targets << "Android-Btls"
 	}
-	
-	echo "TEST #2"
-	
-	def foo = [ "A", "B" ]
-	foo.add ("C")
-	def bar = foo.join (":")
-	echo "TEST #3: $bar"
-	
-	echo "TEST #2"
-	String theTargets = builder
-	echo "TEST #3: $theTargets"
-	def targetList = builder.toString ()
+	def targetList = targets.join (":")
 	echo "TARGET LIST: $targetList"
 	build ($targetList)
 }
