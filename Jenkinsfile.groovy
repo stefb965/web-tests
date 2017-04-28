@@ -95,6 +95,14 @@ def buildAll ()
 			builder.append (":")
 		builder.append ("Android-Btls")
 	}
+	
+	echo "TEST #2"
+	
+	def foo = [ "A", "B" ]
+	foo.add ("C")
+	def bar = foo.join (":")
+	echo "TEST #3: $bar"
+	
 	echo "TEST #2"
 	String theTargets = builder
 	echo "TEST #3: $theTargets"
