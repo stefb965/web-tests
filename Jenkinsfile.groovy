@@ -43,22 +43,22 @@ def provisionXA ()
 
 def enableMono ()
 {
-	return params.QA_USE_MONO_LANE != ''
+	return params.QA_USE_MONO_LANE != 'NONE'
 }
 
 def enableXI ()
 {
-	return params.QA_USE_XI_LANE != ''
+	return params.QA_USE_XI_LANE != 'NONE'
 }
 
 def enableXM ()
 {
-	return params.QA_USE_XM_LANE != ''
+	return params.QA_USE_XM_LANE != 'NONE'
 }
 
 def enableXA ()
 {
-	return params.QA_USE_XA_LANE != ''
+	return params.QA_USE_XA_LANE != 'NONE'
 }
 
 def build (String targets)
