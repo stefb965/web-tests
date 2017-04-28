@@ -70,7 +70,7 @@ def build (String targets)
 
 def buildAll ()
 {
-	def targets = new ArrayList<string> ()
+	def targets = [ ]
 	targets << "Foo"
 	echo "TEST!"
 	if (enableMono ()) {
@@ -87,8 +87,10 @@ def buildAll ()
 	if (enableXA ()) {
 		targets << "Android-Btls"
 	}
-	echo "TEST #1"
-	def targetList = targets.Join (':')
+	echo "TEST #2"
+	def builder = new StringBuilder ()
+	echo "TEST #3"
+	def targetList = targets.Join (":")
 	echo "TARGET LIST: $targetList"
 	build ($targetList)
 }
