@@ -100,7 +100,7 @@ node ('jenkins-mac-1') {
 	timestamps {
 		stage ('checkout') {
 			dir ('web-tests') {
-				git url: 'git@github.com:xamarin/web-tests.git' branch: 'jenkins-pipeline'
+				git url: 'git@github.com:xamarin/web-tests.git', branch: 'jenkins-pipeline'
 				sh 'git clean -xffd'
 			}
 			dir ('QA') {
