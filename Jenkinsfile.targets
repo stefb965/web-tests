@@ -35,10 +35,13 @@
 		<AndroidPackageName>com.xamarin.webtests.android</AndroidPackageName>
 		<MainAssembly>Xamarin.WebTests.Android</MainAssembly>
 	</PropertyGroup>
-	<Target Name="NuGetRestore">
+	<Target Name="_ValidateJenkinsTarget">
+		<Error Condition="'$(SolutionFile)' == ''" Text="Invalid jenkins configuration '$(JenkinsTarget)'" />
+	</Target>
+	<Target Name="NuGetRestore" DependsOnTargets="_ValidateJenkinsTarget">
 		<Exec Command="nuget restore $(SolutionFile)" />
 	</Target>
-	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="NuGetRestore">
+	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="_ValidateJenkinsTarget; NuGetRestore">
 		<MSBuild Projects="$(SolutionFile)" Targets="Build; JenkinsBuild" Properties="Configuration=$(ProjectConfiguration)">
 			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs" />
 		</MSBuild>
