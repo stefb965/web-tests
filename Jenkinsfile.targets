@@ -42,7 +42,12 @@
 		<Exec Command="nuget restore $(SolutionFile)" />
 	</Target>
 	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="_ValidateJenkinsTarget; NuGetRestore">
-		<MSBuild Projects="$(SolutionFile)" Targets="Build; JenkinsBuild" Properties="Configuration=$(ProjectConfiguration)">
+		<PropertyGroup Condition="'$(AndroidProjectFile)' != ''">
+			<IsAndroid>true</IsAndroid>
+			<JenkinsBuildTargets>JenkinsBuild</JenkinsBuildTargets>
+		</PropertyGroup>
+		
+		<MSBuild Projects="$(SolutionFile)" Targets="Build; $(JenkinsBuildTargets)" Properties="Configuration=$(ProjectConfiguration)">
 			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs" />
 		</MSBuild>
 
@@ -51,16 +56,16 @@
 		<MSBuild Projects="$(AndroidProjectFile)"
 				Targets="JenkinsGetApkFile"
 				Properties="Configuration=$(ProjectConfiguration);AndroidPackageName=$(AndroidPackageName)"
-				Condition="'$(AndroidProjectFile)' != ''" >
+				Condition="'$(IsAndroid)' == 'true'" >
 			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs2" />
 		</MSBuild>
 
 		<Message Text="CHILD OUTPUTS 2: %(_ChildOutputs2.Identity)" />
 
-		<ItemGroup Condition="'$(AndroidProjectFile)' == ''">
+		<ItemGroup Condition="'$(IsAndroid)' != 'true'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(AndroidProjectFile)' != ''">
+		<ItemGroup Condition="'$(IsAndroid)' == 'true'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
 		</ItemGroup>
 		<ItemGroup>
