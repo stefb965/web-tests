@@ -104,8 +104,8 @@ def runTests (String category)
 {
 	def outputDir = pwd() + "/out/" + category
 	sh "mkdir -p $outputDir"
-	def resultOutput = "$outputDir/TestResult-Console-$category.xml"
-	def junitResultOutput = "$outputDir/JUnitTestResult-$category.xml"
+	def resultOutput = "$outputDir/TestResult-Console-${category}.xml"
+	def junitResultOutput = "$outputDir/JUnitTestResult-${category}.xml"
 	echo "TEST: $resultOutput"
 	run ("Debug", "Martin", resultOutput, junitResultOutput)
 	junit keepLongStdio: true, testResults: "out/$category/*.xml"
