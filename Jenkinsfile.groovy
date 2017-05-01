@@ -169,18 +169,18 @@ node ('jenkins-mac-1') {
 			stage ('console-appletls-all') {
 				runTests ('Console-AppleTls', 'All')
 			}
-//		stage ('console-legacy-martin') {
-//			runTests ('Console-Legacy', 'Martin')
-//		}
-//		stage ('console-legacy-work') {
-//			runTests ('Console-Legacy', 'Work')
-//		}
-//		stage ('console-legacy-new') {
-//			runTests ('Console-Legacy', 'New')
-//		}
-//		stage ('console-legacy-all') {
-//			runTests ('Console-Legacy', 'All')
-//		}
+			stage ('console-legacy-martin') {
+				runTests ('Console-Legacy', 'Martin')
+			}
+			stage ('console-legacy-work') {
+				runTests ('Console-Legacy', 'Work')
+			}
+			stage ('console-legacy-new') {
+				runTests ('Console-Legacy', 'New')
+			}
+			stage ('console-legacy-all') {
+				runTests ('Console-Legacy', 'All')
+			}
 		}
 		if (enableXI ()) {
 			stage ('ios-martin') {
@@ -196,21 +196,19 @@ node ('jenkins-mac-1') {
 				runTests ('IOS', 'All')
 			}
 		}
-
-//		stage ('Loop') {
-//			def test = ['Foo','Bar','Monkey']
-//			for (int i = 0; i < test.size(); i++) {
-//				def name = 'test ' + i
-//				stage (name) {
-//					echo 'Hello: ' + i + ' ' + test[i]
-//				}
-//			}
-//		}
-//		stage ('result') {
-//			dir ('web-tests') {
-//				junit keepLongStdio: true, testResults: "out/**/*.xml"
-//				archiveArtifacts artifacts: "out/**/*.xml", fingerprint: true
-//			}
-//		}
+		if (enableXM ()) {
+			stage ('mac-martin') {
+				runTests ('Mac', 'Martin')
+			}
+			stage ('mac-work') {
+				runTests ('Mac', 'Work')
+			}
+			stage ('mac-new') {
+				runTests ('Mac', 'New')
+			}
+			stage ('mac-all') {
+				runTests ('Mac', 'All')
+			}
+		}
 	}
 }
