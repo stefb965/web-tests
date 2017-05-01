@@ -50,6 +50,10 @@ namespace Xamarin.AsyncTests.Mobile {
 			get;
 		}
 
+		public string PackageName {
+			get;
+		}
+
 		public MobileTestOptions (string options)
 		{
 			Settings = SettingsBag.CreateDefault ();
@@ -66,7 +70,8 @@ namespace Xamarin.AsyncTests.Mobile {
 			int? logLevel = null;
 			bool debugMode = false;
 			string category = null;
-			string features = null;;
+			string features = null;
+			string packageName = null;
 			string customSettings = null;
 
 			var p = new NDesk.Options.OptionSet ();
@@ -74,10 +79,12 @@ namespace Xamarin.AsyncTests.Mobile {
 			p.Add ("log-level=", v => logLevel = int.Parse (v));
 			p.Add ("category=", v => category = v);
 			p.Add ("features=", v => features = v);
+			p.Add ("package-name=", v => packageName = v);
 			p.Add ("set=", v => customSettings = v);
 
 			Category = category;
 			Features = features;
+			PackageName = packageName;
 
 			var optArray = options.Split (new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
 			var args = p.Parse (optArray);

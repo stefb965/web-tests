@@ -243,6 +243,8 @@ namespace Xamarin.AsyncTests.Console
 			if (!string.IsNullOrWhiteSpace (DeviceName))
 				args.AppendFormat (" --devname={0}", DeviceName);
 			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			if (!string.IsNullOrWhiteSpace (Program.PackageName))
+				args.AppendFormat (" --package-name={0}", Program.PackageName);
 
 			if (DeviceName != null)
 				args.AppendFormat (" --device={0}", DeviceName);
