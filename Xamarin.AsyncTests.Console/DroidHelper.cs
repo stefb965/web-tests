@@ -213,6 +213,12 @@ namespace Xamarin.AsyncTests.Console
 			return true;
 		}
 
+		internal async Task<bool> ClearLogCat (string apk, CancellationToken cancellationToken)
+		{
+			await RunCommand (Adb, "logcat -c", cancellationToken).ConfigureAwait (false);
+			return true;
+		}
+
 		Task RunCommand (string command, string args, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<object> ();

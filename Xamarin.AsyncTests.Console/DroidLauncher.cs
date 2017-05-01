@@ -114,11 +114,7 @@ namespace Xamarin.AsyncTests.Console
 			psi.UseShellExecute = false;
 			// psi.RedirectStandardInput = true;
 
-			var process = Process.Start (psi);
-
-			Program.Debug ("Started: {0}", process);
-
-			return process;
+			return Process.Start (psi);
 		}
 
 		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
@@ -134,9 +130,13 @@ namespace Xamarin.AsyncTests.Console
 			return true;
 		}
 
-		public override void LaunchApplication (string args)
+		public override Task LaunchApplication (string args, CancellationToken cancellationToken)
 		{
-			process = Launch (args);
+			return Task.Run (() => {
+				process = Launch (args);
+
+				Program.Debug ("Started: {0}", process);
+			});
 		}
 
 		public override Task<bool> WaitForExit ()

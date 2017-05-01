@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests.Remoting
 		public static async Task<TestServer> LaunchApplication (TestApp app, IPortableEndPoint address, ApplicationLauncher launcher, LauncherOptions options, CancellationToken cancellationToken)
 		{
 			var support = DependencyInjector.Get<IServerHost> ();
-			var connection = await support.Listen (address, cancellationToken);
+			var connection = await support.Listen (address, cancellationToken).ConfigureAwait (false);
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var sb = new StringBuilder ();
@@ -98,7 +98,7 @@ namespace Xamarin.AsyncTests.Remoting
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
 				sb.AppendFormat (" --package-name={0}", app.PackageName);
 
-			launcher.LaunchApplication (sb.ToString ());
+			await launcher.LaunchApplication (sb.ToString (), cancellationToken);
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.CancelAfter (90000);

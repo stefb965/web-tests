@@ -91,9 +91,11 @@ namespace Xamarin.AsyncTests.Console
 			return process;
 		}
 
-		public override void LaunchApplication (string args)
+		public override Task LaunchApplication (string args, CancellationToken cancellationToken)
 		{
-			process = Launch (args);
+			return Task.Run (() => {
+				process = Launch (args);
+			});
 		}
 
 		public override Task<bool> WaitForExit ()
