@@ -6,7 +6,7 @@ properties([
 		choice (name: 'QA_USE_XM_LANE', choices: 'NONE\nmacios-mac-d15-2\nmacios-mac-master', description: 'XM lane'),
 		choice (name: 'QA_USE_XA_LANE', choices: 'NONE\nmonodroid-mavericks-master', description: 'XA lane'),
 		choice (name: 'IOS_DEVICE_TYPE', choices: 'iPhone-5s', description: ''),
-		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0', description: '')
+		choice (name: 'IOS_RUNTIME', choices: 'iOS-10-0\niOS-10-3', description: '')
 	])
 ])
 
@@ -98,7 +98,9 @@ def buildAll ()
 
 def run (String target, String testCategory, String resultOutput, String junitResultOutput)
 {
-	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+	iosParams = "IosRuntime=$IOS_RUNTIME,IosDeviceType=$IOS_DEVICE_TYPE"
+	resultParams = "ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams"
 }
 
 def runTests (String target, String category)
@@ -138,30 +140,31 @@ node ('jenkins-mac-1') {
 		stage ('build') {
 			buildAll ()
 		}
-		stage ('console-martin') {
-			runTests ('Console', 'Martin')
-		}
-		stage ('console-work') {
-			runTests ('Console', 'Work')
-		}
-		stage ('console-new') {
-			runTests ('Console', 'New')
-		}
-		stage ('console-all') {
-			runTests ('Console', 'All')
-		}
-		stage ('console-appletls-martin') {
-			runTests ('Console-AppleTls', 'Martin')
-		}
-		stage ('console-appletls-work') {
-			runTests ('Console-AppleTls', 'Work')
-		}
-		stage ('console-appletls-new') {
-			runTests ('Console-AppleTls', 'New')
-		}
-		stage ('console-appletls-all') {
-			runTests ('Console-AppleTls', 'All')
-		}
+		if (enableMono ()) {
+			stage ('console-martin') {
+				runTests ('Console', 'Martin')
+			}
+			stage ('console-work') {
+				runTests ('Console', 'Work')
+			}
+			stage ('console-new') {
+				runTests ('Console', 'New')
+			}
+			stage ('console-all') {
+				runTests ('Console', 'All')
+			}
+			stage ('console-appletls-martin') {
+				runTests ('Console-AppleTls', 'Martin')
+			}
+			stage ('console-appletls-work') {
+				runTests ('Console-AppleTls', 'Work')
+			}
+			stage ('console-appletls-new') {
+				runTests ('Console-AppleTls', 'New')
+			}
+			stage ('console-appletls-all') {
+				runTests ('Console-AppleTls', 'All')
+			}
 //		stage ('console-legacy-martin') {
 //			runTests ('Console-Legacy', 'Martin')
 //		}
@@ -174,8 +177,20 @@ node ('jenkins-mac-1') {
 //		stage ('console-legacy-all') {
 //			runTests ('Console-Legacy', 'All')
 //		}
-		stage ('ios-martin') {
-			runTests ('IOS', 'Martin')
+		}
+		if (enableXI ()) {
+			stage ('ios-martin') {
+				runTests ('IOS', 'Martin')
+			}
+			stage ('ios-work') {
+				runTests ('IOS', 'Work')
+			}
+			stage ('ios-new') {
+				runTests ('IOS', 'New')
+			}
+			stage ('ios-all') {
+				runTests ('IOS', 'All')
+			}
 		}
 
 //		stage ('Loop') {
