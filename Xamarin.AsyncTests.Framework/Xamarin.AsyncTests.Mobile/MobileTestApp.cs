@@ -54,6 +54,10 @@ namespace Xamarin.AsyncTests.Mobile
 			get;
 		}
 
+		public string PackageName {
+			get { return Options.PackageName; }
+		}
+
 		public SettingsBag Settings {
 			get { return Options.Settings; }
 		}

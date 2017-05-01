@@ -162,7 +162,6 @@ namespace Xamarin.AsyncTests.Console
 		string features;
 		string stdout;
 		string stderr;
-		string device;
 		string sdkroot;
 
 		public static void Run (Assembly assembly, string[] args)
@@ -245,7 +244,6 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("ios-runtime=", v => IOSRuntime = v);
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("stderr=", v => stderr = v);
-			p.Add ("device=", v => device = v);
 			p.Add ("sdkroot=", v => sdkroot = v);
 			p.Add ("wrench", v => Wrench = true);
 			p.Add ("jenkins", v => Jenkins = true);
@@ -309,7 +307,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.TVOS:
 				if (arguments.Count < 1)
 					throw new InvalidOperationException ("Expected .app argument");
-				Launcher = new TouchLauncher (this, arguments [0], command, sdkroot, stdout, stderr, device, extraLauncherArgs);
+				Launcher = new TouchLauncher (this, arguments [0], command, sdkroot, stdout, stderr, extraLauncherArgs);
 				arguments.RemoveAt (0);
 
 				if (EndPoint == null)

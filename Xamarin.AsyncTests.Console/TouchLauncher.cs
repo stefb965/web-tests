@@ -46,72 +46,50 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
 		public string SdkRoot {
 			get;
-			private set;
 		}
 
 		public string MonoTouchRoot {
 			get;
-			private set;
 		}
 
 		public string MTouch {
 			get;
-			private set;
-		}
-
-		public string MLaunch {
-			get;
-			private set;
 		}
 
 		public string Application {
 			get;
-			private set;
 		}
 
 		public Command Command {
 			get;
-			private set;
 		}
 
 		public string RedirectStdout {
 			get;
-			private set;
 		}
 
 		public string RedirectStderr {
 			get;
-			private set;
 		}
 
 		public string DeviceName {
 			get;
-			private set;
 		}
 
 		public string ExtraMTouchArguments {
 			get;
-			private set;
 		}
 
 		public string DeviceType {
 			get;
-			private set;
 		}
 
 		public string Runtime {
 			get;
-			private set;
-		}
-
-		public bool UseMLaunch {
-			get;
-			private set;
 		}
 
 		Process process;
@@ -125,14 +103,13 @@ namespace Xamarin.AsyncTests.Console
 			return value;
 		}
 
-		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string devname, string extraArgs)
+		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string extraArgs)
 		{
 			Program = program;
 			Application = app;
 			Command = command;
 			RedirectStdout = stdout;
 			RedirectStderr = stderr;
-			DeviceName = devname;
 			ExtraMTouchArguments = extraArgs;
 			SdkRoot = sdkroot;
 
@@ -158,17 +135,7 @@ namespace Xamarin.AsyncTests.Console
 				throw new NotSupportedException ();
 			}
 
-			if (UseMLaunch) {
-				var mlaunchPath = "/Applications/Xamarin Studio.app/Contents/Resources/lib/monodevelop/AddIns/MonoDevelop.IPhone/mlaunch.app/Contents/MacOS/mlaunch";
-				if (File.Exists (mlaunchPath))
-					MLaunch = mlaunchPath;
-				else {
-					MLaunch = null;
-					UseMLaunch = false;
-				}
-			} else if (DeviceName == null) {
-				DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
-			}
+			DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
 		}
 
 		void Install ()
@@ -183,38 +150,33 @@ namespace Xamarin.AsyncTests.Console
 				break;
 			case Command.TVOS:
 				args.AppendFormat (" --installsim={0}", Application);
-				// args.AppendFormat (" --device=:v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
 				break;
 			default:
 				throw new NotSupportedException ();
 			}
 
 			args.AppendFormat (" --sdkroot={0}", SdkRoot);
-
-			if (DeviceName != null)
-				args.AppendFormat ("  --device={0}", DeviceName);
+			args.AppendFormat ("  --device={0}", DeviceName);
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
 				args.Append (ExtraMTouchArguments);
 			}
 
-			var tool = UseMLaunch ? MLaunch : MTouch;
+			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
 
-			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
-
-			var psi = new ProcessStartInfo (tool, args.ToString ());
+			var psi = new ProcessStartInfo (MTouch, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 
-			var process = Process.Start (psi);
+			var installProcess = Process.Start (psi);
 
-			Program.Debug ("Started: {0}", process);
+			Program.Debug ("Started: {0}", installProcess);
 
-			process.WaitForExit ();
+			installProcess.WaitForExit ();
 
-			Program.Debug ("Process finished: {0}", process.ExitCode);
-			if (process.ExitCode != 0)
+			Program.Debug ("Process finished: {0}", installProcess.ExitCode);
+			if (installProcess.ExitCode != 0)
 				throw new NotSupportedException ();
 		}
 
@@ -243,36 +205,27 @@ namespace Xamarin.AsyncTests.Console
 			if (!string.IsNullOrWhiteSpace (DeviceName))
 				args.AppendFormat (" --devname={0}", DeviceName);
 			args.AppendFormat (" --sdkroot={0}", SdkRoot);
-			if (!string.IsNullOrWhiteSpace (Program.PackageName))
-				args.AppendFormat (" --package-name={0}", Program.PackageName);
-
-			if (DeviceName != null)
-				args.AppendFormat (" --device={0}", DeviceName);
+			args.AppendFormat (" --device={0}", DeviceName);
 
 			if (ExtraMTouchArguments != null) {
 				args.Append (" ");
 				args.Append (ExtraMTouchArguments);
 			}
 
-			var tool = UseMLaunch ? MLaunch : MTouch;
+			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
 
-			Program.Debug ("Launching mtouch: {0} {1}", tool, args);
-
-			var psi = new ProcessStartInfo (tool, args.ToString ());
+			var psi = new ProcessStartInfo (MTouch, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 
-			var process = Process.Start (psi);
-
-			Program.Debug ("Started: {0}", process);
-
-			return process;
+			return Process.Start (psi);
 		}
 
 		public override void LaunchApplication (string args)
 		{
-			// Install ();
 			process = Launch (args);
+
+			Program.Debug ("Started: {0}", process);
 		}
 
 		public override Task<bool> WaitForExit ()

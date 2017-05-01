@@ -95,6 +95,9 @@ namespace Xamarin.AsyncTests.Remoting
 					sb.AppendFormat (" --features={0}", options.Features);
 			}
 
+			if (!string.IsNullOrWhiteSpace (app.PackageName))
+				sb.AppendFormat (" --package-name={0}", app.PackageName);
+
 			launcher.LaunchApplication (sb.ToString ());
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
