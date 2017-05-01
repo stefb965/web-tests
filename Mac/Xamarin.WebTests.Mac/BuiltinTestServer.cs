@@ -37,8 +37,8 @@ namespace Xamarin.WebTests.MacUI
 	{
 		public Task<TestServer> Start (CancellationToken cancellationToken)
 		{
-			var framework = TestFramework.GetLocalFramework (typeof(BuiltinTestServer).Assembly);
 			var app = AppDelegate.Instance.MacUI;
+			var framework = TestFramework.GetLocalFramework (app.PackageName, typeof(BuiltinTestServer).Assembly);
 			return TestServer.StartLocal (app, framework, cancellationToken);
 		}
 	}

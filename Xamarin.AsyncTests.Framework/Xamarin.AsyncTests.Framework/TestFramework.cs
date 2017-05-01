@@ -35,12 +35,6 @@ namespace Xamarin.AsyncTests.Framework
 
 	public abstract class TestFramework
 	{
-		[Obsolete ("KILL")]
-		public static TestFramework GetLocalFramework (Assembly assembly, params Assembly[] dependencies)
-		{
-			return new ReflectionTestFramework (null, assembly, dependencies);
-		}
-
 		public static TestFramework GetLocalFramework (string name, Assembly assembly, params Assembly[] dependencies)
 		{
 			return new ReflectionTestFramework (name, assembly, dependencies);

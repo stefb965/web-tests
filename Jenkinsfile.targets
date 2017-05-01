@@ -104,6 +104,9 @@
 	</Target>
 
 	<Target Name="MultiBuild">
+		<PropertyGroup Condition="'$(JenkinsTargets)' == 'all' OR '$(JenkinsTargets)' == ''">
+			<JenkinsTargets>Console:Console-AppleTls:Console-Legacy:DotNet:Mac:IOS:Android-Btls</JenkinsTargets>
+		</PropertyGroup>
 		<ItemGroup>
 			<JenkinsTargets Include="$(JenkinsTargets.Split(':'))" />
 		</ItemGroup>
