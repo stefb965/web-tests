@@ -140,7 +140,7 @@
 			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
 			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
 		</PropertyGroup>
-		<Exec Command="$(MainAssemblyOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments)" />
+		<Exec Command="$(AsyncTestsConsoleOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments) mac $(MainAssemblyOutput)" />
 	</Target>
 
 </Project>
