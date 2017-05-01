@@ -112,7 +112,9 @@ def runTests (String target, String category)
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
 		try {
-			run (target, category, resultOutput, junitResultOutput)
+			timeout (10) {
+				run (target, category, resultOutput, junitResultOutput)
+			}
 		} catch (error) {
 			echo "RUN FAILED: $error"
 		} finally {
