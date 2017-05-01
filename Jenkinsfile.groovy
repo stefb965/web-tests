@@ -61,10 +61,10 @@ def enableXA ()
 	return params.QA_USE_XA_LANE != 'NONE'
 }
 
-def build (String target)
+def build (String targets)
 {
 	dir ('web-tests') {
-		sh "msbuild Jenkinsfile.targets /p:JenkinsTarget=$target"
+		sh "msbuild Jenkinsfile.targets /t:MultiBuild /p:JenkinsTargets=$targets"
 	}
 }
 
