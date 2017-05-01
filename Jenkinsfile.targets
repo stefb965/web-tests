@@ -69,17 +69,17 @@
 
 		<Message Text="CHILD OUTPUTS 2: %(_ChildOutputs2.Identity)" />
 
-		<ItemGroup Condition="'$(JenkinsTarget)' == 'Console'">
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Console'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(JenkinsTarget)' == 'IOS'">
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'IOS'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(JenkinsTarget)' == 'Mac'">
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Mac'">
 			<_ChildOutputs3 Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 			<_MainAssemblyOutput Include="@(_ChildOutputs3->'%(RootDir)%(Directory)%(filename).app')" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(JenkinsTarget)' == 'Android'">
+		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Android'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
 		</ItemGroup>
 		<ItemGroup>
