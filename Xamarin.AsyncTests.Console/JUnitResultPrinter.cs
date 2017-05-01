@@ -40,10 +40,6 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string PackageName {
-			get;
-		}
-
 		public bool ShowIgnored {
 			get { return showIgnored ?? true; }
 			set { showIgnored = value; }
@@ -51,20 +47,18 @@ namespace Xamarin.AsyncTests.Console
 
 		bool? showIgnored;
 
-		JUnitResultPrinter (TestResult result, string packageName)
+		JUnitResultPrinter (TestResult result)
 		{
 			Result = result;
-			PackageName = packageName;
 		}
 
-		public static void Print (TestResult result, string output, string packageName)
+		public static void Print (TestResult result, string output)
 		{
 			var settings = new XmlWriterSettings {
 				Indent = true
 			};
 			using (var writer = XmlWriter.Create (output, settings)) {
-				Debug ("PRINT: {0}", packageName); 
-				var printer = new JUnitResultPrinter (result, packageName);
+				var printer = new JUnitResultPrinter (result);
 				var root = new RootElement (printer, result);
 				root.Visit ();
 				root.Node.WriteTo (writer);
@@ -222,12 +216,7 @@ namespace Xamarin.AsyncTests.Console
 
 			protected override void Write ()
 			{
-				if (Printer.PackageName != null) {
-					Node.SetAttributeValue ("package", Printer.PackageName);
-					Node.SetAttributeValue ("name", Printer.PackageName + "." + Name);
-				} else {
-					Node.SetAttributeValue ("name", Name);
-				}
+				Node.SetAttributeValue ("name", Name);
 
 				Node.SetAttributeValue ("timestamp", TimeStamp.ToString ("yyyy-MM-dd'T'HH:mm:ss"));
 				Node.SetAttributeValue ("hostname", "localhost");

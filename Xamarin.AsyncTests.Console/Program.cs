@@ -848,7 +848,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (result, JUnitResultOutput, PackageName);
+				JUnitResultPrinter.Print (result, JUnitResultOutput);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
@@ -869,7 +869,7 @@ namespace Xamarin.AsyncTests.Console
 			var ret = printer.Print ();
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput, PackageName);
+				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
