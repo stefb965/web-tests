@@ -7,26 +7,31 @@
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-AppleTls'">
 		<ProjectConfiguration>DebugAppleTls</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Console-Legacy'">
 		<ProjectConfiguration>DebugLegacy</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Console.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
 	</PropertyGroup>
-	<PropertyGroup Condition="'$(JenkinsTarget)' == 'IOS-Debug'">
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'IOS'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.iOS.sln</SolutionFile>
 		<MainAssembly>XamarinWebTestsIOS</MainAssembly>
+		<JenkinsPlatform>IOS</JenkinsPlatform>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Mac'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Mac.sln</SolutionFile>
 		<MainAssembly>Xamarin.WebTests.Mac.app</MainAssembly>
+		<JenkinsPlatform>Mac</JenkinsPlatform>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Android-Btls'">
 		<ProjectConfiguration>DebugBtls</ProjectConfiguration>
@@ -34,6 +39,7 @@
 		<AndroidProjectFile>Android/Xamarin.WebTests.Android/Xamarin.WebTests.Android.csproj</AndroidProjectFile>
 		<AndroidPackageName>com.xamarin.webtests.android</AndroidPackageName>
 		<MainAssembly>Xamarin.WebTests.Android</MainAssembly>
+		<JenkinsPlatform>Android</JenkinsPlatform>
 	</PropertyGroup>
 
 	<Target Name="_ValidateJenkinsTarget">
@@ -99,6 +105,25 @@
 	</Target>
 
 	<Target Name="RunConsole" DependsOnTargets="Build">
+		<Message Importance="High" Text="Running $(JenkinsTarget) $(JenkinsPlatform) $(TestCategory)" />
+
+		<Error Condition="'$(JenkinsPlatform)' != 'Console'" Text="Wrong platform '$(JenkinsPlatform)'." />
+		
+		<PropertyGroup>
+			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
+			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
+			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
+			<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
+			<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
+			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
+			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
+		</PropertyGroup>
+		<Exec Command="$(MainAssemblyOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments)" />
+	</Target>
+	
+	<Target Name="RunMac" DependsOnTargets="Build">
+		<Error Condition="'$(JenkinsPlatform)' != 'Mac'" Text="Wrong platform '$(JenkinsPlatform)'." />
+
 		<Message Importance="High" Text="Running $(JenkinsTarget) $(TestCategory)" />
 		<PropertyGroup>
 			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
@@ -110,7 +135,6 @@
 			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
 		</PropertyGroup>
 		<Exec Command="$(MainAssemblyOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments)" />
-
 	</Target>
 
 </Project>
