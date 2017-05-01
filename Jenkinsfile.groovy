@@ -61,10 +61,10 @@ def enableXA ()
 	return params.QA_USE_XA_LANE != 'NONE'
 }
 
-def build (String configuration)
+def build (String target)
 {
 	dir ('web-tests') {
-		sh "msbuild Jenkinsfile.targets /p:Configuration=$configuration"
+		sh "msbuild Jenkinsfile.targets /p:JenkinsTarget=$target"
 	}
 }
 
@@ -97,21 +97,21 @@ def buildAll ()
 	build (targetList)
 }
 
-def run (String configuration, String testCategory, String resultOutput, String junitResultOutput)
+def run (String target, String testCategory, String resultOutput, String junitResultOutput)
 {
-	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:Configuration=$configuration,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:JenkinsTarget=$target,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
 }
 
-def runTests (String configuration, String category)
+def runTests (String target, String category)
 {
 	dir ('web-tests') {
-		def outputDir = "out/" + configuration + "/" + category
+		def outputDir = "out/" + target + "/" + category
 		def outputDirAbs = pwd() + "/" + outputDir
 		sh "mkdir -p $outputDirAbs"
-		def resultOutput = "$outputDirAbs/TestResult-${configuration}-${category}.xml"
-		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${configuration}-${category}.xml"
+		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
+		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
 		echo "TEST: $resultOutput"
-		run (configuration, category, resultOutput, junitResultOutput)
+		run (target, category, resultOutput, junitResultOutput)
 		junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 		archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
 	}
