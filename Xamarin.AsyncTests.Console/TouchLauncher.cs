@@ -92,8 +92,7 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		Process process;
-		TaskCompletionSource<bool> tcs;
+		ProcessHelper process;
 
 		static string GetEnvironmentVariable (string name, string defaultValue)
 		{
@@ -180,7 +179,7 @@ namespace Xamarin.AsyncTests.Console
 				throw new NotSupportedException ();
 		}
 
-		Process Launch (string launchArgs)
+		Task<ProcessHelper> Launch (string launchArgs, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
 			switch (Command) {
@@ -214,45 +213,25 @@ namespace Xamarin.AsyncTests.Console
 
 			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
 
-			var psi = new ProcessStartInfo (MTouch, args.ToString ());
-			psi.UseShellExecute = false;
-			psi.RedirectStandardInput = true;
-
-			return Process.Start (psi);
+			return ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken);
 		}
 
-		public override Task LaunchApplication (string args, CancellationToken cancellationToken)
+		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				process = Launch (args);
+			process = await Launch (args, cancellationToken).ConfigureAwait (false);
 
-				Program.Debug ("Started: {0}", process);
-			});
+			Program.Debug ("Started: {0}", process.CommandLine);
 		}
 
-		public override Task<bool> WaitForExit ()
+		public override Task WaitForExit (CancellationToken cancellationToken)
 		{
-			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null);
-			if (oldTcs != null)
-				return oldTcs.Task;
-
-			ThreadPool.QueueUserWorkItem (_ => {
-				try {
-					process.WaitForExit ();
-					tcs.TrySetResult (process.ExitCode == 0);
-				} catch (Exception ex) {
-					tcs.TrySetException (ex);
-				}
-			});
-
-			return tcs.Task;
+			return process.WaitForExit (cancellationToken);
 		}
 
 		public override void StopApplication ()
 		{
 			try {
-				if (!process.HasExited)
-					process.Kill ();
+				process.Dispose ();
 			} catch {
 				;
 			}

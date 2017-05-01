@@ -64,8 +64,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		Process process;
-		TaskCompletionSource<bool> tcs;
+		ProcessHelper process;
 
 		public MacLauncher (Program program, string app, string stdout, string stderr)
 		{
@@ -75,7 +74,7 @@ namespace Xamarin.AsyncTests.Console
 			RedirectStderr = stderr;
 		}
 
-		Process Launch (string launchArgs)
+		Task<ProcessHelper> Launch (string launchArgs, CancellationToken cancellationToken)
 		{
 			Program.Debug ("Launching app: {0}", Application);
 
@@ -84,43 +83,26 @@ namespace Xamarin.AsyncTests.Console
 			psi.RedirectStandardInput = true;
 			psi.Arguments = "-F -W -n " + Application;
 			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", launchArgs);
-			var process = Process.Start (psi);
 
-			Program.Debug ("Started: {0}", process);
-
-			return process;
+			return ProcessHelper.RunCommand (psi, cancellationToken);
 		}
 
-		public override Task LaunchApplication (string args, CancellationToken cancellationToken)
+		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
 		{
-			return Task.Run (() => {
-				process = Launch (args);
-			});
+			process = await Launch (args, cancellationToken).ConfigureAwait (false);
+
+			Program.Debug ("Started: {0}", process.CommandLine);
 		}
 
-		public override Task<bool> WaitForExit ()
+		public override Task WaitForExit (CancellationToken cancellationToken)
 		{
-			var oldTcs = Interlocked.CompareExchange (ref tcs, new TaskCompletionSource<bool> (), null);
-			if (oldTcs != null)
-				return oldTcs.Task;
-
-			ThreadPool.QueueUserWorkItem (_ => {
-				try {
-					process.WaitForExit ();
-					tcs.TrySetResult (process.ExitCode == 0);
-				} catch (Exception ex) {
-					tcs.TrySetException (ex);
-				}
-			});
-
-			return tcs.Task;
+			return process.WaitForExit (cancellationToken);
 		}
 
 		public override void StopApplication ()
 		{
 			try {
-				if (!process.HasExited)
-					process.Kill ();
+				process.Dispose ();
 			} catch {
 				;
 			}

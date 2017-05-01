@@ -34,21 +34,27 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace Xamarin.AsyncTests.Console {
-	static class ProcessHelper {
-		public static Task RunCommand (string command, string args, CancellationToken cancellationToken)
+	class ProcessHelper : IDisposable {
+		Process process;
+		string commandLine;
+		CancellationTokenSource cts;
+		TaskCompletionSource<object> tcs;
+
+		public string CommandLine {
+			get;
+		}
+
+		ProcessHelper (Process process, CancellationToken cancellationToken)
 		{
-			var tcs = new TaskCompletionSource<object> ();
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
+			this.process = process;
 
-			var tool = string.Join (" ", command, args);
-			var psi = new ProcessStartInfo (command, args);
-			psi.UseShellExecute = false;
-			psi.RedirectStandardInput = true;
+			commandLine = process.StartInfo.FileName;
+			if (!string.IsNullOrWhiteSpace (process.StartInfo.Arguments))
+				commandLine += " " + process.StartInfo.Arguments;
 
-			Program.Debug ("Running tool: {0}", tool);
+			tcs = new TaskCompletionSource<object> ();
 
-			var process = Process.Start (psi);
-
+			cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.Token.Register (() => {
 				try {
 					process.Kill ();
@@ -63,15 +69,50 @@ namespace Xamarin.AsyncTests.Console {
 					tcs.TrySetCanceled ();
 				} else if (process.ExitCode != 0) {
 					var message = string.Format ("External tool failed with exit code {0}.", process.ExitCode);
-					tcs.TrySetException (new ExternalToolException (tool, message));
+					tcs.TrySetException (new ExternalToolException (commandLine, message));
 				} else {
 					tcs.TrySetResult (null);
 				}
-
-				cts.Dispose ();
 			};
+		}
 
-			return tcs.Task;
+		public void Abort ()
+		{
+			cts.Cancel ();
+		}
+
+		public Task WaitForExit (CancellationToken cancellationToken)
+		{
+			using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
+				linkedCts.Token.Register (() => Abort ());
+				return tcs.Task;
+			}
+		}
+
+		public static Task<ProcessHelper> RunCommand (string command, string args, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			var tool = string.Join (" ", command, args);
+			var psi = new ProcessStartInfo (command, args);
+			psi.UseShellExecute = false;
+			psi.RedirectStandardInput = true;
+
+			Program.Debug ("Running tool: {0}", tool);
+
+			return RunCommand (psi, cancellationToken);
+		}
+
+		public static Task<ProcessHelper> RunCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			return Task.Run (() => {
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var process = Process.Start (psi);
+				return new ProcessHelper (process, cancellationToken);
+			});
 		}
 
 		public static Task<string> RunCommandWithOutput (string command, string args, CancellationToken cancellationToken)
@@ -120,6 +161,23 @@ namespace Xamarin.AsyncTests.Console {
 			});
 
 			return tcs.Task;
+		}
+
+		public void Dispose ()
+		{
+			if (process != null) {
+				try {
+					process.Kill ();
+				} catch {
+					;
+				}
+				process.Dispose ();
+				process = null;
+			}
+			if (cts != null) {
+				cts.Dispose ();
+				cts = null;
+			}
 		}
 	}
 }

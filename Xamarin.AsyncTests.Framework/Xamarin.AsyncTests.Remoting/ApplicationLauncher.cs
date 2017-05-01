@@ -35,7 +35,7 @@ namespace Xamarin.AsyncTests.Remoting
 	{
 		public abstract Task LaunchApplication (string args, CancellationToken cancellationToken);
 
-		public abstract Task<bool> WaitForExit ();
+		public abstract Task WaitForExit (CancellationToken cancellationToken);
 
 		public abstract void StopApplication ();
 	}

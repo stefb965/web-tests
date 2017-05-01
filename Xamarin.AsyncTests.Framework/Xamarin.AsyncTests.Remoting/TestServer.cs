@@ -104,8 +104,8 @@ namespace Xamarin.AsyncTests.Remoting
 			cts.CancelAfter (90000);
 
 			bool launcherError = false;
-			var launcherTask = launcher.WaitForExit ().ContinueWith (t => {
-				if (t.IsFaulted || t.IsCanceled || !t.Result) {
+			var launcherTask = launcher.WaitForExit (cts.Token).ContinueWith (t => {
+				if (t.IsFaulted || t.IsCanceled) {
 					launcherError = true;
 					cts.Cancel ();
 				}
