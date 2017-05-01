@@ -113,6 +113,8 @@ def runTests (String target, String category)
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
 		try {
 			run (target, category, resultOutput, junitResultOutput)
+		} catch (error) {
+			echo "RUN FAILED: $error"
 		} finally {
 			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 			archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
