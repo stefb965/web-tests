@@ -105,7 +105,7 @@ namespace Xamarin.AsyncTests.Console
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var output = await RunCommandWithOutput (AndroidTool, "list avd -c", cancellationToken);
+			var output = await ProcessHelper.RunCommandWithOutput (AndroidTool, "list avd -c", cancellationToken);
 			var avds = SplitOutputLines (output);
 
 			foreach (var avd in avds) {
@@ -129,7 +129,7 @@ namespace Xamarin.AsyncTests.Console
 			if (replace)
 				args.Append ("  --force");
 
-			return RunCommand (AndroidTool, args.ToString (), cancellationToken);
+			return ProcessHelper.RunCommand (AndroidTool, args.ToString (), cancellationToken);
 		}
 
 		public async Task<bool> CheckEmulator (CancellationToken cancellationToken)
@@ -148,7 +148,7 @@ namespace Xamarin.AsyncTests.Console
 		internal async Task<bool> CheckEmulatorRunning (CancellationToken cancellationToken)
 		{
 			Program.Debug ("Checking for running emulator");
-			var output = await RunCommandWithOutput (Adb, "devices", cancellationToken);
+			var output = await ProcessHelper.RunCommandWithOutput (Adb, "devices", cancellationToken);
 			var re = new Regex ("(emulator-\\d+)\\s+(device|offline)");
 			foreach (var line in SplitOutputLines (output)) {
 				// Program.Debug ("ADB DEVICES: {0}", line);
@@ -169,7 +169,7 @@ namespace Xamarin.AsyncTests.Console
 				var id = match.Groups [1].Value;
 
 				var getPropArgs = string.Format ("-s {0} shell getprop sys.boot_completed", id);
-				var getProp = await RunCommandWithOutput (Adb, getPropArgs, cancellationToken);
+				var getProp = await ProcessHelper.RunCommandWithOutput (Adb, getPropArgs, cancellationToken);
 				getProp = getProp.Trim ();
 
 				if (getProp.Equals ("1")) {
@@ -203,113 +203,21 @@ namespace Xamarin.AsyncTests.Console
 			var args = string.Format ("@{0} > {1} 2>&1 &", name, logfile);
 			var shellArgs = string.Format ("-c \"{0} {1}\"", EmulatorTool, args);
 
-			return RunCommand ("/bin/sh", shellArgs, cancellationToken);
+			return ProcessHelper.RunCommand ("/bin/sh", shellArgs, cancellationToken);
 		}
 
 		internal async Task<bool> InstallApk (string apk, CancellationToken cancellationToken)
 		{
 			var args = string.Format ("install -r -d {0}", apk);
-			await RunCommand (Adb, args, cancellationToken).ConfigureAwait (false);
+			await ProcessHelper.RunCommand (Adb, args, cancellationToken).ConfigureAwait (false);
 			return true;
 		}
 
 		internal async Task<bool> ClearLogCat (string apk, CancellationToken cancellationToken)
 		{
-			await RunCommand (Adb, "logcat -c", cancellationToken).ConfigureAwait (false);
+			await ProcessHelper.RunCommand (Adb, "logcat -c", cancellationToken).ConfigureAwait (false);
 			return true;
 		}
-
-		Task RunCommand (string command, string args, CancellationToken cancellationToken)
-		{
-			var tcs = new TaskCompletionSource<object> ();
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-
-			Task.Run (() => {
-				var tool = string.Join (" ", command, args);
-				try {
-					var psi = new ProcessStartInfo (command, args);
-					psi.UseShellExecute = false;
-					psi.RedirectStandardInput = true;
-
-					Program.Debug ("Running tool: {0}", tool);
-
-					var process = Process.Start (psi);
-
-					cts.Token.Register (() => {
-						try {
-							process.Kill ();
-						} catch {
-							;
-						}
-					});
-
-					process.WaitForExit ();
-
-					if (process.ExitCode != 0) {
-						var message = string.Format ("External tool failed with exit code {0}.", process.ExitCode);
-						tcs.TrySetException (new ExternalToolException (tool, message));
-					} else {
-						tcs.TrySetResult (null);
-					}
-				} catch (Exception ex) {
-					tcs.TrySetException (new ExternalToolException (tool, ex));
-				} finally {
-					cts.Dispose ();
-				}
-			});
-
-			return tcs.Task;
-		}
-
-		Task<string> RunCommandWithOutput (string command, string args, CancellationToken cancellationToken)
-		{
-			var tcs = new TaskCompletionSource<string> ();
-			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
-
-			Task.Run (() => {
-				var tool = string.Join (" ", command, args);
-				try {
-					var psi = new ProcessStartInfo (command, args);
-					psi.UseShellExecute = false;
-					psi.RedirectStandardInput = true;
-					psi.RedirectStandardOutput = true;
-					psi.RedirectStandardError = true;
-
-					Program.Debug ("Running tool: {0}", tool);
-
-					var process = Process.Start (psi);
-
-					cts.Token.Register (() => {
-						try {
-							process.Kill ();
-						} catch {
-							;
-						}
-					});
-
-					var stdoutTask = process.StandardOutput.ReadToEndAsync ();
-					var stderrTask = process.StandardError.ReadToEndAsync ();
-
-					process.WaitForExit ();
-
-					var stdout = stdoutTask.Result;
-					var stderr = stderrTask.Result;
-
-					if (process.ExitCode != 0)
-						tcs.TrySetException (new ExternalToolException (tool, stderr));
-					else
-						tcs.TrySetResult (stdout);
-				} catch (Exception ex) {
-					tcs.TrySetException (new ExternalToolException (tool, ex));
-				} finally {
-					cts.Dispose ();
-				}
-			});
-
-			return tcs.Task;
-		}
-
-
 	}
 }
 

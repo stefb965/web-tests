@@ -417,12 +417,12 @@ namespace Xamarin.AsyncTests.Console
 			global::System.Console.WriteLine (message, args);
 		}
 
-		internal void Debug (string message)
+		internal static void Debug (string message)
 		{
 			SD.Debug.WriteLine (message);
 		}
 
-		internal void Debug (string message, params object[] args)
+		internal static void Debug (string message, params object[] args)
 		{
 			Debug (string.Format (message, args));
 		}
