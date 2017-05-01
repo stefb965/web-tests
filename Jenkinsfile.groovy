@@ -111,7 +111,7 @@ def runTests (String configuration, String category)
 		def resultOutput = "$outputDirAbs/TestResult-${configuration}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${configuration}-${category}.xml"
 		echo "TEST: $resultOutput"
-		run ("Debug", category, resultOutput, junitResultOutput)
+		run (configuration, category, resultOutput, junitResultOutput)
 		junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 		archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
 	}
