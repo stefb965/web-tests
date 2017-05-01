@@ -21,6 +21,12 @@
 		<MainAssembly>Xamarin.WebTests.Console</MainAssembly>
 		<JenkinsPlatform>Console</JenkinsPlatform>
 	</PropertyGroup>
+	<PropertyGroup Condition="'$(JenkinsTarget)' == 'DotNet'">
+		<ProjectConfiguration>Debug</ProjectConfiguration>
+		<SolutionFile>Xamarin.WebTests.DotNet.sln</SolutionFile>
+		<MainAssembly>Xamarin.WebTests.DotNet</MainAssembly>
+		<JenkinsPlatform>Console</JenkinsPlatform>
+	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'IOS'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.iOS.sln</SolutionFile>
