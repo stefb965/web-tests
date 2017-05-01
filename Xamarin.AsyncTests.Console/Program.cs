@@ -133,6 +133,16 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
+		public string IOSDeviceType {
+			get;
+			private set;
+		}
+
+		public string IOSRuntime {
+			get;
+			private set;
+		}
+
 		DroidHelper droidHelper;
 		TestSession session;
 		SettingsBag settings;
@@ -231,6 +241,8 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("show-categories", v => showCategories = true);
 			p.Add ("show-features", v => showFeatures = true);
 			p.Add ("show-config", v => showCategories = showFeatures = true);
+			p.Add ("ios-device-type=", v => IOSDeviceType = v);
+			p.Add ("ios-runtime=", v => IOSRuntime = v);
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("stderr=", v => stderr = v);
 			p.Add ("device=", v => device = v);

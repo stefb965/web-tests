@@ -78,10 +78,7 @@
 		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Console'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(JenkinsPlatform)' == 'IOS'">
-			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
-		</ItemGroup>
-		<ItemGroup Condition="'$(JenkinsPlatform)' == 'Mac'">
+		<ItemGroup Condition="('$(JenkinsPlatform)' == 'Mac') OR ('$(JenkinsPlatform)' == 'IOS')">
 			<_ChildOutputs3 Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 			<_MainAssemblyOutput Include="@(_ChildOutputs3->'%(RootDir)%(Directory)%(filename).app')" />
 		</ItemGroup>
@@ -125,11 +122,18 @@
 			<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
 			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
 			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
-			<AsyncTestsArguments>$(JenkinsArguments) $(CategoryArguments) $(ResultArguments)</AsyncTestsArguments>
+			<IosDeviceTypeArgument Condition="'$(IosDeviceType)' != ''">--ios-device-type=$(IosDeviceType)</IosDeviceTypeArgument>
+			<IosRuntimeArgument Condition="'$(IosRuntime)' != ''">--ios-runtime=$(IosRuntime)</IosRuntimeArgument>
+			<IosArguments Condition="'$(JenkinsPlatform)' == 'IOS'">$(IosDeviceTypeArgument) $(IosRuntimeArgument)</IosArguments>
+			<AsyncTestsArguments>$(JenkinsArguments) $(IosArguments) $(CategoryArguments) $(ResultArguments)</AsyncTestsArguments>
 		</PropertyGroup>
 		
 		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Console'">
 			<RunCommandLine>$(MainAssemblyOutput) $(AsyncTestsArguments)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'IOS'">
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) simulator $(MainAssemblyOutput)</RunCommandLine>
 			<_HasRunCommandLine>true</_HasRunCommandLine>
 		</PropertyGroup>
 		
