@@ -77,7 +77,7 @@ def buildAll ()
 		targets << "Console-Legacy"
 	}
 	if (enableXI ()) {
-		targets << "IOS-Debug"
+		targets << "IOS"
 	}
 	if (enableXM ()) {
 		targets << "Mac"
