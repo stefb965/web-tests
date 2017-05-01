@@ -93,7 +93,6 @@ def buildAll ()
 	}
 	
 	def targetList = targets.join (":")
-	echo "TARGET LIST: $targetList"
 	build (targetList)
 }
 
@@ -110,7 +109,6 @@ def runTests (String target, String category)
 		sh "mkdir -p $outputDirAbs"
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
-		echo "TEST: $resultOutput"
 		run (target, category, resultOutput, junitResultOutput)
 		junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 		archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
@@ -143,6 +141,9 @@ node ('jenkins-mac-1') {
 		stage ('work') {
 			runTests ('Console', 'Work')
 		}
+		stage ('new') {
+			runTests ('Console', 'New')
+		}
 		stage ('all') {
 			runTests ('Console', 'All')
 		}
@@ -152,8 +153,23 @@ node ('jenkins-mac-1') {
 		stage ('work-appletls') {
 			runTests ('Console-AppleTls', 'Work')
 		}
+		stage ('new-appletls') {
+			runTests ('Console-AppleTls', 'New')
+		}
 		stage ('all-appletls') {
 			runTests ('Console-AppleTls', 'All')
+		}
+		stage ('martin-legacy') {
+			runTests ('Console-Legacy', 'Martin')
+		}
+		stage ('work-legacy') {
+			runTests ('Console-Legacy', 'Work')
+		}
+		stage ('new-legacy') {
+			runTests ('Console-Legacy', 'New')
+		}
+		stage ('all-legacy') {
+			runTests ('Console-Legacy', 'All')
 		}
 
 //		stage ('Loop') {
