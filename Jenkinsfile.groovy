@@ -109,9 +109,12 @@ def runTests (String target, String category)
 		sh "mkdir -p $outputDirAbs"
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
-		run (target, category, resultOutput, junitResultOutput)
-		junit keepLongStdio: true, testResults: "$outputDir/*.xml"
-		archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+		try {
+			run (target, category, resultOutput, junitResultOutput)
+		} finally {
+			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
+			archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
+		}
 	}
 }
 
