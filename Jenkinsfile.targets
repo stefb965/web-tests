@@ -115,38 +115,48 @@
 
 		<MSBuild Projects="$(MSBuildProjectFile)" Targets="Build" Properties="JenkinsTarget=%(JenkinsTargets.Identity)" />
 	</Target>
+	
+	<Target Name="_PrepareRun">
+		<PropertyGroup>
+			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
+			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
+			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
+			<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
+			<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
+			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
+			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
+			<AsyncTestsArguments>$(JenkinsArguments) $(CategoryArguments) $(ResultArguments)</AsyncTestsArguments>
+		</PropertyGroup>
+		
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Console'">
+			<RunCommandLine>$(MainAssemblyOutput) $(AsyncTestsArguments)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
+		
+		<Error Condition="'$(_HasRunCommandLine)' != 'true'" Text="Unknown platform '$(JenkinsPlatform)'." />
+			
+	</Target>
 
-	<Target Name="RunConsole" DependsOnTargets="Build">
+	<Target Name="Run" DependsOnTargets="Build; _PrepareRun">
+		<Message Importance="High" Text="Running $(JenkinsTarget) $(JenkinsPlatform) $(TestCategory)" />
+
+		<Exec Command="$(RunCommandLine)" />
+	</Target>
+	
+	<Target Name="RunConsole" DependsOnTargets="Build; _PrepareRun">
 		<Message Importance="High" Text="Running $(JenkinsTarget) $(JenkinsPlatform) $(TestCategory)" />
 
 		<Error Condition="'$(JenkinsPlatform)' != 'Console'" Text="Wrong platform '$(JenkinsPlatform)'." />
 		
-		<PropertyGroup>
-			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
-			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
-			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
-			<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
-			<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
-			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
-			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
-		</PropertyGroup>
-		<Exec Command="$(MainAssemblyOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments)" />
+		<Exec Command="$(MainAssemblyOutput) $(AsyncTestsArguments)" />
 	</Target>
 	
-	<Target Name="RunMac" DependsOnTargets="Build">
+	<Target Name="RunMac" DependsOnTargets="Build; _PrepareRun">
 		<Error Condition="'$(JenkinsPlatform)' != 'Mac'" Text="Wrong platform '$(JenkinsPlatform)'." />
 
 		<Message Importance="High" Text="Running $(JenkinsTarget) $(TestCategory)" />
-		<PropertyGroup>
-			<TestCategory Condition="'$(TestCategory)' == ''">All</TestCategory>
-			<ResultOutput Condition="'$(ResultOutput)' == ''">TestResult.xml</ResultOutput>
-			<JUnitResultOutput Condition="'$(JUnitResultOutput)' == ''">JUnitTestResult.xml</JUnitResultOutput>
-			<JenkinsPackageName>$(JenkinsTarget)-$(TestCategory)</JenkinsPackageName>
-			<JenkinsArguments>--jenkins --package-name=$(JenkinsPackageName)</JenkinsArguments>
-			<ResultArguments>--result=$(ResultOutput) --junit-result=$(JUnitResultOutput)</ResultArguments>
-			<CategoryArguments>--category=$(TestCategory)</CategoryArguments>
-		</PropertyGroup>
-		<Exec Command="$(AsyncTestsConsoleOutput) $(JenkinsArguments) $(CategoryArguments) $(ResultArguments) mac $(MainAssemblyOutput)" />
+
+		<Exec Command="$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) mac $(MainAssemblyOutput)" />
 	</Target>
 
 </Project>
