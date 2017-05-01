@@ -30,7 +30,7 @@
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Mac'">
 		<ProjectConfiguration>Debug</ProjectConfiguration>
 		<SolutionFile>Xamarin.WebTests.Mac.sln</SolutionFile>
-		<MainAssembly>Xamarin.WebTests.Mac.app</MainAssembly>
+		<MainAssembly>Xamarin.WebTests.Mac</MainAssembly>
 		<JenkinsPlatform>Mac</JenkinsPlatform>
 	</PropertyGroup>
 	<PropertyGroup Condition="'$(JenkinsTarget)' == 'Android-Btls'">
@@ -51,7 +51,6 @@
 
 	<Target Name="BuildSolution" Returns="$(MainAssemblyOutput)" DependsOnTargets="_ValidateJenkinsTarget; NuGetRestore">
 		<PropertyGroup Condition="'$(AndroidProjectFile)' != ''">
-			<IsAndroid>true</IsAndroid>
 			<JenkinsBuildTargets>JenkinsBuild</JenkinsBuildTargets>
 		</PropertyGroup>
 		
@@ -64,22 +63,29 @@
 		<MSBuild Projects="$(AndroidProjectFile)"
 				Targets="JenkinsGetApkFile"
 				Properties="Configuration=$(ProjectConfiguration);AndroidPackageName=$(AndroidPackageName)"
-				Condition="'$(IsAndroid)' == 'true'" >
+				Condition="'$(JenkinsPlatform)' == 'Android'" >
 			<Output TaskParameter="TargetOutputs" ItemName="_ChildOutputs2" />
 		</MSBuild>
 
 		<Message Text="CHILD OUTPUTS 2: %(_ChildOutputs2.Identity)" />
 
-		<ItemGroup Condition="'$(IsAndroid)' != 'true'">
+		<ItemGroup Condition="'$(JenkinsTarget)' == 'Console'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
 		</ItemGroup>
-		<ItemGroup Condition="'$(IsAndroid)' == 'true'">
+		<ItemGroup Condition="'$(JenkinsTarget)' == 'IOS'">
+			<_MainAssemblyOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
+		</ItemGroup>
+		<ItemGroup Condition="'$(JenkinsTarget)' == 'Mac'">
+			<_ChildOutputs3 Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(MainAssembly)'" />
+			<_MainAssemblyOutput Include="@(_ChildOutputs3->'%(RootDir)%(Directory)%(filename).app')" />
+		</ItemGroup>
+		<ItemGroup Condition="'$(JenkinsTarget)' == 'Android'">
 			<_MainAssemblyOutput Include="@(_ChildOutputs2)" Condition="'%(Extension)' == '.apk'" />
 		</ItemGroup>
 		<ItemGroup>
 			<_AsyncTestsConsoleOutput Include="@(_ChildOutputs)" Condition="'%(FileName)' == '$(XamarinAsyncTestsConsole)'" />
 		</ItemGroup>
-
+		
 		<PropertyGroup>
 			<MainAssemblyOutput>@(_MainAssemblyOutput)</MainAssemblyOutput>
 			<AsyncTestsConsoleOutput>@(_AsyncTestsConsoleOutput)</AsyncTestsConsoleOutput>
