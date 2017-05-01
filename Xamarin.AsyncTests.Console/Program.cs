@@ -60,7 +60,7 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		public string JenkinsTestName {
+		public string PackageName {
 			get;
 			private set;
 		}
@@ -216,6 +216,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
+			p.Add ("package=", v => PackageName = v);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("junit-result=", v => JUnitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
@@ -237,7 +238,6 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("wrench", v => Wrench = true);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => OutputDirectory = v);
-			p.Add ("jenkins-test-name=", v => JenkinsTestName = v);
 			var remaining = p.Parse (args);
 
 			if (assembly != null) {
@@ -597,7 +597,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> ConnectToGui (CancellationToken cancellationToken)
 		{
-			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
+			var framework = TestFramework.GetLocalFramework (PackageName, Assembly, dependencyAssemblies);
 
 			TestServer server;
 			try {
@@ -729,7 +729,7 @@ namespace Xamarin.AsyncTests.Console
 
 		async Task<int> RunLocal (CancellationToken cancellationToken)
 		{
-			var framework = TestFramework.GetLocalFramework (Assembly, dependencyAssemblies);
+			var framework = TestFramework.GetLocalFramework (PackageName, Assembly, dependencyAssemblies);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			session = TestSession.CreateLocal (this, framework);
@@ -848,7 +848,7 @@ namespace Xamarin.AsyncTests.Console
 			}
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (result, JUnitResultOutput, JenkinsTestName);
+				JUnitResultPrinter.Print (result, JUnitResultOutput, PackageName);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
@@ -869,7 +869,7 @@ namespace Xamarin.AsyncTests.Console
 			var ret = printer.Print ();
 
 			if (JUnitResultOutput != null) {
-				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput, JenkinsTestName);
+				JUnitResultPrinter.Print (printer.Result, JUnitResultOutput, PackageName);
 				Debug ("JUnit result written to {0}.", JUnitResultOutput);
 			}
 
