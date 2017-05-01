@@ -148,7 +148,7 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Device:
 			case Command.Simulator:
 				DeviceType = Program.IOSDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "iPhone-5s");
-				Runtime = Program.IOSRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-0");
+				Runtime = Program.IOSRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-3");
 				break;
 			case Command.TVOS:
 				DeviceType = "Apple-TV-1080p";
