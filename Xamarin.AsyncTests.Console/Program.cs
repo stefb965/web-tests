@@ -216,7 +216,7 @@ namespace Xamarin.AsyncTests.Console
 			p.Add ("gui=", v => GuiEndPoint = GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => ResultOutput = null);
-			p.Add ("package=", v => PackageName = v);
+			p.Add ("package-name=", v => PackageName = v);
 			p.Add ("result=", v => ResultOutput = v);
 			p.Add ("junit-result=", v => JUnitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
