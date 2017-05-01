@@ -159,18 +159,18 @@ node ('jenkins-mac-1') {
 		stage ('console-appletls-all') {
 			runTests ('Console-AppleTls', 'All')
 		}
-		stage ('console-legacy-martin') {
-			runTests ('Console-Legacy', 'Martin')
-		}
-		stage ('console-legacy-work') {
-			runTests ('Console-Legacy', 'Work')
-		}
-		stage ('console-legacy-new') {
-			runTests ('Console-Legacy', 'New')
-		}
-		stage ('console-legacy-all') {
-			runTests ('Console-Legacy', 'All')
-		}
+//		stage ('console-legacy-martin') {
+//			runTests ('Console-Legacy', 'Martin')
+//		}
+//		stage ('console-legacy-work') {
+//			runTests ('Console-Legacy', 'Work')
+//		}
+//		stage ('console-legacy-new') {
+//			runTests ('Console-Legacy', 'New')
+//		}
+//		stage ('console-legacy-all') {
+//			runTests ('Console-Legacy', 'All')
+//		}
 		stage ('ios-martin') {
 			runTests ('IOS', 'Martin')
 		}
