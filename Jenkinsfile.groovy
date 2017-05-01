@@ -98,7 +98,7 @@ def buildAll ()
 
 def run (String target, String testCategory, String resultOutput, String junitResultOutput)
 {
-	sh "msbuild Jenkinsfile.targets /t:RunConsole /p:JenkinsTarget=$target,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
+	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,ResultOutput=$resultOutput,JUnitResultOutput=$junitResultOutput"
 }
 
 def runTests (String target, String category)
@@ -135,41 +135,44 @@ node ('jenkins-mac-1') {
 		stage ('build') {
 			buildAll ()
 		}
-		stage ('martin') {
+		stage ('console-martin') {
 			runTests ('Console', 'Martin')
 		}
-		stage ('work') {
+		stage ('console-work') {
 			runTests ('Console', 'Work')
 		}
-		stage ('new') {
+		stage ('console-new') {
 			runTests ('Console', 'New')
 		}
-		stage ('all') {
+		stage ('console-all') {
 			runTests ('Console', 'All')
 		}
-		stage ('martin-appletls') {
+		stage ('console-appletls-martin') {
 			runTests ('Console-AppleTls', 'Martin')
 		}
-		stage ('work-appletls') {
+		stage ('console-appletls-work') {
 			runTests ('Console-AppleTls', 'Work')
 		}
-		stage ('new-appletls') {
+		stage ('console-appletls-new') {
 			runTests ('Console-AppleTls', 'New')
 		}
-		stage ('all-appletls') {
+		stage ('console-appletls-all') {
 			runTests ('Console-AppleTls', 'All')
 		}
-		stage ('martin-legacy') {
+		stage ('console-legacy-martin') {
 			runTests ('Console-Legacy', 'Martin')
 		}
-		stage ('work-legacy') {
+		stage ('console-legacy-work') {
 			runTests ('Console-Legacy', 'Work')
 		}
-		stage ('new-legacy') {
+		stage ('console-legacy-new') {
 			runTests ('Console-Legacy', 'New')
 		}
-		stage ('all-legacy') {
+		stage ('console-legacy-all') {
 			runTests ('Console-Legacy', 'All')
+		}
+		stage ('ios-martin') {
+			runTests ('IOS', 'Martin')
 		}
 
 //		stage ('Loop') {
