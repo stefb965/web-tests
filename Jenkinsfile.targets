@@ -136,6 +136,10 @@
 			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) simulator $(MainAssemblyOutput)</RunCommandLine>
 			<_HasRunCommandLine>true</_HasRunCommandLine>
 		</PropertyGroup>
+		<PropertyGroup Condition="'$(JenkinsPlatform)' == 'Mac'">
+			<RunCommandLine>$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) mac $(MainAssemblyOutput)</RunCommandLine>
+			<_HasRunCommandLine>true</_HasRunCommandLine>
+		</PropertyGroup>
 		
 		<Error Condition="'$(_HasRunCommandLine)' != 'true'" Text="Unknown platform '$(JenkinsPlatform)'." />
 			
@@ -147,20 +151,4 @@
 		<Exec Command="$(RunCommandLine)" />
 	</Target>
 	
-	<Target Name="RunConsole" DependsOnTargets="Build; _PrepareRun">
-		<Message Importance="High" Text="Running $(JenkinsTarget) $(JenkinsPlatform) $(TestCategory)" />
-
-		<Error Condition="'$(JenkinsPlatform)' != 'Console'" Text="Wrong platform '$(JenkinsPlatform)'." />
-		
-		<Exec Command="$(MainAssemblyOutput) $(AsyncTestsArguments)" />
-	</Target>
-	
-	<Target Name="RunMac" DependsOnTargets="Build; _PrepareRun">
-		<Error Condition="'$(JenkinsPlatform)' != 'Mac'" Text="Wrong platform '$(JenkinsPlatform)'." />
-
-		<Message Importance="High" Text="Running $(JenkinsTarget) $(TestCategory)" />
-
-		<Exec Command="$(AsyncTestsConsoleOutput) $(AsyncTestsArguments) mac $(MainAssemblyOutput)" />
-	</Target>
-
 </Project>
