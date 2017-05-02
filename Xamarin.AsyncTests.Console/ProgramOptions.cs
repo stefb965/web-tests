@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
@@ -32,6 +33,18 @@ using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Console {
 	public class ProgramOptions {
+		public Assembly Assembly {
+			get;
+		}
+
+		public string Application {
+			get;
+		}
+
+		internal Command Command {
+			get;
+		}
+
 		public string SettingsFile {
 			get;
 			private set;
@@ -167,18 +180,20 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
-		public List<string> RemainingArguments {
+		public IList<string> Arguments {
 			get;
 			private set;
 		}
 
-		public IList<string> Dependencies {
+		public IList<Assembly> Dependencies {
 			get;
 			private set;
 		}
 
-		public ProgramOptions (string[] args)
+		public ProgramOptions (Assembly assembly, string[] args)
 		{
+			Assembly = assembly;
+
 			var dependencies = new List<string> ();
 
 			ResultOutput = "TestResult.xml";
@@ -214,8 +229,116 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("wrench", v => Wrench = true);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => OutputDirectory = v);
-			RemainingArguments = p.Parse (args);
-			Dependencies = dependencies;
+			var arguments = p.Parse (args);
+
+			if (assembly != null) {
+				Command = Command.Local;
+
+				if (arguments.Count > 0 && arguments[0].Equals ("local"))
+					arguments.RemoveAt (0);
+			} else {
+				if (arguments.Count < 1)
+					throw new ProgramException ("Missing argument.");
+
+				Command command;
+				if (!Enum.TryParse (arguments[0], true, out command))
+					throw new ProgramException ("Unknown command.");
+				arguments.RemoveAt (0);
+				Command = command;
+			}
+
+			Arguments = arguments;
+
+			var dependencyAssemblies = new Assembly[dependencies.Count];
+			for (int i = 0; i < dependencyAssemblies.Length; i++) {
+				dependencyAssemblies[i] = Assembly.LoadFile (dependencies[i]);
+			}
+
+			Dependencies = dependencyAssemblies;
+
+			switch (Command) {
+			case Command.Listen:
+				if (EndPoint == null)
+					EndPoint = Program.GetLocalEndPoint ();
+				break;
+			case Command.Local:
+				if (assembly != null) {
+					if (arguments.Count != 0) {
+						arguments.ForEach (a => Program.Error ("Unexpected remaining argument: {0}", a));
+						throw new ProgramException ("Unexpected extra argument.");
+					}
+					Assembly = assembly;
+				} else if (arguments.Count == 1) {
+					Application = arguments[0];
+					Assembly = Assembly.LoadFile (arguments[0]);
+					arguments.RemoveAt (0);
+				} else if (EndPoint == null) {
+					throw new ProgramException ("Missing endpoint");
+				}
+				break;
+			case Command.Connect:
+				if (assembly != null)
+					throw new ProgramException ("Cannot use 'connect' with assembly.");
+				if (arguments.Count == 1) {
+					EndPoint = Program.GetEndPoint (arguments[0]);
+					arguments.RemoveAt (0);
+				} else if (arguments.Count == 0) {
+					if (EndPoint == null)
+						throw new ProgramException ("Missing endpoint");
+				} else {
+					arguments.ForEach (a => Program.Error ("Unexpected remaining argument: {0}", a));
+					throw new ProgramException ("Unexpected extra argument.");
+				}
+				break;
+			case Command.Simulator:
+			case Command.Device:
+			case Command.TVOS:
+				if (arguments.Count < 1)
+					throw new ProgramException ("Expected .app argument");
+				Application = arguments[0];
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = Program.GetLocalEndPoint ();
+				break;
+			case Command.Mac:
+				if (arguments.Count < 1)
+					throw new ProgramException ("Expected .app argument");
+				Application = arguments[0];
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = Program.GetLocalEndPoint ();
+				break;
+			case Command.Android:
+				if (arguments.Count < 1)
+					throw new ProgramException ("Expected activity argument");
+
+				Application = arguments[0];
+				arguments.RemoveAt (0);
+
+				if (EndPoint == null)
+					EndPoint = Program.GetLocalEndPoint ();
+				break;
+			case Command.Avd:
+			case Command.Emulator:
+				if (arguments.Count != 0)
+					throw new ProgramException ("Unexpected extra arguments");
+
+				break;
+			case Command.Apk:
+				if (arguments.Count != 1)
+					throw new ProgramException ("Expected .apk argument");
+
+				break;
+			case Command.Result:
+				if (arguments.Count != 1)
+					throw new ProgramException ("Expected TestResult.xml argument");
+				ResultOutput = arguments[0];
+				break;
+			default:
+				throw new ProgramException ("Unknown command '{0}'.", Command);
+			}
 		}
 	}
 }

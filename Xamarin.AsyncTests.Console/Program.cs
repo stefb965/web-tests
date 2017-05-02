@@ -45,6 +45,10 @@ namespace Xamarin.AsyncTests.Console
 
 	public class Program : TestApp
 	{
+		public ProgramOptions Options {
+			get;
+		}
+
 		public string SettingsFile {
 			get;
 			private set;
@@ -425,6 +429,11 @@ namespace Xamarin.AsyncTests.Console
 		internal static void Debug (string message, params object[] args)
 		{
 			Debug (string.Format (message, args));
+		}
+
+		internal static void Error (string message, params object[] args)
+		{
+			System.Console.Error.WriteLine (string.Format (message, args));
 		}
 
 		internal void WriteSummary (string format, params object[] args)
