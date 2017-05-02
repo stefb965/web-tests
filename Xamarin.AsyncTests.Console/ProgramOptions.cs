@@ -310,6 +310,8 @@ namespace Xamarin.AsyncTests.Console {
 				if (arguments.Count != 1)
 					throw new ProgramException ("Expected .apk argument");
 
+				Application = arguments[0];
+				arguments.RemoveAt (0);
 				break;
 			case Command.Result:
 				if (arguments.Count != 1)

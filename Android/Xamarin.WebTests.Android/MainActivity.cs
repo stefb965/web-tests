@@ -38,8 +38,6 @@ namespace Xamarin.WebTests.Android
 			if (string.IsNullOrEmpty (optionString))
 				optionString = "--category=Global";
 
-			var options = new MobileTestOptions (optionString);
-
 			Forms.Init (this, bundle);
 
 			var setup = new MonoConnectionFrameworkSetup ("Xamarin.WebTests.Android");
@@ -48,6 +46,8 @@ namespace Xamarin.WebTests.Android
 
 			DependencyInjector.RegisterAssembly (typeof (WebDependencyProvider).Assembly);
 			DependencyInjector.RegisterAssembly (typeof (MainActivity).Assembly);
+
+			var options = new MobileTestOptions (optionString);
 
 			Framework = TestFramework.GetLocalFramework (options.PackageName, typeof (MainActivity).Assembly);
 
