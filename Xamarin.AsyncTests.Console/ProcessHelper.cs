@@ -48,9 +48,7 @@ namespace Xamarin.AsyncTests.Console {
 		{
 			this.process = process;
 
-			commandLine = process.StartInfo.FileName;
-			if (!string.IsNullOrWhiteSpace (process.StartInfo.Arguments))
-				commandLine += " " + process.StartInfo.Arguments;
+			commandLine = GetCommandLine (process.StartInfo);
 
 			tcs = new TaskCompletionSource<object> ();
 
@@ -76,6 +74,14 @@ namespace Xamarin.AsyncTests.Console {
 			};
 		}
 
+		static string GetCommandLine (ProcessStartInfo startInfo)
+		{
+			var commandLine = startInfo.FileName;
+			if (!string.IsNullOrWhiteSpace (startInfo.Arguments))
+				commandLine += " " + startInfo.Arguments;
+			return commandLine;
+		}
+
 		public void Abort ()
 		{
 			cts.Cancel ();
@@ -93,12 +99,9 @@ namespace Xamarin.AsyncTests.Console {
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var tool = string.Join (" ", command, args);
 			var psi = new ProcessStartInfo (command, args);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
-
-			Program.Debug ("Running tool: {0}", tool);
 
 			return RunCommand (psi, cancellationToken);
 		}
@@ -110,7 +113,11 @@ namespace Xamarin.AsyncTests.Console {
 			return Task.Run (() => {
 				cancellationToken.ThrowIfCancellationRequested ();
 
+				var commandLine = GetCommandLine (psi);
+				Program.Debug ("Running tool: {0}", commandLine);
+
 				var process = Process.Start (psi);
+				Program.Debug ("Started tool: {0}", commandLine);
 				return new ProcessHelper (process, cancellationToken);
 			});
 		}
@@ -161,6 +168,15 @@ namespace Xamarin.AsyncTests.Console {
 			});
 
 			return tcs.Task;
+		}
+
+		public void Stop ()
+		{
+			try {
+				Dispose ();
+			} catch {
+				;
+			}
 		}
 
 		public void Dispose ()

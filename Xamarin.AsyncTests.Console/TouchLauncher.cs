@@ -179,7 +179,7 @@ namespace Xamarin.AsyncTests.Console
 				throw new NotSupportedException ();
 		}
 
-		Task<ProcessHelper> Launch (string launchArgs, CancellationToken cancellationToken)
+		public override async Task LaunchApplication (string launchArgs, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
 			switch (Command) {
@@ -211,16 +211,7 @@ namespace Xamarin.AsyncTests.Console
 				args.Append (ExtraMTouchArguments);
 			}
 
-			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
-
-			return ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken);
-		}
-
-		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
-		{
-			process = await Launch (args, cancellationToken).ConfigureAwait (false);
-
-			Program.Debug ("Started: {0}", process.CommandLine);
+			process = await ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken).ConfigureAwait (false);
 		}
 
 		public override Task WaitForExit (CancellationToken cancellationToken)
@@ -230,11 +221,7 @@ namespace Xamarin.AsyncTests.Console
 
 		public override void StopApplication ()
 		{
-			try {
-				process.Dispose ();
-			} catch {
-				;
-			}
+			process.Stop ();
 		}
 	}
 }

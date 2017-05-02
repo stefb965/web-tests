@@ -112,19 +112,6 @@ namespace Xamarin.AsyncTests.Console
 			return ProcessHelper.RunCommand (Adb, args.ToString (), cancellationToken);
 		}
 
-		public async Task<bool> CheckAvd (CancellationToken cancellationToken)
-		{
-			Program.Debug ("Check Avd: {0}", Adb);
-			var avds = await Helper.GetAvds (cancellationToken);
-			Program.Debug ("Check Avd #1: {0}", string.Join (" ", avds));
-
-			if (avds.Contains (Device.Name))
-				return true;
-
-			await Helper.CreateAvd (true, cancellationToken);
-			return true;
-		}
-
 		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
 		{
 			process = await Launch (args, cancellationToken).ConfigureAwait (false);
