@@ -61,12 +61,10 @@ namespace Xamarin.AsyncTests.Console
 
 		public ApplicationLauncher Launcher {
 			get;
-			private set;
 		}
 
 		public LauncherOptions LauncherOptions {
 			get;
-			private set;
 		}
 
 		internal DroidHelper DroidHelper {

@@ -49,10 +49,6 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
-		public string SettingsFile {
-			get;
-		}
-
 		public SettingsBag Settings {
 			get;
 		}
@@ -75,26 +71,6 @@ namespace Xamarin.AsyncTests.Console {
 		}
 
 		public IPEndPoint GuiEndPoint {
-			get;
-			private set;
-		}
-
-		public int? LogLevel {
-			get;
-			private set;
-		}
-
-		public int? LocalLogLevel {
-			get;
-			private set;
-		}
-
-		public bool Wait {
-			get;
-			private set;
-		}
-
-		public bool DebugMode {
 			get;
 			private set;
 		}
@@ -141,10 +117,6 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
-		public bool SaveOptions {
-			get;
-		}
-
 		public string StdOut {
 			get;
 		}
@@ -179,6 +151,9 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
+		bool? saveSettings;
+		string settingsFile;
+
 		public ProgramOptions (Assembly assembly, string[] args)
 		{
 			Assembly = assembly;
@@ -187,33 +162,34 @@ namespace Xamarin.AsyncTests.Console {
 
 			var resultOutput = "TestResult.xml";
 			var junitResultOutput = "JUnitTestResult.xml";
+			string packageName = null;
 
 			string outputDir = null, stdout = null, stderr = null;
-			string settingsFile = null, packageName = null;
 			string customSettings = null;
-			bool saveOptions = false;
 			string sdkRoot = null, iosDeviceType = null, iosRuntime = null;
 			string androidSdkRoot = null;
+
+			bool debugMode = false;
+			int? logLevel = null, localLogLevel = null;
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => settingsFile = v);
 			p.Add ("endpoint=", v => EndPoint = Program.GetEndPoint (v));
 			p.Add ("extra-launcher-args=", v => ExtraLauncherArgs = v);
 			p.Add ("gui=", v => GuiEndPoint = Program.GetEndPoint (v));
-			p.Add ("wait", v => Wait = true);
 			p.Add ("no-result", v => resultOutput = junitResultOutput = null);
 			p.Add ("package-name=", v => packageName = v);
 			p.Add ("result=", v => resultOutput = v);
 			p.Add ("junit-result=", v => junitResultOutput = v);
-			p.Add ("log-level=", v => LogLevel = int.Parse (v));
-			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
+			p.Add ("log-level=", v => logLevel = int.Parse (v));
+			p.Add ("local-log-level=", v => localLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => OptionalGui = true);
 			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
-			p.Add ("debug", v => DebugMode = true);
-			p.Add ("save-options", v => saveOptions = true);
+			p.Add ("debug", v => debugMode = true);
+			p.Add ("save-options", v => saveSettings = true);
 			p.Add ("show-categories", v => ShowCategories = true);
 			p.Add ("show-features", v => ShowFeatures = true);
 			p.Add ("show-config", v => ShowCategories = ShowFeatures = true);
@@ -349,9 +325,10 @@ namespace Xamarin.AsyncTests.Console {
 			ResultOutput = MakeAbsolute (OutputDirectory, resultOutput);
 			JUnitResultOutput = MakeAbsolute (OutputDirectory, junitResultOutput);
 
-			if (settingsFile != null || Assembly == null) {
-				SettingsFile = settingsFile;
-			} else {
+			if (settingsFile != null) {
+				if (saveSettings == null)
+					saveSettings = true;
+			} else if (Assembly != null) {
 				var name = Assembly.GetName ().Name;
 				var path = Environment.GetFolderPath (Environment.SpecialFolder.LocalApplicationData);
 				path = Path.Combine (path, "Xamarin", "AsyncTests");
@@ -359,36 +336,33 @@ namespace Xamarin.AsyncTests.Console {
 				if (!Directory.Exists (path))
 					Directory.CreateDirectory (path);
 
-				SettingsFile = Path.Combine (path, name + ".xml");
+				settingsFile = Path.Combine (path, name + ".xml");
 			}
 
-			if (SettingsFile == null || !File.Exists (settingsFile)) {
+			if (settingsFile == null || !File.Exists (settingsFile)) {
 				Settings = SettingsBag.CreateDefault ();
-				saveOptions = false;
 			} else {
 				Settings = LoadSettings (settingsFile);
 			}
 
-			SaveOptions = saveOptions;
-
 			if (customSettings != null) {
 				ParseSettings (Settings, customSettings);
-				if (saveOptions)
-					SaveSettings (Settings, SettingsFile);
+				if (saveSettings ?? false)
+					SaveSettings (Settings, settingsFile);
 			}
 
-			if (DebugMode) {
+			if (debugMode) {
 				Settings.LogLevel = -1;
 				Settings.LocalLogLevel = -1;
 				Settings.DisableTimeouts = true;
 			}
 
-			if (LogLevel != null)
-				Settings.LogLevel = LogLevel.Value;
-			if (LocalLogLevel != null)
-				Settings.LocalLogLevel = LocalLogLevel.Value;
+			if (logLevel != null)
+				Settings.LogLevel = logLevel.Value;
+			if (localLogLevel != null)
+				Settings.LocalLogLevel = localLogLevel.Value;
 
-			if (!DebugMode)
+			if (!debugMode)
 				Settings.DisableTimeouts = Settings.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
 
 			bool needSdk = false, needAndroidSdk = false;
@@ -562,8 +536,8 @@ namespace Xamarin.AsyncTests.Console {
 			if (done)
 				Environment.Exit (0);
 
-			if (modified && SaveOptions)
-				SaveSettings (Settings, SettingsFile);
+			if (modified && (saveSettings ?? false))
+				SaveSettings (Settings, settingsFile);
 
 			return modified;
 		}
