@@ -24,11 +24,15 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Xml;
+using System.Xml.Linq;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
+using Xamarin.AsyncTests.Framework;
 using NDesk.Options;
 
 namespace Xamarin.AsyncTests.Console {
@@ -47,22 +51,22 @@ namespace Xamarin.AsyncTests.Console {
 
 		public string SettingsFile {
 			get;
-			private set;
+		}
+
+		public SettingsBag Settings {
+			get;
 		}
 
 		public string ResultOutput {
 			get;
-			private set;
 		}
 
 		public string JUnitResultOutput {
 			get;
-			private set;
 		}
 
 		public string PackageName {
 			get;
-			private set;
 		}
 
 		public IPEndPoint EndPoint {
@@ -95,11 +99,6 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
-		public bool Wrench {
-			get;
-			private set;
-		}
-
 		public bool Jenkins {
 			get;
 			private set;
@@ -107,17 +106,14 @@ namespace Xamarin.AsyncTests.Console {
 
 		public string OutputDirectory {
 			get;
-			private set;
 		}
 
 		public string IOSDeviceType {
 			get;
-			private set;
 		}
 
 		public string IOSRuntime {
 			get;
-			private set;
 		}
 
 		public string ExtraLauncherArgs {
@@ -125,17 +121,7 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
-		public string CustomSettings {
-			get;
-			private set;
-		}
-
 		public bool OptionalGui {
-			get;
-			private set;
-		}
-
-		public bool SaveOptions {
 			get;
 			private set;
 		}
@@ -155,19 +141,20 @@ namespace Xamarin.AsyncTests.Console {
 			private set;
 		}
 
+		public bool SaveOptions {
+			get;
+		}
+
 		public string StdOut {
 			get;
-			private set;
 		}
 
 		public string StdErr {
 			get;
-			private set;
 		}
 
 		public string SdkRoot {
 			get;
-			private set;
 		}
 
 		public string Category {
@@ -182,12 +169,10 @@ namespace Xamarin.AsyncTests.Console {
 
 		public IList<string> Arguments {
 			get;
-			private set;
 		}
 
-		public IList<Assembly> Dependencies {
+		public Assembly[] Dependencies {
 			get;
-			private set;
 		}
 
 		public ProgramOptions (Assembly assembly, string[] args)
@@ -196,40 +181,47 @@ namespace Xamarin.AsyncTests.Console {
 
 			var dependencies = new List<string> ();
 
-			ResultOutput = "TestResult.xml";
-			JUnitResultOutput = "JUnitTestResult.xml";
+			var resultOutput = "TestResult.xml";
+			var junitResultOutput = "JUnitTestResult.xml";
+
+			string outputDir = null, stdout = null, stderr = null;
+			string settingsFile = null, packageName = null;
+			string customSettings = null;
+			bool saveOptions = false;
+			string sdkRoot = null, iosDeviceType = null, iosRuntime = null;
 
 			var p = new OptionSet ();
-			p.Add ("settings=", v => SettingsFile = v);
+			p.Add ("settings=", v => settingsFile = v);
 			p.Add ("endpoint=", v => EndPoint = Program.GetEndPoint (v));
 			p.Add ("extra-launcher-args=", v => ExtraLauncherArgs = v);
 			p.Add ("gui=", v => GuiEndPoint = Program.GetEndPoint (v));
 			p.Add ("wait", v => Wait = true);
-			p.Add ("no-result", v => ResultOutput = null);
-			p.Add ("package-name=", v => PackageName = v);
-			p.Add ("result=", v => ResultOutput = v);
-			p.Add ("junit-result=", v => JUnitResultOutput = v);
+			p.Add ("no-result", v => resultOutput = junitResultOutput = null);
+			p.Add ("package-name=", v => packageName = v);
+			p.Add ("result=", v => resultOutput = v);
+			p.Add ("junit-result=", v => junitResultOutput = v);
 			p.Add ("log-level=", v => LogLevel = int.Parse (v));
 			p.Add ("local-log-level=", v => LocalLogLevel = int.Parse (v));
 			p.Add ("dependency=", v => dependencies.Add (v));
 			p.Add ("optional-gui", v => OptionalGui = true);
-			p.Add ("set=", v => CustomSettings = v);
+			p.Add ("set=", v => customSettings = v);
 			p.Add ("category=", v => Category = v);
 			p.Add ("features=", v => Features = v);
 			p.Add ("debug", v => DebugMode = true);
-			p.Add ("save-options", v => SaveOptions = true);
+			p.Add ("save-options", v => saveOptions = true);
 			p.Add ("show-categories", v => ShowCategories = true);
 			p.Add ("show-features", v => ShowFeatures = true);
 			p.Add ("show-config", v => ShowCategories = ShowFeatures = true);
-			p.Add ("ios-device-type=", v => IOSDeviceType = v);
-			p.Add ("ios-runtime=", v => IOSRuntime = v);
-			p.Add ("stdout=", v => StdOut = v);
-			p.Add ("stderr=", v => StdErr = v);
-			p.Add ("sdkroot=", v => SdkRoot = v);
-			p.Add ("wrench", v => Wrench = true);
+			p.Add ("ios-device-type=", v => iosDeviceType = v);
+			p.Add ("ios-runtime=", v => iosRuntime = v);
+			p.Add ("stdout=", v => stdout = v);
+			p.Add ("stderr=", v => stderr = v);
+			p.Add ("sdkroot=", v => sdkRoot = v);
 			p.Add ("jenkins", v => Jenkins = true);
-			p.Add ("output-dir=", v => OutputDirectory = v);
+			p.Add ("output-dir=", v => outputDir = v);
 			var arguments = p.Parse (args);
+
+			PackageName = packageName;
 
 			if (assembly != null) {
 				Command = Command.Local;
@@ -334,11 +326,221 @@ namespace Xamarin.AsyncTests.Console {
 			case Command.Result:
 				if (arguments.Count != 1)
 					throw new ProgramException ("Expected TestResult.xml argument");
-				ResultOutput = arguments[0];
+				resultOutput = arguments[0];
+				arguments.RemoveAt (0);
 				break;
 			default:
 				throw new ProgramException ("Unknown command '{0}'.", Command);
 			}
+
+			OutputDirectory = outputDir;
+
+			if (!string.IsNullOrEmpty (OutputDirectory) && !Directory.Exists (OutputDirectory))
+				Directory.CreateDirectory (OutputDirectory);
+
+			StdOut = MakeAbsolute (OutputDirectory, stdout);
+			StdErr = MakeAbsolute (OutputDirectory, stderr);
+			ResultOutput = MakeAbsolute (OutputDirectory, resultOutput);
+			JUnitResultOutput = MakeAbsolute (OutputDirectory, junitResultOutput);
+
+			if (settingsFile != null || Assembly == null) {
+				SettingsFile = settingsFile;
+			} else {
+				var name = Assembly.GetName ().Name;
+				var path = Environment.GetFolderPath (Environment.SpecialFolder.LocalApplicationData);
+				path = Path.Combine (path, "Xamarin", "AsyncTests");
+
+				if (!Directory.Exists (path))
+					Directory.CreateDirectory (path);
+
+				SettingsFile = Path.Combine (path, name + ".xml");
+			}
+
+			if (SettingsFile == null || !File.Exists (settingsFile)) {
+				Settings = SettingsBag.CreateDefault ();
+				saveOptions = false;
+			} else {
+				Settings = LoadSettings (settingsFile);
+			}
+
+			SaveOptions = saveOptions;
+
+			if (customSettings != null) {
+				ParseSettings (Settings, customSettings);
+				if (saveOptions)
+					SaveSettings (Settings, SettingsFile);
+			}
+
+			if (DebugMode) {
+				Settings.LogLevel = -1;
+				Settings.LocalLogLevel = -1;
+				Settings.DisableTimeouts = true;
+			}
+
+			if (LogLevel != null)
+				Settings.LogLevel = LogLevel.Value;
+			if (LocalLogLevel != null)
+				Settings.LocalLogLevel = LocalLogLevel.Value;
+
+			if (!DebugMode)
+				Settings.DisableTimeouts = Settings.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
+
+			switch (Command) {
+			case Command.Device:
+			case Command.Simulator:
+				IOSDeviceType = iosDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "iPhone-5s");
+				IOSRuntime = iosRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-3");
+				break;
+			case Command.TVOS:
+				IOSDeviceType = iosDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "Apple-TV-1080p");
+				IOSRuntime = iosRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "tvOS-9-2");
+				break;
+			}
+
+			SdkRoot = sdkRoot ?? GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT", "/Applications/Xcode.app/Contents/Developer");
+		}
+
+		static SettingsBag LoadSettings (string file)
+		{
+			Program.Debug ("Loading settings from {0}.", file);
+			using (var reader = new StreamReader (file)) {
+				var doc = XDocument.Load (reader);
+				return TestSerializer.ReadSettings (doc.Root);
+			}
+		}
+
+		static void SaveSettings (SettingsBag settings, string file)
+		{
+			Program.Debug ("Saving settings to {0}.", file);
+			using (var writer = new StreamWriter (file)) {
+				var xws = new XmlWriterSettings ();
+				xws.Indent = true;
+
+				using (var xml = XmlTextWriter.Create (writer, xws)) {
+					var node = TestSerializer.WriteSettings (settings);
+					node.WriteTo (xml);
+					xml.Flush ();
+				}
+			}
+		}
+
+		static string MakeAbsolute (string directory, string file)
+		{
+			if (string.IsNullOrEmpty (directory) || string.IsNullOrEmpty (file) || Path.IsPathRooted (file))
+				return file;
+			return Path.Combine (directory, file);
+		}
+
+		static void ParseSettings (SettingsBag settings, string arg)
+		{
+			var parts = arg.Split (',');
+			foreach (var part in parts) {
+				var pos = part.IndexOf ('=');
+				if (pos > 0) {
+					var key = part.Substring (0, pos);
+					var value = part.Substring (pos + 1);
+					Program.Debug ("SET: |{0}|{1}|", key, value);
+					if (key[0] == '-')
+						throw new InvalidOperationException ();
+					settings.SetValue (key, value);
+				} else if (part[0] == '-') {
+					var key = part.Substring (1);
+					settings.RemoveValue (key);
+				} else {
+					throw new InvalidOperationException ();
+				}
+			}
+		}
+
+		internal static string GetEnvironmentVariable (string name, string defaultValue)
+		{
+			var value = Environment.GetEnvironmentVariable (name);
+			if (string.IsNullOrEmpty (value))
+				value = defaultValue;
+			return value;
+		}
+
+		internal bool ModifyConfiguration (TestConfiguration config)
+		{
+			bool modified = false;
+
+			if (Category != null) {
+				if (string.Equals (Category, "all", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.All;
+				else if (string.Equals (Category, "global", StringComparison.OrdinalIgnoreCase))
+					config.CurrentCategory = TestCategory.Global;
+				else
+					config.CurrentCategory = config.Categories.First (c => c.Name.Equals (Category));
+				modified = true;
+			}
+
+			if (Features != null) {
+				modified = true;
+				var parts = Features.Split (',');
+				foreach (var part in parts) {
+					var name = part;
+					bool enable = true;
+					if (part[0] == '-') {
+						name = part.Substring (1);
+						enable = false;
+					} else if (part[0] == '+') {
+						name = part.Substring (1);
+						enable = true;
+					}
+
+					if (name.Equals ("all")) {
+						foreach (var feature in config.Features) {
+							if (feature.CanModify)
+								config.SetIsEnabled (feature, enable);
+						}
+					} else {
+						var feature = config.Features.First (f => f.Name.Equals (name));
+						config.SetIsEnabled (feature, enable);
+					}
+				}
+			}
+
+			return modified;
+		}
+
+		internal bool UpdateConfiguration (TestSession session)
+		{
+			var config = session.Configuration;
+
+			var modified = ModifyConfiguration (config);
+
+			bool done = false;
+			if (ShowCategories) {
+				Program.WriteLine ("Test Categories:");
+				foreach (var category in session.ConfigurationProvider.Categories) {
+					var builtinText = category.IsBuiltin ? " (builtin)" : string.Empty;
+					var explicitText = category.IsExplicit ? " (explicit)" : string.Empty;
+					var currentText = config.CurrentCategory != null && config.CurrentCategory.Name.Equals (category.Name) ? " (current)" : string.Empty;
+					Program.WriteLine ("  {0}{1}{2}{3}", category.Name, builtinText, explicitText, currentText);
+				}
+				Program.WriteLine ();
+				done = true;
+			}
+
+			if (ShowFeatures) {
+				Program.WriteLine ("Test Features:");
+				foreach (var feature in session.ConfigurationProvider.Features) {
+					var constText = feature.Constant != null ? string.Format (" (const = {0})", feature.Constant.Value ? "enabled" : "disabled") : string.Empty;
+					var defaultText = feature.DefaultValue != null ? string.Format (" (default = {0})", feature.DefaultValue.Value ? "enabled" : "disabled") : string.Empty;
+					var currentText = feature.CanModify ? string.Format (" ({0})", config.IsEnabled (feature) ? "enabled" : "disabled") : string.Empty;
+					Program.WriteLine ("  {0,-30} {1}{2}{3}{4}", feature.Name, feature.Description, constText, defaultText, currentText);
+				}
+				Program.WriteLine ();
+				done = true;
+			}
+
+			if (done)
+				Environment.Exit (0);
+
+			if (modified && SaveOptions)
+				SaveSettings (Settings, SettingsFile);
+
+			return modified;
 		}
 	}
 }

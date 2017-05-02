@@ -92,14 +92,6 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		static string GetEnvironmentVariable (string name, string defaultValue)
-		{
-			var value = Environment.GetEnvironmentVariable (name);
-			if (string.IsNullOrEmpty (value))
-				value = defaultValue;
-			return value;
-		}
-
 		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string extraArgs)
 		{
 			Program = program;
@@ -110,23 +102,16 @@ namespace Xamarin.AsyncTests.Console
 			ExtraMTouchArguments = extraArgs;
 			SdkRoot = sdkroot;
 
-			MonoTouchRoot = GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
-
-			if (String.IsNullOrEmpty (SdkRoot)) {
-				SdkRoot = GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT", "/Applications/Xcode.app/Contents/Developer");
-			}
+			MonoTouchRoot = ProgramOptions.GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
 
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 
 			switch (command) {
 			case Command.Device:
 			case Command.Simulator:
-				DeviceType = Program.IOSDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "iPhone-5s");
-				Runtime = Program.IOSRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-3");
-				break;
 			case Command.TVOS:
-				DeviceType = "Apple-TV-1080p";
-				Runtime = "tvOS-9-2";
+				DeviceType = Program.Options.IOSDeviceType;
+				Runtime = Program.Options.IOSRuntime;
 				break;
 			default:
 				throw new NotSupportedException ();
