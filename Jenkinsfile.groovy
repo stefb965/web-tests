@@ -116,7 +116,8 @@ def runTests (String target, String category)
 				run (target, category, resultOutput, junitResultOutput)
 			}
 		} catch (error) {
-			echo "RUN FAILED: $error"
+			def result = currentBuild.result
+			echo "RUN FAILED: $error $result"
 		} finally {
 			junit keepLongStdio: true, testResults: "$outputDir/*.xml"
 			archiveArtifacts artifacts: "$outputDir/*.xml", fingerprint: true
