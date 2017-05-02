@@ -54,7 +54,7 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string MTouch {
+		public string MLaunch {
 			get;
 		}
 
@@ -68,7 +68,7 @@ namespace Xamarin.AsyncTests.Console
 
 			MonoTouchRoot = ProgramOptions.GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
 
-			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
+			MLaunch = Path.Combine (MonoTouchRoot, "bin", "mlaunch");
 
 			DeviceName = string.Format (
 				":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}",
@@ -100,9 +100,9 @@ namespace Xamarin.AsyncTests.Console
 				args.Append (Options.ExtraLauncherArgs);
 			}
 
-			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
+			Program.Debug ("Launching mtouch: {0} {1}", MLaunch, args);
 
-			var psi = new ProcessStartInfo (MTouch, args.ToString ());
+			var psi = new ProcessStartInfo (MLaunch, args.ToString ());
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 
@@ -139,8 +139,6 @@ namespace Xamarin.AsyncTests.Console
 				args.AppendFormat (" --stdout={0}", Options.StdOut);
 			if (!string.IsNullOrWhiteSpace (Options.StdErr))
 				args.AppendFormat (" --stderr={0}", Options.StdErr);
-			if (!string.IsNullOrWhiteSpace (DeviceName))
-				args.AppendFormat (" --devname={0}", DeviceName);
 			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
 			args.AppendFormat (" --device={0}", DeviceName);
 
@@ -149,7 +147,7 @@ namespace Xamarin.AsyncTests.Console
 				args.Append (Options.ExtraLauncherArgs);
 			}
 
-			return ProcessHelper.StartCommand (MTouch, args.ToString (), cancellationToken);
+			return ProcessHelper.StartCommand (MLaunch, args.ToString (), cancellationToken);
 		}
 	}
 }
