@@ -457,7 +457,7 @@ namespace Xamarin.AsyncTests.Console
 				global::System.Console.WriteLine ("@MonkeyWrench: AddFile: {0}", filename);
 		}
 
-		static IPEndPoint GetEndPoint (string text)
+		internal static IPEndPoint GetEndPoint (string text)
 		{
 			int port;
 			string host;
@@ -474,7 +474,7 @@ namespace Xamarin.AsyncTests.Console
 			return new IPEndPoint (address, port);
 		}
 
-		static IPEndPoint GetLocalEndPoint ()
+		internal static IPEndPoint GetLocalEndPoint ()
 		{
 			return new IPEndPoint (PortableSupportImpl.LocalAddress, 11111);
 		}
