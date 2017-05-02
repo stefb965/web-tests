@@ -129,18 +129,19 @@ namespace Xamarin.AsyncTests.Console
 			case Command.Simulator:
 			case Command.Device:
 			case Command.TVOS:
-				Launcher = new TouchLauncher (this, Options.Application, Options.Command, Options.SdkRoot, Options.StdOut, Options.StdErr, Options.ExtraLauncherArgs);
+				Launcher = new TouchLauncher (this);
 				break;
 			case Command.Mac:
-				Launcher = new MacLauncher (this, Options.Application, Options.StdOut, Options.StdErr);
+				Launcher = new MacLauncher (this);
 				break;
 			case Command.Android:
-				Launcher = new DroidLauncher (this, Options.Application, Options.StdOut, Options.StdErr);
+				DroidHelper = new DroidHelper (this);
+				Launcher = new DroidLauncher (this);
 				break;
 			case Command.Avd:
 			case Command.Emulator:
 			case Command.Apk:
-				DroidHelper = new DroidHelper (this, Options.SdkRoot);
+				DroidHelper = new DroidHelper (this);
 				break;
 			}
 

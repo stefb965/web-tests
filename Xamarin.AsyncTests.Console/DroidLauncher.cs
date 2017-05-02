@@ -48,73 +48,14 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string SdkRoot {
-			get;
-		}
-
-		public string Adb {
-			get;
-		}
-
-		public string AndroidTool {
-			get;
-		}
-
-		public string Application {
-			get;
-		}
-
-		public string RedirectStdout {
-			get;
-		}
-
-		public string RedirectStderr {
-			get;
-		}
-
-		public DroidHelper Helper {
-			get;
-		}
-
-		public DroidDevice Device => Helper.Device;
-
-		public DroidLauncher (Program program, string app, string stdout, string stderr)
+		public DroidLauncher (Program program)
 		{
 			Program = program;
-			Application = app;
-			RedirectStdout = stdout;
-			RedirectStderr = stderr;
-
-			SdkRoot = Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
-			if (String.IsNullOrEmpty (SdkRoot)) {
-				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
-				SdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
-			}
-
-			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
-			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
-
-			Helper = new DroidHelper (program, SdkRoot);
 		}
 
-		public override async Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
-			await Helper.ClearLogCat (cancellationToken).ConfigureAwait (false);
-
-			var logcatProcess = await Helper.StartLogCat (cancellationToken);
-
-			var args = new StringBuilder ();
-			args.Append ("shell am start ");
-			args.Append ("-W -S ");
-			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", options);
-			args.Append (Application);
-
-			Program.Debug ("Launching apk: {0} {1}", Adb, args);
-
-			var process = await ProcessHelper.StartCommand (Adb, args.ToString (), cancellationToken);
-			process.ExitedEvent += (sender, e) => logcatProcess.Dispose ();
-
-			return process;
+			return Program.DroidHelper.LaunchApplication (options, true, cancellationToken);
 		}
 	}
 }

@@ -48,9 +48,7 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string SdkRoot {
-			get;
-		}
+		public ProgramOptions Options => Program.Options;
 
 		public string MonoTouchRoot {
 			get;
@@ -60,89 +58,46 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string Application {
-			get;
-		}
-
-		public Command Command {
-			get;
-		}
-
-		public string RedirectStdout {
-			get;
-		}
-
-		public string RedirectStderr {
-			get;
-		}
-
 		public string DeviceName {
 			get;
 		}
 
-		public string ExtraMTouchArguments {
-			get;
-		}
-
-		public string DeviceType {
-			get;
-		}
-
-		public string Runtime {
-			get;
-		}
-
-		public TouchLauncher (Program program, string app, Command command, string sdkroot, string stdout, string stderr, string extraArgs)
+		public TouchLauncher (Program program)
 		{
 			Program = program;
-			Application = app;
-			Command = command;
-			RedirectStdout = stdout;
-			RedirectStderr = stderr;
-			ExtraMTouchArguments = extraArgs;
-			SdkRoot = sdkroot;
 
 			MonoTouchRoot = ProgramOptions.GetEnvironmentVariable ("MONOTOUCH_ROOT", "/Library/Frameworks/Xamarin.iOS.framework/Versions/Current");
 
 			MTouch = Path.Combine (MonoTouchRoot, "bin", "mtouch");
 
-			switch (command) {
-			case Command.Device:
-			case Command.Simulator:
-			case Command.TVOS:
-				DeviceType = Program.Options.IOSDeviceType;
-				Runtime = Program.Options.IOSRuntime;
-				break;
-			default:
-				throw new NotSupportedException ();
-			}
-
-			DeviceName = string.Format (":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}", DeviceType, Runtime);
+			DeviceName = string.Format (
+				":v2;devicetype=com.apple.CoreSimulator.SimDeviceType.{0},runtime=com.apple.CoreSimulator.SimRuntime.{1}",
+				Options.IOSDeviceType, Options.IOSRuntime);
 		}
 
 		void Install ()
 		{
 			var args = new StringBuilder ();
-			switch (Command) {
+			switch (Options.Command) {
 			case Command.Device:
-				args.AppendFormat (" --installdev={0}", Application);
+				args.AppendFormat (" --installdev={0}", Options.Application);
 				break;
 			case Command.Simulator:
-				args.AppendFormat (" --installsim={0}", Application);
+				args.AppendFormat (" --installsim={0}", Options.Application);
 				break;
 			case Command.TVOS:
-				args.AppendFormat (" --installsim={0}", Application);
+				args.AppendFormat (" --installsim={0}", Options.Application);
 				break;
 			default:
 				throw new NotSupportedException ();
 			}
 
-			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
 			args.AppendFormat ("  --device={0}", DeviceName);
 
-			if (ExtraMTouchArguments != null) {
+			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
-				args.Append (ExtraMTouchArguments);
+				args.Append (Options.ExtraLauncherArgs);
 			}
 
 			Program.Debug ("Launching mtouch: {0} {1}", MTouch, args);
@@ -165,33 +120,33 @@ namespace Xamarin.AsyncTests.Console
 		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
-			switch (Command) {
+			switch (Options.Command) {
 			case Command.Device:
-				args.AppendFormat (" --launchdev={0}", Application);
+				args.AppendFormat (" --launchdev={0}", Options.Application);
 				break;
 			case Command.Simulator:
-				args.AppendFormat (" --launchsim={0}", Application);
+				args.AppendFormat (" --launchsim={0}", Options.Application);
 				break;
 			case Command.TVOS:
-				args.AppendFormat (" --launchsim={0}", Application);
+				args.AppendFormat (" --launchsim={0}", Options.Application);
 				break;
 			default:
 				throw new NotSupportedException ();
 			}
 
 			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", options);
-			if (!string.IsNullOrWhiteSpace (RedirectStdout))
-				args.AppendFormat (" --stdout={0}", RedirectStdout);
-			if (!string.IsNullOrWhiteSpace (RedirectStderr))
-				args.AppendFormat (" --stderr={0}", RedirectStderr);
+			if (!string.IsNullOrWhiteSpace (Options.StdOut))
+				args.AppendFormat (" --stdout={0}", Options.StdOut);
+			if (!string.IsNullOrWhiteSpace (Options.StdErr))
+				args.AppendFormat (" --stderr={0}", Options.StdErr);
 			if (!string.IsNullOrWhiteSpace (DeviceName))
 				args.AppendFormat (" --devname={0}", DeviceName);
-			args.AppendFormat (" --sdkroot={0}", SdkRoot);
+			args.AppendFormat (" --sdkroot={0}", Options.SdkRoot);
 			args.AppendFormat (" --device={0}", DeviceName);
 
-			if (ExtraMTouchArguments != null) {
+			if (Options.ExtraLauncherArgs != null) {
 				args.Append (" ");
-				args.Append (ExtraMTouchArguments);
+				args.Append (Options.ExtraLauncherArgs);
 			}
 
 			return ProcessHelper.StartCommand (MTouch, args.ToString (), cancellationToken);

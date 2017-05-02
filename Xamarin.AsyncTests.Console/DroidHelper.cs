@@ -42,9 +42,7 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public string SdkRoot {
-			get;
-		}
+		public ProgramOptions Options => Program.Options;
 
 		public string Adb {
 			get;
@@ -62,21 +60,13 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		public DroidHelper (Program program, string sdkRoot)
+		public DroidHelper (Program program)
 		{
 			Program = program;
-			SdkRoot = sdkRoot;
 
-			if (String.IsNullOrEmpty (SdkRoot))
-				SdkRoot = Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
-			if (String.IsNullOrEmpty (SdkRoot)) {
-				var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
-				SdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
-			}
-
-			Adb = Path.Combine (SdkRoot, "platform-tools", "adb");
-			AndroidTool = Path.Combine (SdkRoot, "tools", "android");
-			EmulatorTool = Path.Combine (SdkRoot, "tools", "emulator");
+			Adb = Path.Combine (Options.AndroidSdkRoot, "platform-tools", "adb");
+			AndroidTool = Path.Combine (Options.AndroidSdkRoot, "tools", "android");
+			EmulatorTool = Path.Combine (Options.AndroidSdkRoot, "tools", "emulator");
 
 			Device = new DroidDevice ("XamarinWebTests", "android-23", "x86", "Galaxy Nexus");
 		}
@@ -221,6 +211,30 @@ namespace Xamarin.AsyncTests.Console
 		internal Task<ExternalProcess> StartLogCat (CancellationToken cancellationToken)
 		{
 			return ProcessHelper.StartCommand (Adb, "logcat", cancellationToken);
+		}
+
+		internal async Task<ExternalProcess> LaunchApplication (string options, bool captureLogCat, CancellationToken cancellationToken)
+		{
+			ExternalProcess logcatProcess = null;
+			if (captureLogCat) {
+				await ClearLogCat (cancellationToken).ConfigureAwait (false);
+
+				logcatProcess = await Program.DroidHelper.StartLogCat (cancellationToken);
+			}
+
+			var args = new StringBuilder ();
+			args.Append ("shell am start ");
+			args.Append ("-W -S ");
+			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", options);
+			args.Append (Program.Options.Application);
+
+			Program.Debug ("Launching apk: {0}", args);
+
+			var process = await ProcessHelper.StartCommand (Adb, args.ToString (), cancellationToken).ConfigureAwait (false);
+			if (logcatProcess != null)
+				process.ExitedEvent += (sender, e) => logcatProcess.Dispose ();
+
+			return process;
 		}
 	}
 }

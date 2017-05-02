@@ -46,40 +46,21 @@ namespace Xamarin.AsyncTests.Console
 	{
 		public Program Program {
 			get;
-			private set;
 		}
 
-		public string Application {
-			get;
-			private set;
-		}
-
-		public string RedirectStdout {
-			get;
-			private set;
-		}
-
-		public string RedirectStderr {
-			get;
-			private set;
-		}
-
-		public MacLauncher (Program program, string app, string stdout, string stderr)
+		public MacLauncher (Program program)
 		{
 			Program = program;
-			Application = app;
-			RedirectStdout = stdout;
-			RedirectStderr = stderr;
 		}
 
 		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
-			Program.Debug ("Launching app: {0}", Application);
+			Program.Debug ("Launching app: {0}", Program.Options.Application);
 
 			var psi = new ProcessStartInfo ("/usr/bin/open");
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
-			psi.Arguments = "-F -W -n " + Application;
+			psi.Arguments = "-F -W -n " + Program.Options.Application;
 			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", options);
 
 			return ProcessHelper.StartCommand (psi, cancellationToken);

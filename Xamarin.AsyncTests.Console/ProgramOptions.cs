@@ -157,6 +157,10 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
+		public string AndroidSdkRoot {
+			get;
+		}
+
 		public string Category {
 			get;
 			private set;
@@ -189,6 +193,7 @@ namespace Xamarin.AsyncTests.Console {
 			string customSettings = null;
 			bool saveOptions = false;
 			string sdkRoot = null, iosDeviceType = null, iosRuntime = null;
+			string androidSdkRoot = null;
 
 			var p = new OptionSet ();
 			p.Add ("settings=", v => settingsFile = v);
@@ -217,6 +222,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("stdout=", v => stdout = v);
 			p.Add ("stderr=", v => stderr = v);
 			p.Add ("sdkroot=", v => sdkRoot = v);
+			p.Add ("android-sdkroot=", v => androidSdkRoot = v);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => outputDir = v);
 			var arguments = p.Parse (args);
@@ -385,19 +391,38 @@ namespace Xamarin.AsyncTests.Console {
 			if (!DebugMode)
 				Settings.DisableTimeouts = Settings.LogLevel > SettingsBag.DisableTimeoutsAtLogLevel;
 
+			bool needSdk = false, needAndroidSdk = false;
+
 			switch (Command) {
 			case Command.Device:
 			case Command.Simulator:
 				IOSDeviceType = iosDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "iPhone-5s");
 				IOSRuntime = iosRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "iOS-10-3");
+				needSdk = true;
 				break;
 			case Command.TVOS:
 				IOSDeviceType = iosDeviceType ?? GetEnvironmentVariable ("IOS_DEVICE_TYPE", "Apple-TV-1080p");
 				IOSRuntime = iosRuntime ?? GetEnvironmentVariable ("IOS_RUNTIME", "tvOS-9-2");
+				needSdk = true;
+				break;
+			case Command.Android:
+			case Command.Avd:
+			case Command.Emulator:
+			case Command.Apk:
+				needAndroidSdk = true;
 				break;
 			}
 
-			SdkRoot = sdkRoot ?? GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT", "/Applications/Xcode.app/Contents/Developer");
+			if (needSdk)
+				SdkRoot = sdkRoot ?? GetEnvironmentVariable ("XCODE_DEVELOPER_ROOT", "/Applications/Xcode.app/Contents/Developer");
+
+			if (needAndroidSdk) {
+				AndroidSdkRoot = androidSdkRoot ?? Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
+				if (String.IsNullOrEmpty (AndroidSdkRoot)) {
+					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
+					androidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
+				}
+			}
 		}
 
 		static SettingsBag LoadSettings (string file)
