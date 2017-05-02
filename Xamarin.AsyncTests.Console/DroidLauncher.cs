@@ -97,8 +97,12 @@ namespace Xamarin.AsyncTests.Console
 			Helper = new DroidHelper (program, SdkRoot);
 		}
 
-		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
+		public override async Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
+			await Helper.ClearLogCat (cancellationToken).ConfigureAwait (false);
+
+			var logcatProcess = await Helper.StartLogCat (cancellationToken);
+
 			var args = new StringBuilder ();
 			args.Append ("shell am start ");
 			args.Append ("-W -S ");
@@ -107,7 +111,10 @@ namespace Xamarin.AsyncTests.Console
 
 			Program.Debug ("Launching apk: {0} {1}", Adb, args);
 
-			return ProcessHelper.RunCommand (Adb, args.ToString (), cancellationToken);
+			var process = await ProcessHelper.StartCommand (Adb, args.ToString (), cancellationToken);
+			process.ExitedEvent += (sender, e) => logcatProcess.Dispose ();
+
+			return process;
 		}
 	}
 }

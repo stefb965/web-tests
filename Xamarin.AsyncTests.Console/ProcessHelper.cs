@@ -64,6 +64,8 @@ namespace Xamarin.AsyncTests.Console {
 
 			process.EnableRaisingEvents = true;
 			process.Exited += (sender, e) => {
+				Program.Debug ("TOOL EXITED: {0}", process.ExitCode);
+				OnExited (process.ExitCode);
 				if (cts.IsCancellationRequested) {
 					tcs.TrySetCanceled ();
 				} else if (process.ExitCode != 0) {
@@ -73,6 +75,15 @@ namespace Xamarin.AsyncTests.Console {
 					tcs.TrySetResult (null);
 				}
 			};
+			process.OutputDataReceived += (sender, e) => {
+				Program.Debug ("OUTPUT: {0}", e.Data);
+			};
+			process.ErrorDataReceived += (sender, e) => {
+				Program.Debug ("ERROR OUTPUT: {0}", e.Data);
+			};
+
+			process.BeginErrorReadLine ();
+			process.BeginOutputReadLine ();
 		}
 
 		static string GetCommandLine (ProcessStartInfo startInfo)
@@ -96,18 +107,26 @@ namespace Xamarin.AsyncTests.Console {
 			}
 		}
 
-		public static Task<ExternalProcess> RunCommand (string command, string args, CancellationToken cancellationToken)
+		public static async Task RunCommand (string command, string args, CancellationToken cancellationToken)
+		{
+			var process = await StartCommand (command, args, cancellationToken).ConfigureAwait (false);
+			await process.WaitForExit (cancellationToken);
+		}
+
+		public static Task<ExternalProcess> StartCommand (string command, string args, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var psi = new ProcessStartInfo (command, args);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
+			psi.RedirectStandardOutput = true;
+			psi.RedirectStandardError = true;
 
-			return RunCommand (psi, cancellationToken);
+			return StartCommand (psi, cancellationToken);
 		}
 
-		public static Task<ExternalProcess> RunCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
+		public static Task<ExternalProcess> StartCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 

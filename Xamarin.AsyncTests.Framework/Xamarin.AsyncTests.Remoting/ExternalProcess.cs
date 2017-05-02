@@ -39,6 +39,13 @@ namespace Xamarin.AsyncTests.Remoting {
 
 		public abstract Task WaitForExit (CancellationToken cancellationToken);
 
+		public event EventHandler<int> ExitedEvent;
+
+		protected virtual void OnExited (int exitCode)
+		{
+			ExitedEvent?.Invoke (this, exitCode);
+		}
+
 		#region IDisposable Support
 		int disposed;
 

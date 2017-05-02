@@ -209,7 +209,7 @@ namespace Xamarin.AsyncTests.Console
 				args.Append (ExtraMTouchArguments);
 			}
 
-			return ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken);
+			return ProcessHelper.StartCommand (MTouch, args.ToString (), cancellationToken);
 		}
 	}
 }

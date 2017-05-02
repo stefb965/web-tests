@@ -593,7 +593,8 @@ namespace Xamarin.AsyncTests.Console
 				success = await droidHelper.CheckEmulator (cancellationToken).ConfigureAwait (false);
 				break;
 			case Command.Apk:
-				success = await droidHelper.InstallApk (arguments[0], cancellationToken).ConfigureAwait (false);
+				await droidHelper.InstallApk (arguments[0], cancellationToken).ConfigureAwait (false);
+				success = true;
 				break;
 			case Command.Result:
 				success = await ShowResult (cancellationToken).ConfigureAwait (false);

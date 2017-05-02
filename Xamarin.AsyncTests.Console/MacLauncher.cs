@@ -82,7 +82,7 @@ namespace Xamarin.AsyncTests.Console
 			psi.Arguments = "-F -W -n " + Application;
 			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", options);
 
-			return ProcessHelper.RunCommand (psi, cancellationToken);
+			return ProcessHelper.StartCommand (psi, cancellationToken);
 		}
 	}
 }

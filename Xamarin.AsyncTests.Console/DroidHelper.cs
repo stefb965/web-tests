@@ -32,6 +32,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.Console
 {
@@ -206,17 +207,20 @@ namespace Xamarin.AsyncTests.Console
 			return ProcessHelper.RunCommand ("/bin/sh", shellArgs, cancellationToken);
 		}
 
-		internal async Task<bool> InstallApk (string apk, CancellationToken cancellationToken)
+		internal Task InstallApk (string apk, CancellationToken cancellationToken)
 		{
 			var args = string.Format ("install -r -d {0}", apk);
-			await ProcessHelper.RunCommand (Adb, args, cancellationToken).ConfigureAwait (false);
-			return true;
+			return ProcessHelper.RunCommand (Adb, args, cancellationToken);
 		}
 
-		internal async Task<bool> ClearLogCat (string apk, CancellationToken cancellationToken)
+		internal Task ClearLogCat (CancellationToken cancellationToken)
 		{
-			await ProcessHelper.RunCommand (Adb, "logcat -c", cancellationToken).ConfigureAwait (false);
-			return true;
+			return ProcessHelper.RunCommand (Adb, "logcat -c", cancellationToken);
+		}
+
+		internal Task<ExternalProcess> StartLogCat (CancellationToken cancellationToken)
+		{
+			return ProcessHelper.StartCommand (Adb, "logcat", cancellationToken);
 		}
 	}
 }
