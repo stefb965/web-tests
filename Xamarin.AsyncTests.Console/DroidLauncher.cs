@@ -55,7 +55,7 @@ namespace Xamarin.AsyncTests.Console
 
 		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
-			return Program.DroidHelper.LaunchApplication (options, true, cancellationToken);
+			return Program.DroidHelper.LaunchApplication (options, cancellationToken);
 		}
 	}
 }

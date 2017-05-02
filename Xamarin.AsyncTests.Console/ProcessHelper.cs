@@ -37,6 +37,7 @@ using Xamarin.AsyncTests.Remoting;
 namespace Xamarin.AsyncTests.Console {
 	class ProcessHelper : ExternalProcess {
 		Process process;
+		TextWriter output;
 		string commandLine;
 		CancellationTokenSource cts;
 		TaskCompletionSource<object> tcs;
@@ -45,9 +46,10 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
-		ProcessHelper (Process process, CancellationToken cancellationToken)
+		ProcessHelper (Process process, TextWriter output, CancellationToken cancellationToken)
 		{
 			this.process = process;
+			this.output = output;
 
 			commandLine = GetCommandLine (process.StartInfo);
 
@@ -75,15 +77,18 @@ namespace Xamarin.AsyncTests.Console {
 					tcs.TrySetResult (null);
 				}
 			};
-			process.OutputDataReceived += (sender, e) => {
-				Program.Debug ("OUTPUT: {0}", e.Data);
-			};
-			process.ErrorDataReceived += (sender, e) => {
-				Program.Debug ("ERROR OUTPUT: {0}", e.Data);
-			};
 
-			process.BeginErrorReadLine ();
-			process.BeginOutputReadLine ();
+			if (output != null) {
+				process.OutputDataReceived += (sender, e) => {
+					output.WriteLine (e.Data);
+				};
+				process.ErrorDataReceived += (sender, e) => {
+					output.WriteLine (e.Data);
+				};
+
+				process.BeginErrorReadLine ();
+				process.BeginOutputReadLine ();
+			}
 		}
 
 		static string GetCommandLine (ProcessStartInfo startInfo)
@@ -115,18 +120,30 @@ namespace Xamarin.AsyncTests.Console {
 
 		public static Task<ExternalProcess> StartCommand (string command, string args, CancellationToken cancellationToken)
 		{
+			return StartCommand (command, args, null, cancellationToken);
+		}
+
+		public static Task<ExternalProcess> StartCommand (string command, string args, TextWriter output, CancellationToken cancellationToken)
+		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
 			var psi = new ProcessStartInfo (command, args);
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
-			psi.RedirectStandardOutput = true;
-			psi.RedirectStandardError = true;
+			if (output != null) {
+				psi.RedirectStandardOutput = true;
+				psi.RedirectStandardError = true;
+			}
 
-			return StartCommand (psi, cancellationToken);
+			return StartCommand (psi, output, cancellationToken);
 		}
 
 		public static Task<ExternalProcess> StartCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
+		{
+			return StartCommand (psi, null, cancellationToken);
+		}
+
+		public static Task<ExternalProcess> StartCommand (ProcessStartInfo psi, TextWriter output, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -138,7 +155,7 @@ namespace Xamarin.AsyncTests.Console {
 
 				var process = Process.Start (psi);
 				Program.Debug ("Started tool: {0}", commandLine);
-				return new ProcessHelper (process, cancellationToken);
+				return new ProcessHelper (process, output, cancellationToken);
 			});
 		}
 
@@ -204,6 +221,10 @@ namespace Xamarin.AsyncTests.Console {
 			if (cts != null) {
 				cts.Dispose ();
 				cts = null;
+			}
+			if (output != null) {
+				output.Dispose ();
+				output = null;
 			}
 		}
 	}

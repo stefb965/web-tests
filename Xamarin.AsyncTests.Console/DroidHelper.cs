@@ -208,18 +208,19 @@ namespace Xamarin.AsyncTests.Console
 			return ProcessHelper.RunCommand (Adb, "logcat -c", cancellationToken);
 		}
 
-		internal Task<ExternalProcess> StartLogCat (CancellationToken cancellationToken)
+		internal Task<ExternalProcess> StartLogCat (StreamWriter output, CancellationToken cancellationToken)
 		{
-			return ProcessHelper.StartCommand (Adb, "logcat", cancellationToken);
+			return ProcessHelper.StartCommand (Adb, "logcat", output, cancellationToken);
 		}
 
-		internal async Task<ExternalProcess> LaunchApplication (string options, bool captureLogCat, CancellationToken cancellationToken)
+		internal async Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			ExternalProcess logcatProcess = null;
-			if (captureLogCat) {
+			if (Options.SaveLogCat != null) {
 				await ClearLogCat (cancellationToken).ConfigureAwait (false);
 
-				logcatProcess = await Program.DroidHelper.StartLogCat (cancellationToken);
+				var output = new StreamWriter (Options.SaveLogCat);
+				logcatProcess = await StartLogCat (output, cancellationToken);
 			}
 
 			var args = new StringBuilder ();

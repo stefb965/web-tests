@@ -133,6 +133,11 @@ namespace Xamarin.AsyncTests.Console {
 			get;
 		}
 
+		public string SaveLogCat {
+			get;
+			private set;
+		}
+
 		public string Category {
 			get;
 			private set;
@@ -199,6 +204,7 @@ namespace Xamarin.AsyncTests.Console {
 			p.Add ("stderr=", v => stderr = v);
 			p.Add ("sdkroot=", v => sdkRoot = v);
 			p.Add ("android-sdkroot=", v => androidSdkRoot = v);
+			p.Add ("save-logcat=", v => SaveLogCat = v);
 			p.Add ("jenkins", v => Jenkins = true);
 			p.Add ("output-dir=", v => outputDir = v);
 			var arguments = p.Parse (args);
@@ -394,7 +400,7 @@ namespace Xamarin.AsyncTests.Console {
 				AndroidSdkRoot = androidSdkRoot ?? Environment.GetEnvironmentVariable ("ANDROID_SDK_PATH");
 				if (String.IsNullOrEmpty (AndroidSdkRoot)) {
 					var home = Environment.GetFolderPath (Environment.SpecialFolder.Personal);
-					androidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
+					AndroidSdkRoot = Path.Combine (home, "Library", "Developer", "Xamarin", "android-sdk-macosx");
 				}
 			}
 		}
