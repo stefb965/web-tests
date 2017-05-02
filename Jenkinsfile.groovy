@@ -210,5 +210,19 @@ node ('jenkins-mac-1') {
 				runTests ('Mac', 'All')
 			}
 		}
+		if (enableXA ()) {
+			stage ('android-btls-martin') {
+				runTests ('Android-Btls', 'Martin')
+			}
+			stage ('android-btls-work') {
+				runTests ('Android-Btls', 'Work')
+			}
+			stage ('android-btls-new') {
+				runTests ('Android-Btls', 'New')
+			}
+			stage ('android-btls-all') {
+				runTests ('Android-Btls', 'All')
+			}
+		}
 	}
 }
