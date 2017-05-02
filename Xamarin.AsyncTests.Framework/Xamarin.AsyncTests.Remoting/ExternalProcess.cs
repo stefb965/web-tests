@@ -1,10 +1,10 @@
 ﻿//
-// LauncherConnection.cs
+// ExternalProcess.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
 //
-// Copyright (c) 2014-2016 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2016 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,31 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
-using System.ComponentModel;
 
-namespace Xamarin.AsyncTests.Remoting
-{
-	using Portable;
-	using Framework;
-
-	public class LauncherConnection : ClientConnection
-	{
-		ExternalProcess process;
-
-		public LauncherConnection (TestApp app, Stream stream, IServerConnection connection, ExternalProcess process)
-			: base (app, stream, connection)
-		{
-			this.process = process;
+namespace Xamarin.AsyncTests.Remoting {
+	public abstract class ExternalProcess : IDisposable {
+		public abstract string CommandLine {
+			get;
 		}
 
-		protected internal override void OnShutdown ()
+		public abstract void Abort ();
+
+		protected abstract void Stop ();
+
+		public abstract Task WaitForExit (CancellationToken cancellationToken);
+
+		#region IDisposable Support
+		int disposed;
+
+		public void Dispose ()
 		{
-			base.OnShutdown ();
-			process.Dispose ();
+			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
+				return;
+
+			try {
+				Stop ();
+			} catch {
+				;
+			}
 		}
+		#endregion
 	}
 }
 

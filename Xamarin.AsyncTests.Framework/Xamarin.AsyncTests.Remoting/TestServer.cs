@@ -98,13 +98,13 @@ namespace Xamarin.AsyncTests.Remoting
 			if (!string.IsNullOrWhiteSpace (app.PackageName))
 				sb.AppendFormat (" --package-name={0}", app.PackageName);
 
-			await launcher.LaunchApplication (sb.ToString (), cancellationToken);
+			var process = await launcher.LaunchApplication (sb.ToString (), cancellationToken);
 
 			var cts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken);
 			cts.CancelAfter (90000);
 
 			bool launcherError = false;
-			var launcherTask = launcher.WaitForExit (cts.Token).ContinueWith (t => {
+			var launcherTask = process.WaitForExit (cts.Token).ContinueWith (t => {
 				if (t.IsFaulted || t.IsCanceled) {
 					launcherError = true;
 					cts.Cancel ();
@@ -122,7 +122,7 @@ namespace Xamarin.AsyncTests.Remoting
 				throw;
 			}
 
-			var launcherConnection = new LauncherConnection (app, stream, connection, launcher);
+			var launcherConnection = new LauncherConnection (app, stream, connection, process);
 			var client = new Client (app, launcherConnection);
 			await client.Initialize (cancellationToken);
 			cts.Token.ThrowIfCancellationRequested ();

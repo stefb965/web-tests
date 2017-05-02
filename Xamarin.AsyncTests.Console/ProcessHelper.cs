@@ -32,15 +32,16 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests.Remoting;
 
 namespace Xamarin.AsyncTests.Console {
-	class ProcessHelper : IDisposable {
+	class ProcessHelper : ExternalProcess {
 		Process process;
 		string commandLine;
 		CancellationTokenSource cts;
 		TaskCompletionSource<object> tcs;
 
-		public string CommandLine {
+		public override string CommandLine {
 			get;
 		}
 
@@ -82,12 +83,12 @@ namespace Xamarin.AsyncTests.Console {
 			return commandLine;
 		}
 
-		public void Abort ()
+		public override void Abort ()
 		{
 			cts.Cancel ();
 		}
 
-		public Task WaitForExit (CancellationToken cancellationToken)
+		public override Task WaitForExit (CancellationToken cancellationToken)
 		{
 			using (var linkedCts = CancellationTokenSource.CreateLinkedTokenSource (cancellationToken)) {
 				linkedCts.Token.Register (() => Abort ());
@@ -95,7 +96,7 @@ namespace Xamarin.AsyncTests.Console {
 			}
 		}
 
-		public static Task<ProcessHelper> RunCommand (string command, string args, CancellationToken cancellationToken)
+		public static Task<ExternalProcess> RunCommand (string command, string args, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -106,11 +107,11 @@ namespace Xamarin.AsyncTests.Console {
 			return RunCommand (psi, cancellationToken);
 		}
 
-		public static Task<ProcessHelper> RunCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
+		public static Task<ExternalProcess> RunCommand (ProcessStartInfo psi, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			return Task.Run (() => {
+			return Task.Run<ExternalProcess> (() => {
 				cancellationToken.ThrowIfCancellationRequested ();
 
 				var commandLine = GetCommandLine (psi);
@@ -170,16 +171,7 @@ namespace Xamarin.AsyncTests.Console {
 			return tcs.Task;
 		}
 
-		public void Stop ()
-		{
-			try {
-				Dispose ();
-			} catch {
-				;
-			}
-		}
-
-		public void Dispose ()
+		protected override void Stop ()
 		{
 			if (process != null) {
 				try {

@@ -64,8 +64,6 @@ namespace Xamarin.AsyncTests.Console
 			private set;
 		}
 
-		ProcessHelper process;
-
 		public MacLauncher (Program program, string app, string stdout, string stderr)
 		{
 			Program = program;
@@ -74,7 +72,7 @@ namespace Xamarin.AsyncTests.Console
 			RedirectStderr = stderr;
 		}
 
-		Task<ProcessHelper> Launch (string launchArgs, CancellationToken cancellationToken)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			Program.Debug ("Launching app: {0}", Application);
 
@@ -82,30 +80,9 @@ namespace Xamarin.AsyncTests.Console
 			psi.UseShellExecute = false;
 			psi.RedirectStandardInput = true;
 			psi.Arguments = "-F -W -n " + Application;
-			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", launchArgs);
+			psi.EnvironmentVariables.Add ("XAMARIN_ASYNCTESTS_OPTIONS", options);
 
 			return ProcessHelper.RunCommand (psi, cancellationToken);
-		}
-
-		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
-		{
-			process = await Launch (args, cancellationToken).ConfigureAwait (false);
-
-			Program.Debug ("Started: {0}", process.CommandLine);
-		}
-
-		public override Task WaitForExit (CancellationToken cancellationToken)
-		{
-			return process.WaitForExit (cancellationToken);
-		}
-
-		public override void StopApplication ()
-		{
-			try {
-				process.Dispose ();
-			} catch {
-				;
-			}
 		}
 	}
 }

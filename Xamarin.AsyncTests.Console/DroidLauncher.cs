@@ -78,8 +78,6 @@ namespace Xamarin.AsyncTests.Console
 
 		public DroidDevice Device => Helper.Device;
 
-		ProcessHelper process;
-
 		public DroidLauncher (Program program, string app, string stdout, string stderr)
 		{
 			Program = program;
@@ -99,38 +97,17 @@ namespace Xamarin.AsyncTests.Console
 			Helper = new DroidHelper (program, SdkRoot);
 		}
 
-		Task<ProcessHelper> Launch (string launchArgs, CancellationToken cancellationToken)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
 			args.Append ("shell am start ");
 			args.Append ("-W -S ");
-			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", launchArgs);
+			args.AppendFormat (" -e XAMARIN_ASYNCTESTS_OPTIONS \\'{0}\\' ", options);
 			args.Append (Application);
 
 			Program.Debug ("Launching apk: {0} {1}", Adb, args);
 
 			return ProcessHelper.RunCommand (Adb, args.ToString (), cancellationToken);
-		}
-
-		public override async Task LaunchApplication (string args, CancellationToken cancellationToken)
-		{
-			process = await Launch (args, cancellationToken).ConfigureAwait (false);
-
-			Program.Debug ("Started: {0}", process.CommandLine);
-		}
-
-		public override Task WaitForExit (CancellationToken cancellationToken)
-		{
-			return process.WaitForExit (cancellationToken);
-		}
-
-		public override void StopApplication ()
-		{
-			try {
-				process.Dispose ();
-			} catch {
-				;
-			}
 		}
 	}
 }

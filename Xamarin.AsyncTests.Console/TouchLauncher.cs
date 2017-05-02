@@ -92,8 +92,6 @@ namespace Xamarin.AsyncTests.Console
 			get;
 		}
 
-		ProcessHelper process;
-
 		static string GetEnvironmentVariable (string name, string defaultValue)
 		{
 			var value = Environment.GetEnvironmentVariable (name);
@@ -179,7 +177,7 @@ namespace Xamarin.AsyncTests.Console
 				throw new NotSupportedException ();
 		}
 
-		public override async Task LaunchApplication (string launchArgs, CancellationToken cancellationToken)
+		public override Task<ExternalProcess> LaunchApplication (string options, CancellationToken cancellationToken)
 		{
 			var args = new StringBuilder ();
 			switch (Command) {
@@ -196,7 +194,7 @@ namespace Xamarin.AsyncTests.Console
 				throw new NotSupportedException ();
 			}
 
-			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", launchArgs);
+			args.AppendFormat (" --setenv=\"XAMARIN_ASYNCTESTS_OPTIONS={0}\"", options);
 			if (!string.IsNullOrWhiteSpace (RedirectStdout))
 				args.AppendFormat (" --stdout={0}", RedirectStdout);
 			if (!string.IsNullOrWhiteSpace (RedirectStderr))
@@ -211,17 +209,7 @@ namespace Xamarin.AsyncTests.Console
 				args.Append (ExtraMTouchArguments);
 			}
 
-			process = await ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken).ConfigureAwait (false);
-		}
-
-		public override Task WaitForExit (CancellationToken cancellationToken)
-		{
-			return process.WaitForExit (cancellationToken);
-		}
-
-		public override void StopApplication ()
-		{
-			process.Stop ();
+			return ProcessHelper.RunCommand (MTouch, args.ToString (), cancellationToken);
 		}
 	}
 }
