@@ -67,17 +67,11 @@
       <Link>Xamarin.WebTests.MonoTestProvider\MonoConnectionFrameworkSetup.cs</Link>
     </Compile>
   </ItemGroup>
-  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
   <ItemGroup>
-    <None Include="..\..\Xamarin.AsyncTests.MacUI\Info.plist">
+    <None Include="Info.plist">
       <Link>Info.plist</Link>
     </None>
     <None Include="web-tests-linker.xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainMenu.xib">
-      <Link>MainMenu.xib</Link>
-    </InterfaceDefinition>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
@@ -121,4 +115,5 @@
       <Name>Xamarin.AsyncTests.MacUI</Name>
     </ProjectReference>
   </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
 </Project>
