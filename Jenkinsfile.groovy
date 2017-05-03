@@ -103,7 +103,7 @@ def run (String target, String testCategory, String resultOutput, String junitRe
 	sh "msbuild Jenkinsfile.targets /t:Run /p:JenkinsTarget=$target,TestCategory=$testCategory,$iosParams,$resultParams"
 }
 
-def runTests (String target, String category)
+def runTests (String target, String category, int timeout = 10)
 {
 	dir ('web-tests') {
 		def outputDir = "out/" + target + "/" + category
@@ -112,7 +112,7 @@ def runTests (String target, String category)
 		def resultOutput = "$outputDirAbs/TestResult-${target}-${category}.xml"
 		def junitResultOutput = "$outputDirAbs/JUnitTestResult-${target}-${category}.xml"
 		try {
-			timeout (10) {
+			timeout (timeout) {
 				run (target, category, resultOutput, junitResultOutput)
 			}
 		} catch (error) {
@@ -222,7 +222,7 @@ node ('jenkins-mac-1') {
 				runTests ('Android-Btls', 'New')
 			}
 			stage ('android-btls-all') {
-				runTests ('Android-Btls', 'All')
+				runTests ('Android-Btls', 'All', 30)
 			}
 		}
 	}
