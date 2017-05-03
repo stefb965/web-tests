@@ -53,6 +53,8 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Xml" />
     <Reference Include="Xamarin.Mac" />
     <Reference Include="Mono.Security" />
   </ItemGroup>
@@ -73,6 +75,70 @@
     </None>
     <None Include="web-tests-linker.xml" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\AppDelegate.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\AppDelegate.designer.cs">
+      <DependentUpon>AppDelegate.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\BooleanProperty.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\InstanceProperty.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\Property.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\ServerModeModel.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\TestCaseModel.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\TestCategoryModel.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\TestFeatureModel.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\TestListNode.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\TestResultModel.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\UIBinding.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Binding\ValueTransformers.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\Command.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\CommandProvider.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\INotifyStateChanged.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\NotifyStateChanged.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\RunParameters.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\ServerManager.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\ServerMode.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\ServerParameters.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\Commands\TestRunner.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\AlertException.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MacUI.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MainWindow.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MainWindow.designer.cs">
+      <DependentUpon>MainWindow.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MainWindowController.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\MainWindowController.designer.cs">
+      <DependentUpon>MainWindowController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialog.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialog.designer.cs">
+      <DependentUpon>SettingsDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialogController.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialogController.designer.cs">
+      <DependentUpon>SettingsDialogController.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\TestResultDetails.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\TestResultDetails.designer.cs">
+      <DependentUpon>TestResultDetails.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\TestResultList.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\TestResultList.designer.cs">
+      <DependentUpon>TestResultList.cs</DependentUpon>
+    </Compile>
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\UISettings.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\IAppDelegate.cs" />
+    <Compile Include="..\..\Xamarin.AsyncTests.MacUI\IBuiltinTestServer.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainWindow.xib" />
+    <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\SettingsDialog.xib" />
+    <InterfaceDefinition Include="..\..\Xamarin.AsyncTests.MacUI\MainMenu.xib" />
+  </ItemGroup>
+  <Import Project="..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems" Label="Shared" Condition="Exists('..\Xamarin.AsyncTests.PortableImpl\Xamarin.AsyncTests.PortableImpl.projitems')" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
       <Project>{CE125B3F-AD36-4EDD-B3D5-4CDBE430924A}</Project>
@@ -109,10 +175,6 @@
     <ProjectReference Include="..\Mono.Security.Interface\Mono.Security.Interface.csproj">
       <Project>{D8CF5744-B13E-4134-A4BF-9E219261C1BF}</Project>
       <Name>Mono.Security.Interface</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Xamarin.AsyncTests.MacUI\Xamarin.AsyncTests.MacUI.csproj">
-      <Project>{B215EC4B-1B74-446D-A51B-2CC9DDAE1252}</Project>
-      <Name>Xamarin.AsyncTests.MacUI</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Mac\Xamarin.Mac.CSharp.targets" />
