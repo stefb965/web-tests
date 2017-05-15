@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void SendChunked ()
 		{
-			throw new NotImplementedException ();
+			throw new NotSupportedException ();
 		}
 
 		public override void SetContentLength (long contentLength)
@@ -69,12 +69,12 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void SetCredentials (ICredentials credentials)
 		{
-			throw new NotImplementedException ();
+			throw new NotSupportedException ();
 		}
 
 		public override void SetProxy (IWebProxy proxy)
 		{
-			throw new NotImplementedException ();
+			throw new NotSupportedException ();
 		}
 	}
 }

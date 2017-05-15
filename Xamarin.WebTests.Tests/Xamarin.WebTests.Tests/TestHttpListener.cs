@@ -42,7 +42,6 @@ namespace Xamarin.WebTests.Tests {
 		{
 			switch (filter) {
 			case "martin":
-				yield return new HttpListenerHandler (HttpListenerOperation.Get);
 				yield return new HttpListenerHandler (HttpListenerOperation.MartinTest);
 				break;
 			}
