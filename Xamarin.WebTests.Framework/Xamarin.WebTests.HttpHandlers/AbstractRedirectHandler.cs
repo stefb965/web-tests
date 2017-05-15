@@ -50,7 +50,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
 			Target.ConfigureRequest (request, uri);
 		}
 	}

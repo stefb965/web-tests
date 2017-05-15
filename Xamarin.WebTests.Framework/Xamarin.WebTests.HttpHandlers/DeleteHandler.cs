@@ -86,7 +86,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
 			request.Method = "DELETE";
 			request.Content = StringContent.CreateMaybeNull (Body);
 

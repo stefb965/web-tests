@@ -56,6 +56,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new GetHandler (Value, Content);
 		}
 
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+		}
+
 		internal protected override Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request,
 		                                                              RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{

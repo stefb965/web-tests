@@ -159,7 +159,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
 			switch (Operation) {
 			case HttpClientOperation.GetString:
 				request.Method = "GET";

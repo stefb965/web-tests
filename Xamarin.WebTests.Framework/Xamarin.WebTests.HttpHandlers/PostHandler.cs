@@ -188,7 +188,6 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public override void ConfigureRequest (Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
 			request.Method = Method ?? "POST";
 
 			if (AllowWriteStreamBuffering != null)

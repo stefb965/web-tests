@@ -43,6 +43,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			Operation = operation;
 		}
 
+		public override void ConfigureRequest (Request request, Uri uri)
+		{
+		}
+
 		public override bool CheckResponse (TestContext ctx, Response response)
 		{
 			switch (Operation) {
