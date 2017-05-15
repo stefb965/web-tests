@@ -188,6 +188,7 @@
     <Compile Include="Xamarin.WebTests.TestRunners\HttpListenerTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\HttpListenerHandler.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\HttpListenerOperation.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\SocketRequest.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

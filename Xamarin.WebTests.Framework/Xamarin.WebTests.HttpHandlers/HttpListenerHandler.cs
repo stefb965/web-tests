@@ -43,6 +43,18 @@ namespace Xamarin.WebTests.HttpHandlers
 			Operation = operation;
 		}
 
+		public Request CreateRequest (TestContext ctx, Uri uri)
+		{
+			switch (Operation) {
+			case HttpListenerOperation.Get:
+				return new TraditionalRequest (uri);
+			case HttpListenerOperation.MartinTest:
+				return new SocketRequest (uri, "GET");
+			default:
+				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
+			}
+		}
+
 		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			switch (Operation) {

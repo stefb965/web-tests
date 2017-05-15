@@ -1,10 +1,10 @@
 ﻿//
-// HttpListenerTestRunner.cs
+// SocketRequest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,41 +24,57 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpHandlers
 {
-	using HttpFramework;
-	using HttpHandlers;
-
-	public class HttpListenerTestRunner : TestRunner
+	public sealed class SocketRequest : Request
 	{
-		new public HttpListenerHandler Handler {
-			get { return (HttpListenerHandler)base.Handler; }
+		public Uri Uri {
+			get;
 		}
 
-		public HttpListenerTestRunner (HttpServer server, HttpListenerHandler handler)
-			: base (server, handler)
-		{
+		public override string Method {
+			get; set;
 		}
 
-		protected override Request CreateRequest (TestContext ctx, Uri uri)
+		public SocketRequest (Uri uri, string method)
 		{
-			return Handler.CreateRequest (ctx, uri);
+			Uri = uri;
+			Method = method;
 		}
 
-		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+		public override Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
-			return request.SendAsync (ctx, cancellationToken);
+			throw new NotImplementedException ();
+		}
+
+		public override void SendChunked ()
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override void SetContentLength (long contentLength)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override void SetContentType (string contentType)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override void SetCredentials (ICredentials credentials)
+		{
+			throw new NotImplementedException ();
+		}
+
+		public override void SetProxy (IWebProxy proxy)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
