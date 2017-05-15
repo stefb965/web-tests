@@ -193,7 +193,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
-		public abstract void ConfigureRequest (Request request, Uri uri);
+		public abstract void ConfigureRequest (TestContext ctx, Request request, Uri uri);
 
 		public abstract object Clone ();
 

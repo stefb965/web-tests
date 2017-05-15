@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new GetHandler (Value, Content);
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 		}
 

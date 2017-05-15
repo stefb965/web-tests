@@ -186,7 +186,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return null;
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			request.Method = Method ?? "POST";
 

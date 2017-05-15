@@ -117,9 +117,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			return Target.CheckResponse (ctx, response);
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
-			base.ConfigureRequest (request, uri);
+			base.ConfigureRequest (ctx, request, uri);
 			request.SetCredentials (new NetworkCredential ("xamarin", "monkey"));
 		}
 

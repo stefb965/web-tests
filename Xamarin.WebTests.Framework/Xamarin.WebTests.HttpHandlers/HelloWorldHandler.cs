@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HelloWorldHandler (Value);
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 		}
 

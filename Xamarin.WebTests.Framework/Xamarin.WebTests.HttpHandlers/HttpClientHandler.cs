@@ -157,7 +157,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpResponse (HttpStatusCode.OK, ReturnContent);
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			switch (Operation) {
 			case HttpClientOperation.GetString:

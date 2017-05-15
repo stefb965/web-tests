@@ -43,8 +43,14 @@ namespace Xamarin.WebTests.HttpHandlers
 			Operation = operation;
 		}
 
-		public override void ConfigureRequest (Request request, Uri uri)
+		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
+			switch (Operation) {
+			case HttpListenerOperation.Get:
+				break;
+			default:
+				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
+			}
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)
