@@ -77,7 +77,7 @@ namespace Xamarin.WebTests.Server {
 			throw new NotImplementedException ();
 		}
 
-		public override async Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
+		public override async Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
@@ -92,7 +92,7 @@ namespace Xamarin.WebTests.Server {
 			return request;
 		}
 
-		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
+		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}
@@ -115,7 +115,7 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		internal override async Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
+		internal override async Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -142,7 +142,7 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
+		internal override Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}

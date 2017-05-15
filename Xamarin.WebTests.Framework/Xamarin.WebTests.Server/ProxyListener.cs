@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Server
 
 		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = await connection.ReadRequest (cancellationToken).ConfigureAwait (false);
+			var request = await connection.ReadRequest (TestContext, cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = connection.RemoteEndPoint.Address;
@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.Server
 					authHeader = null;
 				var response = authManager.HandleAuthentication (connection, request, authHeader);
 				if (response != null) {
-					await connection.WriteResponse (response, cancellationToken);
+					await connection.WriteResponse (TestContext, response, cancellationToken);
 					return false;
 				}
 
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Server
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await targetConnection.WriteRequest (request, cancellationToken);
+				await targetConnection.WriteRequest (TestContext, request, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await copyResponseTask;
@@ -106,12 +106,12 @@ namespace Xamarin.WebTests.Server
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var response = await targetConnection.ReadResponse (cancellationToken).ConfigureAwait (false);
+			var response = await targetConnection.ReadResponse (TestContext, cancellationToken).ConfigureAwait (false);
 			response.SetHeader ("Connection", "close");
 			response.SetHeader ("Proxy-Connection", "close");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await connection.WriteResponse (response, cancellationToken);
+			await connection.WriteResponse (TestContext, response, cancellationToken);
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)

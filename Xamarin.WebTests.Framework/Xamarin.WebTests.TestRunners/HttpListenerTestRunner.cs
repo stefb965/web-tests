@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
+			// ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
 			return request.SendAsync (ctx, cancellationToken);
 		}
 	}

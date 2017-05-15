@@ -141,7 +141,7 @@ namespace Xamarin.WebTests.HttpHandlers
 					response.KeepAlive = true;
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				await connection.WriteResponse (ctx, response, cancellationToken);
 
 				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (ctx, response);
@@ -168,7 +168,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				await connection.WriteResponse (ctx, response, cancellationToken);
 				return false;
 			} catch (OperationCanceledException) {
 				throw;
