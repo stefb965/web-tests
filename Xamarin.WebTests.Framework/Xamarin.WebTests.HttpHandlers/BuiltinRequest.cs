@@ -52,16 +52,13 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
-		NameValueCollection headers;
-
 		public BuiltinRequest (HttpServer server, Uri uri, string method)
 		{
 			Server = server;
 			Uri = uri;
 			Method = method;
 
-			headers = new NameValueCollection ();
-			Request = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
+			Request = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, new NameValueCollection ());
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -98,7 +95,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		public void AddHeader (string name, string value)
 		{
-			headers.Add (name, value);
+			Request.AddHeader (name, value);
 		}
 
 		public override void SendChunked ()
