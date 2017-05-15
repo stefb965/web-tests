@@ -96,8 +96,9 @@ namespace Xamarin.WebTests.HttpFramework
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
-			var header = string.Format ("{0} {1} {2}\r\n", Method, Path, ProtocolToString (Protocol));
-			await writer.WriteAsync (header).ConfigureAwait (false);
+			var header = string.Format ("{0} {1} {2}", Method, Path, ProtocolToString (Protocol));
+			ctx.LogDebug (8, "WRITE REQUEST: |{0}|", header);
+			await writer.WriteAsync (header + "\r\n").ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			await WriteHeaders (ctx, writer, cancellationToken);

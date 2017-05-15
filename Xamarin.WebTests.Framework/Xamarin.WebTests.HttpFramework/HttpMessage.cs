@@ -184,6 +184,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			foreach (var entry in Headers) {
 				cancellationToken.ThrowIfCancellationRequested ();
+				ctx.LogDebug (8, "WRITE HEADER: |{0}: {1}|", entry.Key, entry.Value);
 				await writer.WriteAsync (string.Format ("{0}: {1}\r\n", entry.Key, entry.Value)).ConfigureAwait (false);
 			}
 			cancellationToken.ThrowIfCancellationRequested ();

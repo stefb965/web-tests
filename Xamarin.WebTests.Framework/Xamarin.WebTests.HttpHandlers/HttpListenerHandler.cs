@@ -58,10 +58,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.MartinTest:
 			case HttpListenerOperation.TestUriEscape:
 				var key = "Product/1";
-
 				ExpectedUrl = uri.AbsoluteUri + key + "/";
 				var rawUrl = uri.AbsoluteUri + Uri.EscapeDataString (key) + "/";
-				return new TraditionalRequest (new Uri (rawUrl));
+				return new BuiltinRequest (server, new Uri (rawUrl), "GET");
 
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
@@ -94,10 +93,11 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
-			case HttpListenerOperation.MartinTest:
 				break;
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
+			case HttpListenerOperation.TestUriEscape:
+			case HttpListenerOperation.MartinTest:
 				ConfigureBuiltinRequest (ctx, (BuiltinRequest)request, uri);
 				break;
 			default:
@@ -168,6 +168,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
 			var context = connection.HttpListenerContext;
+			ctx.LogDebug (8, "HANDLE REQUEST: {0} {1}", context.Request.Url, context.Request.Url.AbsoluteUri);
 			if (ExpectedUrl != null && !ctx.Expect (context.Request.Url.AbsoluteUri, Is.EqualTo (ExpectedUrl), "ExpectedUrl"))
 				return HttpResponse.CreateError ("ExpectedUrl failed.");
 
