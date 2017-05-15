@@ -24,16 +24,22 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Collections.Specialized;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpFramework;
 using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
 	public sealed class BuiltinRequest : Request
 	{
+		public HttpServer Server {
+			get;
+		}
+
 		public Uri Uri {
 			get;
 		}
@@ -42,17 +48,37 @@ namespace Xamarin.WebTests.HttpHandlers
 			get; set;
 		}
 
-		public BuiltinRequest (Uri uri, string method)
+		NameValueCollection headers;
+
+		public BuiltinRequest (HttpServer server, Uri uri, string method)
 		{
+			Server = server;
 			Uri = uri;
 			Method = method;
+
+			headers = new NameValueCollection (); 
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var client = new BuiltinClient (ctx, Uri);
-			var connection = await client.ConnectAsync (cancellationToken);
+			var client = new BuiltinClient (ctx, Server, Uri);
+			var connection = await client.ConnectAsync (cancellationToken).ConfigureAwait (false);
 			ctx.LogMessage ("CONNECTED: {0}", connection);
+
+			try {
+				await connection.Initialize (ctx, cancellationToken);
+
+				var message = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
+				await connection.WriteRequest (message, cancellationToken);
+
+				ctx.LogMessage ("DONE WRITING REQUEST");
+
+				var response = await connection.ReadResponse (cancellationToken);
+				ctx.LogMessage ("GOT RESPONSE: {0}", response);
+			} finally {
+				connection.Dispose ();
+			}
+
 			throw new NotImplementedException ();
 		}
 

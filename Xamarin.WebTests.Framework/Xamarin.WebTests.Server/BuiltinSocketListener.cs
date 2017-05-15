@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.Server
 			TestContext.LogDebug (5, "LISTEN ASYNC: {0}", NetworkEndPoint);
 
 			var accepted = await socket.AcceptAsync (cancellationToken).ConfigureAwait (false);
-			return new SocketConnection (Server, accepted);
+			return new SocketConnection (Server, accepted, false);
 		}
 
 		protected override void Shutdown ()

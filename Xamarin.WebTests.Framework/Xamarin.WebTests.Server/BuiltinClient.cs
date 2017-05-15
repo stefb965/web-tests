@@ -40,6 +40,10 @@ namespace Xamarin.WebTests.Server
 			get;
 		}
 
+		public HttpServer Server {
+			get;
+		}
+
 		public Uri Uri {
 			get;
 		}
@@ -50,23 +54,29 @@ namespace Xamarin.WebTests.Server
 
 		Socket socket;
 
-		public BuiltinClient (TestContext ctx, Uri uri)
+		public BuiltinClient (TestContext ctx, HttpServer server, Uri uri)
 		{
 			TestContext = ctx;
+			Server = server;
 			Uri = uri;
 
-			var address = IPAddress.Parse (uri.Host);
-			NetworkEndPoint = new IPEndPoint (address, uri.Port);
+			var ssl = (server.Flags & HttpServerFlags.SSL) != 0;
+			if (ssl & (server.Flags & HttpServerFlags.Proxy) != 0)
+				throw new InternalErrorException ();
+			if (ssl)
+				throw new InternalErrorException ();
+
+			var address = IPAddress.Parse (server.ListenAddress.Address);
+			NetworkEndPoint = new IPEndPoint (address, server.ListenAddress.Port);
 		}
 
 		public async Task<HttpConnection> ConnectAsync (CancellationToken cancellationToken)
 		{
-			TestContext.LogDebug (5, "CONNECT ASYNC: {0}", NetworkEndPoint);
+			TestContext.LogDebug (5, "Connect ASYNC: {0}", NetworkEndPoint);
 
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			await socket.ConnectAsync (NetworkEndPoint, cancellationToken).ConfigureAwait (false);
-			TestContext.LogMessage ("CONNECTED!");
-			throw new NotImplementedException ();
+			return new SocketConnection (Server, socket, true);
 		}
 	}
 }

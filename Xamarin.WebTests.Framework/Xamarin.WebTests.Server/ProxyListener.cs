@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.Server
 			var targetSocket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			targetSocket.Connect (Server.Target.Uri.Host, Server.Target.Uri.Port);
 
-			using (var targetConnection = new SocketConnection (Server, targetSocket)) {
+			using (var targetConnection = new SocketConnection (Server, targetSocket, true)) {
 				await targetConnection.Initialize (TestContext, cancellationToken);
 
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);

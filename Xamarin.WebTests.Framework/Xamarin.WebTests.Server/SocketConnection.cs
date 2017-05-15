@@ -49,6 +49,10 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
+		public bool IsClient {
+			get;
+		}
+
 		public override HttpListenerContext HttpListenerContext => throw new NotSupportedException ();
 
 		public override ISslStream SslStream => sslStream;
@@ -58,10 +62,11 @@ namespace Xamarin.WebTests.Server
 		HttpStreamReader reader;
 		StreamWriter writer;
 
-		public SocketConnection (HttpServer server, Socket socket)
+		public SocketConnection (HttpServer server, Socket socket, bool isClient)
 			: base (server, (IPEndPoint)socket.RemoteEndPoint)
 		{
 			Socket = socket;
+			IsClient = isClient;
 		}
 
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -69,6 +74,8 @@ namespace Xamarin.WebTests.Server
 			networkStream = new NetworkStream (Socket);
 
 			if (Server.SslStreamProvider != null) {
+				if (IsClient)
+					throw new NotSupportedException ();
 				sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
 					networkStream, Server.Parameters, cancellationToken).ConfigureAwait (false);
 				Stream = sslStream.AuthenticatedStream;
