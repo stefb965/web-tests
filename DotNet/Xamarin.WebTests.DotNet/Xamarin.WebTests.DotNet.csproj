@@ -36,6 +36,9 @@
     <Compile Include="ConsoleMain.cs" />
     <Compile Include="DotNetSetup.cs" />
   </ItemGroup>
+  <ItemGroup>
+  	<None Include="App.config" />
+  </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
     <ProjectReference Include="..\..\Xamarin.AsyncTests\Xamarin.AsyncTests.csproj">
