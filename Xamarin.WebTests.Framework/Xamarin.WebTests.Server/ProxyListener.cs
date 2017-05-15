@@ -140,7 +140,7 @@ namespace Xamarin.WebTests.Server
 			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			await connectionEstablished.Write (writer, cancellationToken).ConfigureAwait (false);
+			await connectionEstablished.Write (TestContext, writer, cancellationToken).ConfigureAwait (false);
 
 			try {
 				await RunTunnel (stream, targetStream, cancellationToken);

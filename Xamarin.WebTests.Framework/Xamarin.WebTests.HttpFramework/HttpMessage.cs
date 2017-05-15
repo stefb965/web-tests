@@ -31,6 +31,7 @@ using System.Threading.Tasks;
 using System.Globalization;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -173,9 +174,10 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		protected async Task WriteHeaders (StreamWriter writer, CancellationToken cancellationToken)
+		protected async Task WriteHeaders (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)
 		{
 			if (CustomHeaderSection != null) {
+				ctx.LogDebug (8, "WRITING CUSTOM HEADER SECTION: |{0}|", CustomHeaderSection);
 				await writer.WriteAsync (CustomHeaderSection).ConfigureAwait (false);
 				return;
 			}

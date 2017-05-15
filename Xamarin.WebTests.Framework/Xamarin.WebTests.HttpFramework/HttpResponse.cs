@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -140,7 +141,7 @@ namespace Xamarin.WebTests.HttpFramework
 			Body = await ReadBody (reader, cancellationToken);
 		}
 
-		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
+		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken)
 		{
 			CheckHeaders ();
 			responseWritten = true;
@@ -149,7 +150,7 @@ namespace Xamarin.WebTests.HttpFramework
 
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
 			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message));
-			await WriteHeaders (writer, cancellationToken);
+			await WriteHeaders (ctx, writer, cancellationToken);
 
 			if (Body != null)
 				await Body.WriteToAsync (writer);
