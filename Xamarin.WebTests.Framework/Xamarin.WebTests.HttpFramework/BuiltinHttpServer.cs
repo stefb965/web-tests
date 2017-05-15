@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
@@ -71,9 +72,9 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		protected internal override Handler GetHandler (string path)
 		{
-			var handler = handlers[path];
-			handlers.Remove (path);
-			return handler;
+			var handler = handlers.First (entry => path.StartsWith (entry.Key, StringComparison.Ordinal));
+			handlers.Remove (handler.Key);
+			return handler.Value;
 		}
 
 		BuiltinListener currentListener;

@@ -32,6 +32,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		Get,
 		SimpleBuiltin,
 		TestCookies,
+		TestUriEscape,
 		MartinTest
 	}
 }

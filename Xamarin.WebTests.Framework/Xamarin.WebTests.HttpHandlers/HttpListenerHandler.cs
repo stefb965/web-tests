@@ -45,14 +45,26 @@ namespace Xamarin.WebTests.HttpHandlers
 			Operation = operation;
 		}
 
+		public string ExpectedUrl {
+			get; set;
+		}
+
 		public Request CreateRequest (TestContext ctx, HttpServer server, Uri uri)
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 				return new TraditionalRequest (uri);
+
+			case HttpListenerOperation.MartinTest:
+			case HttpListenerOperation.TestUriEscape:
+				var key = "Product/1";
+
+				ExpectedUrl = uri.AbsoluteUri + key + "/";
+				var rawUrl = uri.AbsoluteUri + Uri.EscapeDataString (key) + "/";
+				return new TraditionalRequest (new Uri (rawUrl));
+
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
-			case HttpListenerOperation.MartinTest:
 				return new BuiltinRequest (server, uri, "GET");
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
@@ -82,10 +94,10 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
+			case HttpListenerOperation.MartinTest:
 				break;
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
-			case HttpListenerOperation.MartinTest:
 				ConfigureBuiltinRequest (ctx, (BuiltinRequest)request, uri);
 				break;
 			default:
@@ -111,10 +123,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpListenerHandler (Operation, Identifier);
 		}
 
-		HttpResponse CheckCookies (TestContext ctx, HttpConnection connection)
+		HttpResponse CheckCookies (TestContext ctx, HttpListenerContext context)
 		{
-			var context = connection.HttpListenerContext;
-
 			var ok = ctx.Expect (context.Request.Cookies.Count, Is.EqualTo (3), "#1");
 
 			foreach (Cookie c in context.Request.Cookies) {
@@ -157,15 +167,20 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
+			var context = connection.HttpListenerContext;
+			if (ExpectedUrl != null && !ctx.Expect (context.Request.Url.AbsoluteUri, Is.EqualTo (ExpectedUrl), "ExpectedUrl"))
+				return HttpResponse.CreateError ("ExpectedUrl failed.");
+
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 			case HttpListenerOperation.SimpleBuiltin:
 				return HttpResponse.CreateSuccess ();
 
 			case HttpListenerOperation.TestCookies:
-				return CheckCookies (ctx, connection);
+				return CheckCookies (ctx, context);
 
 			case HttpListenerOperation.MartinTest:
+			case HttpListenerOperation.TestUriEscape:
 				return HttpResponse.CreateSuccess ();
 
 			default:
