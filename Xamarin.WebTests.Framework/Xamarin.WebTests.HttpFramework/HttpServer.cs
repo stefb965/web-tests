@@ -97,6 +97,10 @@ namespace Xamarin.WebTests.HttpFramework {
 			get { return (Flags & HttpServerFlags.ReuseConnection) != 0; }
 		}
 
+		public bool IsHttpListener {
+			get { return (Flags & HttpServerFlags.HttpListener) != 0; }
+		}
+
 		#region ITestInstance implementation
 
 		int initialized;

@@ -48,6 +48,8 @@ namespace Xamarin.WebTests.Server {
 			get { return sslStream; }
 		}
 
+		public override HttpListenerContext HttpListenerContext => Context;
+
 		ISslStream sslStream;
 
 		public HttpListenerConnection (TestContext ctx, HttpServer server, HttpListenerContext context)

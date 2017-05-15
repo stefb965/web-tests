@@ -33,22 +33,46 @@ namespace Xamarin.WebTests.HttpHandlers
 {
 	public class HttpListenerHandler : Handler
 	{
-		public HttpListenerHandler (string identifier) : base (identifier)
+		public HttpListenerOperation Operation {
+			get;
+		}
+
+		public HttpListenerHandler (HttpListenerOperation operation, string identifier = null)
+			: base (identifier ?? operation.ToString ())
 		{
+			Operation = operation;
 		}
 
 		public override bool CheckResponse (TestContext ctx, Response response)
 		{
-			throw new NotImplementedException ();
+			switch (Operation) {
+			case HttpListenerOperation.Get:
+				return ctx.Expect (response.IsSuccess, "Response.IsSuccess");
+			default:
+				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
+			}
 		}
 
 		public override object Clone ()
 		{
-			return new HttpListenerHandler (Identifier);
+			return new HttpListenerHandler (Operation, Identifier);
 		}
 
-		protected internal override Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		protected internal override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			var context = connection.HttpListenerContext;
+
+			ctx.LogMessage ("HANDLE REQUEST: {0}", context.Request);
+
+			switch (Operation) {
+			case HttpListenerOperation.Get:
+				return HttpResponse.CreateSuccess ();
+			default:
+				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
+			}
+
 			throw new NotImplementedException ();
 		}
 	}

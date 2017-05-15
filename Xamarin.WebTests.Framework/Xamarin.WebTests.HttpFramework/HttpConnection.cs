@@ -49,6 +49,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get;
 		}
 
+		public abstract HttpListenerContext HttpListenerContext {
+			get;
+		}
+
 		internal HttpConnection (HttpServer server, IPEndPoint remoteEndPoint)
 		{
 			Server = server;

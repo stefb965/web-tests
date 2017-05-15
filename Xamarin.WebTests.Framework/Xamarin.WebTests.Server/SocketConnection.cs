@@ -49,6 +49,8 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
+		public override HttpListenerContext HttpListenerContext => throw new NotSupportedException ();
+
 		public override ISslStream SslStream => sslStream;
 
 		Stream networkStream;

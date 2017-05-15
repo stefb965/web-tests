@@ -1,10 +1,10 @@
 ﻿//
-// HttpListenerTestRunner.cs
+// HttpListenerOperation.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,38 +24,13 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.IO;
-using System.Text;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Collections;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.TestRunners
+namespace Xamarin.WebTests.HttpHandlers
 {
-	using HttpFramework;
-	using HttpHandlers;
-
-	public class HttpListenerTestRunner : TestRunner
+	public enum HttpListenerOperation
 	{
-		public HttpListenerTestRunner (HttpServer server, HttpListenerHandler handler)
-			: base (server, handler)
-		{
-		}
-
-		protected override Request CreateRequest (TestContext ctx, Uri uri)
-		{
-			return new TraditionalRequest (uri);
-		}
-
-		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
-		{
-			ctx.Assert (Server.IsHttpListener, "HttpServer.IsHttpListener");
-			var traditionalRequest = (TraditionalRequest)request;
-			return traditionalRequest.SendAsync (ctx, cancellationToken);
-		}
+		Get,
+		TestCookies,
+		MartinTest
 	}
 }
