@@ -56,7 +56,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			Uri = uri;
 			Method = method;
 
-			headers = new NameValueCollection (); 
+			headers = new NameValueCollection ();
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -66,20 +66,35 @@ namespace Xamarin.WebTests.HttpHandlers
 			ctx.LogMessage ("CONNECTED: {0}", connection);
 
 			try {
-				await connection.Initialize (ctx, cancellationToken);
-
-				var message = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
-				await connection.WriteRequest (message, cancellationToken);
-
-				ctx.LogMessage ("DONE WRITING REQUEST");
-
-				var response = await connection.ReadResponse (cancellationToken);
-				ctx.LogMessage ("GOT RESPONSE: {0}", response);
+				return await SendRequest (ctx, connection, cancellationToken);
+			} catch (Exception ex) {
+				ctx.LogMessage ("FAILED TO SEND REQUEST: {0}", ex);
+				return new SimpleResponse (this, HttpStatusCode.InternalServerError, null, ex);
 			} finally {
 				connection.Dispose ();
 			}
+		}
 
-			throw new NotImplementedException ();
+		async Task<Response> SendRequest (TestContext ctx, HttpConnection connection, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			await connection.Initialize (ctx, cancellationToken);
+
+			var message = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
+			await connection.WriteRequest (ctx, message, cancellationToken);
+
+			ctx.LogMessage ("DONE WRITING REQUEST");
+
+			var response = await connection.ReadResponse (ctx, cancellationToken);
+			ctx.LogMessage ("GOT RESPONSE: {0}", response);
+
+			return new SimpleResponse (this, response.StatusCode, response.Body);
+		}
+
+		public void AddHeader (string name, string value)
+		{
+			headers.Add (name, value);
 		}
 
 		public override void SendChunked ()

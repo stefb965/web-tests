@@ -30,7 +30,7 @@ namespace Xamarin.WebTests.HttpHandlers
 	public enum HttpListenerOperation
 	{
 		Get,
-		TestCookies,
+		SimpleBuiltin,
 		MartinTest
 	}
 }

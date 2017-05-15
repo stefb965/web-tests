@@ -44,6 +44,9 @@ namespace Xamarin.WebTests.Tests {
 			case "martin":
 				yield return new HttpListenerHandler (HttpListenerOperation.MartinTest);
 				break;
+			default:
+				yield return new HttpListenerHandler (HttpListenerOperation.SimpleBuiltin);
+				break;
 			}
 		}
 
@@ -55,5 +58,15 @@ namespace Xamarin.WebTests.Tests {
 		{
 			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
 		}
+
+		[Work]
+		[AsyncTest]
+		[HttpServerFlags (HttpServerFlags.HttpListener)]
+		public Task Run (TestContext ctx, HttpServer server, HttpListenerHandler handler,
+		                 CancellationToken cancellationToken)
+		{
+			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+		}
+
 	}
 }

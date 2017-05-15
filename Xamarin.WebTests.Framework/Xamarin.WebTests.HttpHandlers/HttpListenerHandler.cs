@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 				return new TraditionalRequest (uri);
+			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.MartinTest:
 				return new BuiltinRequest (server, uri, "GET");
 			default:
@@ -55,12 +56,19 @@ namespace Xamarin.WebTests.HttpHandlers
 			}
 		}
 
+		void ConfigureBuiltinRequest (TestContext ctx, BuiltinRequest request, Uri uri)
+		{
+			request.AddHeader ("Host", uri.Host);
+		}
+
 		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 				break;
+			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.MartinTest:
+				ConfigureBuiltinRequest (ctx, (BuiltinRequest)request, uri);
 				break;
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
@@ -71,6 +79,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
+			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.MartinTest:
 				return ctx.Expect (response.IsSuccess, "Response.IsSuccess");
 			default:
@@ -89,12 +98,13 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
-			var context = connection.HttpListenerContext;
+			// var context = connection.HttpListenerContext;
 
-			ctx.LogMessage ("HANDLE REQUEST: {0}", context.Request);
+			ctx.LogMessage ("HANDLE REQUEST!");
 
 			switch (Operation) {
 			case HttpListenerOperation.Get:
+			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.MartinTest:
 				return HttpResponse.CreateSuccess ();
 			default:

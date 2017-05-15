@@ -71,7 +71,10 @@ namespace Xamarin.WebTests.HttpFramework
 			if (header == null)
 				throw new IOException ("Connection has been closed.");
 
+			ctx.LogDebug (8, "GOT HTTP HEADER LINE: |{0}|", header);
+
 			var fields = header.Split (new char[] { ' ' }, StringSplitOptions.None);
+			
 			if (fields.Length != 3)
 				throw new InvalidOperationException ();
 
