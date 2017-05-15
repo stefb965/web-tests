@@ -54,6 +54,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return headers; }
 		}
 
+		internal string CustomHeaderSection {
+			get; set;
+		}
+
 		internal void AddHeader (string header, object value)
 		{
 			headers.Add (header, value.ToString ());
@@ -171,9 +175,14 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected async Task WriteHeaders (StreamWriter writer, CancellationToken cancellationToken)
 		{
+			if (CustomHeaderSection != null) {
+				await writer.WriteAsync (CustomHeaderSection).ConfigureAwait (false);
+				return;
+			}
+
 			foreach (var entry in Headers) {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await writer.WriteAsync (string.Format ("{0}: {1}\r\n", entry.Key, entry.Value));
+				await writer.WriteAsync (string.Format ("{0}: {1}\r\n", entry.Key, entry.Value)).ConfigureAwait (false);
 			}
 			cancellationToken.ThrowIfCancellationRequested ();
 			await writer.WriteAsync ("\r\n");

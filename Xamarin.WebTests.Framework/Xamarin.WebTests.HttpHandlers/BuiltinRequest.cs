@@ -48,6 +48,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			get; set;
 		}
 
+		public HttpRequest Request {
+			get;
+		}
+
 		NameValueCollection headers;
 
 		public BuiltinRequest (HttpServer server, Uri uri, string method)
@@ -57,6 +61,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			Method = method;
 
 			headers = new NameValueCollection ();
+			Request = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
 		}
 
 		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
@@ -81,8 +86,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			await connection.Initialize (ctx, cancellationToken);
 
-			var message = new HttpRequest (HttpProtocol.Http11, Method, Uri.AbsolutePath, headers);
-			await connection.WriteRequest (ctx, message, cancellationToken);
+			await connection.WriteRequest (ctx, Request, cancellationToken);
 
 			ctx.LogMessage ("DONE WRITING REQUEST");
 

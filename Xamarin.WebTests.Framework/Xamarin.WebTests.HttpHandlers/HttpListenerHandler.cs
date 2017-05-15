@@ -24,9 +24,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 using Xamarin.WebTests.HttpFramework;
 
 namespace Xamarin.WebTests.HttpHandlers
@@ -58,7 +60,21 @@ namespace Xamarin.WebTests.HttpHandlers
 
 		void ConfigureBuiltinRequest (TestContext ctx, BuiltinRequest request, Uri uri)
 		{
-			request.AddHeader ("Host", uri.Host);
+			switch (Operation) {
+			case HttpListenerOperation.MartinTest:
+				ctx.Assert (uri.Host, Is.EqualTo ("127.0.0.1"), "Uri.Host");
+				request.Request.CustomHeaderSection = "Host: 127.0.0.1\r\n" +
+					"Cookie:$Version=\"1\"; " +
+					"Cookie1=Value1; $Path=\"/\"; " +
+					"CookieM=ValueM; $Path=\"/p2\"; $Domain=\"test\"; $Port=\"99\";" +
+					"Cookie2=Value2; $Path=\"/foo\";" +
+					"\r\n" +
+					"\r\n";
+				break;
+			default:
+				request.AddHeader ("Host", uri.Host);
+				break;
+			}
 		}
 
 		public override void ConfigureRequest (TestContext ctx, Request request, Uri uri)
@@ -92,21 +108,62 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpListenerHandler (Operation, Identifier);
 		}
 
+		HttpResponse CheckCookies (TestContext ctx, HttpConnection connection)
+		{
+			var context = connection.HttpListenerContext;
+
+			var ok = ctx.Expect (context.Request.Cookies.Count, Is.EqualTo (3), "#1");
+
+			foreach (Cookie c in context.Request.Cookies) {
+				ctx.LogMessage ("COOKIE: {0} - {1} - |{2}|{3}|{4}|{5}|", c, c.Name, c.Value, c.Path, c.Port, c.Domain);
+
+				switch (c.Name) {
+				case "Cookie1":
+					ok &= ctx.Expect (c.Value, Is.EqualTo ("Value1"), "#2");
+					ok &= ctx.Expect (c.Path, Is.EqualTo ("\"/\""), "#3");
+					ok &= ctx.Expect (c.Port.Length, Is.EqualTo (0), "#4");
+					ok &= ctx.Expect (c.Domain.Length, Is.EqualTo (0), "#5");
+					break;
+				case "CookieM":
+					ok &= ctx.Expect (c.Value, Is.EqualTo ("ValueM"), "#6");
+					ok &= ctx.Expect (c.Path, Is.EqualTo ("\"/p2\""), "#7");
+					ok &= ctx.Expect (c.Port, Is.EqualTo ("\"99\""), "#8");
+					ok &= ctx.Expect (c.Domain, Is.EqualTo ("\"test\""), "#9");
+					break;
+				case "Cookie2":
+					ok &= ctx.Expect (c.Value, Is.EqualTo ("Value2"), "#10");
+					ok &= ctx.Expect (c.Path, Is.EqualTo ("\"/foo\""), "#11");
+					ok &= ctx.Expect (c.Port.Length, Is.EqualTo (0), "#12");
+					ok &= ctx.Expect (c.Domain.Length, Is.EqualTo (0), "#13");
+					break;
+				default:
+					ctx.Expect (false, "Invalid cookie name " + c.Name);
+					ok = false;
+					break;
+				}
+			}
+
+			if (ok)
+				return HttpResponse.CreateSuccess ();
+			return HttpResponse.CreateError ("Test failed.");
+		}
+
 		protected internal override async Task<HttpResponse> HandleRequest (
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
-			// var context = connection.HttpListenerContext;
-
 			ctx.LogMessage ("HANDLE REQUEST!");
 
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 			case HttpListenerOperation.SimpleBuiltin:
-			case HttpListenerOperation.MartinTest:
 				return HttpResponse.CreateSuccess ();
+
+			case HttpListenerOperation.MartinTest:
+				return CheckCookies (ctx, connection);
+
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
 			}
