@@ -81,6 +81,7 @@ namespace Xamarin.WebTests.Server {
 		{
 			var listenerRequest = Context.Request;
 			var protocol = GetProtocol (listenerRequest.ProtocolVersion);
+			ctx.LogDebug (8, "READ REQUEST: {0} {1} {2}", listenerRequest.Url, listenerRequest.RawUrl, listenerRequest.Url.AbsoluteUri);
 			var request = new HttpRequest (protocol, listenerRequest.HttpMethod, listenerRequest.RawUrl, listenerRequest.Headers);
 
 			TestContext.LogDebug (5, "GOT REQUEST: {0} {1}", request, listenerRequest.HasEntityBody);
