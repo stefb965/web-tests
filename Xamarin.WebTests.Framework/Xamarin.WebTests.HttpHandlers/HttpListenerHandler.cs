@@ -115,6 +115,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.Get:
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
+			case HttpListenerOperation.TestUriEscape:
 			case HttpListenerOperation.MartinTest:
 				return ctx.Expect (response.IsSuccess, "Response.IsSuccess");
 			default:
@@ -145,7 +146,7 @@ namespace Xamarin.WebTests.HttpHandlers
 					ok &= ctx.Expect (c.Value, Is.EqualTo ("ValueM"), "#6");
 					ok &= ctx.Expect (c.Path, Is.EqualTo ("\"/p2\""), "#7");
 					ok &= ctx.Expect (c.Port, Is.EqualTo ("\"99\""), "#8");
-					ok &= ctx.Expect (c.Domain, Is.EqualTo ("\"test\""), "#9");
+					ok &= ctx.Expect (c.Domain, Is.EqualTo ("test"), "#9");
 					break;
 				case "Cookie2":
 					ok &= ctx.Expect (c.Value, Is.EqualTo ("Value2"), "#10");

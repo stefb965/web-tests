@@ -45,7 +45,9 @@ namespace Xamarin.WebTests.Tests {
 				yield return new HttpListenerHandler (HttpListenerOperation.MartinTest);
 				break;
 			default:
+				yield return new HttpListenerHandler (HttpListenerOperation.Get);
 				yield return new HttpListenerHandler (HttpListenerOperation.SimpleBuiltin);
+				yield return new HttpListenerHandler (HttpListenerOperation.TestUriEscape);
 				yield return new HttpListenerHandler (HttpListenerOperation.TestCookies);
 				break;
 			}
