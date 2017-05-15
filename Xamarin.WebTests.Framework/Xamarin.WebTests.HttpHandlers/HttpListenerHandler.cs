@@ -49,6 +49,10 @@ namespace Xamarin.WebTests.HttpHandlers
 			get; set;
 		}
 
+		public string ExpectedRawUrl {
+			get; set;
+		}
+
 		public Request CreateRequest (TestContext ctx, HttpServer server, Uri uri)
 		{
 			switch (Operation) {
@@ -58,9 +62,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.MartinTest:
 			case HttpListenerOperation.TestUriEscape:
 				var key = "Product/1";
-				ExpectedUrl = uri.AbsoluteUri + key + "/";
-				var rawUrl = uri.AbsoluteUri + Uri.EscapeDataString (key) + "/";
-				return new BuiltinRequest (server, new Uri (rawUrl), "GET");
+				ExpectedRawUrl = uri.AbsolutePath + Uri.EscapeDataString (key) + "/";
+				ExpectedUrl = uri.AbsoluteUri + Uri.EscapeDataString (key) + "/";
+				return new BuiltinRequest (server, new Uri (ExpectedUrl), "GET");
 
 			case HttpListenerOperation.SimpleBuiltin:
 			case HttpListenerOperation.TestCookies:
@@ -168,9 +172,16 @@ namespace Xamarin.WebTests.HttpHandlers
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
 			var context = connection.HttpListenerContext;
-			ctx.LogDebug (8, "HANDLE REQUEST: {0} {1}", context.Request.Url, context.Request.Url.AbsoluteUri);
-			if (ExpectedUrl != null && !ctx.Expect (context.Request.Url.AbsoluteUri, Is.EqualTo (ExpectedUrl), "ExpectedUrl"))
-				return HttpResponse.CreateError ("ExpectedUrl failed.");
+			ctx.LogDebug (8, "HANDLE REQUEST: {0} {1}", context.Request.RawUrl, context.Request.Url);
+
+			var ok = true;
+			if (ExpectedRawUrl != null)
+				ok &= ctx.Expect (context.Request.RawUrl, Is.EqualTo (ExpectedRawUrl), "ExpectedRawUrl");
+			if (ExpectedUrl != null)
+				ok &= ctx.Expect (context.Request.Url.AbsoluteUri, Is.EqualTo (ExpectedUrl), "ExpectedUrl");
+
+			if (!ok)
+				return HttpResponse.CreateError ("Assertion failed.");
 
 			switch (Operation) {
 			case HttpListenerOperation.Get:
