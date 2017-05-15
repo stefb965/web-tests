@@ -48,6 +48,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 				break;
+			case HttpListenerOperation.MartinTest:
+				break;
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
 			}
@@ -57,6 +59,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			switch (Operation) {
 			case HttpListenerOperation.Get:
+			case HttpListenerOperation.MartinTest:
 				return ctx.Expect (response.IsSuccess, "Response.IsSuccess");
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
@@ -72,12 +75,15 @@ namespace Xamarin.WebTests.HttpHandlers
 			TestContext ctx, HttpConnection connection, HttpRequest request,
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
+			await Task.FromResult<object> (null).ConfigureAwait (false);
+
 			var context = connection.HttpListenerContext;
 
 			ctx.LogMessage ("HANDLE REQUEST: {0}", context.Request);
 
 			switch (Operation) {
 			case HttpListenerOperation.Get:
+			case HttpListenerOperation.MartinTest:
 				return HttpResponse.CreateSuccess ();
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
