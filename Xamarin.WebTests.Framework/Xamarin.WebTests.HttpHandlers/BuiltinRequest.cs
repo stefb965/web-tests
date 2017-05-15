@@ -28,6 +28,7 @@ using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
+using Xamarin.WebTests.Server;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
@@ -47,8 +48,11 @@ namespace Xamarin.WebTests.HttpHandlers
 			Method = method;
 		}
 
-		public override Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task<Response> SendAsync (TestContext ctx, CancellationToken cancellationToken)
 		{
+			var client = new BuiltinClient (ctx, Uri);
+			var connection = await client.ConnectAsync (cancellationToken);
+			ctx.LogMessage ("CONNECTED: {0}", connection);
 			throw new NotImplementedException ();
 		}
 

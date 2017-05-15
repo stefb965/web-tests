@@ -2,7 +2,7 @@
 // SocketHelper.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
 // Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -131,5 +132,36 @@ namespace Xamarin.WebTests.Server
 			return tcs.Task;
 		}
 
+		public static Task<Socket> ConnectAsync (this Socket socket, EndPoint endpoint, CancellationToken cancellationToken)
+		{
+			var tcs = new TaskCompletionSource<Socket> ();
+			if (cancellationToken.IsCancellationRequested) {
+				tcs.SetCanceled ();
+				return tcs.Task;
+			}
+
+			var args = new SocketAsyncEventArgs ();
+			args.RemoteEndPoint = endpoint;
+			args.Completed += (sender, e) => {
+				if (cancellationToken.IsCancellationRequested) {
+					tcs.TrySetCanceled ();
+				} else if (args.SocketError != SocketError.Success) {
+					var error = new IOException (string.Format ("AcceptAsync() failed: {0}", args.SocketError));
+					tcs.TrySetException (error);
+				} else {
+					tcs.TrySetResult (args.AcceptSocket);
+				}
+				args.Dispose ();
+			};
+
+			try {
+				if (!socket.ConnectAsync (args))
+					throw new InvalidOperationException ();
+			} catch (Exception ex) {
+				tcs.TrySetException (ex);
+			}
+
+			return tcs.Task;
+		}
 	}
 }

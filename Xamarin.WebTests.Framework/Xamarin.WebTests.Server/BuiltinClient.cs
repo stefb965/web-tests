@@ -24,12 +24,49 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+using Xamarin.WebTests.HttpFramework;
+
 namespace Xamarin.WebTests.Server
 {
 	class BuiltinClient
 	{
-		public BuiltinClient ()
+		public TestContext TestContext {
+			get;
+		}
+
+		public Uri Uri {
+			get;
+		}
+
+		public IPEndPoint NetworkEndPoint {
+			get;
+		}
+
+		Socket socket;
+
+		public BuiltinClient (TestContext ctx, Uri uri)
 		{
+			TestContext = ctx;
+			Uri = uri;
+
+			var address = IPAddress.Parse (uri.Host);
+			NetworkEndPoint = new IPEndPoint (address, uri.Port);
+		}
+
+		public async Task<HttpConnection> ConnectAsync (CancellationToken cancellationToken)
+		{
+			TestContext.LogDebug (5, "CONNECT ASYNC: {0}", NetworkEndPoint);
+
+			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+			await socket.ConnectAsync (NetworkEndPoint, cancellationToken).ConfigureAwait (false);
+			TestContext.LogMessage ("CONNECTED!");
+			throw new NotImplementedException ();
 		}
 	}
 }
