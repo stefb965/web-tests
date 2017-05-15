@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.Get:
 				return new TraditionalRequest (uri);
 			case HttpListenerOperation.MartinTest:
-				return new SocketRequest (uri, "GET");
+				return new BuiltinRequest (uri, "GET");
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
 			}

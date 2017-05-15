@@ -1,5 +1,5 @@
 ﻿//
-// SocketRequest.cs
+// BuiltinRequest.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -31,7 +31,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpHandlers
 {
-	public sealed class SocketRequest : Request
+	public sealed class BuiltinRequest : Request
 	{
 		public Uri Uri {
 			get;
@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			get; set;
 		}
 
-		public SocketRequest (Uri uri, string method)
+		public BuiltinRequest (Uri uri, string method)
 		{
 			Uri = uri;
 			Method = method;
