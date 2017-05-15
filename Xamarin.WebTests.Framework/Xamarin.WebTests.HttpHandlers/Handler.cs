@@ -72,6 +72,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			get;
 		}
 
+		public string Identifier => Value;
+
 		string ITestParameter.FriendlyValue => Value;
 
 		Func<TestContext, bool> filter;

@@ -139,6 +139,15 @@ namespace Xamarin.WebTests.TestRunners
 			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
 		}
 
+		public static Task RunHttpListener (
+			TestContext ctx, CancellationToken cancellationToken, HttpServer server,
+			HttpListenerHandler handler, HttpStatusCode expectedStatus = HttpStatusCode.OK,
+			WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			var runner = new HttpListenerTestRunner (server, handler);
+			return runner.Run (ctx, cancellationToken, expectedStatus, expectedError);
+		}
+
 		protected virtual void CheckResponse (
 			TestContext ctx, Response response, CancellationToken cancellationToken,
 			HttpStatusCode expectedStatus = HttpStatusCode.OK, WebExceptionStatus expectedError = WebExceptionStatus.Success)

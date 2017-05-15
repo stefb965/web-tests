@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// HttpListenerHandler.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,36 +24,32 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
 using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+namespace Xamarin.WebTests.HttpHandlers
+{
+	public class HttpListenerHandler : Handler
+	{
+		public HttpListenerHandler (string identifier) : base (identifier)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler ("martin-test");
-				break;
-			}
 		}
 
-		[Martin]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public override bool CheckResponse (TestContext ctx, Response response)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			throw new NotImplementedException ();
+		}
+
+		public override object Clone ()
+		{
+			return new HttpListenerHandler (Identifier);
+		}
+
+		protected internal override Task<HttpResponse> HandleRequest (TestContext ctx, HttpConnection connection, HttpRequest request, RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

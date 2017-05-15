@@ -1,10 +1,10 @@
 ﻿//
-// TestHttpListener.cs
+// HttpListenerTestRunner.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
+// Copyright (c) 2017 Xamarin, Inc.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,36 +24,36 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Text;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
+using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+namespace Xamarin.WebTests.TestRunners
+{
+	using HttpFramework;
+	using HttpHandlers;
+
+	public class HttpListenerTestRunner : TestRunner
+	{
+		public HttpListenerTestRunner (HttpServer server, HttpListenerHandler handler)
+			: base (server, handler)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler ("martin-test");
-				break;
-			}
 		}
 
-		[Martin]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			throw new NotImplementedException ();
+		}
+
+		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }
