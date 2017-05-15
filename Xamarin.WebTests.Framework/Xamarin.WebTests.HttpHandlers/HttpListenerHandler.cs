@@ -51,6 +51,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.Get:
 				return new TraditionalRequest (uri);
 			case HttpListenerOperation.SimpleBuiltin:
+			case HttpListenerOperation.TestCookies:
 			case HttpListenerOperation.MartinTest:
 				return new BuiltinRequest (server, uri, "GET");
 			default:
@@ -61,7 +62,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		void ConfigureBuiltinRequest (TestContext ctx, BuiltinRequest request, Uri uri)
 		{
 			switch (Operation) {
-			case HttpListenerOperation.MartinTest:
+			case HttpListenerOperation.TestCookies:
 				ctx.Assert (uri.Host, Is.EqualTo ("127.0.0.1"), "Uri.Host");
 				request.Request.CustomHeaderSection = "Host: 127.0.0.1\r\n" +
 					"Cookie:$Version=\"1\"; " +
@@ -83,6 +84,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			case HttpListenerOperation.Get:
 				break;
 			case HttpListenerOperation.SimpleBuiltin:
+			case HttpListenerOperation.TestCookies:
 			case HttpListenerOperation.MartinTest:
 				ConfigureBuiltinRequest (ctx, (BuiltinRequest)request, uri);
 				break;
@@ -96,6 +98,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 			case HttpListenerOperation.SimpleBuiltin:
+			case HttpListenerOperation.TestCookies:
 			case HttpListenerOperation.MartinTest:
 				return ctx.Expect (response.IsSuccess, "Response.IsSuccess");
 			default:
@@ -115,7 +118,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			var ok = ctx.Expect (context.Request.Cookies.Count, Is.EqualTo (3), "#1");
 
 			foreach (Cookie c in context.Request.Cookies) {
-				ctx.LogMessage ("COOKIE: {0} - {1} - |{2}|{3}|{4}|{5}|", c, c.Name, c.Value, c.Path, c.Port, c.Domain);
+				ctx.LogDebug (8, "COOKIE: {0} - {1} - |{2}|{3}|{4}|{5}|", c, c.Name, c.Value, c.Path, c.Port, c.Domain);
 
 				switch (c.Name) {
 				case "Cookie1":
@@ -154,15 +157,16 @@ namespace Xamarin.WebTests.HttpHandlers
 		{
 			await Task.FromResult<object> (null).ConfigureAwait (false);
 
-			ctx.LogMessage ("HANDLE REQUEST!");
-
 			switch (Operation) {
 			case HttpListenerOperation.Get:
 			case HttpListenerOperation.SimpleBuiltin:
 				return HttpResponse.CreateSuccess ();
 
-			case HttpListenerOperation.MartinTest:
+			case HttpListenerOperation.TestCookies:
 				return CheckCookies (ctx, connection);
+
+			case HttpListenerOperation.MartinTest:
+				return HttpResponse.CreateSuccess ();
 
 			default:
 				throw ctx.AssertFail ("Unknown HttpListenerOperation `{0}'.", Operation);
