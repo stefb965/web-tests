@@ -48,11 +48,13 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		readonly MSI.MonoTlsProvider tlsProvider;
 		readonly string name;
 		static readonly MethodInfo getSslStreamFromHttpListenerContext;
+		static readonly PropertyInfo clientCertIssuersProp;
 
 		static MonoConnectionProvider ()
 		{
 			var type = typeof (MSI.MonoTlsProviderFactory);
 			getSslStreamFromHttpListenerContext = type.GetRuntimeMethod ("GetMonoSslStream", new Type[] { typeof (HttpListenerContext) });
+			clientCertIssuersProp = typeof (MSI.MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
 		}
 
 		internal MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags,
@@ -162,12 +164,18 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return sslStream.SslStream;
 		}
 
-		public SslStream CreateSslStream (Stream stream, ConnectionParameters parameters, bool server)
+		public SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server)
 		{
 			var settings = new MSI.MonoTlsSettings ();
 			if (parameters is MonoConnectionParameters monoParams) {
 				if (monoParams.ClientCiphers != null)
 					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
+
+				if (!server && monoParams.ClientCertificateIssuers != null) {
+					if (clientCertIssuersProp == null)
+						ctx.AssertFail ("MonoTlsSettings.ClientCertificateIssuers is not supported!");
+					clientCertIssuersProp.SetValue (settings, monoParams.ClientCertificateIssuers);
+				}
 			}
 
 			if (server)

@@ -21,40 +21,19 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	using MonoTestFramework;
 
-	class MonoClient : MonoConnection, IMonoClient
+	class MonoClient : DotNetClient, IMonoClient
 	{
-		public MonoConnectionParameters MonoParameters {
-			get { return base.Parameters as MonoConnectionParameters; }
-		}
-
 		public MonoClient (MonoConnectionProvider provider, ConnectionParameters parameters)
-			: base (provider, parameters)
+			: base (provider, parameters, provider)
 		{
 		}
 
-		protected override bool IsServer {
-			get { return false; }
-		}
+		public bool SupportsConnectionInfo => Provider.SupportsMonoExtensions;
 
-		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
+		public MSI.MonoTlsConnectionInfo GetConnectionInfo ()
 		{
-			if (MonoParameters != null && MonoParameters.ClientCiphers != null)
-				settings.EnabledCiphers = MonoParameters.ClientCiphers.ToArray ();
-		}
-
-		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
-		{
-			ctx.LogDebug (1, "Connected.");
-
-			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
-			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
-
-			var protocol = Provider.SslStreamProvider.GetProtocol (Parameters, IsServer);
-			var clientCertificates = Provider.SslStreamProvider.GetClientCertificates (Parameters);
-
-			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false).ConfigureAwait (false);
-
-			ctx.LogDebug (1, "Successfully authenticated client.");
+			var monoSslStream = MSI.MonoTlsProviderFactory.GetMonoSslStream (SslStream);
+			return monoSslStream.GetConnectionInfo ();
 		}
 	}
 }

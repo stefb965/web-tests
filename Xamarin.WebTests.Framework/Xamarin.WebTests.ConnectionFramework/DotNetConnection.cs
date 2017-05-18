@@ -108,14 +108,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 
-		protected void CreateSslStream (Socket innerSocket)
+		void CreateSslStream (TestContext ctx, Socket innerSocket)
 		{
 			if (Parameters.UseStreamInstrumentation)
 				innerStream = new StreamInstrumentation (innerSocket);
 			else
 				innerStream = new NetworkStream (innerSocket);
 
-			sslStream = Provider.SslStreamProvider.CreateSslStream (innerStream, Parameters, IsServer);
+			sslStream = Provider.SslStreamProvider.CreateSslStream (ctx, innerStream, Parameters, IsServer);
 		}
 
 		public sealed override Task Start (TestContext ctx, CancellationToken cancellationToken)
@@ -143,7 +143,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					CreateSslStream (socket);
+					CreateSslStream (ctx, socket);
 					await Start (ctx, sslStream, cancellationToken);
 					throw new InvalidTimeZoneException ();
 					tcs.SetResult (sslStream);
@@ -166,7 +166,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					CreateSslStream (socket);
+					CreateSslStream (ctx, socket);
 					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {

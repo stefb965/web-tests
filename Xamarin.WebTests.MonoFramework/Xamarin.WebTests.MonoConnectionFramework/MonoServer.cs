@@ -22,48 +22,19 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	using MonoTestFramework;
 
-	class MonoServer : MonoConnection, IMonoServer
+	class MonoServer : DotNetServer, IMonoServer
 	{
-		public MonoConnectionParameters MonoParameters {
-			get { return base.Parameters as MonoConnectionParameters; }
-		}
-
 		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters)
-			: base (provider, parameters)
+			: base (provider, parameters, provider)
 		{
-			clientCertIssuersProp = typeof (MSI.MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
 		}
 
-		PropertyInfo clientCertIssuersProp;
+		public bool SupportsConnectionInfo => Provider.SupportsMonoExtensions;
 
-		protected override bool IsServer {
-			get { return true; }
-		}
-
-		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
+		public MSI.MonoTlsConnectionInfo GetConnectionInfo ()
 		{
-			if (MonoParameters == null)
-				return;
-
-			if (MonoParameters.ServerCiphers != null)
-				settings.EnabledCiphers = MonoParameters.ServerCiphers.ToArray ();
-
-			if (MonoParameters.ClientCertificateIssuers != null) {
-				if (clientCertIssuersProp == null)
-					ctx.AssertFail ("MonoTlsSettings.ClientCertificateIssuers is not supported!");
-				clientCertIssuersProp.SetValue (settings, MonoParameters.ClientCertificateIssuers);
-			}
-		}
-
-		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
-		{
-			var certificate = Parameters.ServerCertificate;
-			var protocol = Provider.SslStreamProvider.GetProtocol (Parameters, IsServer);
-			var askForCert = Parameters.AskForClientCertificate || Parameters.RequireClientCertificate;
-
-			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
-
-			ctx.LogMessage ("Successfully authenticated server.");
+			var monoSslStream = MSI.MonoTlsProviderFactory.GetMonoSslStream (SslStream);
+			return monoSslStream.GetConnectionInfo ();
 		}
 	}
 }

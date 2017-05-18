@@ -32,6 +32,7 @@ using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -45,7 +46,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		X509CertificateCollection GetClientCertificates (ConnectionParameters parameters);
 
-		SslStream CreateSslStream (Stream stream, ConnectionParameters parameters, bool server);
+		SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server);
 
 		SslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
 
