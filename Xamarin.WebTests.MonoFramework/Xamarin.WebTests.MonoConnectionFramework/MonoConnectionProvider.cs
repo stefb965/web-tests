@@ -157,6 +157,33 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return sslStream.SslStream;
 		}
 
+		public SslStream CreateSslServerStream (Stream stream, ConnectionParameters parameters)
+		{
+			var settings = new MSI.MonoTlsSettings ();
+			if (parameters is MonoConnectionParameters monoParams) {
+				if (monoParams.ClientCiphers != null)
+					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
+			}
+
+			CallbackHelpers.AddCertificateValidator (settings, parameters.ServerCertificateValidator);
+
+			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
+		}
+
+		public SslStream CreateSslClientStream (Stream stream, ConnectionParameters parameters)
+		{
+			var settings = new MSI.MonoTlsSettings ();
+			if (parameters is MonoConnectionParameters monoParams) {
+				if (monoParams.ClientCiphers != null)
+					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
+			}
+
+			CallbackHelpers.AddCertificateValidator (settings, parameters.ClientCertificateValidator);
+			CallbackHelpers.AddCertificateSelector (settings, parameters.ClientCertificateSelector);
+
+			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
+		}
+
 		public SslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var settings = new MSI.MonoTlsSettings ();

@@ -39,6 +39,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		SslStream CreateSslServerStream (Stream stream, ConnectionParameters parameters);
+
+		SslStream CreateSslClientStream (Stream stream, ConnectionParameters parameters);
+
 		SslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
 
 		Task<SslStream> CreateServerStreamAsync (

@@ -99,6 +99,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
+		public SslStream CreateSslServerStream (Stream stream, ConnectionParameters parameters)
+		{
+			var validator = GetServerValidationCallback (parameters);
+			return new SslStream (stream, false, validator);
+		}
+
+		public SslStream CreateSslClientStream (Stream stream, ConnectionParameters parameters)
+		{
+			var validator = GetClientValidationCallback (parameters);
+			var selector = GetSelectionCallback (parameters);
+			return new SslStream (stream, false, validator, selector);
+		}
+
 		public SslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var certificate = parameters.ServerCertificate;
