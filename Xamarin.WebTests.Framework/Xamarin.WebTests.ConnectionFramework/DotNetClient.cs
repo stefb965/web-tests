@@ -29,7 +29,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return false; }
 		}
 
-		protected override async Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (1, "Connected.");
 

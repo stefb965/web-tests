@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
 using Xamarin.AsyncTests;
@@ -80,7 +81,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public ISslStream SslStream {
+		public SslStream SslStream {
 			get {
 				throw new NotSupportedException ();
 			}

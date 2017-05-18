@@ -99,7 +99,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
-		public ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
+		public SslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var certificate = parameters.ServerCertificate;
 
@@ -111,10 +111,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var sslStream = new SslStream (stream, false, validator);
 			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
 
-			return new DotNetSslStream (sslStream);
+			return sslStream;
 		}
 
-		public async Task<ISslStream> CreateServerStreamAsync (
+		public async Task<SslStream> CreateServerStreamAsync (
 			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			var certificate = parameters.ServerCertificate;
@@ -127,10 +127,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var sslStream = new SslStream (stream, false, validator);
 			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
 
-			return new DotNetSslStream (sslStream);
+			return sslStream;
 		}
 
-		public async Task<ISslStream> CreateClientStreamAsync (
+		public async Task<SslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			var protocol = GetProtocol (parameters);
@@ -141,7 +141,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var sslStream = new SslStream (stream, false, validator, selector);
 			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
 
-			return new DotNetSslStream (sslStream);
+			return sslStream;
 		}
 
 		public bool SupportsWebRequest => true;
@@ -160,7 +160,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsHttpListenerContext => false;
 
-		public ISslStream GetSslStream (HttpListenerContext context)
+		public SslStream GetSslStream (HttpListenerContext context)
 		{
 			throw new NotSupportedException ();
 		}

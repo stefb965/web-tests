@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿﻿﻿﻿//
 // SocketConnection.cs
 //
 // Author:
@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
@@ -49,10 +50,10 @@ namespace Xamarin.WebTests.Server
 			private set;
 		}
 
-		public override ISslStream SslStream => sslStream;
+		public override SslStream SslStream => sslStream;
 
 		Stream networkStream;
-		ISslStream sslStream;
+		SslStream sslStream;
 		HttpStreamReader reader;
 		StreamWriter writer;
 
@@ -69,7 +70,7 @@ namespace Xamarin.WebTests.Server
 			if (Server.SslStreamProvider != null) {
 				sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
 					networkStream, Server.Parameters, cancellationToken).ConfigureAwait (false);
-				Stream = sslStream.AuthenticatedStream;
+				Stream = sslStream;
 			} else {
 				Stream = networkStream;
 			}
@@ -126,7 +127,7 @@ namespace Xamarin.WebTests.Server
 				writer.Dispose ();
 			}
 			if (sslStream != null) {
-				sslStream.Close ();
+				sslStream.Dispose ();
 				sslStream = null;
 			}
 			if (networkStream != null) {

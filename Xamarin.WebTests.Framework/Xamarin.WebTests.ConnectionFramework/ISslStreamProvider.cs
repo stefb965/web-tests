@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -38,12 +39,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		ISslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
+		SslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
 
-		Task<ISslStream> CreateServerStreamAsync (
+		Task<SslStream> CreateServerStreamAsync (
 			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken);
 
-		Task<ISslStream> CreateClientStreamAsync (
+		Task<SslStream> CreateClientStreamAsync (
 			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken);
 
 		bool SupportsWebRequest {
@@ -62,6 +63,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		ISslStream GetSslStream (HttpListenerContext context);
+		SslStream GetSslStream (HttpListenerContext context);
 	}
 }

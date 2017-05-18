@@ -116,7 +116,6 @@
     <Compile Include="Xamarin.WebTests.TestFramework\ManualSslStreamAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\IsSupportedConstraint.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\ProtocolVersionAttribute.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DotNetSslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyClient.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\DummyConnection.cs" />
@@ -141,7 +140,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderType.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ICertificateProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IHttpProvider.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ISslStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamProvider.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ValidationParameters.cs" />

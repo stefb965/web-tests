@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Net.Security;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
@@ -42,7 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		ISslStream SslStream {
+		SslStream SslStream {
 			get;
 		}
 

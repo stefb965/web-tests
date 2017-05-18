@@ -211,7 +211,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 
 			if (Server.Provider.SupportsSslStreams && Parameters.RequireClientCertificate) {
-				ctx.Expect (Server.SslStream.HasRemoteCertificate, "has remote certificate");
+				ctx.Expect (Server.SslStream.RemoteCertificate, Is.Not.Null, "has remote certificate");
 				ctx.Expect (Server.SslStream.IsMutuallyAuthenticated, "is mutually authenticated");
 			}
 

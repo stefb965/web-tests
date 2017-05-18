@@ -26,6 +26,7 @@
 using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -148,20 +149,20 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public bool SupportsHttpListenerContext => getSslStreamFromHttpListenerContext != null;
 
-		public ISslStream GetSslStream (HttpListenerContext context)
+		public SslStream GetSslStream (HttpListenerContext context)
 		{
 			if (getSslStreamFromHttpListenerContext == null)
 				throw new NotSupportedException ();
-			var sslStream = getSslStreamFromHttpListenerContext.Invoke (null, new object[] { context });
-			return new MonoSslStream ((MSI.IMonoSslStream)sslStream);
+			var sslStream = (MSI.IMonoSslStream)getSslStreamFromHttpListenerContext.Invoke (null, new object[] { context });
+			throw new NotImplementedException (); // FIXME
 		}
 
-		ISslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)
+		SslStream ISslStreamProvider.CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
-			return CreateServerStream (stream, parameters);
+			return CreateServerStream (stream, parameters).SslStream;
 		}
 
-		public MonoSslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
+		public MSI.IMonoSslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
 		{
 			var settings = new MSI.MonoTlsSettings ();
 			var certificate = parameters.ServerCertificate;
@@ -173,21 +174,21 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 			var sslStream = tlsProvider.CreateSslStream (stream, false, settings);
 			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
-
-			return new MonoSslStream (sslStream);
+			return sslStream;
 		}
 
-		async Task<ISslStream> ISslStreamProvider.CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
+		async Task<SslStream> ISslStreamProvider.CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
-			return await CreateServerStreamAsync (stream, parameters, cancellationToken).ConfigureAwait (false);
+			var sslStream = await CreateServerStreamAsync (stream, parameters, cancellationToken).ConfigureAwait (false);
+			return sslStream.SslStream;
 		}
 
-		public Task<MonoSslStream> CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
+		public Task<MSI.IMonoSslStream> CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			return CreateServerStreamAsync (stream, parameters, new MSI.MonoTlsSettings (), cancellationToken);
 		}
 
-		public async Task<MonoSslStream> CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		public async Task<MSI.IMonoSslStream> CreateServerStreamAsync (Stream stream, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
 			var certificate = parameters.ServerCertificate;
 			var protocol = GetProtocol (parameters, true);
@@ -196,24 +197,24 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
 			var sslStream = tlsProvider.CreateSslStream (stream, false, settings);
-			var monoSslStream = new MonoSslStream (sslStream);
 
 			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
 
-			return monoSslStream;
+			return sslStream;
 		}
 
-		async Task<ISslStream> ISslStreamProvider.CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
+		async Task<SslStream> ISslStreamProvider.CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
-			return await CreateClientStreamAsync (stream, targetHost, parameters, cancellationToken).ConfigureAwait (false);
+			var sslStream = await CreateClientStreamAsync (stream, targetHost, parameters, cancellationToken).ConfigureAwait (false);
+			return sslStream.SslStream;
 		}
 
-		public Task<MonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
+		public Task<MSI.IMonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
 		{
 			return CreateClientStreamAsync (stream, targetHost, parameters, new MSI.MonoTlsSettings (), cancellationToken);
 		}
 
-		public async Task<MonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		public async Task<MSI.IMonoSslStream> CreateClientStreamAsync (Stream stream, string targetHost, ConnectionParameters parameters, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
 			var protocol = GetProtocol (parameters, false);
 
@@ -222,11 +223,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			var clientCertificates = CallbackHelpers.GetClientCertificates (parameters);
 
 			var sslStream = tlsProvider.CreateSslStream (stream, false, settings);
-			var monoSslStream = new MonoSslStream (sslStream);
-
 			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false).ConfigureAwait (false);
-
-			return monoSslStream;
+			return sslStream;
 		}
 
 		public override string ToString ()

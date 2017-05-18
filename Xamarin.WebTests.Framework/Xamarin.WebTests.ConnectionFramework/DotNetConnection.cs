@@ -53,19 +53,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Socket socket;
 		Socket accepted;
 		Stream innerStream;
-		TaskCompletionSource<ISslStream> tcs;
+		TaskCompletionSource<SslStream> tcs;
 
-		ISslStream sslStream;
+		SslStream sslStream;
 
 		public ConnectionProvider Provider {
 			get { return provider; }
 		}
 
 		public Stream Stream {
-			get { return sslStream.AuthenticatedStream; }
+			get { return sslStream; }
 		}
 
-		public ISslStream SslStream {
+		public SslStream SslStream {
 			get { return sslStream; }
 		}
 
@@ -78,7 +78,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ProtocolVersions ProtocolVersion {
-			get { return SslStream.ProtocolVersion; }
+			get { return (ProtocolVersions)SslStream.SslProtocol; }
 		}
 
 		protected abstract bool IsServer {
@@ -98,7 +98,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return innerStream;
 		}
 
-		protected abstract Task<ISslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken);
+		protected abstract Task<SslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken);
 
 		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
 		{
@@ -135,7 +135,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			ctx.LogMessage ("Listening at {0}.", endpoint);
 
-			tcs = new TaskCompletionSource<ISslStream> ();
+			tcs = new TaskCompletionSource<SslStream> ();
 
 			socket.BeginAccept (async ar => {
 				try {
@@ -158,7 +158,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			ctx.LogMessage ("Connecting to {0}.", endpoint);
 
-			tcs = new TaskCompletionSource<ISslStream> ();
+			tcs = new TaskCompletionSource<SslStream> ();
 
 			socket.BeginConnect (endpoint, async ar => {
 				try {
@@ -195,7 +195,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			try {
 				if (sslStream != null) {
-					sslStream.Close ();
+					sslStream.Dispose ();
 					sslStream = null;
 				}
 			} catch {
