@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		MSI.MonoTlsSettings settings;
 		MonoConnectionProvider provider;
-		MSI.IMonoSslStream monoSslStream;
+		SslStream sslStream;
 
 		public MonoConnectionProvider ConnectionProvider {
 			get { return provider; }
@@ -67,10 +67,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		public MSI.MonoTlsConnectionInfo GetConnectionInfo ()
 		{
+			var monoSslStream = MSI.MonoTlsProviderFactory.GetMonoSslStream (sslStream);
 			return monoSslStream.GetConnectionInfo ();
 		}
 
-		protected abstract Task<MSI.IMonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken);
+		protected abstract Task<SslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken);
 
 		protected abstract void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings);
 
@@ -81,8 +82,8 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				GetSettings (ctx, settings);
 			}
 
-			monoSslStream = await Start (ctx, stream, settings, cancellationToken);
-			return monoSslStream.SslStream;
+			sslStream = await Start (ctx, stream, settings, cancellationToken);
+			return sslStream;
 		}
 
 		public override string ToString ()

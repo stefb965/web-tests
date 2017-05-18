@@ -42,13 +42,6 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		protected override void GetSettings (TestContext ctx, MSI.MonoTlsSettings settings)
 		{
-#if FIXME
-			if (Parameters.RequireClientCertificate)
-				settings.RequireClientCertificate = settings.AskForClientCertificate = true;
-			else if (Parameters.AskForClientCertificate)
-				settings.AskForClientCertificate = true;
-#endif
-
 			if (MonoParameters == null)
 				return;
 
@@ -60,17 +53,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 					ctx.AssertFail ("MonoTlsSettings.ClientCertificateIssuers is not supported!");
 				clientCertIssuersProp.SetValue (settings, MonoParameters.ClientCertificateIssuers);
 			}
-
-
-			if (MonoParameters != null) {
-				#if FIXME
-				settings.RequestCipherSuites = MonoParameters.ServerCiphers;
-				settings.NamedCurve = MonoParameters.ServerNamedCurve;
-				#endif
-			}
 		}
 
-		protected override async Task<MSI.IMonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
 			var server = await ConnectionProvider.CreateServerStreamAsync (stream, Parameters, settings, cancellationToken);
 

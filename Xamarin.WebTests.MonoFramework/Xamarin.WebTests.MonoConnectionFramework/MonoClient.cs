@@ -40,16 +40,9 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			if (MonoParameters != null && MonoParameters.ClientCiphers != null)
 				settings.EnabledCiphers = MonoParameters.ClientCiphers.ToArray ();
-
-			if (MonoParameters != null) {
-				#if FIXME
-				settings.RequestCipherSuites = MonoParameters.ClientCiphers;
-				settings.NamedCurve = MonoParameters.ClientNamedCurve;
-				#endif
-			}
 		}
 
-		protected override async Task<MSI.IMonoSslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
 		{
 			ctx.LogMessage ("Connected.");
 
