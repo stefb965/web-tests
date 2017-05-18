@@ -143,9 +143,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					CreateSslStream (ctx, socket);
+					CreateSslStream (ctx, accepted);
 					await Start (ctx, sslStream, cancellationToken);
-					throw new InvalidTimeZoneException ();
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);

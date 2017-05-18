@@ -48,14 +48,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		SslStream CreateSslStream (TestContext ctx, Stream stream, ConnectionParameters parameters, bool server);
 
-		SslStream CreateServerStream (Stream stream, ConnectionParameters parameters);
-
-		Task<SslStream> CreateServerStreamAsync (
-			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken);
-
-		Task<SslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken);
-
 		bool SupportsWebRequest {
 			get;
 		}

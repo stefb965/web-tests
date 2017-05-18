@@ -117,51 +117,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public SslStream CreateServerStream (Stream stream, ConnectionParameters parameters)
-		{
-			var certificate = parameters.ServerCertificate;
-
-			var protocol = GetProtocol (parameters);
-			var validator = GetServerValidationCallback (parameters);
-
-			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
-
-			var sslStream = new SslStream (stream, false, validator);
-			sslStream.AuthenticateAsServer (certificate, askForCert, protocol, false);
-
-			return sslStream;
-		}
-
-		public async Task<SslStream> CreateServerStreamAsync (
-			Stream stream, ConnectionParameters parameters, CancellationToken cancellationToken)
-		{
-			var certificate = parameters.ServerCertificate;
-
-			var protocol = GetProtocol (parameters);
-			var validator = GetServerValidationCallback (parameters);
-
-			var askForCert = parameters.AskForClientCertificate || parameters.RequireClientCertificate;
-
-			var sslStream = new SslStream (stream, false, validator);
-			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false);
-
-			return sslStream;
-		}
-
-		public async Task<SslStream> CreateClientStreamAsync (
-			Stream stream, string targetHost, ConnectionParameters parameters, CancellationToken cancellationToken)
-		{
-			var protocol = GetProtocol (parameters);
-			var clientCertificates = GetClientCertificates (parameters);
-			var validator = GetClientValidationCallback (parameters);
-			var selector = GetSelectionCallback (parameters);
-
-			var sslStream = new SslStream (stream, false, validator, selector);
-			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
-
-			return sslStream;
-		}
-
 		public bool SupportsWebRequest => true;
 
 		public HttpWebRequest CreateWebRequest (Uri uri, ConnectionParameters parameters)

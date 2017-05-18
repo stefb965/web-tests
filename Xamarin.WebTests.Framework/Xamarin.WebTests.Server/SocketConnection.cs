@@ -68,8 +68,7 @@ namespace Xamarin.WebTests.Server
 			networkStream = new NetworkStream (Socket);
 
 			if (Server.SslStreamProvider != null) {
-				sslStream = await Server.SslStreamProvider.CreateServerStreamAsync (
-					networkStream, Server.Parameters, cancellationToken).ConfigureAwait (false);
+				sslStream = await CreateSslStream (ctx, networkStream, cancellationToken).ConfigureAwait (false);
 				Stream = sslStream;
 			} else {
 				Stream = networkStream;
@@ -78,6 +77,19 @@ namespace Xamarin.WebTests.Server
 			reader = new HttpStreamReader (Stream);
 			writer = new StreamWriter (Stream);
 			writer.AutoFlush = true;
+		}
+
+		async Task<SslStream> CreateSslStream (TestContext ctx, Stream innerStream, CancellationToken cancellationToken)
+		{
+			var stream = Server.SslStreamProvider.CreateSslStream (ctx, innerStream, Server.Parameters, true);
+
+			var certificate = Server.Parameters.ServerCertificate;
+			var askForCert = Server.Parameters.AskForClientCertificate || Server.Parameters.RequireClientCertificate;
+			var protocol = Server.SslStreamProvider.GetProtocol (Server.Parameters, true);
+
+			await stream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
+
+			return stream;
 		}
 
 		internal override bool IsStillConnected ()
