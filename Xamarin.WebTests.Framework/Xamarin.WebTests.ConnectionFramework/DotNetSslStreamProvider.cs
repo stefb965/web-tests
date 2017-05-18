@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return selector.SelectionCallback;
 		}
 
-		static X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
+		public X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
 		{
 			if (parameters.ClientCertificate == null)
 				return null;
@@ -99,17 +99,21 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return (SslProtocols)protocol;
 		}
 
-		public SslStream CreateSslServerStream (Stream stream, ConnectionParameters parameters)
+		public SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
 		{
-			var validator = GetServerValidationCallback (parameters);
-			return new SslStream (stream, false, validator);
+			return GetProtocol (parameters);
 		}
 
-		public SslStream CreateSslClientStream (Stream stream, ConnectionParameters parameters)
+		public SslStream CreateSslStream (Stream stream, ConnectionParameters parameters, bool server)
 		{
-			var validator = GetClientValidationCallback (parameters);
-			var selector = GetSelectionCallback (parameters);
-			return new SslStream (stream, false, validator, selector);
+			if (server) {
+				var validator = GetServerValidationCallback (parameters);
+				return new SslStream (stream, false, validator);
+			} else {
+				var validator = GetClientValidationCallback (parameters);
+				var selector = GetSelectionCallback (parameters);
+				return new SslStream (stream, false, validator, selector);
+			}
 		}
 
 		public SslStream CreateServerStream (Stream stream, ConnectionParameters parameters)

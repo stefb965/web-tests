@@ -103,7 +103,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return tlsProvider; }
 		}
 
-		SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
+		public SslProtocols GetProtocol (ConnectionParameters parameters, bool server)
 		{
 			var protocol = (ProtocolVersions)tlsProvider.SupportedProtocols;
 			protocol &= server ? ProtocolVersions.ServerMask : ProtocolVersions.ClientMask;
@@ -112,6 +112,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			if (protocol == ProtocolVersions.Unspecified)
 				throw new NotSupportedException ();
 			return (SslProtocols)protocol;
+		}
+
+		public X509CertificateCollection GetClientCertificates (ConnectionParameters parameters)
+		{
+			return CallbackHelpers.GetClientCertificates (parameters);
 		}
 
 		MSI.MonoTlsSettings GetSettings (ConnectionParameters parameters)
@@ -157,7 +162,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			return sslStream.SslStream;
 		}
 
-		public SslStream CreateSslServerStream (Stream stream, ConnectionParameters parameters)
+		public SslStream CreateSslStream (Stream stream, ConnectionParameters parameters, bool server)
 		{
 			var settings = new MSI.MonoTlsSettings ();
 			if (parameters is MonoConnectionParameters monoParams) {
@@ -165,21 +170,12 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
 			}
 
-			CallbackHelpers.AddCertificateValidator (settings, parameters.ServerCertificateValidator);
-
-			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
-		}
-
-		public SslStream CreateSslClientStream (Stream stream, ConnectionParameters parameters)
-		{
-			var settings = new MSI.MonoTlsSettings ();
-			if (parameters is MonoConnectionParameters monoParams) {
-				if (monoParams.ClientCiphers != null)
-					settings.EnabledCiphers = monoParams.ClientCiphers.ToArray ();
+			if (server)
+				CallbackHelpers.AddCertificateValidator (settings, parameters.ServerCertificateValidator);
+			else {
+				CallbackHelpers.AddCertificateValidator (settings, parameters.ClientCertificateValidator);
+				CallbackHelpers.AddCertificateSelector (settings, parameters.ClientCertificateSelector);
 			}
-
-			CallbackHelpers.AddCertificateValidator (settings, parameters.ClientCertificateValidator);
-			CallbackHelpers.AddCertificateSelector (settings, parameters.ClientCertificateSelector);
 
 			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
 		}

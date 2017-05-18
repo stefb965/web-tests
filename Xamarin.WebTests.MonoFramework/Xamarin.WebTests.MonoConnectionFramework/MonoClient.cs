@@ -42,18 +42,19 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				settings.EnabledCiphers = MonoParameters.ClientCiphers.ToArray ();
 		}
 
-		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Connected.");
+			ctx.LogDebug (1, "Connected.");
 
 			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
 			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
 
-			var client = await ConnectionProvider.CreateClientStreamAsync (stream, targetHost, Parameters, settings, cancellationToken);
+			var protocol = Provider.SslStreamProvider.GetProtocol (Parameters, IsServer);
+			var clientCertificates = Provider.SslStreamProvider.GetClientCertificates (Parameters);
 
-			ctx.LogMessage ("Successfully authenticated client.");
+			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false).ConfigureAwait (false);
 
-			return client;
+			ctx.LogDebug (1, "Successfully authenticated client.");
 		}
 	}
 }

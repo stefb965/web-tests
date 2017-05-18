@@ -89,16 +89,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return innerStream as IStreamInstrumentation; }
 		}
 
-		Stream CreateStream (Socket socket)
-		{
-			if (Parameters.UseStreamInstrumentation)
-				innerStream = new StreamInstrumentation (socket);
-			else
-				innerStream = new NetworkStream (socket);
-			return innerStream;
-		}
-
-		protected abstract Task<SslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken);
+		protected abstract Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken);
 
 		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
 		{
@@ -115,6 +106,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return new IPEndPoint (IPAddress.Parse (EndPoint.Address), EndPoint.Port);
 			else
 				return new IPEndPoint (IPAddress.Loopback, 4433);
+		}
+
+		protected void CreateSslStream (Socket innerSocket)
+		{
+			if (Parameters.UseStreamInstrumentation)
+				innerStream = new StreamInstrumentation (innerSocket);
+			else
+				innerStream = new NetworkStream (innerSocket);
+
+			sslStream = Provider.SslStreamProvider.CreateSslStream (innerStream, Parameters, IsServer);
 		}
 
 		public sealed override Task Start (TestContext ctx, CancellationToken cancellationToken)
@@ -142,8 +143,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					var stream = CreateStream (accepted);
-					sslStream = await Start (ctx, stream, cancellationToken);
+					CreateSslStream (socket);
+					await Start (ctx, sslStream, cancellationToken);
+					throw new InvalidTimeZoneException ();
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
@@ -164,8 +166,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					var stream = CreateStream (socket);
-					sslStream = await Start (ctx, stream, cancellationToken);
+					CreateSslStream (socket);
+					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);

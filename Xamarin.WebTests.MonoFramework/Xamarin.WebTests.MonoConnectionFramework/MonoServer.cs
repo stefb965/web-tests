@@ -55,13 +55,15 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			}
 		}
 
-		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, MSI.MonoTlsSettings settings, CancellationToken cancellationToken)
+		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
-			var server = await ConnectionProvider.CreateServerStreamAsync (stream, Parameters, settings, cancellationToken);
+			var certificate = Parameters.ServerCertificate;
+			var protocol = Provider.SslStreamProvider.GetProtocol (Parameters, IsServer);
+			var askForCert = Parameters.AskForClientCertificate || Parameters.RequireClientCertificate;
+
+			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
 
 			ctx.LogMessage ("Successfully authenticated server.");
-
-			return server;
 		}
 	}
 }

@@ -29,19 +29,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return false; }
 		}
 
-		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
 			ctx.LogDebug (1, "Connected.");
 
 			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
 			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
 
-			var server = await sslStreamProvider.CreateClientStreamAsync (
-				stream, targetHost, Parameters, cancellationToken);
+			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);
+			var clientCertificates = sslStreamProvider.GetClientCertificates (Parameters);
+
+			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false).ConfigureAwait (false);
 
 			ctx.LogDebug (1, "Successfully authenticated client.");
-
-			return server;
 		}
 	}
 }

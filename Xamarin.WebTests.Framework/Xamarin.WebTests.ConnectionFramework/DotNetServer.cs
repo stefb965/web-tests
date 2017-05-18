@@ -29,13 +29,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return true; }
 		}
 
-		protected override async Task<SslStream> Start (TestContext ctx, Stream stream, CancellationToken cancellationToken)
+		protected override async Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken)
 		{
-			var server = await sslStreamProvider.CreateServerStreamAsync (stream, Parameters, cancellationToken);
+			var certificate = Parameters.ServerCertificate;
+			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);
+			var askForCert = Parameters.AskForClientCertificate || Parameters.RequireClientCertificate;
+
+			await sslStream.AuthenticateAsServerAsync (certificate, askForCert, protocol, false).ConfigureAwait (false);
 
 			ctx.LogMessage ("Successfully authenticated server.");
-
-			return server;
 		}
 	}
 }
