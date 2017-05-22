@@ -178,6 +178,11 @@ namespace Xamarin.WebTests.TestRunners
 					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
 				};
 
+			case ConnectionTestType.ReadDuringClientAuth:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+				};
+
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.MartinTest,
@@ -296,9 +301,12 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (Parameters.UseStreamInstrumentation)
-				instrumentation = this;
-			return base.StartClient (ctx, instrumentation, cancellationToken);
+			switch (Parameters.Type) {
+			case ConnectionTestType.ReadDuringClientAuth:
+				return base.StartClient (ctx, this, cancellationToken);
+			default:
+				return base.StartClient (ctx, null, cancellationToken);
+			}
 		}
 
 		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
@@ -311,6 +319,17 @@ namespace Xamarin.WebTests.TestRunners
 
 		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
 		{
+			switch (Parameters.Type) {
+			case ConnectionTestType.ReadDuringClientAuth:
+			case ConnectionTestType.MartinTest:
+				return CreateClientInstrumentation (ctx, connection, socket);
+			default:
+				return null;
+			}
+		}
+
+		Stream CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
+		{
 			if (connection.ConnectionType != ConnectionType.Client)
 				return null;
 
@@ -320,22 +339,25 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
 
+			switch (Parameters.Type) {
+			case ConnectionTestType.ReadDuringClientAuth:
+				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
+				break;
+			}
+
+			return instrumentation;
+		}
+
+		void Instrumentation_ReadBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
+		{
 			instrumentation.OnNextRead (() => {
 				ctx.Assert (Client.Stream, Is.Not.Null);
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
-				ctx.LogDebug (5, "BEFORE READ: {0} {1}!", Client.Stream, Client.SslStream.IsAuthenticated);
 
-				try {
-					var buffer = new byte[100];
-					Client.Stream.Read (buffer, 0, buffer.Length);
-					ctx.AssertFail ("not authenticated");
-				} catch (Exception ex) {
-					ctx.LogDebug (5, "GOT ERROR: {0}", ex);
-				}
+				var buffer = new byte[100];
+				ctx.AssertException (() => Client.Stream.Read (buffer, 0, buffer.Length), Is.InstanceOf<Exception> (true));
 			});
-
-			return instrumentation;
 		}
 	}
 }

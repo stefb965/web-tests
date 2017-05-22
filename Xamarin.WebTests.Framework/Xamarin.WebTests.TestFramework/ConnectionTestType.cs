@@ -65,7 +65,8 @@ namespace Xamarin.WebTests.TestFramework
 
 		CertificateStore,
 
-		SyncAuthenticate
+		SyncAuthenticate,
+		ReadDuringClientAuth
 	}
 }
 

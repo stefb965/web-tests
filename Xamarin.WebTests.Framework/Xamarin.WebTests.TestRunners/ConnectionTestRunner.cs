@@ -141,6 +141,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.SslStreamInstrumentation:
 				yield return ConnectionTestType.SyncAuthenticate;
+				yield return ConnectionTestType.ReadDuringClientAuth;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
