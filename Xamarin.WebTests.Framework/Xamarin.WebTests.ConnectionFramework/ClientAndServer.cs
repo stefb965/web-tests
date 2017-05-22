@@ -202,14 +202,23 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
+		int stopCalled;
+		int shutdownCalled;
+
 		protected override void Stop ()
 		{
+			if (Interlocked.CompareExchange (ref stopCalled, 1, 0) != 0)
+				throw new InternalErrorException ();
+
 			client.Dispose ();
 			server.Dispose ();
 		}
 
 		public override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
+				throw new InternalErrorException ();
+
 			var clientShutdown = client.Shutdown (ctx, cancellationToken);
 			var serverShutdown = server.Shutdown (ctx, cancellationToken);
 			await Task.WhenAll (clientShutdown, serverShutdown);

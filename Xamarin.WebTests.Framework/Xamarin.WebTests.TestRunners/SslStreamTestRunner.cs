@@ -331,6 +331,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		Task IConnectionInstrumentation.TryCleanShutdown (TestContext ctx, Connection connection)
 		{
+			if (connection.ConnectionType != ConnectionType.Client)
+				return FinishedTask;
+
+			switch (Parameters.Type) {
+			case ConnectionTestType.MartinTest:
+				Instrumentation_Dispose (ctx);
+				break;
+			}
+
 			return FinishedTask;
 		}
 
@@ -350,7 +359,6 @@ namespace Xamarin.WebTests.TestRunners
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
 			case ConnectionTestType.MartinTest:
-				Instrumentation_Dispose (ctx, instrumentation);
 				break;
 			}
 
@@ -369,9 +377,17 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
-		void Instrumentation_Dispose (TestContext ctx, StreamInstrumentation instrumentation)
+		void Instrumentation_Dispose (TestContext ctx)
 		{
-			
+			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
+
+			clientInstrumentation.OnNextWrite (() => {
+				ctx.LogMessage ("ON WRITE!");
+			});
+
+			ctx.LogMessage ("CALLING DISPOSE!");
+			Client.SslStream.Dispose ();
+			ctx.LogMessage ("DONE CALLING DISPOSE!");
 		}
 
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)

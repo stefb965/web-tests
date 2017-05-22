@@ -270,11 +270,6 @@ namespace Xamarin.WebTests.TestFramework
 				LogDebug (ctx, 3, "MainLoop");
 				await mainLoopTask;
 				cancellationToken.ThrowIfCancellationRequested ();
-
-				if (Runner.SupportsCleanShutdown) {
-					LogDebug (ctx, 1, "MainLoop shutdown");
-					await Runner.Shutdown (ctx, cancellationToken);
-				}
 			} finally {
 				LogDebug (ctx, 3, "MainLoop done");
 			}

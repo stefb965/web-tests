@@ -69,6 +69,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		public void OnNextWrite (Action action)
+		{
+			var myAction = new MyAction (action);
+			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
 		public void OnNextRead (Func<Task> before, Func<Task> after)
 		{
 			var myAction = new MyAction (before, after);
