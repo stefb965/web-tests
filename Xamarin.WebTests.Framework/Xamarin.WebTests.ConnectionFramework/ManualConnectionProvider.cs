@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
@@ -52,6 +55,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override ProtocolVersions SupportedProtocols {
 			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
+		}
+
+		public override Task ShutdownAsync (SslStream stream)
+		{
+			throw new NotSupportedException ();
 		}
 	}
 }

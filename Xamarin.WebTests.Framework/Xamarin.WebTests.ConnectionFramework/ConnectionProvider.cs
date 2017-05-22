@@ -24,6 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 
@@ -74,6 +77,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public bool SupportsMonoExtensions => (Flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
+		public bool SupportsCleanShutdown => (Flags & ConnectionProviderFlags.SupportsCleanShutdown) != 0;
+
 		public bool HasFlag (ConnectionProviderFlags flags)
 		{
 			return (Flags & flags) == flags;
@@ -106,6 +111,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			return new X509Certificate2 (data);
 		}
+
+		public abstract Task ShutdownAsync (SslStream stream);
 	}
 }
 

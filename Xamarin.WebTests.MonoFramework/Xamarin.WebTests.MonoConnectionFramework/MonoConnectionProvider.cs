@@ -49,12 +49,15 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		readonly string name;
 		static readonly MethodInfo getSslStreamFromHttpListenerContext;
 		static readonly PropertyInfo clientCertIssuersProp;
+		static readonly MethodInfo shutdownAsync;
 
 		static MonoConnectionProvider ()
 		{
 			var type = typeof (MSI.MonoTlsProviderFactory);
 			getSslStreamFromHttpListenerContext = type.GetRuntimeMethod ("GetMonoSslStream", new Type[] { typeof (HttpListenerContext) });
 			clientCertIssuersProp = typeof (MSI.MonoTlsSettings).GetTypeInfo ().GetDeclaredProperty ("ClientCertificateIssuers");
+			var streamType = typeof (MSI.IMonoSslStream);
+			shutdownAsync = streamType.GetRuntimeMethod ("ShutdownAsync", new Type [0]);
 		}
 
 		internal MonoConnectionProvider (ConnectionProviderFactory factory, ConnectionProviderType type, ConnectionProviderFlags flags,
@@ -67,8 +70,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 
 		static ConnectionProviderFlags GetFlags (ConnectionProviderFlags flags, MSI.MonoTlsProvider tlsProvider)
 		{
-			if (tlsProvider.SupportsMonoExtensions)
+			if (tlsProvider.SupportsMonoExtensions) {
 				flags |= ConnectionProviderFlags.SupportsMonoExtensions | ConnectionProviderFlags.SupportsHttpListener;
+				if (shutdownAsync != null)
+					flags |= ConnectionProviderFlags.SupportsCleanShutdown;
+			}
 			return flags;
 		}
 
@@ -186,6 +192,14 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			}
 
 			return tlsProvider.CreateSslStream (stream, false, settings).SslStream;
+		}
+
+		public override Task ShutdownAsync (SslStream stream)
+		{
+			if (shutdownAsync == null)
+				throw new NotSupportedException ();
+			var monoStream = MSI.MonoTlsProviderFactory.GetMonoSslStream (stream);
+			return (Task)shutdownAsync.Invoke (monoStream, new object [0]);
 		}
 
 		public override string ToString ()

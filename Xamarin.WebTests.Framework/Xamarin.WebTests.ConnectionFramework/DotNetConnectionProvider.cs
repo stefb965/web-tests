@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 using System;
 using System.Net;
+using System.Net.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Portable;
 
@@ -78,6 +81,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override ISslStreamProvider GetSslStreamProvider ()
 		{
 			return sslStreamProvider;
+		}
+
+		public override Task ShutdownAsync (SslStream stream)
+		{
+			throw new NotSupportedException ();
 		}
 	}
 }

@@ -329,7 +329,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		Task IConnectionInstrumentation.TryCleanShutdown (TestContext ctx, Connection connection)
+		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Connection connection)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
 				return FinishedTask;
