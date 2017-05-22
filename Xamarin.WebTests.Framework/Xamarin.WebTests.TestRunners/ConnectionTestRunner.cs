@@ -53,7 +53,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		public ConnectionHandler ConnectionHandler {
 			get;
-			private set;
 		}
 
 		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestProvider provider, ConnectionTestParameters parameters)

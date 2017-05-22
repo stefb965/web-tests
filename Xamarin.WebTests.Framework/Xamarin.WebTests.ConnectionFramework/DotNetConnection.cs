@@ -89,6 +89,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return innerStream as IStreamInstrumentation; }
 		}
 
+		public bool HasFlag (SslStreamFlags flags)
+		{
+			return (Parameters.SslStreamFlags & flags) != 0;
+		}
+
 		protected abstract Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken);
 
 		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)

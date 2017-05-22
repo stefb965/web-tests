@@ -39,9 +39,25 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);
 			var clientCertificates = sslStreamProvider.GetClientCertificates (Parameters);
 
-			await sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false).ConfigureAwait (false);
+			Task task;
+			string function;
+			if (HasFlag (SslStreamFlags.SyncAuthenticate)) {
+				function = "SslStream.AuthenticateAsClient()";
+				ctx.LogDebug (1, "Calling {0} synchronously.", function);
+				task = Task.Run (() => sslStream.AuthenticateAsClient (targetHost, clientCertificates, protocol, false));
+			} else {
+				function = "SslStream.AuthenticateAsClientAsync()";
+				ctx.LogDebug (1, "Calling {0} async.", function);
+				task = sslStream.AuthenticateAsClientAsync (targetHost, clientCertificates, protocol, false);
+			}
 
-			ctx.LogDebug (1, "Successfully authenticated client.");
+			try {
+				await task.ConfigureAwait (false);
+				ctx.LogDebug (1, "{0} completed successfully.", function);
+			} catch (Exception ex) {
+				ctx.LogError (string.Format ("{0} failed.", function), ex);
+				throw;
+			}
 		}
 	}
 }
