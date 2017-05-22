@@ -329,18 +329,17 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Connection connection)
+		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
-				return FinishedTask;
+				return shutdown ();
 
 			switch (Parameters.Type) {
 			case ConnectionTestType.MartinTest:
-				Instrumentation_Dispose (ctx);
-				break;
+				return Instrumentation_Dispose (ctx, shutdown);
 			}
 
-			return FinishedTask;
+			return shutdown ();
 		}
 
 		Stream CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
@@ -377,7 +376,7 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
-		void Instrumentation_Dispose (TestContext ctx)
+		async Task Instrumentation_Dispose (TestContext ctx, Func<Task> shutdown)
 		{
 			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
 
@@ -385,9 +384,14 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogMessage ("ON WRITE!");
 			});
 
-			ctx.LogMessage ("CALLING DISPOSE!");
-			Client.SslStream.Dispose ();
-			ctx.LogMessage ("DONE CALLING DISPOSE!");
+			ctx.LogMessage ("CALLING SHUTDOWN!");
+			try {
+				await shutdown ().ConfigureAwait (false);
+				ctx.LogMessage ("SHUTDOWN DONE!");
+			} catch (Exception ex) {
+				ctx.LogMessage ("SHUTDOWN FAILED: {0}", ex);
+				throw;
+			}
 		}
 
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)

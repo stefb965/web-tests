@@ -199,15 +199,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return provider.ShutdownAsync (sslStream);
 		}
 
-		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public sealed override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (instrumentation != null)
-				await instrumentation.Shutdown (ctx, this).ConfigureAwait (false);
-
 			if (!SupportsCleanShutdown)
-				return;
+				return FinishedTask;
 
-			await TryCleanShutdown (ctx);
+			Func<Task> shutdown = () => TryCleanShutdown (ctx);
+
+			if (instrumentation != null)
+				return instrumentation.Shutdown (ctx, shutdown, this);
+			else
+				return shutdown ();
 		}
 
 		protected override void Stop ()
