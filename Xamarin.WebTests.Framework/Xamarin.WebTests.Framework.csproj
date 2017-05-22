@@ -85,7 +85,6 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ProtocolVersions.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkedTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ChunkContentType.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IStreamInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\ConnectionTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ClientAndServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionProviderFilter.cs" />

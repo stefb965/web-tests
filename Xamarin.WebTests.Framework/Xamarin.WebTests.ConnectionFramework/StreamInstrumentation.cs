@@ -33,7 +33,7 @@ using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class StreamInstrumentation : NetworkStream, IStreamInstrumentation
+	public class StreamInstrumentation : NetworkStream
 	{
 		public TestContext Context {
 			get;

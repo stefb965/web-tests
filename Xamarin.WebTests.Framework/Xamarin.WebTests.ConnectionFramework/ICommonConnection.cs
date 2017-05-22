@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		IStreamInstrumentation StreamInstrumentation {
+		StreamInstrumentation StreamInstrumentation {
 			get;
 		}
 

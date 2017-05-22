@@ -85,8 +85,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		public IStreamInstrumentation StreamInstrumentation {
-			get { return innerStream as IStreamInstrumentation; }
+		public StreamInstrumentation StreamInstrumentation {
+			get { return innerStream as StreamInstrumentation; }
 		}
 
 		public bool HasFlag (SslStreamFlags flags)
