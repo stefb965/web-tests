@@ -24,9 +24,17 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
+using System.Net;
+using System.Net.Sockets;
+using System.Threading;
+using System.Threading.Tasks;
+using Xamarin.AsyncTests;
+
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IConnectionInstrumentation
 	{
+		Stream CreateNetworkStream (TestContext ctx, Connection connection, Socket socket);
 	}
 }

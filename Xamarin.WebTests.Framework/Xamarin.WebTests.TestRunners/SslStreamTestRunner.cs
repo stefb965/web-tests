@@ -24,7 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.IO;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.Security;
 using System.Text;
 using System.Threading;
@@ -299,6 +301,11 @@ namespace Xamarin.WebTests.TestRunners
 			if (Parameters.UseStreamInstrumentation)
 				instrumentation = this;
 			return base.StartServer (ctx, instrumentation, cancellationToken);
+		}
+
+		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
+		{
+			throw new NotImplementedException ();
 		}
 	}
 }

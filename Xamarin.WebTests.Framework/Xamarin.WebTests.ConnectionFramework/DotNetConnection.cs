@@ -113,9 +113,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 
-		void CreateSslStream (TestContext ctx, Socket innerSocket)
+		void CreateSslStream (TestContext ctx, IConnectionInstrumentation instrumentation, Socket innerSocket)
 		{
-			if (Parameters.UseStreamInstrumentation)
+			if (instrumentation != null)
+				innerStream = instrumentation.CreateNetworkStream (ctx, this, innerSocket);
+			else if (Parameters.UseStreamInstrumentation)
 				innerStream = new StreamInstrumentation (ctx, innerSocket);
 			else
 				innerStream = new NetworkStream (innerSocket);
@@ -126,13 +128,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public sealed override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			if (IsServer)
-				StartServer (ctx, cancellationToken);
+				StartServer (ctx, instrumentation, cancellationToken);
 			else
-				StartClient (ctx, cancellationToken);
+				StartClient (ctx, instrumentation, cancellationToken);
 			return FinishedTask;
 		}
 
-		void StartServer (TestContext ctx, CancellationToken cancellationToken)
+		void StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -148,7 +150,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					CreateSslStream (ctx, accepted);
+					CreateSslStream (ctx, instrumentation, accepted);
 					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
@@ -157,7 +159,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}, null);
 		}
 
-		void StartClient (TestContext ctx, CancellationToken cancellationToken)
+		void StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -170,7 +172,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					CreateSslStream (ctx, socket);
+					CreateSslStream (ctx, instrumentation, socket);
 					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
