@@ -35,6 +35,7 @@ using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 using Xamarin.AsyncTests.Framework;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
@@ -350,6 +351,8 @@ namespace Xamarin.WebTests.TestRunners
 			switch (Parameters.Type) {
 			case ConnectionTestType.CleanShutdown:
 				return Instrumentation_CleanShutdown (ctx, shutdown);
+			case ConnectionTestType.MartinTest:
+				return Instrumentation_Dispose (ctx, shutdown);
 			}
 
 			return shutdown ();
@@ -371,7 +374,6 @@ namespace Xamarin.WebTests.TestRunners
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
 			case ConnectionTestType.MartinTest:
-				Instrumentation_Dispose (ctx, instrumentation);			                        
 				break;
 			}
 
@@ -419,6 +421,15 @@ namespace Xamarin.WebTests.TestRunners
 				Client.SslStream.Dispose ();
 				ctx.LogMessage ("CALLING DISPOSE DONE!");
 			});
+		}
+
+		Task Instrumentation_Dispose (TestContext ctx, Func<Task> shutdown)
+		{
+			ctx.LogMessage ("CALLING CLOSE!");
+			var portable = DependencyInjector.Get<IPortableSupport> ();
+			portable.Close (Client.SslStream);
+			ctx.LogMessage ("DONE CALLING CLOSE!");
+			return FinishedTask;
 		}
 	}
 }
