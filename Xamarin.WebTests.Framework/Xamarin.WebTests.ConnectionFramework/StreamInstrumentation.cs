@@ -189,6 +189,27 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override int Read (byte[] buffer, int offset, int size)
 		{
 			Context.LogDebug (4, "StreamInstrumentation.Read({0},{1})", offset, size);
+
+			var action = Interlocked.Exchange (ref readAction, null);
+			if (action == null)
+				return Read_internal (buffer, offset, size);
+
+			if (action.Action != null) {
+				try {
+					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action", offset, size);
+					action.Action ();
+					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action done", offset, size);
+				} catch (Exception ex) {
+					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action failed: {2}", offset, size, ex);
+					throw;
+				}
+			}
+
+			return Read_internal (buffer, offset, size);
+		}
+
+		int Read_internal (byte[] buffer, int offset, int size)
+		{
 			try {
 				int ret = base.Read (buffer, offset, size);
 				Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) done: {2}", offset, size, ret);
