@@ -123,7 +123,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			sslStream = Provider.SslStreamProvider.CreateSslStream (ctx, innerStream, Parameters, IsServer);
 		}
 
-		public sealed override Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public sealed override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			if (IsServer)
 				StartServer (ctx, cancellationToken);

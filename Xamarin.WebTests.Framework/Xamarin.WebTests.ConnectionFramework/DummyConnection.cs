@@ -43,7 +43,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			this.provider = provider;
 		}
 
-		public override Task Start (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}

@@ -26,7 +26,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Start (ctx, cancellationToken);
+			return Start (ctx, null, cancellationToken);
 		}
 
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return Task.Run (() => Close ());
 		}
 
-		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
+		public abstract Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken);
 
 		public abstract Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 

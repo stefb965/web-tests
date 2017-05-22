@@ -183,6 +183,7 @@
     <Compile Include="Xamarin.WebTests.Server\SocketHelper.cs" />
     <Compile Include="Xamarin.WebTests.HttpFramework\HttpStreamReader.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\SslStreamFlags.cs" />
+    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInstrumentation.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">

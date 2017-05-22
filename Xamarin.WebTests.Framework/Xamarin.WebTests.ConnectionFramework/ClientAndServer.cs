@@ -142,12 +142,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
-		public override async Task Start (TestContext ctx, CancellationToken cancellationToken)
+		protected virtual Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		{
+			return client.Start (ctx, instrumentation, cancellationToken);
+		}
+
+		protected virtual Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		{
+			return server.Start (ctx, instrumentation, cancellationToken);
+		}
+
+		public override async Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.EndPoint);
 			InitializeConnection (ctx);
-			await server.Start (ctx, cancellationToken);
-			await client.Start (ctx, cancellationToken);
+			await StartServer (ctx, instrumentation, cancellationToken);
+			await StartClient (ctx, instrumentation, cancellationToken);
 		}
 
 		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)

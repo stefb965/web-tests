@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[SslStreamTestRunner]
-	public class SslStreamTestRunner : ConnectionTestRunner
+	public class SslStreamTestRunner : ConnectionTestRunner, IConnectionInstrumentation
 	{
 		new public SslStreamTestParameters Parameters {
 			get { return (SslStreamTestParameters)base.Parameters; }
@@ -283,6 +283,22 @@ namespace Xamarin.WebTests.TestRunners
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
 
 			return base.PostRun (ctx, cancellationToken);
+		}
+
+		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		{
+			ctx.Assert (instrumentation, Is.Null);
+			if (Parameters.UseStreamInstrumentation)
+				instrumentation = this;
+			return base.StartClient (ctx, instrumentation, cancellationToken);
+		}
+
+		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		{
+			ctx.Assert (instrumentation, Is.Null);
+			if (Parameters.UseStreamInstrumentation)
+				instrumentation = this;
+			return base.StartServer (ctx, instrumentation, cancellationToken);
 		}
 	}
 }
