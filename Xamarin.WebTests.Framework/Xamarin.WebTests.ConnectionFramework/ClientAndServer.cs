@@ -57,6 +57,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return server.SupportedProtocols & client.SupportedProtocols; }
 		}
 
+		public override ConnectionType ConnectionType => ConnectionType.ClientAndServer;
+
 		public ProtocolVersions? GetRequestedProtocol ()
 		{
 			var supported = SupportedProtocols;

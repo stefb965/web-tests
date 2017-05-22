@@ -19,6 +19,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		public abstract ConnectionType ConnectionType {
+			get;
+		}
+
 		protected Connection (IPortableEndPoint endpoint, ConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{

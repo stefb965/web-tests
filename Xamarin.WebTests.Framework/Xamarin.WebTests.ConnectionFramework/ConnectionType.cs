@@ -1,10 +1,10 @@
 ﻿//
-// DummyClient.cs
+// ConnectionType.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -24,21 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using System.Threading;
-using System.Threading.Tasks;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Portable;
-
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DummyClient : DummyConnection, IClient
+	public enum ConnectionType
 	{
-		public override ConnectionType ConnectionType => ConnectionType.Client;
-
-		public DummyClient (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (provider, endpoint, parameters)
-		{
-		}
+		Client,
+		Server,
+		ClientAndServer
 	}
 }
-
