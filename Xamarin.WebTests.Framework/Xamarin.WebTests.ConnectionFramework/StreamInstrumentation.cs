@@ -76,6 +76,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		public void OnNextRead (Action action)
+		{
+			var myAction = new MyAction (action);
+			if (Interlocked.CompareExchange (ref readAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
 			Context.LogDebug (4, "StreamInstrumentation.BeginWrite({0},{1})", offset, size);

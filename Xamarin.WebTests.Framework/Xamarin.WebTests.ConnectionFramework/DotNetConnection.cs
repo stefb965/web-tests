@@ -115,9 +115,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		void CreateSslStream (TestContext ctx, IConnectionInstrumentation instrumentation, Socket innerSocket)
 		{
-			if (instrumentation != null)
+			if (instrumentation != null) {
 				innerStream = instrumentation.CreateNetworkStream (ctx, this, innerSocket);
-			else if (Parameters.UseStreamInstrumentation)
+				if (innerStream == null)
+					innerStream = new NetworkStream (innerSocket);
+			} else if (Parameters.UseStreamInstrumentation)
 				innerStream = new StreamInstrumentation (ctx, innerSocket);
 			else
 				innerStream = new NetworkStream (innerSocket);

@@ -249,6 +249,7 @@ namespace Xamarin.WebTests.TestRunners
 		RemoteCertificateValidationCallback savedGlobalCallback;
 		TestContext savedContext;
 		bool restoreGlobalCallback;
+		StreamInstrumentation clientInstrumentation;
 
 		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
 		{
@@ -281,6 +282,11 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task PostRun (TestContext ctx, CancellationToken cancellationToken)
 		{
+			if (clientInstrumentation != null) {
+				clientInstrumentation.Dispose ();
+				clientInstrumentation = null;
+			}
+
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
 
@@ -305,7 +311,31 @@ namespace Xamarin.WebTests.TestRunners
 
 		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			throw new NotImplementedException ();
+			if (connection.ConnectionType != ConnectionType.Client)
+				return null;
+
+			var instrumentation = new StreamInstrumentation (ctx, socket);
+			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
+				throw new InternalErrorException ();
+
+			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
+
+			instrumentation.OnNextRead (() => {
+				ctx.Assert (Client.Stream, Is.Not.Null);
+				ctx.Assert (Client.SslStream, Is.Not.Null);
+				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
+				ctx.LogDebug (5, "BEFORE READ: {0} {1}!", Client.Stream, Client.SslStream.IsAuthenticated);
+
+				try {
+					var buffer = new byte[100];
+					Client.Stream.Read (buffer, 0, buffer.Length);
+					ctx.AssertFail ("not authenticated");
+				} catch (Exception ex) {
+					ctx.LogDebug (5, "GOT ERROR: {0}", ex);
+				}
+			});
+
+			return instrumentation;
 		}
 	}
 }
