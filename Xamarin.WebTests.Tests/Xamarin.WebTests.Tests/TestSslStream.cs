@@ -93,6 +93,16 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationMono)]
+		public async Task TestStreamInstrumentationMono (TestContext ctx, CancellationToken cancellationToken,
+			ConnectionTestProvider provider, SslStreamTestParameters parameters,
+			SslStreamTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[AsyncTest]
 		[ManualClient]
 		[ManualSslStream]
 		[ConnectionTestFlags (ConnectionTestFlags.ManualClient)]

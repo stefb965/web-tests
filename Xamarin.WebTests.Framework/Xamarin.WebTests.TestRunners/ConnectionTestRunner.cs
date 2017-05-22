@@ -144,6 +144,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.ReadDuringClientAuth;
 				yield break;
 
+			case ConnectionTestCategory.SslStreamInstrumentationMono:
+				yield return ConnectionTestType.CleanShutdown;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return ConnectionTestType.MartinTest;
 				yield break;
@@ -161,6 +165,7 @@ namespace Xamarin.WebTests.TestRunners
 			var supportsTls12 = (flags & ConnectionProviderFlags.SupportsTls12) != 0;
 			var supportsClientCertificates = (flags & ConnectionProviderFlags.SupportsClientCertificates) != 0;
 			var supportsTrustedRoots = (flags & ConnectionProviderFlags.SupportsTrustedRoots) != 0;
+			var supportsMonoExtensions = (flags & ConnectionProviderFlags.SupportsMonoExtensions) != 0;
 
 			switch (category) {
 			case ConnectionTestCategory.Https:
@@ -182,6 +187,8 @@ namespace Xamarin.WebTests.TestRunners
 				return supportsTrustedRoots;
 			case ConnectionTestCategory.SslStreamInstrumentation:
 				return supportsSslStream && supportsTls12;
+			case ConnectionTestCategory.SslStreamInstrumentationMono:
+				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
 			case ConnectionTestCategory.MartinTest:
 				return true;
 			default:

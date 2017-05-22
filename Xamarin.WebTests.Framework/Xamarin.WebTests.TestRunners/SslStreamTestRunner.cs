@@ -183,6 +183,11 @@ namespace Xamarin.WebTests.TestRunners
 					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
 				};
 
+			case ConnectionTestType.CleanShutdown:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+				};
+
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.MartinTest,
@@ -255,6 +260,7 @@ namespace Xamarin.WebTests.TestRunners
 		TestContext savedContext;
 		bool restoreGlobalCallback;
 		StreamInstrumentation clientInstrumentation;
+		StreamInstrumentation serverInstrumentation;
 
 		void SetGlobalValidationCallback (TestContext ctx, RemoteCertificateValidationCallback callback)
 		{
@@ -291,6 +297,10 @@ namespace Xamarin.WebTests.TestRunners
 				clientInstrumentation.Dispose ();
 				clientInstrumentation = null;
 			}
+			if (serverInstrumentation != null) {
+				serverInstrumentation.Dispose ();
+				serverInstrumentation = null;
+							}
 
 			if (restoreGlobalCallback)
 				ServicePointManager.ServerCertificateValidationCallback = savedGlobalCallback;
@@ -313,9 +323,12 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (Parameters.UseStreamInstrumentation)
-				instrumentation = this;
-			return base.StartServer (ctx, instrumentation, cancellationToken);
+			switch (Parameters.Type) {
+			case ConnectionTestType.MartinTest:
+				return base.StartServer (ctx, this, cancellationToken);
+			default:
+				return base.StartServer (ctx, null, cancellationToken);
+			}
 		}
 
 		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
@@ -332,11 +345,11 @@ namespace Xamarin.WebTests.TestRunners
 		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
-				return shutdown ();
+				return FinishedTask;
 
 			switch (Parameters.Type) {
-			case ConnectionTestType.MartinTest:
-				return Instrumentation_Dispose (ctx, shutdown);
+			case ConnectionTestType.CleanShutdown:
+				return Instrumentation_CleanShutdown (ctx, shutdown);
 			}
 
 			return shutdown ();
@@ -358,6 +371,7 @@ namespace Xamarin.WebTests.TestRunners
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
 			case ConnectionTestType.MartinTest:
+				Instrumentation_Dispose (ctx, instrumentation);			                        
 				break;
 			}
 
@@ -376,7 +390,7 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
-		async Task Instrumentation_Dispose (TestContext ctx, Func<Task> shutdown)
+		async Task Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown)
 		{
 			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
 

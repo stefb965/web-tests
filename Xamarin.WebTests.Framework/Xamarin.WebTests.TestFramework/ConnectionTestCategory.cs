@@ -49,6 +49,7 @@ namespace Xamarin.WebTests.TestFramework
 		CertificateStore,
 
 		SslStreamInstrumentation,
+		SslStreamInstrumentationMono,
 
 		MartinTest,
 	}
