@@ -178,7 +178,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.BeginEndAuthenticate
+					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.MartinTest,
+					UseStreamInstrumentation = true
 				};
 
 			default:

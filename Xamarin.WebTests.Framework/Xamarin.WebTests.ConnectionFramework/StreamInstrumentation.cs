@@ -29,14 +29,20 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
 	public class StreamInstrumentation : NetworkStream, IStreamInstrumentation
 	{
-		public StreamInstrumentation (Socket socket)
+		public TestContext Context {
+			get;
+		}
+
+		public StreamInstrumentation (TestContext ctx, Socket socket)
 			: base (socket)
 		{
+			Context = ctx;
 		}
 
 		MyAction writeAction;
@@ -72,6 +78,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
+			Context.LogDebug (4, "StreamInstrumentation.BeginWrite({0},{1})", offset, size);
+
 			var action = Interlocked.Exchange (ref writeAction, null);
 			if (action == null)
 				return base.BeginWrite (buffer, offset, size, callback, state);
@@ -119,6 +127,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IAsyncResult BeginRead (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
+			Context.LogDebug (4, "StreamInstrumentation.BeginRead({0},{1})", offset, size);
+
 			var action = Interlocked.Exchange (ref readAction, null);
 			if (action == null)
 				return base.BeginRead (buffer, offset, size, callback, state);
@@ -162,6 +172,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw myResult.Exception;
 
 			return myResult.Result;
+		}
+
+		public override void Write (byte[] buffer, int offset, int size)
+		{
+			Context.LogDebug (4, "StreamInstrumentation.Write({0},{1})", offset, size);
+			try {
+				base.Write (buffer, offset, size);
+				Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) done", offset, size);
+			} catch (Exception ex) {
+				Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) failed: {0}", offset, size, ex);
+				throw;
+			}
+		}
+
+		public override int Read (byte[] buffer, int offset, int size)
+		{
+			Context.LogDebug (4, "StreamInstrumentation.Read({0},{1})", offset, size);
+			try {
+				int ret = base.Read (buffer, offset, size);
+				Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) done: {2}", offset, size, ret);
+				return ret;
+			} catch (Exception ex) {
+				Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) failed: {2}", offset, size, ex);
+				throw;
+			}
 		}
 
 		class MyAction
