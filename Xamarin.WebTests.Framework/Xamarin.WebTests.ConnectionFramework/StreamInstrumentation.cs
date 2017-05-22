@@ -191,6 +191,29 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override void Write (byte[] buffer, int offset, int size)
 		{
 			Context.LogDebug (4, "StreamInstrumentation.Write({0},{1})", offset, size);
+
+			var action = Interlocked.Exchange (ref writeAction, null);
+			if (action == null) {
+				Write_internal (buffer, offset, size);
+				return;
+			}
+
+			if (action.Action != null) {
+				try {
+					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action", offset, size);
+					action.Action ();
+					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action done", offset, size);
+				} catch (Exception ex) {
+					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action failed: {2}", offset, size, ex);
+					throw;
+				}
+			}
+
+			Write_internal (buffer, offset, size);
+		}
+
+		void Write_internal (byte[] buffer, int offset, int size)
+		{
 			try {
 				base.Write (buffer, offset, size);
 				Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) done", offset, size);
