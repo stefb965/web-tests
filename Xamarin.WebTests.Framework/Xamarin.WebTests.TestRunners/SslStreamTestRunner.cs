@@ -343,6 +343,9 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.ReadDuringClientAuth:
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
+			case ConnectionTestType.MartinTest:
+				Instrumentation_DisposeBeforeClientAuth (ctx, instrumentation);
+				break;
 			}
 
 			return instrumentation;
@@ -357,6 +360,17 @@ namespace Xamarin.WebTests.TestRunners
 
 				var buffer = new byte[100];
 				ctx.AssertException (() => Client.Stream.Read (buffer, 0, buffer.Length), Is.InstanceOf<Exception> (true));
+			});
+		}
+
+		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
+		{
+			instrumentation.OnNextRead (() => {
+				ctx.Assert (Client.Stream, Is.Not.Null);
+				ctx.Assert (Client.SslStream, Is.Not.Null);
+				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
+
+				Client.SslStream.Dispose ();
 			});
 		}
 	}
