@@ -303,6 +303,7 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadDuringClientAuth:
+			case ConnectionTestType.MartinTest:
 				return base.StartClient (ctx, this, cancellationToken);
 			default:
 				return base.StartClient (ctx, null, cancellationToken);
@@ -328,6 +329,11 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		Task IConnectionInstrumentation.TryCleanShutdown (TestContext ctx, Connection connection)
+		{
+			return FinishedTask;
+		}
+
 		Stream CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
@@ -344,7 +350,7 @@ namespace Xamarin.WebTests.TestRunners
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
 			case ConnectionTestType.MartinTest:
-				Instrumentation_DisposeBeforeClientAuth (ctx, instrumentation);
+				Instrumentation_Dispose (ctx, instrumentation);
 				break;
 			}
 
@@ -359,8 +365,13 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
 				var buffer = new byte[100];
-				ctx.AssertException (() => Client.Stream.Read (buffer, 0, buffer.Length), Is.InstanceOf<Exception> (true));
+				ctx.AssertException<InvalidOperationException> (() => Client.Stream.Read (buffer, 0, buffer.Length));
 			});
+		}
+
+		void Instrumentation_Dispose (TestContext ctx, StreamInstrumentation instrumentation)
+		{
+			
 		}
 
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
@@ -370,7 +381,9 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
+				ctx.LogMessage ("CALLING DISPOSE!");
 				Client.SslStream.Dispose ();
+				ctx.LogMessage ("CALLING DISPOSE DONE!");
 			});
 		}
 	}

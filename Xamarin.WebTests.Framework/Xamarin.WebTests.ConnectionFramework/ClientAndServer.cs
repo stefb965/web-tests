@@ -208,12 +208,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Dispose ();
 		}
 
-		public override async Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var clientShutdown = client.Shutdown (ctx, cancellationToken);
 			var serverShutdown = server.Shutdown (ctx, cancellationToken);
 			await Task.WhenAll (clientShutdown, serverShutdown);
-			return clientShutdown.Result && serverShutdown.Result;
 		}
 
 		protected class ConnectionFinishedException : Exception

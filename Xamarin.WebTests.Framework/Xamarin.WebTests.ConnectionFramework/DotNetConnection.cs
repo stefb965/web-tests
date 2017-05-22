@@ -53,6 +53,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Socket socket;
 		Socket accepted;
 		Stream innerStream;
+		IConnectionInstrumentation instrumentation;
 		TaskCompletionSource<SslStream> tcs;
 
 		SslStream sslStream;
@@ -70,7 +71,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public override bool SupportsCleanShutdown {
-			get { return false; }
+			get { return instrumentation != null; }
 		}
 
 		public override ProtocolVersions SupportedProtocols {
@@ -129,14 +130,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
+			this.instrumentation = instrumentation;
+
 			if (IsServer)
-				StartServer (ctx, instrumentation, cancellationToken);
+				StartServer (ctx, cancellationToken);
 			else
-				StartClient (ctx, instrumentation, cancellationToken);
+				StartClient (ctx, cancellationToken);
 			return FinishedTask;
 		}
 
-		void StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		void StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -161,7 +164,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}, null);
 		}
 
-		void StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		void StartClient (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -188,17 +191,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return tcs.Task;
 		}
 
-		protected virtual Task<bool> TryCleanShutdown ()
+		protected virtual Task TryCleanShutdown (TestContext ctx)
 		{
-			throw new NotSupportedException ("Clean shutdown not supported yet.");
+			if (instrumentation == null)
+				throw new NotSupportedException ("Clean shutdown not supported yet.");
+
+			return instrumentation.TryCleanShutdown (ctx, this);
 		}
 
-		public sealed override async Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!SupportsCleanShutdown)
-				return false;
+				return;
 
-			return await TryCleanShutdown ();
+			await TryCleanShutdown (ctx);
 		}
 
 		protected override void Stop ()
@@ -237,6 +243,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				}
 				socket = null;
 			}
+			instrumentation = null;
 		}
 
 	}

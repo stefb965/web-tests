@@ -237,7 +237,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			return ConnectionHandler.MainLoop (ctx, cancellationToken);
 		}
 
-		public override Task<bool> Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			ConnectionHandler.Shutdown (ctx);
 			return base.Shutdown (ctx, cancellationToken);
