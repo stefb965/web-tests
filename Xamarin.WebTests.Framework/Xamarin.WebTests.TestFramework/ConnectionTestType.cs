@@ -63,7 +63,9 @@ namespace Xamarin.WebTests.TestFramework
 		IntermediateServerCertificateBare,
 		IntermediateServerCertificateFull,
 
-		CertificateStore
+		CertificateStore,
+
+		SyncAuthenticate
 	}
 }
 

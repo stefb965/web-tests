@@ -159,11 +159,6 @@ namespace Xamarin.WebTests.TestRunners
 					ExpectClientException = true, ExpectServerException = true
 				};
 
-			case ConnectionTestType.MartinTest:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
-				};
-
 			case ConnectionTestType.MustNotInvokeGlobalValidator:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll,
@@ -174,6 +169,16 @@ namespace Xamarin.WebTests.TestRunners
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					GlobalValidationFlags = GlobalValidationFlags.MustNotInvoke,
 					ExpectClientException = true
+				};
+
+			case ConnectionTestType.SyncAuthenticate:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
+				};
+
+			case ConnectionTestType.MartinTest:
+				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.BeginEndAuthenticate
 				};
 
 			default:

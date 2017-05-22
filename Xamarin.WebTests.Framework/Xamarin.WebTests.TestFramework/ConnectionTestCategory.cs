@@ -48,6 +48,8 @@ namespace Xamarin.WebTests.TestFramework
 		TrustedRoots,
 		CertificateStore,
 
+		SslStreamInstrumentation,
+
 		MartinTest,
 	}
 }
