@@ -45,6 +45,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 				function = "SslStream.AuthenticateAsClient()";
 				ctx.LogDebug (1, "Calling {0} synchronously.", function);
 				task = Task.Run (() => sslStream.AuthenticateAsClient (targetHost, clientCertificates, protocol, false));
+			} else if (HasFlag (SslStreamFlags.BeginEndAuthenticate)) {
+				function = "SslStream.BeginAuthenticateAsClient()";
+				ctx.LogDebug (1, "Calling {0}.", function);
+				task = Task.Factory.FromAsync (
+					(callback, state) => sslStream.BeginAuthenticateAsClient (targetHost, clientCertificates, protocol, false, callback, state),
+					(result) => sslStream.EndAuthenticateAsClient (result), null);
 			} else {
 				function = "SslStream.AuthenticateAsClientAsync()";
 				ctx.LogDebug (1, "Calling {0} async.", function);
