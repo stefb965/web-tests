@@ -59,7 +59,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 				await task.ConfigureAwait (false);
 				ctx.LogDebug (1, "{0} completed successfully.", function);
 			} catch (Exception ex) {
-				ctx.LogDebug (1, "{0} failed: {1}.", function, ex);
+				if (Parameters.ExpectClientException || Parameters.ExpectServerException)
+					ctx.LogDebug (1, "{0} failed (expected exception)", function);
+				else
+					ctx.LogDebug (1, "{0} failed: {1}.", function, ex);
 				throw;
 			}
 		}

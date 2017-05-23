@@ -40,6 +40,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			EnableDebugging = other.EnableDebugging;
 			ExpectPolicyErrors = other.ExpectPolicyErrors;
 			ExpectChainStatus = other.ExpectChainStatus;
+			ExpectClientException = other.ExpectClientException;
+			ExpectServerException = other.ExpectServerException;
 			SslStreamFlags = other.SslStreamFlags;
 			GlobalValidationFlags = other.GlobalValidationFlags;
 			if (other.ValidationParameters != null)
@@ -122,6 +124,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ValidationParameters ValidationParameters {
+			get; set;
+		}
+
+		public bool ExpectClientException {
+			get; set;
+		}
+
+		public bool ExpectServerException {
 			get; set;
 		}
 
