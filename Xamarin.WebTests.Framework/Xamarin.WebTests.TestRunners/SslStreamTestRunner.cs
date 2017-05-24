@@ -416,12 +416,13 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("TEST!");
 
-			clientInstrumentation.OnNextRead (() => {
+			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
 				ctx.LogMessage ("ON READ!");
-				tcs.Task.Wait ();
-				ctx.LogMessage ("ON READ #1: {0}", tcs.Task.Result);
-				if (!tcs.Task.Result)
-					clientInstrumentation.Close (0);
+				var result = await tcs.Task;
+				ctx.LogMessage ("ON READ #1: {0}", result);
+				if (!result)
+					return 0;
+				return -1;
 			});
 
 			var timeoutTask = Task.Delay (10000).ContinueWith (t => {
@@ -431,8 +432,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			var outerCts = new CancellationTokenSource (5000);
 
-			var buffer = new byte[256];
-			var readTask = Client.Stream.ReadAsync (buffer, 0, buffer.Length, outerCts.Token);
+			var readBuffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
 
 			try {
 				var ret = await readTask.ConfigureAwait (false);

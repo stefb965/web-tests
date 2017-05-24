@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		MyAction writeAction;
 		MyAction readAction;
 
+		[Obsolete]
 		public void OnNextBeginRead (Action action)
 		{
 			var myAction = new MyAction (action);
@@ -55,6 +56,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		[Obsolete]
 		public void OnNextBeginWrite (Action action)
 		{
 			var myAction = new MyAction (action);
@@ -62,6 +64,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		[Obsolete]
 		public void OnNextWrite (Func<Task> before, Func<Task> after)
 		{
 			var myAction = new MyAction (before, after);
@@ -69,6 +72,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		[Obsolete]
 		public void OnNextWrite (Action action)
 		{
 			var myAction = new MyAction (action);
@@ -76,6 +80,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		[Obsolete]
 		public void OnNextRead (Func<Task> before, Func<Task> after)
 		{
 			var myAction = new MyAction (before, after);
@@ -83,6 +88,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		[Obsolete]
 		public void OnNextRead (Action action)
 		{
 			var myAction = new MyAction (action);
@@ -313,10 +319,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			Context.LogDebug (4, message);
 			try {
 				int ret = func (buffer, offset, size);
-				Context.LogDebug (4, "{0} done: {1}", ret);
+				Context.LogDebug (4, "{0} done: {1}", message, ret);
 				return ret;
 			} catch (Exception ex) {
-				Context.LogDebug (4, "{0} failed: {1}", ex);
+				Context.LogDebug (4, "{0} failed: {1}", message, ex);
 				throw;
 			}
 		}
