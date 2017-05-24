@@ -90,6 +90,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
+		public void OnNextRead (AsyncReadHandler handler)
+		{
+			var myAction = new MyAction (handler);
+			if (Interlocked.CompareExchange (ref readAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
 			Context.LogDebug (4, "StreamInstrumentation.BeginWrite({0},{1})", offset, size);
@@ -137,6 +144,45 @@ namespace Xamarin.WebTests.ConnectionFramework
 			myResult.WaitUntilComplete ();
 			if (myResult.GotException)
 				throw myResult.Exception;
+		}
+
+		public delegate Task<int> AsyncReadFunc (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+		public delegate Task<int> AsyncReadHandler (byte[] buffer, int offset, int count, AsyncReadFunc func, CancellationToken cancellationToken);
+		public delegate int SyncReadFunc (byte[] buffer, int offset, int count);
+
+		internal Task<int> BaseReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			return base.ReadAsync (buffer, offset, count, cancellationToken);
+		}
+
+		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			var message = string.Format ("StreamInstrumentation.ReadAsync({0},{1})", offset, count);
+
+			var asyncBaseRead = new AsyncReadFunc (base.ReadAsync);
+			var asyncReadHandler = new AsyncReadHandler ((b, o, c, func, ct) => func (b, o, c, ct));
+
+			var action = Interlocked.Exchange (ref readAction, null);
+			if (action?.AsyncRead != null) {
+				message += " - action";
+				return ReadAsync (buffer, offset, count, message, asyncBaseRead, action.AsyncRead, cancellationToken);
+			}
+
+			return ReadAsync (buffer, offset, count, message, asyncBaseRead, asyncReadHandler, cancellationToken);
+		}
+
+		async Task<int> ReadAsync (byte[] buffer, int offset, int count, string message,
+		                           AsyncReadFunc func, AsyncReadHandler handler, CancellationToken cancellationToken)
+		{
+			Context.LogDebug (4, message);
+			try {
+				var ret = await handler (buffer, offset, count, func, cancellationToken).ConfigureAwait (false);
+				Context.LogDebug (4, "{0} done: {1}", message, ret);
+				return ret;
+			} catch (Exception ex) {
+				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				throw;
+			}
 		}
 
 		public override IAsyncResult BeginRead (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
@@ -223,36 +269,54 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		public override int Read (byte[] buffer, int offset, int size)
+		Task<int> CreateAsyncRead (byte[] buffer, int offset, int size)
 		{
-			Context.LogDebug (4, "StreamInstrumentation.Read({0},{1})", offset, size);
-
-			var action = Interlocked.Exchange (ref readAction, null);
-			if (action == null)
-				return Read_internal (buffer, offset, size);
-
-			if (action.Action != null) {
-				try {
-					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action", offset, size);
-					action.Action ();
-					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action done", offset, size);
-				} catch (Exception ex) {
-					Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) - action failed: {2}", offset, size, ex);
-					throw;
-				}
-			}
-
-			return Read_internal (buffer, offset, size);
+			var func = new SyncReadFunc (base.Read);
+			var task = Task.Factory.FromAsync (
+				(b, o, c, callback, state) => func.BeginInvoke (b, o, c, callback, state),
+				(result) => func.EndInvoke (result),
+				buffer, offset, size, null);
+			return task;
 		}
 
-		int Read_internal (byte[] buffer, int offset, int size)
+		AsyncReadFunc CreateAsyncRead ()
 		{
+			var syncRead = new SyncReadFunc (base.Read);
+			return (buffer, offset, size, cancellationToken) => Task.Factory.FromAsync (
+				(callback, state) => syncRead.BeginInvoke (buffer, offset, size, callback, state),
+				(result) => syncRead.EndInvoke (result),
+				null);
+		}
+
+		public override int Read (byte[] buffer, int offset, int size)
+		{
+			var message = string.Format ("StreamInstrumentation.Read({0},{1})", offset, size);
+
+			Context.LogDebug (4, "StreamInstrumentation.Read({0},{1})", offset, size);
+
+			var syncRead = new SyncReadFunc ((b, o, s) => base.Read (b, o, s));
+
+			var action = Interlocked.Exchange (ref readAction, null);
+			if (action?.AsyncRead != null) {
+				message += " - action";
+
+				var asyncBaseRead = CreateAsyncRead ();
+				var asyncReadTask = action.AsyncRead (buffer, offset, size, asyncBaseRead, CancellationToken.None);
+				syncRead = (b, o, s) => action.AsyncRead (b, o, s, asyncBaseRead, CancellationToken.None).Result;
+			}
+
+			return Read_internal (buffer, offset, size, message, syncRead);
+		}
+
+		int Read_internal (byte[] buffer, int offset, int size, string message, SyncReadFunc func)
+		{
+			Context.LogDebug (4, message);
 			try {
-				int ret = base.Read (buffer, offset, size);
-				Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) done: {2}", offset, size, ret);
+				int ret = func (buffer, offset, size);
+				Context.LogDebug (4, "{0} done: {1}", ret);
 				return ret;
 			} catch (Exception ex) {
-				Context.LogDebug (4, "StreamInstrumentation.Read({0},{1}) failed: {2}", offset, size, ex);
+				Context.LogDebug (4, "{0} failed: {1}", ex);
 				throw;
 			}
 		}
@@ -260,12 +324,18 @@ namespace Xamarin.WebTests.ConnectionFramework
 		class MyAction
 		{
 			public readonly Action Action;
+			public readonly AsyncReadHandler AsyncRead;
 			public readonly Func<Task> Before;
 			public readonly Func<Task> After;
 
 			public MyAction (Action action)
 			{
 				Action = action;
+			}
+
+			public MyAction (AsyncReadHandler handler)
+			{
+				AsyncRead = handler;
 			}
 
 			public MyAction (Func<Task> before, Func<Task> after)
