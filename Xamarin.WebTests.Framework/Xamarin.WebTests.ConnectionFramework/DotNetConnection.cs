@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return new IPEndPoint (IPAddress.Loopback, 4433);
 		}
 
-		void CreateSslStream (TestContext ctx, IConnectionInstrumentation instrumentation, Socket innerSocket)
+		void CreateSslStream (TestContext ctx, Socket innerSocket)
 		{
 			if (instrumentation != null) {
 				innerStream = instrumentation.CreateNetworkStream (ctx, this, innerSocket);
@@ -155,7 +155,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					CreateSslStream (ctx, instrumentation, accepted);
+					CreateSslStream (ctx, accepted);
 					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
@@ -177,7 +177,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					CreateSslStream (ctx, instrumentation, socket);
+					CreateSslStream (ctx, socket);
 					await Start (ctx, sslStream, cancellationToken);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
@@ -191,12 +191,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return tcs.Task;
 		}
 
-		protected virtual Task TryCleanShutdown (TestContext ctx)
+		protected virtual async Task TryCleanShutdown (TestContext ctx)
 		{
 			if (!provider.SupportsCleanShutdown)
 				throw new NotSupportedException ("Clean shutdown not supported yet.");
 
-			return provider.ShutdownAsync (sslStream);
+			await provider.ShutdownAsync (sslStream).ConfigureAwait (false);
+
+			(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
 		}
 
 		public sealed override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
