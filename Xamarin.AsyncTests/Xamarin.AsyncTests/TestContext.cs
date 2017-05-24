@@ -281,14 +281,14 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public bool ExpectException<T> (Action action, bool fatal = false, string format = null, params object[] args)
+		public Task<bool> ExpectException<T> (Func<Task> action, bool fatal = false, string format = null, params object[] args)
 			where T : Exception
 		{
 			return ExpectException (action, Is.InstanceOfType (typeof (T)), fatal, format, args);
 		}
 
 		[HideStackFrame]
-		public bool ExpectException (Action action, Constraint constraint, bool fatal = false, string format = null, params object[] args)
+		public async Task<bool> ExpectException (Func<Task> action, Constraint constraint, bool fatal = false, string format = null, params object[] args)
 		{
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("AssertionFailed ({0})", constraint.Print ());
@@ -301,7 +301,7 @@ namespace Xamarin.AsyncTests {
 			}
 
 			try {
-				action ();
+				await action ().ConfigureAwait (false);
 			} catch (Exception actual) {
 				string error;
 				actual = CleanupException (actual);
@@ -352,16 +352,16 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public void AssertException<T> (Action action, string format = null, params object[] args)
+		public Task AssertException<T> (Func<Task> action, string format = null, params object[] args)
 			where T : Exception
 		{
-			ExpectException<T> (action, true, format, args);
+			return ExpectException<T> (action, true, format, args);
 		}
 
 		[HideStackFrame]
-		public void AssertException (Action action, Constraint constraint, string format = null, params object[] args)
+		public Task AssertException (Func<Task> action, Constraint constraint, string format = null, params object[] args)
 		{
-			ExpectException (action, constraint, true, format, args);
+			return ExpectException (action, constraint, true, format, args);
 		}
 
 		[HideStackFrame]

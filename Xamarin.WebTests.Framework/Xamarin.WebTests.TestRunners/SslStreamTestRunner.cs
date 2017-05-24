@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		const ConnectionTestType MartinTest = ConnectionTestType.ReadTimeout;
+		const ConnectionTestType MartinTest = ConnectionTestType.RemoteClosesConnectionDuringRead;
 
 		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
 		{
@@ -397,13 +397,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		void Instrumentation_ReadBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
 		{
-			instrumentation.OnNextRead (() => {
+			instrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
 				ctx.Assert (Client.Stream, Is.Not.Null);
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
-				var buffer = new byte[100];
-				ctx.AssertException<InvalidOperationException> (() => Client.Stream.Read (buffer, 0, buffer.Length));
+				var readBuffer = new byte[100];
+				await ctx.AssertException<InvalidOperationException> (
+					() => Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length)).ConfigureAwait (false);
+				return -1;
 			});
 		}
 
@@ -417,7 +419,7 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogMessage ("TEST!");
 
 			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
-				ctx.LogMessage ("ON READ!");
+				ctx.LogMessage ("ON READ WITH TIMEOUT!");
 				var result = await tcs.Task;
 				ctx.LogMessage ("ON READ #1: {0}", result);
 				if (!result)
@@ -455,14 +457,15 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("TEST!");
 
-			clientInstrumentation.OnNextRead (() => {
-				ctx.LogMessage ("ON READ!");
+			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
+				ctx.LogMessage ("ON READ: {0} {1} {2}", buffer, offset, count);
+				return func (buffer, offset, count, cancellationToken);
 			});
 
 			var outerCts = new CancellationTokenSource (5000);
 
-			var buffer = new byte[256];
-			var readTask = Client.Stream.ReadAsync (buffer, 0, buffer.Length, outerCts.Token);
+			var readBuffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
 
 			await Server.Shutdown (ctx, false, CancellationToken.None);
 
@@ -503,7 +506,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
 		{
-			instrumentation.OnNextRead (() => {
+			instrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
 				ctx.Assert (Client.Stream, Is.Not.Null);
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
@@ -511,6 +514,7 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogMessage ("CALLING DISPOSE!");
 				Client.SslStream.Dispose ();
 				ctx.LogMessage ("CALLING DISPOSE DONE!");
+				return func (buffer, offset, count, cancellationToken);
 			});
 		}
 
