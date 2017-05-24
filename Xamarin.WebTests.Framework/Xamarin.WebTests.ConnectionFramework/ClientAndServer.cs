@@ -113,8 +113,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await MainLoop (ctx, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			if (SupportsCleanShutdown)
-				await Shutdown (ctx, cancellationToken);
+			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
 		}
 
 		protected virtual void InitializeConnection (TestContext ctx)
@@ -214,13 +213,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Dispose ();
 		}
 
-		public override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
 				throw new InternalErrorException ();
 
-			var clientShutdown = client.Shutdown (ctx, cancellationToken);
-			var serverShutdown = server.Shutdown (ctx, cancellationToken);
+			var clientShutdown = client.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
+			var serverShutdown = server.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
 			await Task.WhenAll (clientShutdown, serverShutdown);
 		}
 

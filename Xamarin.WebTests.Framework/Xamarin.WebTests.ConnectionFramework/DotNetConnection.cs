@@ -55,6 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		Stream innerStream;
 		IConnectionInstrumentation instrumentation;
 		TaskCompletionSource<SslStream> tcs;
+		int shutdown;
 
 		SslStream sslStream;
 
@@ -197,21 +198,24 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new NotSupportedException ("Clean shutdown not supported yet.");
 
 			await provider.ShutdownAsync (sslStream).ConfigureAwait (false);
-
-			(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
 		}
 
-		public sealed override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public sealed override Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
-			if (!SupportsCleanShutdown)
+			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				return FinishedTask;
 
-			Func<Task> shutdown = () => TryCleanShutdown (ctx);
-
 			if (instrumentation != null)
-				return instrumentation.Shutdown (ctx, shutdown, this);
-			else
-				return shutdown ();
+				return instrumentation.Shutdown (ctx, Shutdown_internal, this);
+			return Shutdown_internal ();
+
+			async Task Shutdown_internal ()
+			{
+				if (SupportsCleanShutdown && attemptCleanShutdown)
+					await TryCleanShutdown (ctx).ConfigureAwait (false);
+
+				(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
+			}
 		}
 
 		protected override void Stop ()

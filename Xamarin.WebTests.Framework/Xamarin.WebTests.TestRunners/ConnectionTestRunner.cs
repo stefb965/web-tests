@@ -142,6 +142,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.SslStreamInstrumentation:
 				yield return ConnectionTestType.SyncAuthenticate;
 				yield return ConnectionTestType.ReadDuringClientAuth;
+				yield return ConnectionTestType.RemoteClosesConnectionDuringRead;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
@@ -209,10 +210,10 @@ namespace Xamarin.WebTests.TestRunners
 			return ConnectionHandler.MainLoop (ctx, cancellationToken);
 		}
 
-		public override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public override Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			ConnectionHandler.Shutdown (ctx);
-			return base.Shutdown (ctx, cancellationToken);
+			return base.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
 		}
 	}
 }

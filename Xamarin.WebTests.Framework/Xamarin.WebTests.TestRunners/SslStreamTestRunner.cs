@@ -70,6 +70,8 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
+		const ConnectionTestType MartinTest = ConnectionTestType.RemoteClosesConnectionDuringRead;
+
 		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
@@ -185,15 +187,13 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.CleanShutdown:
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
 				};
 
 			case ConnectionTestType.MartinTest:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.MartinTest,
-					UseStreamInstrumentation = true
-				};
+				goto case MartinTest;
 
 			default:
 				throw new InternalErrorException ();
@@ -314,8 +314,10 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadDuringClientAuth:
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return base.StartClient (ctx, this, cancellationToken);
+			case ConnectionTestType.MartinTest:
+				goto case MartinTest;
 			default:
 				return base.StartClient (ctx, null, cancellationToken);
 			}
@@ -326,6 +328,8 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
 			case ConnectionTestType.MartinTest:
+				goto case MartinTest;
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return base.StartServer (ctx, this, cancellationToken);
 			default:
 				return base.StartServer (ctx, null, cancellationToken);
@@ -336,8 +340,10 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadDuringClientAuth:
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return CreateClientInstrumentation (ctx, connection, socket);
+			case ConnectionTestType.MartinTest:
+				goto case MartinTest;
 			default:
 				return null;
 			}
@@ -345,14 +351,13 @@ namespace Xamarin.WebTests.TestRunners
 
 		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (connection.ConnectionType != ConnectionType.Client)
-				return FinishedTask;
-
 			switch (Parameters.Type) {
 			case ConnectionTestType.CleanShutdown:
-				return Instrumentation_CleanShutdown (ctx, shutdown);
+				return Instrumentation_CleanShutdown (ctx, shutdown, connection);
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
 			case ConnectionTestType.MartinTest:
-				return Instrumentation_Dispose (ctx, shutdown);
+				goto case MartinTest;
 			}
 
 			return shutdown ();
@@ -373,8 +378,10 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.ReadDuringClientAuth:
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
-			case ConnectionTestType.MartinTest:
+			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				break;
+			case ConnectionTestType.MartinTest:
+				goto case MartinTest;
 			}
 
 			return instrumentation;
@@ -392,8 +399,42 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
-		async Task Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown)
+		async Task Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
+			if (connection.ConnectionType != ConnectionType.Client) {
+				return;
+			}
+
+			ctx.LogMessage ("TEST!");
+
+			clientInstrumentation.OnNextRead (() => {
+				ctx.LogMessage ("ON READ!");
+			});
+
+			var outerCts = new CancellationTokenSource (5000);
+
+			var buffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (buffer, 0, buffer.Length, outerCts.Token);
+
+			await Server.Shutdown (ctx, false, CancellationToken.None);
+
+			ctx.LogMessage ("TEST #1");
+
+			try {
+				var ret = await readTask.ConfigureAwait (false);
+				ctx.LogMessage ("READ TASK DONE: {0}", ret);
+			} catch (Exception ex) {
+				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
+			}
+		}
+
+		async Task Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			if (connection.ConnectionType != ConnectionType.Client) {
+				await shutdown ().ConfigureAwait (false);
+				return;
+			}
+				
 			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
 
 			clientInstrumentation.OnNextWrite (() => {
@@ -431,6 +472,46 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogMessage ("DONE CALLING CLOSE!");
 			return FinishedTask;
 		}
+
+		async Task Instrumentation_MartinTest (TestContext ctx, Func<Task> shutdown)
+		{
+			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
+
+			var buffer = new byte[4096];
+			var readTask = Server.Stream.ReadAsync (buffer, 0, buffer.Length);
+			var readTask2 = readTask.ContinueWith (async t => {
+				;
+				ctx.LogMessage ("READ TASK: {0} {1}", t.Status, t.Id);
+
+				await Task.Yield ();
+				ctx.LogMessage ("READ TASK #1");
+				await Task.Delay (5000);
+				ctx.LogMessage ("READ TASK #2");
+
+				var ret = await Server.Stream.ReadAsync (buffer, 0, buffer.Length);
+				ctx.LogMessage ("READ TASK #1: {0}", ret);
+			});
+
+			clientInstrumentation.OnNextWrite (() => {
+				ctx.LogMessage ("ON WRITE!");
+			});
+
+			ctx.LogMessage ("CALLING SHUTDOWN!");
+			try {
+				await shutdown ().ConfigureAwait (false);
+				ctx.LogMessage ("SHUTDOWN DONE!");
+			} catch (Exception ex) {
+				ctx.LogMessage ("SHUTDOWN FAILED: {0}", ex);
+				throw;
+			}
+
+			await Task.Yield ();
+			ctx.LogMessage ("SHUTDOWN TASK #1");
+
+			await readTask.ConfigureAwait (false);
+			ctx.LogMessage ("SHUTDOWN COMPLETE!");
+		}
+
 	}
 }
 
