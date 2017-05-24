@@ -200,20 +200,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await provider.ShutdownAsync (sslStream).ConfigureAwait (false);
 		}
 
-		public sealed override Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public sealed override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
-				return FinishedTask;
+				return;
 
-			if (instrumentation != null)
-				return instrumentation.Shutdown (ctx, Shutdown_internal, this);
-			return Shutdown_internal ();
+			if (await instrumentation?.Shutdown (ctx, Shutdown_internal, this))
+				return;
+			
+			await Shutdown_internal ();
 
 			async Task Shutdown_internal ()
 			{
 				if (SupportsCleanShutdown && attemptCleanShutdown)
 					await TryCleanShutdown (ctx).ConfigureAwait (false);
 
+				ctx.LogDebug (5, "Shutting down socket.");
 				(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
 			}
 		}

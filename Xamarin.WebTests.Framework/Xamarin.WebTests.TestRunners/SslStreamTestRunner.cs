@@ -349,7 +349,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		Task IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		Task<bool> IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			switch (Parameters.Type) {
 			case ConnectionTestType.CleanShutdown:
@@ -360,7 +360,7 @@ namespace Xamarin.WebTests.TestRunners
 				goto case MartinTest;
 			}
 
-			return shutdown ();
+			return Task.FromResult (false);
 		}
 
 		Stream CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
@@ -399,11 +399,10 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
-		async Task Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
+		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (connection.ConnectionType != ConnectionType.Client) {
-				return;
-			}
+			if (connection.ConnectionType != ConnectionType.Client)
+				return false;
 
 			ctx.LogMessage ("TEST!");
 
@@ -426,15 +425,15 @@ namespace Xamarin.WebTests.TestRunners
 			} catch (Exception ex) {
 				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
 			}
+
+			return true;
 		}
 
-		async Task Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		async Task<bool> Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (connection.ConnectionType != ConnectionType.Client) {
-				await shutdown ().ConfigureAwait (false);
-				return;
-			}
-				
+			if (connection.ConnectionType != ConnectionType.Client)
+				return false;
+
 			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
 
 			clientInstrumentation.OnNextWrite (() => {
@@ -449,6 +448,8 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogMessage ("SHUTDOWN FAILED: {0}", ex);
 				throw;
 			}
+
+			return true;
 		}
 
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
