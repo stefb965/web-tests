@@ -148,7 +148,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public delegate Task<int> AsyncReadFunc (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 		public delegate Task<int> AsyncReadHandler (byte[] buffer, int offset, int count, AsyncReadFunc func, CancellationToken cancellationToken);
-		public delegate int SyncReadFunc (byte[] buffer, int offset, int count);
+		delegate int SyncReadFunc (byte[] buffer, int offset, int count);
 
 		internal Task<int> BaseReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
@@ -159,8 +159,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var message = string.Format ("StreamInstrumentation.ReadAsync({0},{1})", offset, count);
 
-			var asyncBaseRead = new AsyncReadFunc (base.ReadAsync);
-			var asyncReadHandler = new AsyncReadHandler ((b, o, c, func, ct) => func (b, o, c, ct));
+			AsyncReadFunc asyncBaseRead = base.ReadAsync;
+			AsyncReadHandler asyncReadHandler = (b, o, c, func, ct) => func (b, o, c, ct);
 
 			var action = Interlocked.Exchange (ref readAction, null);
 			if (action?.AsyncRead != null) {
@@ -269,39 +269,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 			}
 		}
 
-		Task<int> CreateAsyncRead (byte[] buffer, int offset, int size)
-		{
-			var func = new SyncReadFunc (base.Read);
-			var task = Task.Factory.FromAsync (
-				(b, o, c, callback, state) => func.BeginInvoke (b, o, c, callback, state),
-				(result) => func.EndInvoke (result),
-				buffer, offset, size, null);
-			return task;
-		}
-
-		AsyncReadFunc CreateAsyncRead ()
-		{
-			var syncRead = new SyncReadFunc (base.Read);
-			return (buffer, offset, size, cancellationToken) => Task.Factory.FromAsync (
-				(callback, state) => syncRead.BeginInvoke (buffer, offset, size, callback, state),
-				(result) => syncRead.EndInvoke (result),
-				null);
-		}
-
 		public override int Read (byte[] buffer, int offset, int size)
 		{
 			var message = string.Format ("StreamInstrumentation.Read({0},{1})", offset, size);
 
 			Context.LogDebug (4, "StreamInstrumentation.Read({0},{1})", offset, size);
 
-			var syncRead = new SyncReadFunc ((b, o, s) => base.Read (b, o, s));
+			SyncReadFunc syncRead = (b, o, s) => base.Read (b, o, s);
 
 			var action = Interlocked.Exchange (ref readAction, null);
 			if (action?.AsyncRead != null) {
 				message += " - action";
 
-				var asyncBaseRead = CreateAsyncRead ();
-				var asyncReadTask = action.AsyncRead (buffer, offset, size, asyncBaseRead, CancellationToken.None);
+				AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (
+					(callback, state) => syncRead.BeginInvoke (b, o, s, callback, state),
+					(result) => syncRead.EndInvoke (result), null);
+
 				syncRead = (b, o, s) => action.AsyncRead (b, o, s, asyncBaseRead, CancellationToken.None).Result;
 			}
 
