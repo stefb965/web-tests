@@ -205,7 +205,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				return;
 
-			if (await instrumentation?.Shutdown (ctx, Shutdown_internal, this))
+			if (instrumentation != null && await instrumentation.Shutdown (ctx, Shutdown_internal, this).ConfigureAwait (false))
 				return;
 			
 			await Shutdown_internal ();

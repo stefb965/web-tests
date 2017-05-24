@@ -68,6 +68,7 @@ namespace Xamarin.WebTests.TestFramework
 		SyncAuthenticate,
 		ReadDuringClientAuth,
 		CleanShutdown,
+		ReadTimeout,
 		RemoteClosesConnectionDuringRead
 	}
 }

@@ -70,7 +70,7 @@ namespace Xamarin.WebTests.TestRunners
 			return sb.ToString ();
 		}
 
-		const ConnectionTestType MartinTest = ConnectionTestType.RemoteClosesConnectionDuringRead;
+		const ConnectionTestType MartinTest = ConnectionTestType.ReadTimeout;
 
 		public static SslStreamTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category, ConnectionTestType type)
 		{
@@ -187,6 +187,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			case ConnectionTestType.CleanShutdown:
+			case ConnectionTestType.ReadTimeout:
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
@@ -314,6 +315,7 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadDuringClientAuth:
+			case ConnectionTestType.ReadTimeout:
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return base.StartClient (ctx, this, cancellationToken);
 			case ConnectionTestType.MartinTest:
@@ -327,10 +329,12 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
-			case ConnectionTestType.MartinTest:
-				goto case MartinTest;
+			case ConnectionTestType.ReadTimeout:
+				return base.StartServer (ctx, null, cancellationToken);
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return base.StartServer (ctx, this, cancellationToken);
+			case ConnectionTestType.MartinTest:
+				goto case MartinTest;
 			default:
 				return base.StartServer (ctx, null, cancellationToken);
 			}
@@ -340,6 +344,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadDuringClientAuth:
+			case ConnectionTestType.ReadTimeout:
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return CreateClientInstrumentation (ctx, connection, socket);
 			case ConnectionTestType.MartinTest:
@@ -356,6 +361,8 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_CleanShutdown (ctx, shutdown, connection);
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
+			case ConnectionTestType.ReadTimeout:
+				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
 			case ConnectionTestType.MartinTest:
 				goto case MartinTest;
 			}
@@ -378,6 +385,7 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestType.ReadDuringClientAuth:
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
+			case ConnectionTestType.ReadTimeout:
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
 				break;
 			case ConnectionTestType.MartinTest:
@@ -397,6 +405,46 @@ namespace Xamarin.WebTests.TestRunners
 				var buffer = new byte[100];
 				ctx.AssertException<InvalidOperationException> (() => Client.Stream.Read (buffer, 0, buffer.Length));
 			});
+		}
+
+		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			if (connection.ConnectionType != ConnectionType.Client)
+				throw ctx.AssertFail ("Client only.");
+
+			var tcs = new TaskCompletionSource<bool> ();
+
+			ctx.LogMessage ("TEST!");
+
+			clientInstrumentation.OnNextRead (() => {
+				ctx.LogMessage ("ON READ!");
+				tcs.Task.Wait ();
+				ctx.LogMessage ("ON READ #1: {0}", tcs.Task.Result);
+				if (!tcs.Task.Result)
+					clientInstrumentation.Close (0);
+			});
+
+			var timeoutTask = Task.Delay (10000).ContinueWith (t => {
+				ctx.LogMessage ("TIMEOUT!");
+				tcs.TrySetResult (false);
+			});
+
+			var outerCts = new CancellationTokenSource (5000);
+
+			var buffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (buffer, 0, buffer.Length, outerCts.Token);
+
+			try {
+				var ret = await readTask.ConfigureAwait (false);
+				ctx.LogMessage ("READ TASK DONE: {0}", ret);
+			} catch (Exception ex) {
+				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
+			} finally {
+				tcs.TrySetResult (true);
+				outerCts.Dispose ();
+			}
+
+			return true;
 		}
 
 		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
