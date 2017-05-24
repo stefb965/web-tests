@@ -65,7 +65,7 @@ namespace Xamarin.WebTests.Server
 
 		public override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			networkStream = new NetworkStream (Socket);
+			networkStream = new NetworkStream (Socket, true);
 
 			if (Server.SslStreamProvider != null) {
 				sslStream = await CreateSslStream (ctx, networkStream, cancellationToken).ConfigureAwait (false);

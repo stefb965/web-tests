@@ -119,11 +119,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (instrumentation != null) {
 				innerStream = instrumentation.CreateNetworkStream (ctx, this, innerSocket);
 				if (innerStream == null)
-					innerStream = new NetworkStream (innerSocket);
+					innerStream = new NetworkStream (innerSocket, true);
 			} else if (Parameters.UseStreamInstrumentation)
 				innerStream = new StreamInstrumentation (ctx, innerSocket);
 			else
-				innerStream = new NetworkStream (innerSocket);
+				innerStream = new NetworkStream (innerSocket, true);
 
 			sslStream = Provider.SslStreamProvider.CreateSslStream (ctx, innerStream, Parameters, IsServer);
 		}
