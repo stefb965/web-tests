@@ -330,9 +330,8 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
 			case ConnectionTestType.ReadTimeout:
-				return base.StartServer (ctx, null, cancellationToken);
 			case ConnectionTestType.RemoteClosesConnectionDuringRead:
-				return base.StartServer (ctx, this, cancellationToken);
+				return base.StartServer (ctx, null, cancellationToken);
 			case ConnectionTestType.MartinTest:
 				goto case MartinTest;
 			default:
@@ -452,16 +451,14 @@ namespace Xamarin.WebTests.TestRunners
 
 		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (connection.ConnectionType != ConnectionType.Client)
-				return false;
-
-			ctx.LogMessage ("TEST!");
+			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
 
 			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
 				ctx.LogMessage ("ON READ: {0} {1} {2}", buffer, offset, count);
 				try {
 					var ret = await func (buffer, offset, count, cancellationToken);
 					ctx.LogMessage ("ON READ #1: {0}", ret);
+					ctx.Expect (ret, Is.EqualTo (-99999), "inner read returns zero");
 					return ret;
 				} catch (Exception ex) {
 					ctx.LogMessage ("ON READ #2: {0}", ex);
@@ -481,6 +478,7 @@ namespace Xamarin.WebTests.TestRunners
 			try {
 				var ret = await readTask.ConfigureAwait (false);
 				ctx.LogMessage ("READ TASK DONE: {0}", ret);
+				ctx.Assert (ret, Is.EqualTo (0), "read returns zero");
 			} catch (Exception ex) {
 				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
 			}
