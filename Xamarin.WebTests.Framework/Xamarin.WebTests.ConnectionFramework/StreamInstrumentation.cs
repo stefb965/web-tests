@@ -388,6 +388,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 				Message = message;
 				Task = task;
+
+				task.ContinueWith (t => {
+					if (t.IsFaulted || t.IsCanceled)
+						SetCompleted (false, t.Exception);
+					else {
+						Result = t.Result;
+						SetCompleted (false);
+					}
+			       });
 			}
 		}
 	}
