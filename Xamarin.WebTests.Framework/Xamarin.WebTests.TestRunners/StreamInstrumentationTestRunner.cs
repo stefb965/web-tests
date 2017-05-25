@@ -62,12 +62,13 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ClientHandshake;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
 			case ConnectionTestCategory.SslStreamInstrumentation:
+				yield return StreamInstrumentationType.ClientHandshake;
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
 				yield return StreamInstrumentationType.CloseBeforeClientAuth;
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
@@ -144,6 +145,7 @@ namespace Xamarin.WebTests.TestRunners
 		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
 		{
 			switch (type) {
+			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
@@ -197,6 +199,7 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
 			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
+			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
@@ -241,6 +244,9 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
 				switch (Parameters.Type) {
+				case StreamInstrumentationType.ClientHandshake:
+					ctx.LogMessage ("CLIENT HANDSHAKE!");
+					break;
 				case StreamInstrumentationType.ReadDuringClientAuth:
 					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
 					break;

@@ -28,6 +28,7 @@ namespace Xamarin.WebTests.TestFramework
 {
 	public enum StreamInstrumentationType
 	{
+		ClientHandshake,
 		ReadDuringClientAuth,
 		CloseBeforeClientAuth,
 		CloseDuringClientAuth,
