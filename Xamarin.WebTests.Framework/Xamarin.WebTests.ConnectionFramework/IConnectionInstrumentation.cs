@@ -35,8 +35,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public interface IConnectionInstrumentation
 	{
-		Stream CreateNetworkStream (TestContext ctx, Connection connection, Socket socket);
+		Stream CreateClientStream (TestContext ctx, Connection connection, Socket socket);
 
-		Task<bool> Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection);
+		Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket);
+
+		Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, Connection connection);
+
+		Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection);
+
+		Task<bool> ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection);
 	}
 }

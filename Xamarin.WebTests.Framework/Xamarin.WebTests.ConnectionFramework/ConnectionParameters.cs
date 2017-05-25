@@ -28,7 +28,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			EndPoint = other.EndPoint;
 			ListenAddress = other.ListenAddress;
 			ProtocolVersion = other.ProtocolVersion;
-			UseStreamInstrumentation = other.UseStreamInstrumentation;
 			TargetHost = other.TargetHost;
 			ClientCertificate = other.ClientCertificate;
 			ClientCertificateValidator = other.ClientCertificateValidator;
@@ -67,10 +66,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ProtocolVersions? ProtocolVersion {
-			get; set;
-		}
-
-		public bool UseStreamInstrumentation {
 			get; set;
 		}
 

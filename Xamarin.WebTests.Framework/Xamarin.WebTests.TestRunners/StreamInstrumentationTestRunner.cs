@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ClientHandshake;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -113,7 +113,7 @@ namespace Xamarin.WebTests.TestRunners
 			var name = GetTestName (category, type);
 
 			return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-				ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+				ClientCertificateValidator = acceptAll
 			};
 		}
 
@@ -139,7 +139,8 @@ namespace Xamarin.WebTests.TestRunners
 			None = 0,
 			ClientInstrumentation = 1,
 			ServerInstrumentation = 2,
-			ClientHandshake = 4
+			ClientStream = 4,
+			ClientHandshake = 8,
 		}
 
 		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
@@ -147,6 +148,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (type) {
 			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
+				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientStream;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
@@ -183,14 +185,7 @@ namespace Xamarin.WebTests.TestRunners
 			return base.StartServer (ctx, null, cancellationToken);
 		}
 
-		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
-		{
-			if (HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
-				return CreateClientInstrumentation (ctx, connection, socket);
-			return null;
-		}
-
-		Task<bool> IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		Task<bool> IConnectionInstrumentation.ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			switch (Parameters.Type) {
 			case StreamInstrumentationType.CleanShutdown:
@@ -212,9 +207,9 @@ namespace Xamarin.WebTests.TestRunners
 			return Task.FromResult (false);
 		}
 
-		Stream CreateClientInstrumentation (TestContext ctx, Connection connection, Socket socket)
+		public Stream CreateClientStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			if (connection.ConnectionType != ConnectionType.Client)
+			if (!HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
 				return null;
 
 			var instrumentation = new StreamInstrumentation (ctx, socket);
@@ -223,17 +218,14 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
 
-			if (HasFlag (StreamInstrumentationFlags.ClientHandshake))
-				Instrumentation_ClientHandshake (ctx, instrumentation);
+			if (!HasFlag (StreamInstrumentationFlags.ClientStream))
+				return instrumentation;
 
-			return instrumentation;
-		}
-
-		void Instrumentation_ClientHandshake (TestContext ctx, StreamInstrumentation instrumentation)
-		{
 			int readCount = 0;
 
 			instrumentation.OnNextRead (ReadHandler);
+
+			return instrumentation;
 
 			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
 			                             StreamInstrumentation.AsyncReadFunc func,
@@ -271,6 +263,19 @@ namespace Xamarin.WebTests.TestRunners
 				const int bufferSize = 100;
 				return Client.Stream.ReadAsync (new byte[bufferSize], 0, bufferSize);
 			}
+		}
+
+		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
+		{
+			return null;
+		}
+
+		public Task<bool> ClientHandshake (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			if (!HasFlag (StreamInstrumentationFlags.ClientHandshake))
+				return Task.FromResult (false);
+
+			throw new NotImplementedException ();
 		}
 
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
@@ -420,5 +425,9 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogMessage ("SHUTDOWN COMPLETE!");
 		}
 
+		Task<bool> IConnectionInstrumentation.ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			return Task.FromResult (false);
+		}
 	}
 }

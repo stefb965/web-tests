@@ -118,13 +118,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 		void CreateSslStream (TestContext ctx, Socket innerSocket)
 		{
 			if (instrumentation != null) {
-				innerStream = instrumentation.CreateNetworkStream (ctx, this, innerSocket);
+				if (IsServer)
+					innerStream = instrumentation.CreateClientStream (ctx, this, innerSocket);
+				else
+					innerStream = instrumentation.CreateServerStream (ctx, this, innerSocket);
 				if (innerStream == null)
 					innerStream = new NetworkStream (innerSocket, true);
-			} else if (Parameters.UseStreamInstrumentation)
-				innerStream = new StreamInstrumentation (ctx, innerSocket);
-			else
+			} else {
 				innerStream = new NetworkStream (innerSocket, true);
+			}
 
 			sslStream = Provider.SslStreamProvider.CreateSslStream (ctx, innerStream, Parameters, IsServer);
 		}
@@ -179,12 +181,30 @@ namespace Xamarin.WebTests.ConnectionFramework
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					CreateSslStream (ctx, socket);
-					await Start (ctx, sslStream, cancellationToken);
+					await ClientHandshake ().ConfigureAwait (false);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
 				}
 			}, null);
+
+			async Task ClientHandshake ()
+			{
+				if (instrumentation == null) {
+					await TheHandshake ().ConfigureAwait (false);
+					return;
+				}
+
+				if (await instrumentation.ClientHandshake (ctx, TheHandshake, this).ConfigureAwait (false))
+					return;
+
+				await TheHandshake ().ConfigureAwait (false);
+			}
+
+			Task TheHandshake ()
+			{
+				return Start (ctx, sslStream, cancellationToken);
+			}
 		}
 
 		public sealed override Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken)
@@ -205,9 +225,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				return;
 
-			if (instrumentation != null && await instrumentation.Shutdown (ctx, Shutdown_internal, this).ConfigureAwait (false))
-				return;
-			
+			if (instrumentation != null) {
+				Task<bool> task;
+				if (IsServer)
+					task = instrumentation.ServerShutdown (ctx, Shutdown_internal, this);
+				else
+					task = instrumentation.ClientShutdown (ctx, Shutdown_internal, this);
+				if (await task.ConfigureAwait (false))
+					return;
+			}
+
 			await Shutdown_internal ();
 
 			async Task Shutdown_internal ()
