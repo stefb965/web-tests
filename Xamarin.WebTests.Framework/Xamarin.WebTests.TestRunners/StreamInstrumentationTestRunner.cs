@@ -62,13 +62,16 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadDuringClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			switch (category) {
 			case ConnectionTestCategory.SslStreamInstrumentation:
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
+				yield return StreamInstrumentationType.CloseBeforeClientAuth;
+				yield return StreamInstrumentationType.CloseDuringClientAuth;
+				yield return StreamInstrumentationType.InvalidDataDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield break;
 
@@ -77,6 +80,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationWorking:
+				yield return StreamInstrumentationType.ReadDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield break;
 
@@ -100,28 +104,16 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		public static StreamInstrumentationParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
-		                                                             StreamInstrumentationType type)
+									     StreamInstrumentationType type)
 		{
 			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
 			var acceptAll = certificateProvider.AcceptAll ();
 
 			var name = GetTestName (category, type);
 
-			switch (type) {
-			case StreamInstrumentationType.ReadDuringClientAuth:
-			case StreamInstrumentationType.CleanShutdown:
-			case StreamInstrumentationType.ReadTimeout:
-			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
-				};
-
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
-
-			default:
-				throw ctx.AssertFail ("Invalid StreamInstrumentationType: `{0}'.", type);
-			}
+			return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+			};
 		}
 
 		StreamInstrumentation clientInstrumentation;
@@ -145,13 +137,18 @@ namespace Xamarin.WebTests.TestRunners
 		internal enum StreamInstrumentationFlags {
 			None = 0,
 			ClientInstrumentation = 1,
-			ServerInstrumentation = 2
+			ServerInstrumentation = 2,
+			ClientHandshake = 4
 		}
 
 		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
 		{
 			switch (type) {
 			case StreamInstrumentationType.ReadDuringClientAuth:
+			case StreamInstrumentationType.CloseBeforeClientAuth:
+			case StreamInstrumentationType.CloseDuringClientAuth:
+			case StreamInstrumentationType.InvalidDataDuringClientAuth:
+				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientHandshake;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return StreamInstrumentationFlags.ClientInstrumentation;
@@ -201,6 +198,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
 			case StreamInstrumentationType.ReadDuringClientAuth:
+			case StreamInstrumentationType.CloseBeforeClientAuth:
+			case StreamInstrumentationType.CloseDuringClientAuth:
+			case StreamInstrumentationType.InvalidDataDuringClientAuth:
 				break;
 			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
@@ -220,32 +220,51 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
 
-			switch (Parameters.Type) {
-			case StreamInstrumentationType.ReadDuringClientAuth:
-				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
-				break;
-			case StreamInstrumentationType.ReadTimeout:
-			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				break;
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
-			}
+			if (HasFlag (StreamInstrumentationFlags.ClientHandshake))
+				Instrumentation_ClientHandshake (ctx, instrumentation);
 
 			return instrumentation;
 		}
 
-		void Instrumentation_ReadBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
+		void Instrumentation_ClientHandshake (TestContext ctx, StreamInstrumentation instrumentation)
 		{
-			instrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
+			int readCount = 0;
+
+			instrumentation.OnNextRead (ReadHandler);
+
+			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
+			                             StreamInstrumentation.AsyncReadFunc func,
+			                             CancellationToken cancellationToken)
+			{
 				ctx.Assert (Client.Stream, Is.Not.Null);
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
-				var readBuffer = new byte[100];
-				await ctx.AssertException<InvalidOperationException> (
-					() => Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length)).ConfigureAwait (false);
-				return await func (buffer, offset, count, cancellationToken);
-			});
+				switch (Parameters.Type) {
+				case StreamInstrumentationType.ReadDuringClientAuth:
+					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
+					break;
+				case StreamInstrumentationType.CloseBeforeClientAuth:
+					return 0;
+				case StreamInstrumentationType.CloseDuringClientAuth:
+					if (Interlocked.Increment (ref readCount) > 0)
+						return 0;
+					instrumentation.OnNextRead (ReadHandler);
+					break;
+				case StreamInstrumentationType.MartinTest:
+					goto case MartinTest;
+				default:
+					throw ctx.AssertFail ("Unknown instrumentation type: '{0}'.", Parameters.Type);
+				}
+
+				return await func (buffer, offset, size, cancellationToken);
+			}
+
+			Task<int> ReadClient ()
+			{
+				const int bufferSize = 100;
+				return Client.Stream.ReadAsync (new byte[bufferSize], 0, bufferSize);
+			}
 		}
 
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)

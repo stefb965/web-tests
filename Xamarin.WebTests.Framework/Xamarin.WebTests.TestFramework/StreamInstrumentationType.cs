@@ -29,6 +29,10 @@ namespace Xamarin.WebTests.TestFramework
 	public enum StreamInstrumentationType
 	{
 		ReadDuringClientAuth,
+		CloseBeforeClientAuth,
+		CloseDuringClientAuth,
+		InvalidDataDuringClientAuth,
+
 		CleanShutdown,
 		ReadTimeout,
 		RemoteClosesConnectionDuringRead,
