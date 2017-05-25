@@ -159,7 +159,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
 					CreateSslStream (ctx, accepted);
-					await Start (ctx, sslStream, cancellationToken);
+					await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
@@ -181,25 +181,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					CreateSslStream (ctx, socket);
-					await ClientHandshake ().ConfigureAwait (false);
+					await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
 					tcs.SetException (ex);
 				}
 			}, null);
+		}
 
-			async Task ClientHandshake ()
-			{
-				if (instrumentation == null) {
-					await TheHandshake ().ConfigureAwait (false);
+		async Task Handshake (TestContext ctx, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			if (instrumentation != null) {
+				Task<bool> task;
+				if (IsServer)
+					task = instrumentation.ServerHandshake (ctx, TheHandshake, this);
+				else
+					task = instrumentation.ClientHandshake (ctx, TheHandshake, this);
+				if (await task.ConfigureAwait (false))
 					return;
-				}
-
-				if (await instrumentation.ClientHandshake (ctx, TheHandshake, this).ConfigureAwait (false))
-					return;
-
-				await TheHandshake ().ConfigureAwait (false);
 			}
+
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			await TheHandshake ().ConfigureAwait (false);
 
 			Task TheHandshake ()
 			{

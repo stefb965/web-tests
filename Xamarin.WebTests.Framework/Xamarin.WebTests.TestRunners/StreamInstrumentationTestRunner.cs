@@ -67,10 +67,10 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override ConnectionHandler CreateConnectionHandler ()
 		{
-			return new DefaultConnectionHandler (this);
+			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -89,6 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationWorking:
+				yield return StreamInstrumentationType.ClientHandshake;
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield break;
@@ -125,6 +126,27 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
+		class StreamInstrumentationConnectionHandler : DefaultConnectionHandler
+		{
+			public StreamInstrumentationTestRunner Parent {
+				get;
+			}
+
+			public StreamInstrumentationConnectionHandler (StreamInstrumentationTestRunner runner)
+				: base (runner)
+			{
+				Parent = runner;
+			}
+
+			public override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+			{
+				ctx.LogDebug (4, "StreamInstrumentation - main loop");
+				if (Parent.HasFlag (StreamInstrumentationFlags.SkipMainLoop))
+					return;
+				await base.MainLoop (ctx, cancellationToken);
+			}
+		}
+
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
 
@@ -148,8 +170,13 @@ namespace Xamarin.WebTests.TestRunners
 			ClientInstrumentation = 1,
 			ServerInstrumentation = 2,
 			ClientStream = 4,
-			ClientHandshake = 8,
-			ClientShutdown = 16
+			ServerStream = 8,
+			ClientHandshake = 16,
+			ServerHandshake = 32,
+			ClientShutdown = 64,
+			ServerShutdown = 128,
+			SkipMainLoop = 256,
+			ServerHandshakeFails = 512
 		}
 
 		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
@@ -161,7 +188,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
-				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientHandshake;
+				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ServerInstrumentation |
+					StreamInstrumentationFlags.ClientHandshake | StreamInstrumentationFlags.SkipMainLoop |
+					StreamInstrumentationFlags.ServerHandshake | StreamInstrumentationFlags.ServerHandshakeFails;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientShutdown;
@@ -218,7 +247,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
-			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
+			ctx.LogDebug (4, "SslStreamTestRunner.CreateClientStream()");
 
 			if (!HasFlag (StreamInstrumentationFlags.ClientStream))
 				return instrumentation;
@@ -267,15 +296,84 @@ namespace Xamarin.WebTests.TestRunners
 
 		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			return null;
+			if (!HasFlag (StreamInstrumentationFlags.ServerInstrumentation))
+				return null;
+
+			var instrumentation = new StreamInstrumentation (ctx, socket);
+			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
+				throw new InternalErrorException ();
+
+			ctx.LogDebug (4, "SslStreamTestRunner.CreateServerStream()");
+
+			return instrumentation;
 		}
 
-		public Task<bool> ClientHandshake (TestContext ctx, Func<Task> shutdown, Connection connection)
+		public async Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
 			if (!HasFlag (StreamInstrumentationFlags.ClientHandshake))
-				return Task.FromResult (false);
+				return false;
 
-			throw new NotImplementedException ();
+			int readCount = 0;
+
+			clientInstrumentation.OnNextRead (ReadHandler);
+
+			ctx.LogMessage ("CLIENT HANDSHAKE!");
+
+			try {
+				await handshake ().ConfigureAwait (false);
+			} catch (Exception ex) {
+				ctx.LogMessage ("CLIENT HANDSHAKE EX: {0}", ex);
+			} finally {
+				ctx.LogMessage ("CLIENT HANDSHAKE DONE!");
+			}
+
+			await Client.Shutdown (ctx, false, CancellationToken.None);
+
+			// Server.Dispose ();
+
+			return true;
+
+			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
+						     StreamInstrumentation.AsyncReadFunc func,
+						     CancellationToken cancellationToken)
+			{
+				ctx.Assert (Client.Stream, Is.Not.Null);
+				ctx.Assert (Client.SslStream, Is.Not.Null);
+				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
+
+				switch (EffectiveType) {
+				case StreamInstrumentationType.ClientHandshake:
+					ctx.LogMessage ("CLIENT HANDSHAKE!");
+					break;
+				case StreamInstrumentationType.CloseBeforeClientAuth:
+					return 0;
+				case StreamInstrumentationType.CloseDuringClientAuth:
+					if (Interlocked.Increment (ref readCount) > 0)
+						return 0;
+					clientInstrumentation.OnNextRead (ReadHandler);
+					break;
+				default:
+					throw ctx.AssertFail (EffectiveType);
+				}
+
+				return await func (buffer, offset, size, cancellationToken);
+			}
+		}
+
+		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
+		{
+			if (!HasFlag (StreamInstrumentationFlags.ServerHandshake))
+				return false;
+			if (!HasFlag (StreamInstrumentationFlags.ServerHandshakeFails))
+				return false;
+
+			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
+
+			await ctx.AssertException (handshake, Is.InstanceOf<Exception> (true), "server handshake").ConfigureAwait (false);
+
+			await Server.Shutdown (ctx, false, CancellationToken.None);
+
+			return true;
 		}
 
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)

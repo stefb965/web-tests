@@ -41,6 +41,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, Connection connection);
 
+		Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection);
+
 		Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection);
 
 		Task<bool> ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection);
