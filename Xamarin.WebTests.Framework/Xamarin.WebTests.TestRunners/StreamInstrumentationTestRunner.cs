@@ -51,6 +51,14 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (StreamInstrumentationParameters)base.Parameters; }
 		}
 
+		public StreamInstrumentationType EffectiveType {
+			get {
+				if (Parameters.Type == StreamInstrumentationType.MartinTest)
+					return MartinTest;
+				return Parameters.Type;
+			}
+		}
+
 		public StreamInstrumentationTestRunner (IServer server, IClient client, ConnectionTestProvider provider,
 		                                        StreamInstrumentationParameters parameters)
 			: base (server, client, provider, parameters)
@@ -62,7 +70,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -90,7 +98,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			default:
-				throw new InternalErrorException ();
+				throw ctx.AssertFail (category);
 			}
 		}
 
@@ -141,6 +149,7 @@ namespace Xamarin.WebTests.TestRunners
 			ServerInstrumentation = 2,
 			ClientStream = 4,
 			ClientHandshake = 8,
+			ClientShutdown = 16
 		}
 
 		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
@@ -155,17 +164,15 @@ namespace Xamarin.WebTests.TestRunners
 				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientHandshake;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return StreamInstrumentationFlags.ClientInstrumentation;
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
+				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientShutdown;
 			default:
-				return StreamInstrumentationFlags.None;
+				throw new InternalErrorException ();
 			}
 		}
 
 		bool HasFlag (StreamInstrumentationFlags flag)
 		{
-			var flags = GetFlags (Parameters.Type);
+			var flags = GetFlags (EffectiveType);
 			return (flags & flag) == flag;
 		}
 
@@ -185,26 +192,21 @@ namespace Xamarin.WebTests.TestRunners
 			return base.StartServer (ctx, null, cancellationToken);
 		}
 
-		Task<bool> IConnectionInstrumentation.ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		public Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			switch (Parameters.Type) {
+			if (!HasFlag (StreamInstrumentationFlags.ClientShutdown))
+				return Task.FromResult (false);
+
+			switch (EffectiveType) {
 			case StreamInstrumentationType.CleanShutdown:
 				return Instrumentation_CleanShutdown (ctx, shutdown, connection);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
 			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
-			case StreamInstrumentationType.ClientHandshake:
-			case StreamInstrumentationType.ReadDuringClientAuth:
-			case StreamInstrumentationType.CloseBeforeClientAuth:
-			case StreamInstrumentationType.CloseDuringClientAuth:
-			case StreamInstrumentationType.InvalidDataDuringClientAuth:
-				break;
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
+			default:
+				throw ctx.AssertFail (EffectiveType);
 			}
-
-			return Task.FromResult (false);
 		}
 
 		public Stream CreateClientStream (TestContext ctx, Connection connection, Socket socket)
@@ -235,7 +237,7 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (Client.SslStream, Is.Not.Null);
 				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
 
-				switch (Parameters.Type) {
+				switch (EffectiveType) {
 				case StreamInstrumentationType.ClientHandshake:
 					ctx.LogMessage ("CLIENT HANDSHAKE!");
 					break;
@@ -249,10 +251,8 @@ namespace Xamarin.WebTests.TestRunners
 						return 0;
 					instrumentation.OnNextRead (ReadHandler);
 					break;
-				case StreamInstrumentationType.MartinTest:
-					goto case MartinTest;
 				default:
-					throw ctx.AssertFail ("Unknown instrumentation type: '{0}'.", Parameters.Type);
+					throw ctx.AssertFail (EffectiveType);
 				}
 
 				return await func (buffer, offset, size, cancellationToken);

@@ -119,9 +119,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			if (instrumentation != null) {
 				if (IsServer)
-					innerStream = instrumentation.CreateClientStream (ctx, this, innerSocket);
-				else
 					innerStream = instrumentation.CreateServerStream (ctx, this, innerSocket);
+				else
+					innerStream = instrumentation.CreateClientStream (ctx, this, innerSocket);
 				if (innerStream == null)
 					innerStream = new NetworkStream (innerSocket, true);
 			} else {

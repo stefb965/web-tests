@@ -427,6 +427,15 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
+		public Exception AssertFail (Enum value)
+		{
+			var type = value.GetType ().Name;
+			var exception = new AssertionException (string.Format ("Assertion failed ({0}.{1})", type, value), GetStackTrace ());
+			OnError (exception);
+			throw new SkipRestOfThisTestException ();
+		}
+
+		[HideStackFrame]
 		public Exception AssertFail (string format, params object[] args)
 		{
 			return AssertFail (string.Format (format, args));
