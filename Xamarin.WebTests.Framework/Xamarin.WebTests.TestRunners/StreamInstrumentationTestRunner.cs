@@ -137,47 +137,54 @@ namespace Xamarin.WebTests.TestRunners
 			return base.PostRun (ctx, cancellationToken);
 		}
 
-		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		[Flags]
+		internal enum StreamInstrumentationFlags {
+			None = 0,
+			ClientInstrumentation = 1,
+			ServerInstrumentation = 2
+		}
+
+		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
 		{
-			ctx.Assert (instrumentation, Is.Null);
-			switch (Parameters.Type) {
+			switch (type) {
 			case StreamInstrumentationType.ReadDuringClientAuth:
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return base.StartClient (ctx, this, cancellationToken);
+				return StreamInstrumentationFlags.ClientInstrumentation;
 			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			default:
-				return base.StartClient (ctx, null, cancellationToken);
+				return StreamInstrumentationFlags.None;
 			}
+		}
+
+		bool HasFlag (StreamInstrumentationFlags flag)
+		{
+			var flags = GetFlags (Parameters.Type);
+			return (flags & flag) == flag;
+		}
+
+		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		{
+			ctx.Assert (instrumentation, Is.Null);
+			if (HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
+				return base.StartClient (ctx, this, cancellationToken);
+			return base.StartClient (ctx, null, cancellationToken);
 		}
 
 		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			switch (Parameters.Type) {
-			case StreamInstrumentationType.ReadTimeout:
-			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return base.StartServer (ctx, null, cancellationToken);
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
-			default:
-				return base.StartServer (ctx, null, cancellationToken);
-			}
+			if (HasFlag (StreamInstrumentationFlags.ServerInstrumentation))
+				return base.StartServer (ctx, this, cancellationToken);
+			return base.StartServer (ctx, null, cancellationToken);
 		}
 
 		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			switch (Parameters.Type) {
-			case StreamInstrumentationType.ReadDuringClientAuth:
-			case StreamInstrumentationType.ReadTimeout:
-			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
+			if (HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
 				return CreateClientInstrumentation (ctx, connection, socket);
-			case StreamInstrumentationType.MartinTest:
-				goto case MartinTest;
-			default:
-				return null;
-			}
+			return null;
 		}
 
 		Task<bool> IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
@@ -281,14 +288,12 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
 
 			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
-				ctx.LogMessage ("ON READ: {0} {1} {2}", buffer, offset, count);
 				try {
 					var ret = await func (buffer, offset, count, cancellationToken);
-					ctx.LogMessage ("ON READ #1: {0}", ret);
-					ctx.Expect (ret, Is.EqualTo (-99999), "inner read returns zero");
+					ctx.Expect (ret, Is.EqualTo (0), "inner read returns zero");
 					return ret;
 				} catch (Exception ex) {
-					ctx.LogMessage ("ON READ #2: {0}", ex);
+					ctx.LogError ("Inner read failed", ex);
 					throw;
 				}
 			});

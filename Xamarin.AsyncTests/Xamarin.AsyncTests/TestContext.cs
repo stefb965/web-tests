@@ -232,7 +232,7 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public bool Expect (object actual, Constraint constraint, string format = null, params object[] args)
+		public bool Expect (object actual, Constraint constraint, string format, params object[] args)
 		{
 			return Expect (actual, constraint, false, format, args);
 		}
@@ -250,7 +250,7 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public bool Expect (object actual, Constraint constraint, bool fatal = false, string format = null, params object[] args)
+		public bool Expect (object actual, Constraint constraint, bool fatal, string format = null, params object[] args)
 		{
 			var sb = new StringBuilder ();
 
@@ -346,7 +346,7 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public void Assert (object actual, Constraint constraint, string format = null, params object[] args)
+		public void Assert (object actual, Constraint constraint, string format, params object[] args)
 		{
 			Expect (actual, constraint, true, format, args);
 		}
