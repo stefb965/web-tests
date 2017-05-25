@@ -367,7 +367,7 @@ namespace Xamarin.AsyncTests {
 		[HideStackFrame]
 		public Exception AssertFail (string message)
 		{
-			var exception = new AssertionException (message, GetStackTrace ());
+			var exception = new AssertionException (string.Format ("Assertion failed ({0})", message), GetStackTrace ());
 			OnError (exception);
 			throw new SkipRestOfThisTestException ();
 		}
