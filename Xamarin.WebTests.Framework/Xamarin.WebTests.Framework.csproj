@@ -186,6 +186,8 @@
     <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnectionInstrumentation.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionType.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\DotNetAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationTestRunnerAttribute.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
