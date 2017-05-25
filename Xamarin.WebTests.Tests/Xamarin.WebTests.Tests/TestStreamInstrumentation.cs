@@ -46,6 +46,7 @@ namespace Xamarin.WebTests.Tests
 	public class TestStreamInstrumentation
 	{
 		[AsyncTest]
+		[Experimental]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentation)]
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
@@ -56,11 +57,23 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[AsyncTest]
+		[Experimental]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationMono)]
 		public async Task RunMono (TestContext ctx, CancellationToken cancellationToken,
 		                           ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
 		                           StreamInstrumentationTestRunner runner)
+		{
+			await runner.Run (ctx, cancellationToken);
+		}
+
+		[New]
+		[AsyncTest]
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationWorking)]
+		public async Task RunNew (TestContext ctx, CancellationToken cancellationToken,
+		                          ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
+		                          StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}

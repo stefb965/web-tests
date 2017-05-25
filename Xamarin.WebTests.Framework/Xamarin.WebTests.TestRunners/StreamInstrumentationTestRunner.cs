@@ -76,6 +76,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.CleanShutdown;
 				yield break;
 
+			case ConnectionTestCategory.SslStreamInstrumentationWorking:
+				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield break;
+
 			case ConnectionTestCategory.MartinTest:
 				yield return StreamInstrumentationType.MartinTest;
 				yield break;
