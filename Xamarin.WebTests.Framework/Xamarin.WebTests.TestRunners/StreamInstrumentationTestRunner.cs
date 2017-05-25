@@ -105,10 +105,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (type) {
 			case StreamInstrumentationType.ReadDuringClientAuth:
-				return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
-				};
-
 			case StreamInstrumentationType.CleanShutdown:
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
