@@ -1,5 +1,5 @@
 ﻿//
-// StreamInstrumentationTestRunnerAttribute.cs
+// StreamInstrumentationParameters.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,30 +24,35 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
+using System.Security.Cryptography.X509Certificates;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using TestRunners;
 	using ConnectionFramework;
-	using HttpFramework;
-	using Resources;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class StreamInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<StreamInstrumentationTestRunner>
+	[StreamInstrumentationParameters]
+	public class StreamInstrumentationParameters : ConnectionTestParameters
 	{
-		public StreamInstrumentationTestRunnerAttribute ()
-			: base (typeof (StreamInstrumentationTestRunnerAttribute), TestFlags.Hidden)
-		{
+		public StreamInstrumentationType Type {
+			get;
 		}
 
-		public StreamInstrumentationTestRunner CreateInstance (TestContext ctx)
+		public StreamInstrumentationParameters (ConnectionTestCategory category, StreamInstrumentationType type,
+		                                        string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
 		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, StreamInstrumentationParameters, StreamInstrumentationTestRunner> (
-				ctx, (s, c, t, p) => new StreamInstrumentationTestRunner (s, c, t, p));
+			Type = type;
+		}
+
+		protected StreamInstrumentationParameters (StreamInstrumentationParameters other)
+			: base (other)
+		{
+			Type = other.Type;
+		}
+
+		public override ConnectionParameters DeepClone ()
+		{
+			return new StreamInstrumentationParameters (this);
 		}
 	}
 }

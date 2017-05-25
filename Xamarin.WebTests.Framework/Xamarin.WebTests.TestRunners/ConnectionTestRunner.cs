@@ -101,6 +101,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return ConnectionTestType.Default;
 				yield return ConnectionTestType.AcceptFromLocalCA;
 				yield return ConnectionTestType.RequireClientCertificate;
+				yield return ConnectionTestType.SyncAuthenticate;
 				yield break;
 
 			case ConnectionTestCategory.InvalidCertificatesInTls12:
@@ -137,16 +138,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.CertificateStore:
 				yield return ConnectionTestType.CertificateStore;
-				yield break;
-
-			case ConnectionTestCategory.SslStreamInstrumentation:
-				yield return ConnectionTestType.SyncAuthenticate;
-				yield return ConnectionTestType.ReadDuringClientAuth;
-				yield return ConnectionTestType.RemoteClosesConnectionDuringRead;
-				yield break;
-
-			case ConnectionTestCategory.SslStreamInstrumentationMono:
-				yield return ConnectionTestType.CleanShutdown;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:

@@ -31,6 +31,7 @@ using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Collections.Generic;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -43,15 +44,15 @@ namespace Xamarin.WebTests.TestRunners
 	using TestFramework;
 	using Resources;
 
-	[SslStreamTestRunner]
+	[StreamInstrumentationTestRunner]
 	public class StreamInstrumentationTestRunner : ConnectionTestRunner, IConnectionInstrumentation
 	{
-		new public SslStreamTestParameters Parameters {
-			get { return (SslStreamTestParameters)base.Parameters; }
+		new public StreamInstrumentationParameters Parameters {
+			get { return (StreamInstrumentationParameters)base.Parameters; }
 		}
 
 		public StreamInstrumentationTestRunner (IServer server, IClient client, ConnectionTestProvider provider,
-		                                        SslStreamTestParameters parameters)
+		                                        StreamInstrumentationParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}
@@ -61,7 +62,67 @@ namespace Xamarin.WebTests.TestRunners
 			throw new NotImplementedException ();
 		}
 
-		const ConnectionTestType MartinTest = ConnectionTestType.RemoteClosesConnectionDuringRead;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+
+		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
+		{
+			switch (category) {
+			case ConnectionTestCategory.SslStreamInstrumentation:
+				yield return StreamInstrumentationType.ReadDuringClientAuth;
+				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationMono:
+				yield return StreamInstrumentationType.CleanShutdown;
+				yield break;
+
+			case ConnectionTestCategory.MartinTest:
+				yield return StreamInstrumentationType.MartinTest;
+				yield break;
+
+			default:
+				throw new InternalErrorException ();
+			}
+		}
+
+		static string GetTestName (ConnectionTestCategory category, StreamInstrumentationType type, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.Append (type);
+			foreach (var arg in args) {
+				sb.AppendFormat (":{0}", arg);
+			}
+			return sb.ToString ();
+		}
+
+		public static StreamInstrumentationParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
+		                                                             StreamInstrumentationType type)
+		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptAll = certificateProvider.AcceptAll ();
+
+			var name = GetTestName (category, type);
+
+			switch (type) {
+			case StreamInstrumentationType.ReadDuringClientAuth:
+				return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+				};
+
+			case StreamInstrumentationType.CleanShutdown:
+			case StreamInstrumentationType.ReadTimeout:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
+				return new StreamInstrumentationParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
+				};
+
+			case StreamInstrumentationType.MartinTest:
+				goto case MartinTest;
+
+			default:
+				throw ctx.AssertFail ("Invalid StreamInstrumentationType: `{0}'.", type);
+			}
+		}
 
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
@@ -84,11 +145,11 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
-			case ConnectionTestType.ReadDuringClientAuth:
-			case ConnectionTestType.ReadTimeout:
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.ReadDuringClientAuth:
+			case StreamInstrumentationType.ReadTimeout:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return base.StartClient (ctx, this, cancellationToken);
-			case ConnectionTestType.MartinTest:
+			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			default:
 				return base.StartClient (ctx, null, cancellationToken);
@@ -99,10 +160,10 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			ctx.Assert (instrumentation, Is.Null);
 			switch (Parameters.Type) {
-			case ConnectionTestType.ReadTimeout:
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.ReadTimeout:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return base.StartServer (ctx, null, cancellationToken);
-			case ConnectionTestType.MartinTest:
+			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			default:
 				return base.StartServer (ctx, null, cancellationToken);
@@ -112,11 +173,11 @@ namespace Xamarin.WebTests.TestRunners
 		Stream IConnectionInstrumentation.CreateNetworkStream (TestContext ctx, Connection connection, Socket socket)
 		{
 			switch (Parameters.Type) {
-			case ConnectionTestType.ReadDuringClientAuth:
-			case ConnectionTestType.ReadTimeout:
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.ReadDuringClientAuth:
+			case StreamInstrumentationType.ReadTimeout:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return CreateClientInstrumentation (ctx, connection, socket);
-			case ConnectionTestType.MartinTest:
+			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			default:
 				return null;
@@ -126,13 +187,13 @@ namespace Xamarin.WebTests.TestRunners
 		Task<bool> IConnectionInstrumentation.Shutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			switch (Parameters.Type) {
-			case ConnectionTestType.CleanShutdown:
+			case StreamInstrumentationType.CleanShutdown:
 				return Instrumentation_CleanShutdown (ctx, shutdown, connection);
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
-			case ConnectionTestType.ReadTimeout:
+			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
-			case ConnectionTestType.MartinTest:
+			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			}
 
@@ -151,13 +212,13 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateNetworkStream()");
 
 			switch (Parameters.Type) {
-			case ConnectionTestType.ReadDuringClientAuth:
+			case StreamInstrumentationType.ReadDuringClientAuth:
 				Instrumentation_ReadBeforeClientAuth (ctx, instrumentation);
 				break;
-			case ConnectionTestType.ReadTimeout:
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.ReadTimeout:
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				break;
-			case ConnectionTestType.MartinTest:
+			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			}
 

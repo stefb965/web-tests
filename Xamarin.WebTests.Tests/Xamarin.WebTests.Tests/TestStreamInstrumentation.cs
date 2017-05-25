@@ -1,10 +1,10 @@
 ﻿//
-// TestSslStream.cs
+// TestStreamInstrumentation.cs
 //
 // Author:
-//       Martin Baulig <martin.baulig@xamarin.com>
+//       Martin Baulig <mabaul@microsoft.com>
 //
-// Copyright (c) 2015 Xamarin, Inc.
+// Copyright (c) 2017 Xamarin Inc. (http://www.xamarin.com)
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy
 // of this software and associated documentation files (the "Software"), to deal
@@ -41,70 +41,51 @@ namespace Xamarin.WebTests.Tests
 	using TestFramework;
 	using TestRunners;
 
-	[New]
+	[Work]
 	[AsyncTestFixture (Timeout = 5000)]
-	public class TestSslStream
+	public class TestStreamInstrumentation
 	{
 		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithMono)]
-		public async Task TestMonoConnection (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.HttpsWithDotNet)]
-		public async Task TestDotNetConnection (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
-		[AsyncTest]
-		[ConnectionTestCategory (ConnectionTestCategory.SslStreamCertificateValidators)]
-		public async Task TestCertificateValidators (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
+		[ProtocolVersion (ProtocolVersions.Tls12)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentation)]
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                       ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                       StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
 
 		[AsyncTest]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
-		[ConnectionTestCategory (ConnectionTestCategory.SslStreamWithTls12)]
-		public async Task TestDotNetConnectionTls12 (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationMono)]
+		public async Task RunMono (TestContext ctx, CancellationToken cancellationToken,
+		                           ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                           StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
 
+		[DotNet]
+		[Martin]
 		[AsyncTest]
-		[ManualClient]
-		[ManualSslStream]
-		[ConnectionTestFlags (ConnectionTestFlags.ManualClient)]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task TestManualClient (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
+		public async Task MartinTestDotNet (TestContext ctx, CancellationToken cancellationToken,
+		                                    ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                                    StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
 
+		[Martin]
 		[AsyncTest]
-		[ManualServer]
-		[ManualSslStream]
-		[ConnectionTestFlags (ConnectionTestFlags.ManualServer)]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
-		public async Task TestManualServer (TestContext ctx, CancellationToken cancellationToken,
-			ConnectionTestProvider provider, SslStreamTestParameters parameters,
-			SslStreamTestRunner runner)
+		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
+		                              ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                              StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
 		}
 	}
 }
-

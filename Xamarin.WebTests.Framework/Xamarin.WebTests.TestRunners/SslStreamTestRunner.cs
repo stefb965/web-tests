@@ -179,18 +179,6 @@ namespace Xamarin.WebTests.TestRunners
 					ClientCertificateValidator = acceptAll, SslStreamFlags = SslStreamFlags.SyncAuthenticate
 				};
 
-			case ConnectionTestType.ReadDuringClientAuth:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
-				};
-
-			case ConnectionTestType.CleanShutdown:
-			case ConnectionTestType.ReadTimeout:
-			case ConnectionTestType.RemoteClosesConnectionDuringRead:
-				return new SslStreamTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, UseStreamInstrumentation = true
-				};
-
 			default:
 				throw new InternalErrorException ();
 			}

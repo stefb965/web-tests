@@ -1,5 +1,5 @@
 ﻿//
-// StreamInstrumentationTestRunnerAttribute.cs
+// StreamInstrumentationParametersAttribute.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -24,30 +24,45 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
+using System.Linq;
+using System.Collections.Generic;
 using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Framework;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.TestFramework
 {
-	using TestRunners;
 	using ConnectionFramework;
-	using HttpFramework;
-	using Resources;
+	using TestRunners;
 
-	[AttributeUsage (AttributeTargets.Class, AllowMultiple = false)]
-	public class StreamInstrumentationTestRunnerAttribute : TestHostAttribute, ITestHost<StreamInstrumentationTestRunner>
+	[AttributeUsage (AttributeTargets.Class | AttributeTargets.Parameter, AllowMultiple = false)]
+	public class StreamInstrumentationParametersAttribute : TestParameterAttribute, ITestParameterSource<StreamInstrumentationParameters>
 	{
-		public StreamInstrumentationTestRunnerAttribute ()
-			: base (typeof (StreamInstrumentationTestRunnerAttribute), TestFlags.Hidden)
+		public StreamInstrumentationType? Type {
+			get; set;
+		}
+
+		public StreamInstrumentationParametersAttribute (string filter = null)
+			: base (filter, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
 		}
 
-		public StreamInstrumentationTestRunner CreateInstance (TestContext ctx)
+		public StreamInstrumentationParametersAttribute (StreamInstrumentationType type)
+			: base (null, TestFlags.Browsable | TestFlags.ContinueOnError)
 		{
-			return ConnectionTestHelper.CreateTestRunner<ConnectionTestProvider, StreamInstrumentationParameters, StreamInstrumentationTestRunner> (
-				ctx, (s, c, t, p) => new StreamInstrumentationTestRunner (s, c, t, p));
+			Type = type;
+		}
+
+		public IEnumerable<StreamInstrumentationParameters> GetParameters (TestContext ctx, string filter)
+		{
+			if (filter != null)
+				throw new NotImplementedException ();
+
+			var category = ctx.GetParameter<ConnectionTestCategory> ();
+
+			if (Type != null)
+				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, Type.Value);
+
+			foreach (var type in StreamInstrumentationTestRunner.GetStreamInstrumentationTypes (ctx, category))
+				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, type);
 		}
 	}
 }

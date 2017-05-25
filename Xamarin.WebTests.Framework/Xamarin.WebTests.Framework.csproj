@@ -188,6 +188,9 @@
     <Compile Include="Xamarin.WebTests.TestFramework\DotNetAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestRunners\StreamInstrumentationTestRunner.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationTestRunnerAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationParameters.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationParametersAttribute.cs" />
+    <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
