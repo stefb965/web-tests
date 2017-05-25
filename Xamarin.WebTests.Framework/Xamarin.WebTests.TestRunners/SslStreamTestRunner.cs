@@ -180,7 +180,7 @@ namespace Xamarin.WebTests.TestRunners
 				};
 
 			default:
-				throw new InternalErrorException ();
+				throw ctx.AssertFail ("Invalid ConnectionTestType: `{0}'.", type);
 			}
 		}
 

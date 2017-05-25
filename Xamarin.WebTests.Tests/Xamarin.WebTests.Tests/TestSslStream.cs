@@ -86,7 +86,7 @@ namespace Xamarin.WebTests.Tests
 		[ManualClient]
 		[ManualSslStream]
 		[ConnectionTestFlags (ConnectionTestFlags.ManualClient)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamWithTls12)]
 		public async Task TestManualClient (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, SslStreamTestParameters parameters,
 			SslStreamTestRunner runner)
@@ -98,7 +98,7 @@ namespace Xamarin.WebTests.Tests
 		[ManualServer]
 		[ManualSslStream]
 		[ConnectionTestFlags (ConnectionTestFlags.ManualServer)]
-		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
+		[ConnectionTestCategory (ConnectionTestCategory.SslStreamWithTls12)]
 		public async Task TestManualServer (TestContext ctx, CancellationToken cancellationToken,
 			ConnectionTestProvider provider, SslStreamTestParameters parameters,
 			SslStreamTestRunner runner)

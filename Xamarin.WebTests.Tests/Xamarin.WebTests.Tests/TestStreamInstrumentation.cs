@@ -49,7 +49,7 @@ namespace Xamarin.WebTests.Tests
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentation)]
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                       ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                       ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
 		                       StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
@@ -59,7 +59,7 @@ namespace Xamarin.WebTests.Tests
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationMono)]
 		public async Task RunMono (TestContext ctx, CancellationToken cancellationToken,
-		                           ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                           ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
 		                           StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
@@ -71,7 +71,7 @@ namespace Xamarin.WebTests.Tests
 		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTestDotNet (TestContext ctx, CancellationToken cancellationToken,
-		                                    ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                                    ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
 		                                    StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);
@@ -82,7 +82,7 @@ namespace Xamarin.WebTests.Tests
 		[ConnectionTestFlags (ConnectionTestFlags.RequireMono)]
 		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		public async Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
-		                              ConnectionTestProvider provider, SslStreamTestParameters parameters,
+		                              ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
 		                              StreamInstrumentationTestRunner runner)
 		{
 			await runner.Run (ctx, cancellationToken);

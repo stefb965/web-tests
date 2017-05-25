@@ -59,7 +59,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override ConnectionHandler CreateConnectionHandler ()
 		{
-			throw new NotImplementedException ();
+			return new DefaultConnectionHandler (this);
 		}
 
 		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;

@@ -58,8 +58,10 @@ namespace Xamarin.WebTests.TestFramework
 
 			var category = ctx.GetParameter<ConnectionTestCategory> ();
 
-			if (Type != null)
+			if (Type != null) {
 				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, Type.Value);
+				yield break;
+			}
 
 			foreach (var type in StreamInstrumentationTestRunner.GetStreamInstrumentationTypes (ctx, category))
 				yield return StreamInstrumentationTestRunner.GetParameters (ctx, category, type);
