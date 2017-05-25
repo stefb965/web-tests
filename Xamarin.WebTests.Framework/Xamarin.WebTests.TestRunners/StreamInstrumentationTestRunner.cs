@@ -62,7 +62,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadDuringClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -200,6 +200,8 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
 			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
+			case StreamInstrumentationType.ReadDuringClientAuth:
+				break;
 			case StreamInstrumentationType.MartinTest:
 				goto case MartinTest;
 			}
@@ -242,7 +244,7 @@ namespace Xamarin.WebTests.TestRunners
 				var readBuffer = new byte[100];
 				await ctx.AssertException<InvalidOperationException> (
 					() => Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length)).ConfigureAwait (false);
-				return -1;
+				return await func (buffer, offset, count, cancellationToken);
 			});
 		}
 
