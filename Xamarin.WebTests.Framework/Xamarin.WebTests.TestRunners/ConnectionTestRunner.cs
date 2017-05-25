@@ -178,9 +178,9 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.CertificateStore:
 				return supportsTrustedRoots;
 			case ConnectionTestCategory.SslStreamInstrumentation:
+			case ConnectionTestCategory.SslStreamInstrumentationWorking:
 				return supportsSslStream && supportsTls12;
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
-			case ConnectionTestCategory.SslStreamInstrumentationWorking:
 				return supportsSslStream && supportsTls12 && supportsMonoExtensions;
 			case ConnectionTestCategory.MartinTest:
 				return true;
