@@ -324,6 +324,56 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
+		public async Task<bool> Expect<T> (Func<Task<T>> action, Constraint constraint, bool fatal = false, string format = null, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.AppendFormat ("AssertionFailed ({0})", constraint.Print ());
+			if (format != null) {
+				sb.Append (": ");
+				if (args != null)
+					sb.AppendFormat (format, args);
+				else
+					sb.Append (format);
+			}
+
+			try {
+				var actual = await action ().ConfigureAwait (false);
+				if (constraint.Evaluate (actual, out string error))
+					return true;
+
+				if (error != null) {
+					sb.AppendLine ();
+					sb.Append (error);
+				} else {
+					sb.AppendLine ();
+					sb.AppendFormat ("Actual value: {0}", Print (actual));
+				}
+			} catch (Exception ex) {
+				ex = CleanupException (ex);
+				sb.AppendLine ();
+				sb.AppendFormat ("Got unexpected exception: {0}", Print (ex));
+			}
+
+			var exception = new AssertionException (sb.ToString (), GetStackTrace ());
+			OnError (exception);
+			if (fatal)
+				throw new SkipRestOfThisTestException ();
+			return true;
+		}
+
+		[HideStackFrame]
+		public Task<bool> Expect<T> (Func<Task<T>> action, Constraint constraint, string format = null, params object[] args)
+		{
+			return Expect<T> (action, constraint, false, format, args);
+		}
+
+		[HideStackFrame]
+		public Task Assert<T> (Func<Task<T>> action, Constraint constraint, string format = null, params object[] args)
+		{
+			return Expect<T> (action, constraint, true, format, args);
+		}
+
+		[HideStackFrame]
 		public void IgnoreThisTest ()
 		{
 			OnTestIgnored ();

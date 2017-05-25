@@ -288,14 +288,10 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
 
 			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
-				try {
-					var ret = await func (buffer, offset, count, cancellationToken);
-					ctx.Expect (ret, Is.EqualTo (0), "inner read returns zero");
-					return ret;
-				} catch (Exception ex) {
-					ctx.LogError ("Inner read failed", ex);
-					throw;
-				}
+				await ctx.Expect (
+					() => func (buffer, offset, count, cancellationToken),
+					Is.EqualTo (0), "inner read returns zero").ConfigureAwait (false);
+				return 0;
 			});
 
 			var outerCts = new CancellationTokenSource (5000);
@@ -305,16 +301,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await Server.Shutdown (ctx, false, CancellationToken.None);
 
-			ctx.LogMessage ("TEST #1");
-
-			try {
-				var ret = await readTask.ConfigureAwait (false);
-				ctx.LogMessage ("READ TASK DONE: {0}", ret);
-				ctx.Assert (ret, Is.EqualTo (0), "read returns zero");
-			} catch (Exception ex) {
-				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
-			}
-
+			await ctx.Expect (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 			return true;
 		}
 
