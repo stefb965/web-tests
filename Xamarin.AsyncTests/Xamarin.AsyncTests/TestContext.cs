@@ -324,7 +324,9 @@ namespace Xamarin.AsyncTests {
 		}
 
 		[HideStackFrame]
-		public async Task<bool> Expect<T> (Func<Task<T>> action, Constraint constraint, bool fatal = false, string format = null, params object[] args)
+		public async Task<Tuple<bool,T>> Expect<T> (
+			Func<Task<T>> action, Constraint constraint, bool fatal = false,
+			string format = null, params object[] args)
 		{
 			var sb = new StringBuilder ();
 			sb.AppendFormat ("AssertionFailed ({0})", constraint.Print ());
@@ -339,7 +341,7 @@ namespace Xamarin.AsyncTests {
 			try {
 				var actual = await action ().ConfigureAwait (false);
 				if (constraint.Evaluate (actual, out string error))
-					return true;
+					return new Tuple<bool, T> (true, actual);
 
 				if (error != null) {
 					sb.AppendLine ();
@@ -358,19 +360,21 @@ namespace Xamarin.AsyncTests {
 			OnError (exception);
 			if (fatal)
 				throw new SkipRestOfThisTestException ();
-			return true;
+			return new Tuple<bool, T> (false, default (T));
 		}
 
 		[HideStackFrame]
-		public Task<bool> Expect<T> (Func<Task<T>> action, Constraint constraint, string format = null, params object[] args)
+		public Task<Tuple<bool,T>> Expect<T> (Func<Task<T>> action, Constraint constraint,
+		                                      string format = null, params object[] args)
 		{
-			return Expect<T> (action, constraint, false, format, args);
+			return Expect (action, constraint, false, format, args);
 		}
 
 		[HideStackFrame]
-		public Task Assert<T> (Func<Task<T>> action, Constraint constraint, string format = null, params object[] args)
+		public async Task<T> Assert<T> (Func<Task<T>> action, Constraint constraint, string format = null, params object[] args)
 		{
-			return Expect<T> (action, constraint, true, format, args);
+			var ret = await Expect (action, constraint, true, format, args).ConfigureAwait (false);
+			return ret.Item2;
 		}
 
 		[HideStackFrame]

@@ -287,11 +287,10 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
 
-			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
-				await ctx.Expect (
+			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
+				return ctx.Assert (
 					() => func (buffer, offset, count, cancellationToken),
-					Is.EqualTo (0), "inner read returns zero").ConfigureAwait (false);
-				return 0;
+					Is.EqualTo (0), "inner read returns zero");
 			});
 
 			var outerCts = new CancellationTokenSource (5000);
@@ -301,7 +300,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await Server.Shutdown (ctx, false, CancellationToken.None);
 
-			await ctx.Expect (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
+			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 			return true;
 		}
 
