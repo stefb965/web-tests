@@ -457,9 +457,16 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("TEST!");
 
-			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
+			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
 				ctx.LogMessage ("ON READ: {0} {1} {2}", buffer, offset, count);
-				return func (buffer, offset, count, cancellationToken);
+				try {
+					var ret = await func (buffer, offset, count, cancellationToken);
+					ctx.LogMessage ("ON READ #1: {0}", ret);
+					return ret;
+				} catch (Exception ex) {
+					ctx.LogMessage ("ON READ #2: {0}", ex);
+					throw;
+				}
 			});
 
 			var outerCts = new CancellationTokenSource (5000);

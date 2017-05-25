@@ -299,14 +299,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var message = string.Format ("StreamInstrumentation.Read({0},{1})", offset, size);
 
 			SyncReadFunc syncRead = (b, o, s) => base.Read (b, o, s);
+			SyncReadFunc originalSyncRead = syncRead;
 
 			var action = Interlocked.Exchange (ref readAction, null);
 			if (action?.AsyncRead != null) {
 				message += " - action";
 
 				AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (
-					(callback, state) => syncRead.BeginInvoke (b, o, s, callback, state),
-					(result) => syncRead.EndInvoke (result), null);
+					(callback, state) => originalSyncRead.BeginInvoke (b, o, s, callback, state),
+					(result) => originalSyncRead.EndInvoke (result), null);
 
 				syncRead = (b, o, s) => action.AsyncRead (b, o, s, asyncBaseRead, CancellationToken.None).Result;
 			}
