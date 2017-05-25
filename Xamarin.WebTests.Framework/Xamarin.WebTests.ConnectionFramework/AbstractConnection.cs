@@ -99,6 +99,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		#endregion
 
+		[StackTraceEntryPoint]
 		public void Close ()
 		{
 			if (Interlocked.CompareExchange (ref stopped, 1, 0) != 0)

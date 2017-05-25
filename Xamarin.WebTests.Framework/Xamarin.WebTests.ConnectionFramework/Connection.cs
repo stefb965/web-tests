@@ -48,10 +48,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return Task.Run (() => Close ());
 		}
 
+		[StackTraceEntryPoint]
 		public abstract Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken);
 
+		[StackTraceEntryPoint]
 		public abstract Task WaitForConnection (TestContext ctx, CancellationToken cancellationToken);
 
+		[StackTraceEntryPoint]
 		public abstract Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken);
 	}
 }

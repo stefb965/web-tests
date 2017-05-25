@@ -98,6 +98,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return IsManualClient || IsManualServer; }
 		}
 
+		[StackTraceEntryPoint]
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			try {
