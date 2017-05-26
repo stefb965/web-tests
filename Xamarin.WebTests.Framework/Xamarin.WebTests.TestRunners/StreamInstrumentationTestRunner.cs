@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Net.Security;
@@ -60,7 +61,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		public StreamInstrumentationTestRunner (IServer server, IClient client, ConnectionTestProvider provider,
-		                                        StreamInstrumentationParameters parameters)
+							StreamInstrumentationParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}
@@ -205,6 +206,11 @@ namespace Xamarin.WebTests.TestRunners
 			return (flags & flag) == flag;
 		}
 
+		bool HasAnyFlag (params StreamInstrumentationFlags[] flags)
+		{
+			return flags.Any (f => HasFlag (f));
+		}
+
 		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
@@ -233,6 +239,20 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
 			case StreamInstrumentationType.ReadTimeout:
 				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
+		}
+
+		public Task<bool> ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			if (!HasAnyFlag (StreamInstrumentationFlags.ServerShutdown, StreamInstrumentationFlags.ServerHandshakeFails))
+				return Task.FromResult (false);
+
+			switch (EffectiveType) {
+			case StreamInstrumentationType.CloseBeforeClientAuth:
+			case StreamInstrumentationType.CloseDuringClientAuth:
+				return Task.FromResult (true);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -319,17 +339,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("CLIENT HANDSHAKE!");
 
-			try {
-				await handshake ().ConfigureAwait (false);
-			} catch (Exception ex) {
-				ctx.LogMessage ("CLIENT HANDSHAKE EX: {0}", ex);
-			} finally {
-				ctx.LogMessage ("CLIENT HANDSHAKE DONE!");
-			}
+			await ctx.AssertException<IOException>(handshake, "client handshake").ConfigureAwait(false);
 
-			await Client.Shutdown (ctx, false, CancellationToken.None);
-
-			// Server.Dispose ();
+			Server.Dispose ();
 
 			return true;
 
@@ -371,7 +383,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			await ctx.AssertException (handshake, Is.InstanceOf<Exception> (true), "server handshake").ConfigureAwait (false);
 
-			await Server.Shutdown (ctx, false, CancellationToken.None);
+			// await Server.Shutdown (ctx, false, CancellationToken.None);
+
+			Server.Dispose ();
 
 			return true;
 		}
@@ -521,11 +535,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			await readTask.ConfigureAwait (false);
 			ctx.LogMessage ("SHUTDOWN COMPLETE!");
-		}
-
-		Task<bool> IConnectionInstrumentation.ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
-		{
-			return Task.FromResult (false);
 		}
 	}
 }
