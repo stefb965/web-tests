@@ -71,7 +71,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.InvalidDataDuringClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -92,6 +92,8 @@ namespace Xamarin.WebTests.TestRunners
 			case ConnectionTestCategory.SslStreamInstrumentationWorking:
 				yield return StreamInstrumentationType.ClientHandshake;
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
+				yield return StreamInstrumentationType.CloseBeforeClientAuth;
+				yield return StreamInstrumentationType.CloseDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield break;
 
@@ -179,8 +181,6 @@ namespace Xamarin.WebTests.TestRunners
 			None = 0,
 			ClientInstrumentation = 1,
 			ServerInstrumentation = 2,
-			ClientStream = 4,
-			ServerStream = 8,
 			ClientHandshake = 16,
 			ServerHandshake = 32,
 			ClientShutdown = 64,
@@ -195,7 +195,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (type) {
 			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
-				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientStream;
+				return InstrumentationFlags.ClientInstrumentation;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
@@ -277,49 +277,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateClientStream()");
 
-			if (!HasFlag (InstrumentationFlags.ClientStream))
-				return instrumentation;
-
-			int readCount = 0;
-
-			instrumentation.OnNextRead (ReadHandler);
-
 			return instrumentation;
-
-			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
-			                             StreamInstrumentation.AsyncReadFunc func,
-			                             CancellationToken cancellationToken)
-			{
-				ctx.Assert (Client.Stream, Is.Not.Null);
-				ctx.Assert (Client.SslStream, Is.Not.Null);
-				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
-
-				switch (EffectiveType) {
-				case StreamInstrumentationType.ClientHandshake:
-					ctx.LogMessage ("CLIENT HANDSHAKE!");
-					break;
-				case StreamInstrumentationType.ReadDuringClientAuth:
-					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
-					break;
-				case StreamInstrumentationType.CloseBeforeClientAuth:
-					return 0;
-				case StreamInstrumentationType.CloseDuringClientAuth:
-					if (Interlocked.Increment (ref readCount) > 0)
-						return 0;
-					instrumentation.OnNextRead (ReadHandler);
-					break;
-				default:
-					throw ctx.AssertFail (EffectiveType);
-				}
-
-				return await func (buffer, offset, size, cancellationToken);
-			}
-
-			Task<int> ReadClient ()
-			{
-				const int bufferSize = 100;
-				return Client.Stream.ReadAsync (new byte[bufferSize], 0, bufferSize);
-			}
 		}
 
 		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
@@ -372,11 +330,23 @@ namespace Xamarin.WebTests.TestRunners
 						return 0;
 					clientInstrumentation.OnNextRead (ReadHandler);
 					break;
+				case StreamInstrumentationType.InvalidDataDuringClientAuth:
+					clientInstrumentation.OnNextRead (ReadHandler);
+					break;
 				default:
 					throw ctx.AssertFail (EffectiveType);
 				}
 
-				return await func (buffer, offset, size, cancellationToken);
+				var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
+
+				if (EffectiveType == StreamInstrumentationType.InvalidDataDuringClientAuth) {
+					if (ret > 50) {
+						for (int i = 10; i < 40; i++)
+							buffer[i] = 0xAA;
+					}
+				}
+
+				return ret;
 			}
 		}
 

@@ -64,7 +64,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				ctx.LogDebug (1, "{0} completed successfully.", function);
 			} catch (Exception ex) {
 				if (Parameters.ExpectClientException || Parameters.ExpectServerException)
-					ctx.LogDebug (1, "{0} failed (expected exception {1})", function, ex.GetType ().Name);
+					ctx.LogDebug (1, "{0} failed (expected exception): {1}", function, ex.GetType ().Name);
 				else
 					ctx.LogDebug (1, "{0} failed: {1}.", function, ex);
 				throw;
