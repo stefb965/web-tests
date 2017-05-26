@@ -49,50 +49,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		MyAction readAction;
 
 		[Obsolete]
-		public void OnNextBeginRead (Action action)
-		{
-			var myAction = new MyAction (action);
-			if (Interlocked.CompareExchange (ref readAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
-		[Obsolete]
-		public void OnNextBeginWrite (Action action)
-		{
-			var myAction = new MyAction (action);
-			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
-		[Obsolete]
-		public void OnNextWrite (Func<Task> before, Func<Task> after)
-		{
-			var myAction = new MyAction (before, after);
-			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
-		[Obsolete]
 		public void OnNextWrite (Action action)
 		{
 			var myAction = new MyAction (action);
 			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
-		[Obsolete]
-		public void OnNextRead (Func<Task> before, Func<Task> after)
-		{
-			var myAction = new MyAction (before, after);
-			if (Interlocked.CompareExchange (ref readAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
-		[Obsolete]
-		public void OnNextRead (Action action)
-		{
-			var myAction = new MyAction (action);
-			if (Interlocked.CompareExchange (ref readAction, myAction, null) != null)
 				throw new InvalidOperationException ();
 		}
 
@@ -116,40 +76,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 				return base.BeginWrite (buffer, offset, size, callback, state);
 			}
 
-			var myResult = new MyAsyncResult (action, callback, state);
-			var transportResult = base.BeginWrite (buffer, offset, size, WriteCallback, myResult);
-
-			if (transportResult.CompletedSynchronously)
-				Task.Factory.StartNew (() => WriteCallback (transportResult));
-
-			return myResult;
-		}
-
-		void WriteCallback (IAsyncResult transportResult)
-		{
-			var myResult = (MyAsyncResult)transportResult.AsyncState;
-
-			try {
-				myResult.Action.InvokeBefore ();
-				base.EndWrite (transportResult);
-				myResult.Action.InvokeAfter ();
-				myResult.SetCompleted (false);
-			} catch (Exception ex) {
-				myResult.SetCompleted (false, ex);
-			}
+			return base.BeginWrite (buffer, offset, size, callback, state);
 		}
 
 		public override void EndWrite (IAsyncResult asyncResult)
 		{
-			var myResult = asyncResult as MyAsyncResult;
-			if (myResult == null) {
-				base.EndWrite (asyncResult);
-				return;
-			}
-
-			myResult.WaitUntilComplete ();
-			if (myResult.GotException)
-				throw myResult.Exception;
+			base.EndWrite (asyncResult);
 		}
 
 		public delegate Task<int> AsyncReadFunc (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
@@ -215,20 +147,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			} catch (Exception ex) {
 				Context.LogDebug (4, "{0} failed: {1}", message, ex);
 				throw;
-			}
-		}
-
-		void ReadCallback (IAsyncResult transportResult)
-		{
-			var myResult = (MyAsyncResult)transportResult.AsyncState;
-
-			try {
-				myResult.Action.InvokeBefore ();
-				myResult.Result = base.EndRead (transportResult);
-				myResult.Action.InvokeAfter ();
-				myResult.SetCompleted (false);
-			} catch (Exception ex) {
-				myResult.SetCompleted (false, ex);
 			}
 		}
 
@@ -314,8 +232,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			public readonly Action Action;
 			public readonly AsyncReadHandler AsyncRead;
-			public readonly Func<Task> Before;
-			public readonly Func<Task> After;
 
 			public MyAction (Action action)
 			{
@@ -325,60 +241,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			public MyAction (AsyncReadHandler handler)
 			{
 				AsyncRead = handler;
-			}
-
-			public MyAction (Func<Task> before, Func<Task> after)
-			{
-				Before = before;
-				After = after;
-			}
-
-			public void InvokeBefore ()
-			{
-				if (Before != null) {
-					var task = Before ();
-					if (task != null)
-						task.Wait ();
-				}
-			}
-
-			public void InvokeAfter ()
-			{
-				if (After != null) {
-					var task = After ();
-					if (task != null)
-						task.Wait ();
-				}
-			}
-		}
-
-		class MyAsyncResult : SimpleAsyncResult
-		{
-			public readonly MyAction Action;
-			public readonly string Message;
-			public readonly Task<int> Task;
-			public int Result;
-
-			internal MyAsyncResult (MyAction action, AsyncCallback callback, object state)
-				: base (callback, state)
-			{
-				Action = action;
-			}
-
-			internal MyAsyncResult (MyAction action, string message, Task<int> task, AsyncCallback callback, object state)
-				: this (action, callback, state)
-			{
-				Message = message;
-				Task = task;
-
-				task.ContinueWith (t => {
-					if (t.IsFaulted || t.IsCanceled)
-						SetCompleted (false, t.Exception);
-					else {
-						Result = t.Result;
-						SetCompleted (false);
-					}
-			       });
 			}
 		}
 	}
