@@ -211,9 +211,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				Context.LogDebug (4, message);
 				var readTask = readFunc (buffer, offset, size, CancellationToken.None);
 				Context.LogDebug (4, "{0} got task: {1}", message, readTask.Status);
-
-				var myResult = new MyAsyncResult (action, message, readTask, callback, state);
-				return myResult;
+				return TaskToApm.Begin (readTask, callback, state);
 			} catch (Exception ex) {
 				Context.LogDebug (4, "{0} failed: {1}", message, ex);
 				throw;
@@ -236,27 +234,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override int EndRead (IAsyncResult asyncResult)
 		{
-			var myResult = asyncResult as MyAsyncResult;
+			var myResult = asyncResult as TaskToApm.TaskWrapperAsyncResult;
 			if (myResult == null)
 				return base.EndRead (asyncResult);
 
-			if (myResult.Task != null) {
-				Context.LogDebug (4, "{0} end read: {1}", myResult.Message, myResult.Task.Status);
-				try {
-					myResult.Task.Wait ();
-					Context.LogDebug (4, "{0} end read done: {1}", myResult.Message, myResult.Task.Result);
-					return myResult.Task.Result;
-				} catch (Exception ex) {
-					Context.LogDebug (4, "{0} end read failed: {1}", myResult.Message, ex);
-					throw;
-				}
-			}
-
-			myResult.WaitUntilComplete ();
-			if (myResult.GotException)
-				throw myResult.Exception;
-
-			return myResult.Result;
+			return TaskToApm.End<int> (asyncResult);
 		}
 
 		public override void Write (byte[] buffer, int offset, int size)

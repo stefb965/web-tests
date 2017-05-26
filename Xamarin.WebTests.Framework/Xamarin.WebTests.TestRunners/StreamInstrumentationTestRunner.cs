@@ -408,7 +408,7 @@ namespace Xamarin.WebTests.TestRunners
 				try {
 					return await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
 				} catch {
-					return -1;
+					return 0;
 				}
 			}
 		}

@@ -156,7 +156,7 @@ namespace System.Threading.Tasks
         /// Provides a simple IAsyncResult that wraps a Task.  This, in effect, allows
         /// for overriding what's seen for the CompletedSynchronously and AsyncState values.
         /// </summary>
-        private sealed class TaskWrapperAsyncResult : IAsyncResult
+        internal sealed class TaskWrapperAsyncResult : IAsyncResult
         {
             /// <summary>The wrapped Task.</summary>
             internal readonly Task Task;
