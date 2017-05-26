@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadAndClose;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -208,6 +208,8 @@ namespace Xamarin.WebTests.TestRunners
 					InstrumentationFlags.ClientHandshake | InstrumentationFlags.SkipMainLoop |
 					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerHandshakeFails |
 					InstrumentationFlags.ClientHandshakeFails;
+			case StreamInstrumentationType.ShortReadAndClose:
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
@@ -249,6 +251,8 @@ namespace Xamarin.WebTests.TestRunners
 				return Task.FromResult (false);
 
 			switch (EffectiveType) {
+			case StreamInstrumentationType.ShortReadAndClose:
+				return Instrumentation_ShortReadAndClose (ctx, shutdown, connection);
 			case StreamInstrumentationType.CleanShutdown:
 				return Instrumentation_CleanShutdown (ctx, shutdown, connection);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
@@ -406,26 +410,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
 
-			// serverInstrumentation.OnNextRead (ReadHandler);
-
 			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
 
 			Client.Abort ();
 
 			return true;
-
-			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
-						     StreamInstrumentation.AsyncReadFunc func,
-						     CancellationToken cancellationToken)
-			{
-				serverInstrumentation.OnNextRead (ReadHandler);
-
-				try {
-					return await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
-				} catch {
-					return 0;
-				}
-			}
 		}
 
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
@@ -467,6 +456,56 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			return true;
+		}
+
+		async Task<bool> Instrumentation_ShortReadAndClose (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
+
+			bool readDone = false;
+
+			clientInstrumentation.OnNextRead (ReadHandler);
+
+			var writeBuffer = DefaultConnectionHandler.TheQuickBrownFoxBuffer;
+			var readBuffer = new byte[writeBuffer.Length + 256];
+
+			await Server.Stream.WriteAsync (writeBuffer, 0, writeBuffer.Length);
+
+			Server.Abort ();
+
+			ctx.LogMessage ("ABORTED SERVER!");
+
+			await ctx.Assert (ClientRead, Is.EqualTo (writeBuffer.Length), "first client read").ConfigureAwait (false);
+
+			ctx.LogMessage ("FIRST READ DONE!");
+
+			readDone = true;
+
+			await ctx.Assert (ClientRead, Is.EqualTo (0), "second client read").ConfigureAwait (false);
+
+			ctx.LogMessage ("SECOND READ DONE!");
+
+			return true;
+
+			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
+						     StreamInstrumentation.AsyncReadFunc func,
+						     CancellationToken cancellationToken)
+			{
+				clientInstrumentation.OnNextRead (ReadHandler);
+
+				ctx.LogMessage ("NEXT READ: {0}", readDone);
+				var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
+				ctx.LogMessage ("NEXT READ #1: {0} {1}", readDone, ret);
+
+				if (readDone)
+					ctx.Assert (ret, Is.EqualTo (0), "inner read returns zero");
+				return ret;
+			}
+
+			Task<int> ClientRead ()
+			{
+				return Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, CancellationToken.None);
+			}
 		}
 
 		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
