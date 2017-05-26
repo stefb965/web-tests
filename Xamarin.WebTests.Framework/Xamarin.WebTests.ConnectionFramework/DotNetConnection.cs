@@ -87,10 +87,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		public StreamInstrumentation StreamInstrumentation {
-			get { return innerStream as StreamInstrumentation; }
-		}
-
 		public bool HasFlag (SslStreamFlags flags)
 		{
 			return (Parameters.SslStreamFlags & flags) != 0;
@@ -255,6 +251,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override void Stop ()
 		{
+			shutdown = 1;
+
 			try {
 				if (sslStream != null) {
 					sslStream.Dispose ();

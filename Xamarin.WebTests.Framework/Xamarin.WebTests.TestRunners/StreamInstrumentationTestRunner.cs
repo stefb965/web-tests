@@ -250,9 +250,6 @@ namespace Xamarin.WebTests.TestRunners
 				return Task.FromResult (false);
 
 			switch (EffectiveType) {
-			case StreamInstrumentationType.CloseBeforeClientAuth:
-			case StreamInstrumentationType.CloseDuringClientAuth:
-				return Task.FromResult (true);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -316,7 +313,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			if (!HasFlag (StreamInstrumentationFlags.ServerInstrumentation))
+			if (!HasAnyFlag (StreamInstrumentationFlags.ServerInstrumentation, StreamInstrumentationFlags.ServerShutdown))
 				return null;
 
 			var instrumentation = new StreamInstrumentation (ctx, socket);
@@ -374,9 +371,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
-			if (!HasFlag (StreamInstrumentationFlags.ServerHandshake))
-				return false;
-			if (!HasFlag (StreamInstrumentationFlags.ServerHandshakeFails))
+			if (!HasAnyFlag (StreamInstrumentationFlags.ServerHandshake, StreamInstrumentationFlags.ServerHandshakeFails))
 				return false;
 
 			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
