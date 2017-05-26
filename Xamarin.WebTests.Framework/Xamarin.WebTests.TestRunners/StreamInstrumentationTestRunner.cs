@@ -182,6 +182,8 @@ namespace Xamarin.WebTests.TestRunners
 			None = 0,
 			ClientInstrumentation = 1,
 			ServerInstrumentation = 2,
+			ClientStream = 4,
+			ServerStream = 8,
 			ClientHandshake = 16,
 			ServerHandshake = 32,
 			ClientShutdown = 64,
@@ -196,7 +198,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (type) {
 			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
-				return InstrumentationFlags.ClientInstrumentation;
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientStream;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
@@ -278,7 +280,40 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateClientStream()");
 
+			if (!HasFlag (InstrumentationFlags.ClientStream))
+				return instrumentation;
+
+			instrumentation.OnNextRead (ReadHandler);
+
 			return instrumentation;
+
+			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
+						     StreamInstrumentation.AsyncReadFunc func,
+						     CancellationToken cancellationToken)
+			{
+				ctx.Assert (Client.Stream, Is.Not.Null);
+				ctx.Assert (Client.SslStream, Is.Not.Null);
+				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
+
+				switch (EffectiveType) {
+				case StreamInstrumentationType.ClientHandshake:
+					ctx.LogMessage ("CLIENT HANDSHAKE!");
+					break;
+				case StreamInstrumentationType.ReadDuringClientAuth:
+					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
+					break;
+				default:
+					throw ctx.AssertFail (EffectiveType);
+				}
+
+				return await func (buffer, offset, size, cancellationToken);
+			}
+
+			Task<int> ReadClient ()
+			{
+				const int bufferSize = 100;
+				return Client.Stream.ReadAsync (new byte[bufferSize], 0, bufferSize);
+			}
 		}
 
 		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
