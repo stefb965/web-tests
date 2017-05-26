@@ -191,6 +191,7 @@
     <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationParameters.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationParametersAttribute.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\StreamInstrumentationType.cs" />
+    <Compile Include="ReferenceSource\TaskToApm.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
