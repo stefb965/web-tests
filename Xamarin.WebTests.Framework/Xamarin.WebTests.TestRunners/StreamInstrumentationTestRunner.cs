@@ -33,6 +33,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections.Generic;
+using System.Security.Authentication;
 using System.Security.Cryptography.X509Certificates;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
@@ -305,7 +306,13 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("CLIENT HANDSHAKE!");
 
-			await ctx.AssertException<IOException> (handshake, "client handshake").ConfigureAwait (false);
+			Constraint constraint;
+			if (EffectiveType == StreamInstrumentationType.InvalidDataDuringClientAuth)
+				constraint = Is.InstanceOf<AuthenticationException> ();
+			else
+				constraint = Is.InstanceOf<IOException> ();
+
+			await ctx.AssertException (handshake, constraint, "client handshake").ConfigureAwait (false);
 
 			Server.Dispose ();
 
