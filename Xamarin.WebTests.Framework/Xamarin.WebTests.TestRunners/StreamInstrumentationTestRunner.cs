@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.InvalidDataDuringClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadDuringClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -96,6 +96,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.CloseBeforeClientAuth;
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
@@ -198,6 +199,7 @@ namespace Xamarin.WebTests.TestRunners
 			switch (type) {
 			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
+			case StreamInstrumentationType.ShortReadDuringClientAuth:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientStream;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
@@ -301,6 +303,11 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				case StreamInstrumentationType.ReadDuringClientAuth:
 					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
+					break;
+				case StreamInstrumentationType.ShortReadDuringClientAuth:
+					if (size <= 5)
+						instrumentation.OnNextRead (ReadHandler);
+					size = 1;
 					break;
 				default:
 					throw ctx.AssertFail (EffectiveType);
