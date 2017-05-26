@@ -1,4 +1,4 @@
-// ==++==
+/// ==++==
 //
 //   Copyright (c) Microsoft Corporation.  All rights reserved.
 // 
@@ -89,7 +89,7 @@ namespace System.Threading.Tasks
 
             // Make sure we actually got a task, then complete the operation by waiting on it.
             if (task == null)
-                __Error.WrongAsyncResult();
+                throw new ArgumentException("Invalid async result");
             task.GetAwaiter().GetResult();
         }
 
@@ -114,7 +114,7 @@ namespace System.Threading.Tasks
 
             // Make sure we actually got a task, then complete the operation by waiting on it.
             if (task == null)
-                __Error.WrongAsyncResult();
+                throw new ArgumentException("Invalid async result");
             return task.GetAwaiter().GetResult();
         }
 
