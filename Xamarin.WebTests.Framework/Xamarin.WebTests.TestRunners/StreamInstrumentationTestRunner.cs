@@ -72,7 +72,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadDuringClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -356,7 +356,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await ctx.AssertException (handshake, constraint, "client handshake").ConfigureAwait (false);
 
-			Server.Dispose ();
+			Server.Abort ();
 
 			return true;
 
@@ -406,11 +406,11 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
 
-			serverInstrumentation.OnNextRead (ReadHandler);
+			// serverInstrumentation.OnNextRead (ReadHandler);
 
 			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
 
-			Client.Dispose ();
+			Client.Abort ();
 
 			return true;
 
@@ -418,10 +418,6 @@ namespace Xamarin.WebTests.TestRunners
 						     StreamInstrumentation.AsyncReadFunc func,
 						     CancellationToken cancellationToken)
 			{
-				ctx.Assert (Client.Stream, Is.Not.Null);
-				ctx.Assert (Client.SslStream, Is.Not.Null);
-				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
-
 				serverInstrumentation.OnNextRead (ReadHandler);
 
 				try {

@@ -302,9 +302,9 @@ namespace Xamarin.AsyncTests {
 
 			try {
 				await action ().ConfigureAwait (false);
-			} catch (Exception actual) {
+			} catch (Exception original) {
 				string error;
-				actual = CleanupException (actual);
+				var actual = CleanupException (original);
 				if (constraint.Evaluate (actual, out error))
 					return true;
 				if (error != null) {
@@ -314,6 +314,8 @@ namespace Xamarin.AsyncTests {
 					sb.AppendLine ();
 					sb.AppendFormat ("Actual value: {0}", Print (actual));
 				}
+				sb.AppendLine ();
+				sb.AppendFormat ("Original exception: {0}", original);
 			}
 
 			var exception = new AssertionException (sb.ToString (), GetStackTrace ());

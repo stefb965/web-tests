@@ -214,6 +214,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Dispose ();
 		}
 
+		public override void Abort ()
+		{
+			client.Abort ();
+			server.Abort ();
+		}
+
 		public override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)

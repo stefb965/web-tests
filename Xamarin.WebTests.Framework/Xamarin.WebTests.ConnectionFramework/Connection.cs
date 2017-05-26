@@ -56,6 +56,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		[StackTraceEntryPoint]
 		public abstract Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken);
+
+		public abstract void Abort ();
 	}
 }
 

@@ -56,6 +56,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IConnectionInstrumentation instrumentation;
 		TaskCompletionSource<SslStream> tcs;
 		int shutdown;
+		int aborted;
 
 		SslStream sslStream;
 
@@ -224,6 +225,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
+			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
+				return;
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				return;
 
@@ -246,6 +249,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 				ctx.LogDebug (5, "Shutting down socket.");
 				(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
+			}
+		}
+
+		public override void Abort ()
+		{
+			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
+				return;
+			if (innerStream != null) {
+				innerStream.Dispose ();
 			}
 		}
 
@@ -287,7 +299,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				}
 				socket = null;
 			}
-			instrumentation = null;
+//			instrumentation = null;
 		}
 
 	}
