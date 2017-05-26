@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // StreamInstrumentationTestRunner.cs
 //
 // Author:
@@ -482,10 +482,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
 
-			clientInstrumentation.OnNextWrite (() => {
-				ctx.LogMessage ("ON WRITE!");
-			});
-
 			ctx.LogMessage ("CALLING SHUTDOWN!");
 			try {
 				await shutdown ().ConfigureAwait (false);
@@ -538,10 +534,6 @@ namespace Xamarin.WebTests.TestRunners
 
 				var ret = await Server.Stream.ReadAsync (buffer, 0, buffer.Length);
 				ctx.LogMessage ("READ TASK #1: {0}", ret);
-			});
-
-			clientInstrumentation.OnNextWrite (() => {
-				ctx.LogMessage ("ON WRITE!");
 			});
 
 			ctx.LogMessage ("CALLING SHUTDOWN!");

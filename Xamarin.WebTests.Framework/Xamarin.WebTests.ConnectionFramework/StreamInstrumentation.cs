@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // StreamInstrumentation.cs
 //
 // Author:
@@ -48,14 +48,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		MyAction writeAction;
 		MyAction readAction;
 
-		[Obsolete]
-		public void OnNextWrite (Action action)
-		{
-			var myAction = new MyAction (action);
-			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
-				throw new InvalidOperationException ();
-		}
-
 		public void OnNextRead (AsyncReadHandler handler)
 		{
 			var myAction = new MyAction (handler);
@@ -63,35 +55,120 @@ namespace Xamarin.WebTests.ConnectionFramework
 				throw new InvalidOperationException ();
 		}
 
-		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
+		public void OnNextWrite (AsyncWriteHandler handler)
 		{
-			Context.LogDebug (4, "StreamInstrumentation.BeginWrite({0},{1})", offset, size);
+			var myAction = new MyAction (handler);
+			if (Interlocked.CompareExchange (ref writeAction, myAction, null) != null)
+				throw new InvalidOperationException ();
+		}
+
+		public delegate Task AsyncWriteFunc (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
+		public delegate Task AsyncWriteHandler (byte[] buffer, int offset, int count, AsyncWriteFunc func, CancellationToken cancellationToken);
+		delegate void SyncWriteFunc (byte[] buffer, int offset, int count);
+
+		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+		{
+			var message = string.Format ("StreamInstrumentation.WriteAsync({0},{1})", offset, count);
+
+			AsyncWriteFunc asyncBaseWrite = base.WriteAsync;
+			AsyncWriteHandler asyncWriteHandler = (b, o, c, func, ct) => func (b, o, c, ct);
 
 			var action = Interlocked.Exchange (ref writeAction, null);
-			if (action == null)
-				return base.BeginWrite (buffer, offset, size, callback, state);
-
-			if (action.Action != null) {
-				action.Action ();
-				return base.BeginWrite (buffer, offset, size, callback, state);
+			if (action?.AsyncWrite != null) {
+				message += " - action";
+				return WriteAsync (buffer, offset, count, message, asyncBaseWrite, action.AsyncWrite, cancellationToken);
 			}
 
-			return base.BeginWrite (buffer, offset, size, callback, state);
+			return WriteAsync (buffer, offset, count, message, asyncBaseWrite, asyncWriteHandler, cancellationToken);
+		}
+
+		async Task WriteAsync (byte[] buffer, int offset, int count, string message,
+		                       AsyncWriteFunc func, AsyncWriteHandler handler, CancellationToken cancellationToken)
+		{
+			Context.LogDebug (4, message);
+			try {
+				await handler (buffer, offset, count, func, cancellationToken).ConfigureAwait (false);
+				Context.LogDebug (4, "{0} done", message);
+			} catch (Exception ex) {
+				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				throw;
+			}
+		}
+
+		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
+		{
+			var message = string.Format ("StreamInstrumentation.BeginWrite({0},{1})", offset, size);
+			Context.LogDebug (4, message);
+
+			AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
+				(ca, st) => base.BeginWrite (b, o, s, ca, st),
+				(result) => base.EndWrite (result), null);
+
+			var action = Interlocked.Exchange (ref writeAction, null);
+			if (action?.AsyncWrite == null)
+				return base.BeginWrite (buffer, offset, size, callback, state);
+
+			message += " - action";
+
+			AsyncWriteFunc writeFunc = (b, o, s, ct) => action.AsyncWrite (b, o, s, asyncBaseWrite, ct);
+			try {
+				Context.LogDebug (4, message);
+				var writeTask = writeFunc (buffer, offset, size, CancellationToken.None);
+				Context.LogDebug (4, "{0} got task: {1}", message, writeTask.Status);
+				return TaskToApm.Begin (writeTask, callback, state);
+			} catch (Exception ex) {
+				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				throw;
+			}
 		}
 
 		public override void EndWrite (IAsyncResult asyncResult)
 		{
-			base.EndWrite (asyncResult);
+			var myResult = asyncResult as TaskToApm.TaskWrapperAsyncResult;
+			if (myResult == null) {
+				base.EndRead (asyncResult);
+				return;
+			}
+
+			TaskToApm.End (asyncResult);
+		}
+
+		public override void Write (byte[] buffer, int offset, int size)
+		{
+			var message = string.Format ("StreamInstrumentation.Write({0},{1})", offset, size);
+
+			SyncWriteFunc syncWrite = (b, o, s) => base.Write (b, o, s);
+			SyncWriteFunc originalSyncWrite = syncWrite;
+
+			var action = Interlocked.Exchange (ref writeAction, null);
+			if (action?.AsyncRead != null) {
+				message += " - action";
+
+				AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
+					(callback, state) => originalSyncWrite.BeginInvoke (b, o, s, callback, state),
+					(result) => originalSyncWrite.EndInvoke (result), null);
+
+				syncWrite = (b, o, s) => action.AsyncWrite (b, o, s, asyncBaseWrite, CancellationToken.None).Wait ();
+			}
+
+			Write_internal (buffer, offset, size, message, syncWrite);
+		}
+
+		void Write_internal (byte[] buffer, int offset, int size, string message, SyncWriteFunc func)
+		{
+			Context.LogDebug (4, message);
+			try {
+				func (buffer, offset, size);
+				Context.LogDebug (4, "{0} done", message);
+			} catch (Exception ex) {
+				Context.LogDebug (4, "{0} failed: {1}", message, ex);
+				throw;
+			}
 		}
 
 		public delegate Task<int> AsyncReadFunc (byte[] buffer, int offset, int count, CancellationToken cancellationToken);
 		public delegate Task<int> AsyncReadHandler (byte[] buffer, int offset, int count, AsyncReadFunc func, CancellationToken cancellationToken);
 		delegate int SyncReadFunc (byte[] buffer, int offset, int count);
-
-		internal Task<int> BaseReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
-		{
-			return base.ReadAsync (buffer, offset, count, cancellationToken);
-		}
 
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
@@ -159,41 +236,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return TaskToApm.End<int> (asyncResult);
 		}
 
-		public override void Write (byte[] buffer, int offset, int size)
-		{
-			Context.LogDebug (4, "StreamInstrumentation.Write({0},{1})", offset, size);
-
-			var action = Interlocked.Exchange (ref writeAction, null);
-			if (action == null) {
-				Write_internal (buffer, offset, size);
-				return;
-			}
-
-			if (action.Action != null) {
-				try {
-					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action", offset, size);
-					action.Action ();
-					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action done", offset, size);
-				} catch (Exception ex) {
-					Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) - action failed: {2}", offset, size, ex);
-					throw;
-				}
-			}
-
-			Write_internal (buffer, offset, size);
-		}
-
-		void Write_internal (byte[] buffer, int offset, int size)
-		{
-			try {
-				base.Write (buffer, offset, size);
-				Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) done", offset, size);
-			} catch (Exception ex) {
-				Context.LogDebug (4, "StreamInstrumentation.Write({0},{1}) failed: {0}", offset, size, ex);
-				throw;
-			}
-		}
-
 		public override int Read (byte[] buffer, int offset, int size)
 		{
 			var message = string.Format ("StreamInstrumentation.Read({0},{1})", offset, size);
@@ -230,17 +272,17 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		class MyAction
 		{
-			public readonly Action Action;
 			public readonly AsyncReadHandler AsyncRead;
-
-			public MyAction (Action action)
-			{
-				Action = action;
-			}
+			public readonly AsyncWriteHandler AsyncWrite;
 
 			public MyAction (AsyncReadHandler handler)
 			{
 				AsyncRead = handler;
+			}
+
+			public MyAction (AsyncWriteHandler handler)
+			{
+				AsyncWrite = handler;
 			}
 		}
 	}
