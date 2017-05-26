@@ -142,7 +142,7 @@ namespace Xamarin.WebTests.TestRunners
 			public override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
 			{
 				ctx.LogDebug (4, "StreamInstrumentation - main loop");
-				if (Parent.HasFlag (StreamInstrumentationFlags.SkipMainLoop))
+				if (Parent.HasFlag (InstrumentationFlags.SkipMainLoop))
 					return;
 				await base.MainLoop (ctx, cancellationToken);
 			}
@@ -166,7 +166,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		[Flags]
-		internal enum StreamInstrumentationFlags {
+		internal enum InstrumentationFlags {
 			None = 0,
 			ClientInstrumentation = 1,
 			ServerInstrumentation = 2,
@@ -180,33 +180,33 @@ namespace Xamarin.WebTests.TestRunners
 			ServerHandshakeFails = 512
 		}
 
-		static StreamInstrumentationFlags GetFlags (StreamInstrumentationType type)
+		static InstrumentationFlags GetFlags (StreamInstrumentationType type)
 		{
 			switch (type) {
 			case StreamInstrumentationType.ClientHandshake:
 			case StreamInstrumentationType.ReadDuringClientAuth:
-				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientStream;
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientStream;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
-				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ServerInstrumentation |
-					StreamInstrumentationFlags.ClientHandshake | StreamInstrumentationFlags.SkipMainLoop |
-					StreamInstrumentationFlags.ServerHandshake | StreamInstrumentationFlags.ServerHandshakeFails;
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ServerInstrumentation |
+					InstrumentationFlags.ClientHandshake | InstrumentationFlags.SkipMainLoop |
+					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerHandshakeFails;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return StreamInstrumentationFlags.ClientInstrumentation | StreamInstrumentationFlags.ClientShutdown;
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
 			default:
 				throw new InternalErrorException ();
 			}
 		}
 
-		bool HasFlag (StreamInstrumentationFlags flag)
+		bool HasFlag (InstrumentationFlags flag)
 		{
 			var flags = GetFlags (EffectiveType);
 			return (flags & flag) == flag;
 		}
 
-		bool HasAnyFlag (params StreamInstrumentationFlags[] flags)
+		bool HasAnyFlag (params InstrumentationFlags[] flags)
 		{
 			return flags.Any (f => HasFlag (f));
 		}
@@ -214,7 +214,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
+			if (HasFlag (InstrumentationFlags.ClientInstrumentation))
 				return base.StartClient (ctx, this, cancellationToken);
 			return base.StartClient (ctx, null, cancellationToken);
 		}
@@ -222,14 +222,14 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (HasFlag (StreamInstrumentationFlags.ServerInstrumentation))
+			if (HasFlag (InstrumentationFlags.ServerInstrumentation))
 				return base.StartServer (ctx, this, cancellationToken);
 			return base.StartServer (ctx, null, cancellationToken);
 		}
 
 		public Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (!HasFlag (StreamInstrumentationFlags.ClientShutdown))
+			if (!HasFlag (InstrumentationFlags.ClientShutdown))
 				return Task.FromResult (false);
 
 			switch (EffectiveType) {
@@ -246,7 +246,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public Task<bool> ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
-			if (!HasAnyFlag (StreamInstrumentationFlags.ServerShutdown, StreamInstrumentationFlags.ServerHandshakeFails))
+			if (!HasAnyFlag (InstrumentationFlags.ServerShutdown))
 				return Task.FromResult (false);
 
 			switch (EffectiveType) {
@@ -257,7 +257,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public Stream CreateClientStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			if (!HasFlag (StreamInstrumentationFlags.ClientInstrumentation))
+			if (!HasFlag (InstrumentationFlags.ClientInstrumentation))
 				return null;
 
 			var instrumentation = new StreamInstrumentation (ctx, socket);
@@ -266,7 +266,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogDebug (4, "SslStreamTestRunner.CreateClientStream()");
 
-			if (!HasFlag (StreamInstrumentationFlags.ClientStream))
+			if (!HasFlag (InstrumentationFlags.ClientStream))
 				return instrumentation;
 
 			int readCount = 0;
@@ -313,7 +313,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public Stream CreateServerStream (TestContext ctx, Connection connection, Socket socket)
 		{
-			if (!HasAnyFlag (StreamInstrumentationFlags.ServerInstrumentation, StreamInstrumentationFlags.ServerShutdown))
+			if (!HasAnyFlag (InstrumentationFlags.ServerInstrumentation, InstrumentationFlags.ServerShutdown))
 				return null;
 
 			var instrumentation = new StreamInstrumentation (ctx, socket);
@@ -327,7 +327,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ClientHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
-			if (!HasFlag (StreamInstrumentationFlags.ClientHandshake))
+			if (!HasFlag (InstrumentationFlags.ClientHandshake))
 				return false;
 
 			int readCount = 0;
@@ -336,7 +336,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			ctx.LogMessage ("CLIENT HANDSHAKE!");
 
-			await ctx.AssertException<IOException>(handshake, "client handshake").ConfigureAwait(false);
+			await ctx.AssertException<IOException> (handshake, "client handshake").ConfigureAwait (false);
 
 			Server.Dispose ();
 
@@ -371,14 +371,12 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
-			if (!HasAnyFlag (StreamInstrumentationFlags.ServerHandshake, StreamInstrumentationFlags.ServerHandshakeFails))
+			if (!HasAnyFlag (InstrumentationFlags.ServerHandshake, InstrumentationFlags.ServerHandshakeFails))
 				return false;
 
 			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
 
-			await ctx.AssertException (handshake, Is.InstanceOf<Exception> (true), "server handshake").ConfigureAwait (false);
-
-			// await Server.Shutdown (ctx, false, CancellationToken.None);
+			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
 
 			Server.Dispose ();
 
