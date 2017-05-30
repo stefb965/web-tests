@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CleanShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadAfterShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -525,6 +525,8 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			var ok = ctx.Expect (bytesWritten, Is.GreaterThan (0), "{0} - bytes written", me);
+			ok &= ctx.Expect (Client.SslStream.CanWrite, Is.False, "{0} - SslStream.CanWrite", me);
+
 			cleanClientShutdownTcs.TrySetResult (ok);
 
 			cancellationToken.ThrowIfCancellationRequested ();
