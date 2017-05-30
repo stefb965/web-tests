@@ -49,15 +49,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return client; }
 		}
 
-		public bool SupportsCleanShutdown {
-			get { return server.SupportsCleanShutdown && client.SupportsCleanShutdown; }
-		}
-
 		public ProtocolVersions SupportedProtocols {
 			get { return server.SupportedProtocols & client.SupportedProtocols; }
 		}
-
-		public ConnectionType ConnectionType => ConnectionType.ClientAndServer;
 
 		public ProtocolVersions? GetRequestedProtocol ()
 		{
@@ -134,7 +128,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			await MainLoop (ctx, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await Shutdown (ctx, SupportsCleanShutdown, cancellationToken);
+			await Shutdown (ctx, cancellationToken);
 		}
 
 		protected virtual void InitializeConnection (TestContext ctx)
@@ -240,13 +234,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Abort ();
 		}
 
-		public virtual async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public virtual async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
 				throw new InternalErrorException ();
 
-			var clientShutdown = client.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
-			var serverShutdown = server.Shutdown (ctx, attemptCleanShutdown, cancellationToken);
+			var clientShutdown = client.SupportsCleanShutdown ? client.Shutdown (ctx, cancellationToken) : FinishedTask;
+			var serverShutdown = server.SupportsCleanShutdown ? server.Shutdown (ctx, cancellationToken) : FinishedTask;
 			await Task.WhenAll (clientShutdown, serverShutdown);
 		}
 

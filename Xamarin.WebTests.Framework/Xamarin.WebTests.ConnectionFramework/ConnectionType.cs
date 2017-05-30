@@ -29,7 +29,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 	public enum ConnectionType
 	{
 		Client,
-		Server,
-		ClientAndServer
+		Server
 	}
 }

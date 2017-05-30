@@ -461,7 +461,9 @@ namespace Xamarin.WebTests.TestRunners
 			var readBuffer = new byte[256];
 			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
 
-			await Server.Shutdown (ctx, false, CancellationToken.None);
+			// FIXME
+			// await Server.Shutdown (ctx, CancellationToken.None);
+			Server.Abort ();
 
 			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 			return true;

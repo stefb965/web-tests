@@ -215,7 +215,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return tcs.Task;
 		}
 
-		public sealed override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
 				return;
@@ -236,7 +236,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			async Task Shutdown_internal ()
 			{
-				if (SupportsCleanShutdown && attemptCleanShutdown)
+				if (SupportsCleanShutdown)
 					await sslStream.ShutdownAsync ().ConfigureAwait (false);
 
 				ctx.LogDebug (5, "Shutting down socket.");

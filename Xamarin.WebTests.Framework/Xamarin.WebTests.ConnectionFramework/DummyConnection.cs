@@ -53,7 +53,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return FinishedTask;
 		}
 
-		public override Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
+		public override Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return FinishedTask;
 		}
