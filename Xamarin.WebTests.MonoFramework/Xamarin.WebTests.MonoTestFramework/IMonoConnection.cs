@@ -1,5 +1,5 @@
 ﻿//
-// IMonoClient.cs
+// IMonoCommonConnection.cs
 //
 // Author:
 //       Martin Baulig <martin.baulig@xamarin.com>
@@ -24,12 +24,19 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using System;
-using Xamarin.WebTests.ConnectionFramework;
+using Mono.Security.Interface;
 
 namespace Xamarin.WebTests.MonoTestFramework
 {
-	public interface IMonoClient : IClient, IMonoCommonConnection
+	using MonoConnectionFramework;
+
+	public interface IMonoConnection
 	{
+		bool SupportsConnectionInfo {
+			get;
+		}
+
+		MonoTlsConnectionInfo GetConnectionInfo ();
 	}
 }
 

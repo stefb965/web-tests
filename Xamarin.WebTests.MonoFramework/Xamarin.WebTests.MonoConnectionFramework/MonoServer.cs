@@ -22,7 +22,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 {
 	using MonoTestFramework;
 
-	class MonoServer : DotNetServer, IMonoServer
+	class MonoServer : DotNetServer, IMonoConnection
 	{
 		public MonoServer (MonoConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters, provider)

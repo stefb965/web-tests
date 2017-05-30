@@ -177,7 +177,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			base.OnWaitForServerConnectionCompleted (ctx, task);
 		}
 
-		protected bool CheckCipher (TestContext ctx, IMonoCommonConnection connection, CipherSuiteCode cipher)
+		protected bool CheckCipher (TestContext ctx, IMonoConnection connection, CipherSuiteCode cipher)
 		{
 			ctx.Assert (connection.SupportsConnectionInfo, "supports connection info");
 			var connectionInfo = connection.GetConnectionInfo ();
@@ -189,8 +189,8 @@ namespace Xamarin.WebTests.MonoTestFramework
 
 		protected override Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var monoClient = Client as IMonoClient;
-			var monoServer = Server as IMonoServer;
+			var monoClient = Client as IMonoConnection;
+			var monoServer = Server as IMonoConnection;
 
 			bool ok = true;
 			if (monoClient != null) {
