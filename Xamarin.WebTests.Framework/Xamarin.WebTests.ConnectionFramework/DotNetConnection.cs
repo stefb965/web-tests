@@ -185,23 +185,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				throw new ObjectDisposedException ("DotNetConnection");
 
-			if (instrumentation != null) {
-				Task<bool> task;
-				if (IsServer)
-					task = instrumentation.ServerShutdown (ctx, Shutdown_internal, this, cancellationToken);
-				else
-					task = instrumentation.ClientShutdown (ctx, Shutdown_internal, this, cancellationToken);
-				if (await task.ConfigureAwait (false))
-					return;
-			}
-
-			await Shutdown_internal ();
-
-			async Task Shutdown_internal ()
-			{
-				if (SupportsCleanShutdown)
-					await sslStream.ShutdownAsync ().ConfigureAwait (false);
-			}
+			if (SupportsCleanShutdown)
+				await sslStream.ShutdownAsync ().ConfigureAwait (false);
 		}
 
 		public override void Close ()

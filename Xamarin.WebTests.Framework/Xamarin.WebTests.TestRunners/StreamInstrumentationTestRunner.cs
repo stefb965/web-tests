@@ -257,18 +257,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Client.Shutdown (ctx, cancellationToken);
-		}
-
-		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Server.Shutdown (ctx, cancellationToken);
-		}
-
-		public Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
-		{
 			if (!HasFlag (InstrumentationFlags.ClientShutdown))
-				return Task.FromResult (false);
+				return Client.SslStream.ShutdownAsync ();
 
 			switch (EffectiveType) {
 			case StreamInstrumentationType.ShortReadAndClose:
@@ -287,10 +277,10 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		public Task<bool> ServerShutdown (TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (!HasAnyFlag (InstrumentationFlags.ServerShutdown))
-				return Task.FromResult (false);
+				return Server.SslStream.ShutdownAsync ();
 
 			LogDebug (ctx, 4, "ServerShutdown()");
 
@@ -299,7 +289,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
-				return Instrumentation_CleanServerShutdown (ctx, shutdown, connection, cancellationToken);
+				return Instrumentation_CleanServerShutdown (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -447,7 +437,7 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
-		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, CancellationToken cancellationToken)
+		async Task Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, CancellationToken cancellationToken)
 		{
 			clientInstrumentation.OnNextRead ((buffer, offset, count, func, innerCancellationToken) => {
 				return ctx.Assert (
@@ -463,13 +453,11 @@ namespace Xamarin.WebTests.TestRunners
 			Server.Close ();
 
 			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
-			return true;
 		}
 
 		TaskCompletionSource<bool> cleanClientShutdownTcs = new TaskCompletionSource<bool> ();
 
-		async Task<bool> Instrumentation_CleanServerShutdown (
-			TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
+		async Task Instrumentation_CleanServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = "Instrumentation_CleanServerShutdown";
 			LogDebug (ctx, 4, me);
@@ -478,10 +466,10 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.CleanShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.DoubleShutdown:
-				return true;
+				return;
 			case StreamInstrumentationType.ReadAfterShutdown:
 				await ReadAfterShutdown ().ConfigureAwait (false);
-				return true;
+				return;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -499,7 +487,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task<bool> Instrumentation_CleanClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		async Task Instrumentation_CleanClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = "Instrumentation_CleanClientShutdown";
 			LogDebug (ctx, 4, me);
@@ -510,7 +498,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await Client.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
+				await Client.SslStream.ShutdownAsync ().ConfigureAwait (false);
 				LogDebug (ctx, 4, "{0} - done", me);
 			} catch (OperationCanceledException) {
 				LogDebug (ctx, 4, "{0} - canceled");
@@ -531,23 +519,23 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case StreamInstrumentationType.CleanShutdown:
-				return true;
+				break;
 			case StreamInstrumentationType.DoubleShutdown:
 				await DoubleShutdown ();
-				return true;
+				break;
 			case StreamInstrumentationType.WriteAfterShutdown:
 				await WriteAfterShutdown ();
-				return true;
+				break;
 			case StreamInstrumentationType.ReadAfterShutdown:
 				await ReadAfterShutdown ();
-				return true;
+				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
 
 			Task DoubleShutdown ()
 			{
-				return ctx.AssertException<InvalidOperationException> (() => Client.Shutdown (ctx, cancellationToken), "double shutdown");
+				return ctx.AssertException<InvalidOperationException> (Client.SslStream.ShutdownAsync, "double shutdown");
 			}
 
 			Task WriteAfterShutdown ()
@@ -576,7 +564,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		// FIXME: broken
-		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, CancellationToken cancellationToken)
+		async Task Instrumentation_ReadTimeout (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var tcs = new TaskCompletionSource<bool> ();
 
@@ -610,18 +598,16 @@ namespace Xamarin.WebTests.TestRunners
 				tcs.TrySetResult (true);
 				outerCts.Dispose ();
 			}
-
-			return true;
 		}
 
 		// FIXME: broken
-		async Task<bool> Instrumentation_ShortReadAndClose (TestContext ctx)
+		async Task Instrumentation_ShortReadAndClose (TestContext ctx)
 		{
 			bool readDone = false;
 
 			clientInstrumentation.OnNextRead (ReadHandler);
 
-			var writeBuffer = DefaultConnectionHandler.TheQuickBrownFoxBuffer;
+			var writeBuffer = ConnectionHandler.TheQuickBrownFoxBuffer;
 			var readBuffer = new byte[writeBuffer.Length + 256];
 
 			await Server.Stream.WriteAsync (writeBuffer, 0, writeBuffer.Length);
@@ -639,8 +625,6 @@ namespace Xamarin.WebTests.TestRunners
 			await ctx.Assert (ClientRead, Is.EqualTo (0), "second client read").ConfigureAwait (false);
 
 			ctx.LogMessage ("SECOND READ DONE!");
-
-			return true;
 
 			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
 						     StreamInstrumentation.AsyncReadFunc func,
