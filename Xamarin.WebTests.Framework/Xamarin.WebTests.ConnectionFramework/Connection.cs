@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using System.Net;
 using System.Diagnostics;
@@ -11,21 +11,22 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class Connection : AbstractConnection, IConnection
 	{
-		public abstract bool SupportsCleanShutdown {
+		public ConnectionProvider Provider {
 			get;
 		}
 
-		public abstract ProtocolVersions SupportedProtocols {
-			get;
-		}
+		public bool SupportsCleanShutdown => Provider.SupportsCleanShutdown;
+
+		public ProtocolVersions SupportedProtocols => Provider.SupportedProtocols;
 
 		public abstract ConnectionType ConnectionType {
 			get;
 		}
 
-		protected Connection (IPortableEndPoint endpoint, ConnectionParameters parameters)
+		protected Connection (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
 			: base (endpoint, parameters)
 		{
+			Provider = provider;
 		}
 
 		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
