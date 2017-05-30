@@ -1,6 +1,7 @@
 ﻿﻿using System;
 using System.IO;
 using System.Net;
+using System.Net.Security;
 using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
@@ -9,7 +10,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class Connection : AbstractConnection, IConnection
+	public abstract class Connection : AbstractConnection, IConnection, ICommonConnection
 	{
 		public ConnectionProvider Provider {
 			get;
@@ -37,6 +38,16 @@ namespace Xamarin.WebTests.ConnectionFramework
 			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
 			return support.GetLoopbackEndpoint (4433);
 		}
+
+		public abstract Stream Stream {
+			get;
+		}
+
+		public abstract SslStream SslStream {
+			get;
+		}
+
+		public ProtocolVersions ProtocolVersion => (ProtocolVersions)SslStream.SslProtocol;
 
 		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{

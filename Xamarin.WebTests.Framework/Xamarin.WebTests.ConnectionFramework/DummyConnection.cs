@@ -64,23 +64,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			;
 		}
 
-		public ProtocolVersions ProtocolVersion {
-			get {
-				throw new NotImplementedException ();
-			}
-		}
+		public override SslStream SslStream => throw new NotSupportedException ();
 
-		public SslStream SslStream {
-			get {
-				throw new NotSupportedException ();
-			}
-		}
-
-		public Stream Stream {
-			get {
-				throw new NotSupportedException ();
-			}
-		}
+		public override Stream Stream => throw new NotSupportedException ();
 	}
 }
 

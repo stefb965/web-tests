@@ -58,16 +58,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		SslStream sslStream;
 
-		public Stream Stream {
+		public override Stream Stream {
 			get { return sslStream; }
 		}
 
-		public SslStream SslStream {
+		public override SslStream SslStream {
 			get { return sslStream; }
-		}
-
-		public ProtocolVersions ProtocolVersion {
-			get { return (ProtocolVersions)SslStream.SslProtocol; }
 		}
 
 		protected abstract bool IsServer {
