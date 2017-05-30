@@ -23,10 +23,19 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		protected Connection (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (endpoint, parameters)
+		protected Connection (ConnectionProvider provider, ConnectionParameters parameters)
+			: base (GetEndPoint (parameters), parameters)
 		{
 			Provider = provider;
+		}
+
+		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
+		{
+			if (parameters.EndPoint != null)
+				return parameters.EndPoint;
+
+			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
+			return support.GetLoopbackEndpoint (4433);
 		}
 
 		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)

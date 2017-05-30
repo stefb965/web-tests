@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,7 +35,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			ctx.LogDebug (1, "Connected.");
 
-			var targetHost = Parameters.TargetHost ?? EndPoint.HostName ?? EndPoint.Address;
+			var targetHost = Parameters.TargetHost ?? PortableEndPoint.HostName ?? PortableEndPoint.Address;
 			ctx.LogDebug (1, "Using '{0}' as target host.", targetHost);
 
 			var protocol = sslStreamProvider.GetProtocol (Parameters, IsServer);

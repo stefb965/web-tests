@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // DummyClient.cs
 //
 // Author:
@@ -35,8 +35,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 	{
 		public override ConnectionType ConnectionType => ConnectionType.Client;
 
-		public DummyClient (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (provider, endpoint, parameters)
+		public DummyClient (ConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
 		}
 	}

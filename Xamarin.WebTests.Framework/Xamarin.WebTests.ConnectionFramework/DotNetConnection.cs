@@ -44,7 +44,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 	public abstract class DotNetConnection : Connection, ICommonConnection
 	{
 		public DotNetConnection (ConnectionProvider provider, ConnectionParameters parameters)
-			: base (provider, GetEndPoint (parameters), parameters)
+			: base (provider, parameters)
 		{
 		}
 
@@ -81,23 +81,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken);
 
-		static IPortableEndPoint GetEndPoint (ConnectionParameters parameters)
-		{
-			if (parameters.EndPoint != null)
-				return parameters.EndPoint;
-
-			var support = DependencyInjector.Get<IPortableEndPointSupport> ();
-			return support.GetLoopbackEndpoint (4433);
-		}
-
-		IPEndPoint GetEndPoint ()
-		{
-			if (EndPoint != null)
-				return new IPEndPoint (IPAddress.Parse (EndPoint.Address), EndPoint.Port);
-			else
-				return new IPEndPoint (IPAddress.Loopback, 4433);
-		}
-
 		void CreateSslStream (TestContext ctx, Socket innerSocket)
 		{
 			if (instrumentation != null) {
@@ -127,12 +110,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		void StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
-			socket.Bind (endpoint);
+			socket.Bind (EndPoint);
 			socket.Listen (1);
 
-			ctx.LogMessage ("Listening at {0}.", endpoint);
+			ctx.LogMessage ("Listening at {0}.", EndPoint);
 
 			tcs = new TaskCompletionSource<SslStream> ();
 
@@ -152,14 +134,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		void StartClient (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var endpoint = GetEndPoint ();
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-			ctx.LogMessage ("Connecting to {0}.", endpoint);
+			ctx.LogMessage ("Connecting to {0}.", EndPoint);
 
 			tcs = new TaskCompletionSource<SslStream> ();
 
-			socket.BeginConnect (endpoint, async ar => {
+			socket.BeginConnect (EndPoint, async ar => {
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();

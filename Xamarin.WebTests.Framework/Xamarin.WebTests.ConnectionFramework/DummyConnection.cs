@@ -35,8 +35,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class DummyConnection : Connection, ICommonConnection
 	{
-		public DummyConnection (ConnectionProvider provider, IPortableEndPoint endpoint, ConnectionParameters parameters)
-			: base (provider, endpoint, parameters)
+		public DummyConnection (ConnectionProvider provider, ConnectionParameters parameters)
+			: base (provider, parameters)
 		{
 		}
 

@@ -40,12 +40,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IClient CreateClient (ConnectionParameters parameters)
 		{
-			return new DummyClient (this, parameters.EndPoint, parameters);
+			return new DummyClient (this, parameters);
 		}
 
 		public override IServer CreateServer (ConnectionParameters parameters)
 		{
-			return new DummyServer (this, parameters.EndPoint, parameters);
+			return new DummyServer (this, parameters);
 		}
 
 		protected override ISslStreamProvider GetSslStreamProvider ()

@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		IPortableEndPoint EndPoint {
+		IPortableEndPoint PortableEndPoint {
 			get;
 		}
 

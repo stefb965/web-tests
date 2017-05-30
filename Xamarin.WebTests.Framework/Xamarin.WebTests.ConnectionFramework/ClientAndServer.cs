@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // ClientAndServer.cs
 //
 // Author:
@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		}
 
 		public ClientAndServer (IServer server, IClient client, ConnectionParameters parameters)
-			: base (server.EndPoint, parameters)
+			: base (server.PortableEndPoint, parameters)
 		{
 			this.server = server;
 			this.client = client;
@@ -170,7 +170,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public async Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.EndPoint);
+			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.PortableEndPoint);
 			InitializeConnection (ctx);
 			await StartServer (ctx, instrumentation, cancellationToken);
 			await StartClient (ctx, instrumentation, cancellationToken);
