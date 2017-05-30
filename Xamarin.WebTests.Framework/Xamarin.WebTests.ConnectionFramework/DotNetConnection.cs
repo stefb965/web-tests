@@ -215,14 +215,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return tcs.Task;
 		}
 
-		protected virtual async Task TryCleanShutdown (TestContext ctx)
-		{
-			if (!provider.SupportsCleanShutdown)
-				throw new NotSupportedException ("Clean shutdown not supported yet.");
-
-			await sslStream.ShutdownAsync ().ConfigureAwait (false);
-		}
-
 		public sealed override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
@@ -245,7 +237,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			async Task Shutdown_internal ()
 			{
 				if (SupportsCleanShutdown && attemptCleanShutdown)
-					await TryCleanShutdown (ctx).ConfigureAwait (false);
+					await sslStream.ShutdownAsync ().ConfigureAwait (false);
 
 				ctx.LogDebug (5, "Shutting down socket.");
 				(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
