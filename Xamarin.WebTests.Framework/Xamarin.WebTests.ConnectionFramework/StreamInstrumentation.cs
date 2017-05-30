@@ -66,6 +66,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public delegate Task AsyncWriteHandler (byte[] buffer, int offset, int count, AsyncWriteFunc func, CancellationToken cancellationToken);
 		delegate void SyncWriteFunc (byte[] buffer, int offset, int count);
 
+		static bool IsTaskAsyncResult (IAsyncResult asyncResult)
+		{
+			return asyncResult is TaskToApm.TaskWrapperAsyncResult || asyncResult is Task;
+		}
+
 		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
 			var message = string.Format ("StreamInstrumentation.WriteAsync({0},{1})", offset, count);
@@ -124,8 +129,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override void EndWrite (IAsyncResult asyncResult)
 		{
-			var myResult = asyncResult as TaskToApm.TaskWrapperAsyncResult;
-			if (myResult == null) {
+			if (!IsTaskAsyncResult (asyncResult)) {
 				base.EndRead (asyncResult);
 				return;
 			}
@@ -229,8 +233,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override int EndRead (IAsyncResult asyncResult)
 		{
-			var myResult = asyncResult as TaskToApm.TaskWrapperAsyncResult;
-			if (myResult == null)
+			if (!IsTaskAsyncResult (asyncResult))
 				return base.EndRead (asyncResult);
 
 			return TaskToApm.End<int> (asyncResult);
