@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.WriteAfterShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadAfterShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -90,6 +90,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
 				yield return StreamInstrumentationType.CleanShutdown;
+				yield return StreamInstrumentationType.DoubleShutdown;
+				yield return StreamInstrumentationType.WriteAfterShutdown;
+				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationWorking:
@@ -556,6 +559,7 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				LogDebug (ctx, 4, "{0} reading", me);
 				await ConnectionHandler.ExpectBlob (ctx, Client, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} reading done", me);
 			}
 
 			async Task WriteHandler (byte[] buffer, int offset, int size,
