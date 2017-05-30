@@ -110,7 +110,12 @@ namespace Xamarin.WebTests.TestFramework
 			ctx.LogDebug (level, formatted);
 		}
 
-		protected async Task ExpectBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal Task ExpectBlob (TestContext ctx, ICommonConnection connection, CancellationToken cancellationToken)
+		{
+			return ExpectBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
+		}
+
+		internal async Task ExpectBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -131,7 +136,12 @@ namespace Xamarin.WebTests.TestFramework
 			LogDebug (ctx, 5, "ExpectBlob done", connection, type);
 		}
 
-		protected async Task WriteBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal Task WriteBlob (TestContext ctx, ICommonConnection connection, CancellationToken cancellationToken)
+		{
+			return WriteBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
+		}
+
+		internal async Task WriteBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 

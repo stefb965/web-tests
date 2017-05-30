@@ -233,9 +233,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (instrumentation != null) {
 				Task<bool> task;
 				if (IsServer)
-					task = instrumentation.ServerShutdown (ctx, Shutdown_internal, this);
+					task = instrumentation.ServerShutdown (ctx, Shutdown_internal, this, cancellationToken);
 				else
-					task = instrumentation.ClientShutdown (ctx, Shutdown_internal, this);
+					task = instrumentation.ClientShutdown (ctx, Shutdown_internal, this, cancellationToken);
 				if (await task.ConfigureAwait (false))
 					return;
 			}
