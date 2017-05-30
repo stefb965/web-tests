@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadAndClose;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -212,7 +212,7 @@ namespace Xamarin.WebTests.TestRunners
 					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerHandshakeFails |
 					InstrumentationFlags.ClientHandshakeFails;
 			case StreamInstrumentationType.ShortReadAndClose:
-				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
+				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
@@ -299,6 +299,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadAfterShutdown:
 				return Instrumentation_CleanServerShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
+			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -611,9 +612,11 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		// FIXME: broken
 		async Task Instrumentation_ShortReadAndClose (TestContext ctx)
 		{
+			var me = "Instrumentation_ShortReadAndClose()";
+			LogDebug (ctx, 4, me);
+
 			bool readDone = false;
 
 			clientInstrumentation.OnNextRead (ReadHandler);
@@ -621,21 +624,23 @@ namespace Xamarin.WebTests.TestRunners
 			var writeBuffer = ConnectionHandler.TheQuickBrownFoxBuffer;
 			var readBuffer = new byte[writeBuffer.Length + 256];
 
+			var readTask = ClientRead ();
+
 			await Server.Stream.WriteAsync (writeBuffer, 0, writeBuffer.Length);
 
 			Server.Close ();
 
-			ctx.LogMessage ("ABORTED SERVER!");
+			LogDebug (ctx, 4, "{0} - closed server", me);
 
-			await ctx.Assert (ClientRead, Is.EqualTo (writeBuffer.Length), "first client read").ConfigureAwait (false);
+			await ctx.Assert (() => readTask, Is.EqualTo (writeBuffer.Length), "first client read").ConfigureAwait (false);
 
-			ctx.LogMessage ("FIRST READ DONE!");
+			LogDebug (ctx, 4, "{0} - first read done", me);
 
 			readDone = true;
 
 			await ctx.Assert (ClientRead, Is.EqualTo (0), "second client read").ConfigureAwait (false);
 
-			ctx.LogMessage ("SECOND READ DONE!");
+			LogDebug (ctx, 4, "{0} - second read done", me);
 
 			async Task<int> ReadHandler (byte[] buffer, int offset, int size,
 						     StreamInstrumentation.AsyncReadFunc func,
@@ -643,9 +648,9 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				clientInstrumentation.OnNextRead (ReadHandler);
 
-				ctx.LogMessage ("NEXT READ: {0}", readDone);
+				LogDebug (ctx, 4, "{0} - read handler: {1} {2}", me, offset, size);
 				var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
-				ctx.LogMessage ("NEXT READ #1: {0} {1}", readDone, ret);
+				LogDebug (ctx, 4, "{0} - read handler done: {1}", me, ret);
 
 				if (readDone)
 					ctx.Assert (ret, Is.EqualTo (0), "inner read returns zero");
