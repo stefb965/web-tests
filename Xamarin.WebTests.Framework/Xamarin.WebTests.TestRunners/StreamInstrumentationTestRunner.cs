@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[StreamInstrumentationTestRunner]
-	public class StreamInstrumentationTestRunner : ConnectionTestRunner, IConnectionInstrumentation
+	public class StreamInstrumentationTestRunner : ClientAndServer, IConnectionInstrumentation
 	{
 		new public StreamInstrumentationParameters Parameters {
 			get { return (StreamInstrumentationParameters)base.Parameters; }
@@ -63,15 +63,15 @@ namespace Xamarin.WebTests.TestRunners
 
 		internal InstrumentationFlags EffectiveFlags => GetFlags (EffectiveType);
 
-		public StreamInstrumentationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
-							StreamInstrumentationParameters parameters)
-			: base (server, client, provider, parameters)
-		{
+		public ConnectionHandler ConnectionHandler {
+			get;
 		}
 
-		protected override ConnectionHandler CreateConnectionHandler ()
+		public StreamInstrumentationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
+							StreamInstrumentationParameters parameters)
+			: base (server, client, parameters)
 		{
-			return new StreamInstrumentationConnectionHandler (this);
+			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
 		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
@@ -136,27 +136,6 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		class StreamInstrumentationConnectionHandler : DefaultConnectionHandler
-		{
-			public StreamInstrumentationTestRunner Parent {
-				get;
-			}
-
-			public StreamInstrumentationConnectionHandler (StreamInstrumentationTestRunner runner)
-				: base (runner)
-			{
-				Parent = runner;
-			}
-
-			public override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
-			{
-				ctx.LogDebug (4, "StreamInstrumentation - main loop");
-				if (Parent.HasFlag (InstrumentationFlags.SkipMainLoop))
-					return;
-				await base.MainLoop (ctx, cancellationToken);
-			}
-		}
-
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
 
@@ -181,6 +160,20 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			return base.PostRun (ctx, cancellationToken);
+		}
+
+		protected override void InitializeConnection (TestContext ctx)
+		{
+			ConnectionHandler.InitializeConnection (ctx);
+			base.InitializeConnection (ctx);
+		}
+
+		protected sealed override async Task MainLoop (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ctx.LogDebug (4, "StreamInstrumentationTestRunner({0}) - main loop", EffectiveType);
+			if (HasFlag (InstrumentationFlags.SkipMainLoop))
+				return;
+			await ConnectionHandler.MainLoop (ctx, cancellationToken);
 		}
 
 		[Flags]
