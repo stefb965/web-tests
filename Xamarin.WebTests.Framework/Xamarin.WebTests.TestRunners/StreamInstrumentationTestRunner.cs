@@ -89,10 +89,6 @@ namespace Xamarin.WebTests.TestRunners
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationMono:
-				yield return StreamInstrumentationType.CleanShutdown;
-				yield return StreamInstrumentationType.DoubleShutdown;
-				yield return StreamInstrumentationType.WriteAfterShutdown;
-				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationWorking:
@@ -102,6 +98,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
+				yield return StreamInstrumentationType.CleanShutdown;
+				yield return StreamInstrumentationType.DoubleShutdown;
+				yield return StreamInstrumentationType.WriteAfterShutdown;
+				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
