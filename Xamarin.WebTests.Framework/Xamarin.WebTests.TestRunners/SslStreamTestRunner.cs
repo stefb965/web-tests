@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿﻿﻿﻿//
 // SslStreamTestRunner.cs
 //
 // Author:
@@ -182,6 +182,16 @@ namespace Xamarin.WebTests.TestRunners
 			default:
 				throw ctx.AssertFail ("Invalid ConnectionTestType: `{0}'.", type);
 			}
+		}
+
+		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Start (ctx, null, cancellationToken);
 		}
 
 		protected override async Task OnRun (TestContext ctx, CancellationToken cancellationToken)

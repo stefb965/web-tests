@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿﻿﻿﻿//
 // ClientAndServer.cs
 //
 // Author:
@@ -92,9 +92,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return IsManualClient || IsManualServer; }
 		}
 
-		protected override Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return Start (ctx, null, cancellationToken);
+			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.PortableEndPoint);
+			InitializeConnection (ctx);
+			await StartServer (ctx, cancellationToken);
+			await StartClient (ctx, cancellationToken);
 		}
 
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
@@ -158,23 +161,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			ctx.Assert (task.Status, Is.EqualTo (TaskStatus.RanToCompletion), "expecting success");
 		}
 
-		protected virtual Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
-		{
-			return client.Start (ctx, instrumentation, cancellationToken);
-		}
+		protected abstract Task StartClient (TestContext ctx, CancellationToken cancellationToken);
 
-		protected virtual Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
-		{
-			return server.Start (ctx, instrumentation, cancellationToken);
-		}
-
-		public async Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
-		{
-			ctx.LogMessage ("Starting client and server: {0} {1} {2}", client, server, server.PortableEndPoint);
-			InitializeConnection (ctx);
-			await StartServer (ctx, instrumentation, cancellationToken);
-			await StartClient (ctx, instrumentation, cancellationToken);
-		}
+		protected abstract Task StartServer (TestContext ctx, CancellationToken cancellationToken);
 
 		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
 		{

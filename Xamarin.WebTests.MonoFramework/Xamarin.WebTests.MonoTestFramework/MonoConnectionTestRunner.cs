@@ -105,6 +105,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 			}
 		}
 
+		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Start (ctx, null, cancellationToken);
+		}
+
 		protected override void InitializeConnection (TestContext ctx)
 		{
 			var provider = ctx.GetParameter<ClientAndServerProvider> ("ClientAndServerProvider");

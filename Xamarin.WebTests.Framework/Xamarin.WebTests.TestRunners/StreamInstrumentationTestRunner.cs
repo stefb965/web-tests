@@ -248,20 +248,18 @@ namespace Xamarin.WebTests.TestRunners
 			ctx.LogDebug (level, string.Format ("StreamInstrumentationTestRunner({0}): {1}", EffectiveType, formatted));
 		}
 
-		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.Assert (instrumentation, Is.Null);
 			if ((EffectiveFlags & InstrumentationFlags.NeedClientInstrumentation) != 0)
-				return base.StartClient (ctx, this, cancellationToken);
-			return base.StartClient (ctx, null, cancellationToken);
+				return Client.Start (ctx, this, cancellationToken);
+			return Client.Start (ctx, null, cancellationToken);
 		}
 
-		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
+		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.Assert (instrumentation, Is.Null);
 			if ((EffectiveFlags & InstrumentationFlags.NeedServerInstrumentation) != 0)
-				return base.StartServer (ctx, this, cancellationToken);
-			return base.StartServer (ctx, null, cancellationToken);
+				return Server.Start (ctx, this, cancellationToken);
+			return Server.Start (ctx, null, cancellationToken);
 		}
 
 		public Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
