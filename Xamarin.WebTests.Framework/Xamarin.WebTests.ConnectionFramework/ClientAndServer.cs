@@ -1,4 +1,4 @@
-﻿﻿﻿﻿//
+﻿﻿﻿﻿﻿//
 // ClientAndServer.cs
 //
 // Author:
@@ -164,6 +164,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected abstract Task StartClient (TestContext ctx, CancellationToken cancellationToken);
 
 		protected abstract Task StartServer (TestContext ctx, CancellationToken cancellationToken);
+
+		protected abstract Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken);
+
+		protected abstract Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken);
 
 		protected virtual Task WaitForServerConnection (TestContext ctx, CancellationToken cancellationToken)
 		{

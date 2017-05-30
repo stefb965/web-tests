@@ -184,16 +184,6 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		protected override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Client.Start (ctx, null, cancellationToken);
-		}
-
-		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Server.Start (ctx, null, cancellationToken);
-		}
-
 		protected override async Task OnRun (TestContext ctx, CancellationToken cancellationToken)
 		{
 			await base.OnRun (ctx, cancellationToken);

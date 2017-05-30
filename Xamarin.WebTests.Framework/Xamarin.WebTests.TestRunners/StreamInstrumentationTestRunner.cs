@@ -255,6 +255,16 @@ namespace Xamarin.WebTests.TestRunners
 			return Server.Start (ctx, null, cancellationToken);
 		}
 
+		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Shutdown (ctx, cancellationToken);
+		}
+
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Shutdown (ctx, cancellationToken);
+		}
+
 		public Task<bool> ClientShutdown (TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
 		{
 			if (!HasFlag (InstrumentationFlags.ClientShutdown))

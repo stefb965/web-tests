@@ -189,6 +189,26 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		protected sealed override Task StartClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Start (ctx, null, cancellationToken);
+		}
+
+		protected sealed override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Shutdown (ctx, cancellationToken);
+		}
+
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Shutdown (ctx, cancellationToken);
+		}
+
 		protected override void InitializeConnection (TestContext ctx)
 		{
 			ConnectionHandler.InitializeConnection (ctx);
