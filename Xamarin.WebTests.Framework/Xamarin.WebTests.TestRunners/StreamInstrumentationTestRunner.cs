@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadAfterShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -387,7 +387,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await ctx.AssertException (handshake, constraint, "client handshake").ConfigureAwait (false);
 
-			Server.Close ();
+			Server.Dispose ();
 
 			return true;
 

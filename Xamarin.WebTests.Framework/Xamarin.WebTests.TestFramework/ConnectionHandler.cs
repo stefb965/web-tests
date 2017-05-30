@@ -344,15 +344,6 @@ namespace Xamarin.WebTests.TestFramework
 			LogDebug (ctx, 3, "HandleServerWithManualClient done", line);
 		}
 
-		protected virtual void OnShutdown (TestContext ctx)
-		{
-		}
-
-		public void Shutdown (TestContext ctx)
-		{
-			OnShutdown (ctx);
-		}
-
 		public const string TheQuickBrownFox = "The quick brown fox jumps over the lazy dog";
 		public static readonly byte[] TheQuickBrownFoxBuffer = new byte[] {
 			0x54, 0x68, 0x65, 0x20, 0x71, 0x75, 0x69, 0x63, 0x6b, 0x20, 0x62, 0x72, 0x6f, 0x77, 0x6e, 0x20,

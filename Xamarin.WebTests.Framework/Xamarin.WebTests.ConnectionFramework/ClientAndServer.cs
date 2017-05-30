@@ -217,7 +217,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			server.Dispose ();
 		}
 
-		public virtual async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
+		public async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
 				throw new InternalErrorException ();
