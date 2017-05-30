@@ -229,6 +229,12 @@ namespace Xamarin.WebTests.TestRunners
 			return flags.Any (f => HasFlag (f));
 		}
 
+		void LogDebug (TestContext ctx, int level, string message, params object[] args)
+		{
+			var formatted = string.Format (message, args);
+			ctx.LogDebug (level, string.Format ("StreamInstrumentationTestRunner({0}): {1}", EffectiveType, formatted));
+		}
+
 		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
@@ -284,7 +290,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
-			ctx.LogDebug (4, "SslStreamTestRunner.CreateClientStream()");
+			LogDebug (ctx, 4, "CreateClientStream()");
 
 			if (!HasFlag (InstrumentationFlags.ClientStream))
 				return instrumentation;
@@ -303,7 +309,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (EffectiveType) {
 				case StreamInstrumentationType.ClientHandshake:
-					ctx.LogMessage ("CLIENT HANDSHAKE!");
+					LogDebug (ctx, 4, "CreateClientStream(): client handshake");
 					break;
 				case StreamInstrumentationType.ReadDuringClientAuth:
 					await ctx.AssertException<InvalidOperationException> (ReadClient).ConfigureAwait (false);
@@ -336,7 +342,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
-			ctx.LogDebug (4, "SslStreamTestRunner.CreateServerStream()");
+			LogDebug (ctx, 4, "CreateServerStream()");
 
 			return instrumentation;
 		}
@@ -350,8 +356,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			clientInstrumentation.OnNextRead (ReadHandler);
 
-			ctx.LogMessage ("CLIENT HANDSHAKE!");
-
+			LogDebug (ctx, 4, "ClientHandshake()");
+				  
 			Constraint constraint;
 			if (EffectiveType == StreamInstrumentationType.InvalidDataDuringClientAuth)
 				constraint = Is.InstanceOf<AuthenticationException> ();
@@ -374,7 +380,7 @@ namespace Xamarin.WebTests.TestRunners
 
 				switch (EffectiveType) {
 				case StreamInstrumentationType.ClientHandshake:
-					ctx.LogMessage ("CLIENT HANDSHAKE!");
+					LogDebug (ctx, 4, "ClientHandshake(): client handshake");
 					break;
 				case StreamInstrumentationType.CloseBeforeClientAuth:
 					return 0;
@@ -408,7 +414,7 @@ namespace Xamarin.WebTests.TestRunners
 			if (!HasAnyFlag (InstrumentationFlags.ServerHandshakeFails))
 				return false;
 
-			ctx.LogMessage ("EXPECTING SERVER HANDSHAKE TO FAIL");
+			LogDebug (ctx, 4, "ServerHandshake() - expecting failure");
 
 			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
 
@@ -417,6 +423,28 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
+		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
+
+			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
+				return ctx.Assert (
+					() => func (buffer, offset, count, cancellationToken),
+					Is.EqualTo (0), "inner read returns zero");
+			});
+
+			var outerCts = new CancellationTokenSource (5000);
+
+			var readBuffer = new byte[256];
+			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
+
+			await Server.Shutdown (ctx, false, CancellationToken.None);
+
+			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
+			return true;
+		}
+
+		// FIXME: broken
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
@@ -458,6 +486,7 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
+		// FIXME: broken
 		async Task<bool> Instrumentation_ShortReadAndClose (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
@@ -508,27 +537,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
-		{
-			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
-
-			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
-				return ctx.Assert (
-					() => func (buffer, offset, count, cancellationToken),
-					Is.EqualTo (0), "inner read returns zero");
-			});
-
-			var outerCts = new CancellationTokenSource (5000);
-
-			var readBuffer = new byte[256];
-			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
-
-			await Server.Shutdown (ctx, false, CancellationToken.None);
-
-			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
-			return true;
-		}
-
+		// FIXME: broken
 		async Task<bool> Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
 			if (connection.ConnectionType != ConnectionType.Client)
@@ -548,6 +557,7 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
+		// FIXME: broken
 		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
 		{
 			instrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
@@ -562,6 +572,7 @@ namespace Xamarin.WebTests.TestRunners
 			});
 		}
 
+		// FIXME: broken
 		Task Instrumentation_Dispose (TestContext ctx, Func<Task> shutdown)
 		{
 			ctx.LogMessage ("CALLING CLOSE!");
