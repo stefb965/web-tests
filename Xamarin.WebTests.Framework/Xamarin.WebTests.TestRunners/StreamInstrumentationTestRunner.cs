@@ -387,7 +387,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await ctx.AssertException (handshake, constraint, "client handshake").ConfigureAwait (false);
 
-			Server.Abort ();
+			Server.Close ();
 
 			return true;
 
@@ -439,7 +439,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
 
-			Client.Abort ();
+			Client.Close ();
 
 			return true;
 		}
@@ -459,9 +459,7 @@ namespace Xamarin.WebTests.TestRunners
 			var readBuffer = new byte[256];
 			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
 
-			// FIXME
-			// await Server.Shutdown (ctx, CancellationToken.None);
-			Server.Abort ();
+			Server.Close ();
 
 			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 			return true;
@@ -633,7 +631,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			await Server.Stream.WriteAsync (writeBuffer, 0, writeBuffer.Length);
 
-			Server.Abort ();
+			Server.Close ();
 
 			ctx.LogMessage ("ABORTED SERVER!");
 

@@ -54,7 +54,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		IConnectionInstrumentation instrumentation;
 		TaskCompletionSource<SslStream> tcs;
 		int shutdown;
-		int aborted;
+		int closed;
 
 		SslStream sslStream;
 
@@ -180,10 +180,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
-				return;
+			if (closed != 0)
+				throw new ObjectDisposedException ("DotNetConnection");
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
-				return;
+				throw new ObjectDisposedException ("DotNetConnection");
 
 			if (instrumentation != null) {
 				Task<bool> task;
@@ -201,62 +201,48 @@ namespace Xamarin.WebTests.ConnectionFramework
 			{
 				if (SupportsCleanShutdown)
 					await sslStream.ShutdownAsync ().ConfigureAwait (false);
-
-				ctx.LogDebug (5, "Shutting down socket.");
-				(IsServer ? accepted : socket).Shutdown (SocketShutdown.Send);
 			}
 		}
 
-		public override void Abort ()
+		public override void Close ()
 		{
-			if (Interlocked.CompareExchange (ref aborted, 1, 0) != 0)
+			if (Interlocked.CompareExchange (ref closed, 1, 0) != 0)
 				return;
-			if (innerStream != null) {
-				innerStream.Dispose ();
-			}
-		}
-
-		protected override void Stop ()
-		{
-			shutdown = 1;
 
 			try {
-				if (sslStream != null) {
-					sslStream.Dispose ();
-					sslStream = null;
-				}
+				if (innerStream != null)
+					innerStream.Dispose ();
 			} catch {
 				;
+			} finally {
+				innerStream = null;
 			}
-			if (accepted != null) {
-				try {
-					accepted.Shutdown (SocketShutdown.Both);
-				} catch {
-					;
-				}
-				try {
-					accepted.Dispose ();
-				} catch {
-					;
-				}
-				accepted = null;
+
+			var innerSocket = IsServer ? accepted : socket;
+			try {
+				if (innerSocket != null)
+					innerSocket.Shutdown (SocketShutdown.Both);
+			} catch {
+				;
+			} finally {
+				accepted = socket = null;
 			}
-			if (socket != null) {
-				try {
-					socket.Shutdown (SocketShutdown.Both);
-				} catch {
-					;
-				}
-				try {
-					socket.Dispose ();
-				} catch {
-					;
-				}
-				socket = null;
-			}
-//			instrumentation = null;
 		}
 
+		protected override void Destroy ()
+		{
+			try {
+				if (sslStream != null)
+					sslStream.Dispose ();
+			} catch {
+				;
+			} finally {
+				sslStream = null;
+			}
+			accepted = null;
+			socket = null;
+			instrumentation = null;
+		}
 	}
 }
 

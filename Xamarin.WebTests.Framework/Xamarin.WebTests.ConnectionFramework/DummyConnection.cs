@@ -55,11 +55,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return FinishedTask;
 		}
 
-		public override void Abort ()
+		public override void Close ()
 		{
+			;
 		}
 
-		protected override void Stop ()
+		protected override void Destroy ()
 		{
 			;
 		}

@@ -69,26 +69,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return Task.FromResult<object> (null); }
 		}
 
-		protected Task Initialize (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Start (ctx, null, cancellationToken);
-		}
-
-		protected Task PreRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return FinishedTask;
-		}
-
-		protected Task PostRun (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return FinishedTask;
-		}
-
-		protected Task Destroy (TestContext ctx, CancellationToken cancellationToken)
-		{
-			return Task.Run (() => Close ());
-		}
-
 		[StackTraceEntryPoint]
 		public abstract Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken);
 
@@ -98,17 +78,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 		[StackTraceEntryPoint]
 		public abstract Task Shutdown (TestContext ctx, CancellationToken cancellationToken);
 
-		public abstract void Abort ();
-
 		[StackTraceEntryPoint]
-		public void Close ()
-		{
-			if (Interlocked.CompareExchange (ref stopped, 1, 0) != 0)
-				return;
-			Stop ();
-		}
+		public abstract void Close ();
 
-		protected abstract void Stop ();
+		protected abstract void Destroy ();
+
+		int disposed;
 
 		public void Dispose ()
 		{
@@ -116,17 +91,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 			GC.SuppressFinalize (this);
 		}
 
-		int disposed;
-		int stopped;
-
 		protected virtual void Dispose (bool disposing)
 		{
 			if (Interlocked.CompareExchange (ref disposed, 1, 0) != 0)
 				return;
-			Close ();
+			Destroy ();
 		}
-
-
 	}
 }
 
