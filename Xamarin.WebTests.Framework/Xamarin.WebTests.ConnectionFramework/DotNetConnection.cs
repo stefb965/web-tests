@@ -220,7 +220,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (!provider.SupportsCleanShutdown)
 				throw new NotSupportedException ("Clean shutdown not supported yet.");
 
-			await provider.ShutdownAsync (sslStream).ConfigureAwait (false);
+			await sslStream.ShutdownAsync ().ConfigureAwait (false);
 		}
 
 		public sealed override async Task Shutdown (TestContext ctx, bool attemptCleanShutdown, CancellationToken cancellationToken)

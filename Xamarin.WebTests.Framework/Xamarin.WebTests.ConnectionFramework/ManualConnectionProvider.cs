@@ -56,11 +56,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override ProtocolVersions SupportedProtocols {
 			get { return ProtocolVersions.Tls10 | ProtocolVersions.Tls11 | ProtocolVersions.Tls12; }
 		}
-
-		public override Task ShutdownAsync (SslStream stream)
-		{
-			throw new NotSupportedException ();
-		}
 	}
 }
 

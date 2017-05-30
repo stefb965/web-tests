@@ -111,8 +111,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			return new X509Certificate2 (data);
 		}
-
-		public abstract Task ShutdownAsync (SslStream stream);
 	}
 }
 

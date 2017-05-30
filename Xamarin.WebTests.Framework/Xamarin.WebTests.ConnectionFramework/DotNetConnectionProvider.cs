@@ -60,7 +60,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 			var flags = ConnectionProviderFlags.SupportsSslStream | ConnectionProviderFlags.SupportsHttp;
 			if (IsMicrosoftRuntime || SupportsTls12)
-				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers | ConnectionProviderFlags.SupportsEcDheCiphers;
+				flags |= ConnectionProviderFlags.SupportsTls12 | ConnectionProviderFlags.SupportsAeadCiphers |
+					ConnectionProviderFlags.SupportsEcDheCiphers | ConnectionProviderFlags.SupportsCleanShutdown;
 			return flags;
 		}
 
@@ -81,11 +82,6 @@ namespace Xamarin.WebTests.ConnectionFramework
 		protected override ISslStreamProvider GetSslStreamProvider ()
 		{
 			return sslStreamProvider;
-		}
-
-		public override Task ShutdownAsync (SslStream stream)
-		{
-			throw new NotSupportedException ();
 		}
 	}
 }
