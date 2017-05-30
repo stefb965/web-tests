@@ -226,8 +226,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (Interlocked.CompareExchange (ref shutdownCalled, 1, 0) != 0)
 				throw new InternalErrorException ();
 
-			var clientShutdown = client.SupportsCleanShutdown ? client.Shutdown (ctx, cancellationToken) : FinishedTask;
-			var serverShutdown = server.SupportsCleanShutdown ? server.Shutdown (ctx, cancellationToken) : FinishedTask;
+			var clientShutdown = client.SupportsCleanShutdown ? ClientShutdown (ctx, cancellationToken) : FinishedTask;
+			var serverShutdown = server.SupportsCleanShutdown ? ServerShutdown (ctx, cancellationToken) : FinishedTask;
 			await Task.WhenAll (clientShutdown, serverShutdown);
 		}
 

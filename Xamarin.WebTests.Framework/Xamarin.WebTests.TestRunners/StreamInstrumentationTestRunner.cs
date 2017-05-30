@@ -272,16 +272,16 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case StreamInstrumentationType.ShortReadAndClose:
-				return Instrumentation_ShortReadAndClose (ctx, shutdown, connection);
+				return Instrumentation_ShortReadAndClose (ctx);
 			case StreamInstrumentationType.CleanShutdown:
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
-				return Instrumentation_CleanClientShutdown (ctx, shutdown, connection, cancellationToken);
+				return Instrumentation_CleanClientShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
+				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, cancellationToken);
 			case StreamInstrumentationType.ReadTimeout:
-				return Instrumentation_ReadTimeout (ctx, shutdown, connection);
+				return Instrumentation_ReadTimeout (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -447,13 +447,11 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
-		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, Func<Task> shutdown, Connection connection)
+		async Task<bool> Instrumentation_RemoteClosesConnectionDuringRead (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
-
-			clientInstrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
+			clientInstrumentation.OnNextRead ((buffer, offset, count, func, innerCancellationToken) => {
 				return ctx.Assert (
-					() => func (buffer, offset, count, cancellationToken),
+					() => func (buffer, offset, count, innerCancellationToken),
 					Is.EqualTo (0), "inner read returns zero");
 			});
 
@@ -501,8 +499,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task<bool> Instrumentation_CleanClientShutdown (
-			TestContext ctx, Func<Task> shutdown, Connection connection, CancellationToken cancellationToken)
+		async Task<bool> Instrumentation_CleanClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = "Instrumentation_CleanClientShutdown";
 			LogDebug (ctx, 4, me);
@@ -513,7 +510,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await shutdown ().ConfigureAwait (false);
+				await Client.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
 				LogDebug (ctx, 4, "{0} - done", me);
 			} catch (OperationCanceledException) {
 				LogDebug (ctx, 4, "{0} - canceled");
@@ -550,7 +547,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Task DoubleShutdown ()
 			{
-				return ctx.AssertException<InvalidOperationException> (shutdown, "double shutdown");
+				return ctx.AssertException<InvalidOperationException> (() => Client.Shutdown (ctx, cancellationToken), "double shutdown");
 			}
 
 			Task WriteAfterShutdown ()
@@ -579,16 +576,13 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		// FIXME: broken
-		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
+		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (connection.ConnectionType != ConnectionType.Client)
-				throw ctx.AssertFail ("Client only.");
-
 			var tcs = new TaskCompletionSource<bool> ();
 
 			ctx.LogMessage ("TEST!");
 
-			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, cancellationToken) => {
+			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, innerCancellationToken) => {
 				ctx.LogMessage ("ON READ WITH TIMEOUT!");
 				var result = await tcs.Task;
 				ctx.LogMessage ("ON READ #1: {0}", result);
@@ -621,10 +615,8 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		// FIXME: broken
-		async Task<bool> Instrumentation_ShortReadAndClose (TestContext ctx, Func<Task> shutdown, Connection connection)
+		async Task<bool> Instrumentation_ShortReadAndClose (TestContext ctx)
 		{
-			ctx.Assert (connection.ConnectionType, Is.EqualTo (ConnectionType.Client));
-
 			bool readDone = false;
 
 			clientInstrumentation.OnNextRead (ReadHandler);

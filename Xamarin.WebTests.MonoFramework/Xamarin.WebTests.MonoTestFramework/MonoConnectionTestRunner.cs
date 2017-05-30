@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // MonoConnectionTestRunner.cs
 //
 // Author:
@@ -113,6 +113,16 @@ namespace Xamarin.WebTests.MonoTestFramework
 		protected override Task StartServer (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return Server.Start (ctx, null, cancellationToken);
+		}
+
+		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Client.Shutdown (ctx, cancellationToken);
+		}
+
+		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
+		{
+			return Server.Shutdown (ctx, cancellationToken);
 		}
 
 		protected override void InitializeConnection (TestContext ctx)
