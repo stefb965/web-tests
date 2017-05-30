@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadAndClose;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.DisposeDuringClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -102,6 +102,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.DoubleShutdown;
 				yield return StreamInstrumentationType.WriteAfterShutdown;
 				yield return StreamInstrumentationType.ReadAfterShutdown;
+				yield return StreamInstrumentationType.ShortReadAndClose;
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
@@ -206,6 +207,7 @@ namespace Xamarin.WebTests.TestRunners
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientStream;
 			case StreamInstrumentationType.CloseBeforeClientAuth:
 			case StreamInstrumentationType.CloseDuringClientAuth:
+			case StreamInstrumentationType.DisposeDuringClientAuth:
 			case StreamInstrumentationType.InvalidDataDuringClientAuth:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ServerInstrumentation |
 					InstrumentationFlags.ClientHandshake | InstrumentationFlags.SkipMainLoop |
@@ -386,6 +388,8 @@ namespace Xamarin.WebTests.TestRunners
 			Constraint constraint;
 			if (EffectiveType == StreamInstrumentationType.InvalidDataDuringClientAuth)
 				constraint = Is.InstanceOf<AuthenticationException> ();
+			else if (EffectiveType == StreamInstrumentationType.DisposeDuringClientAuth)
+				constraint = Is.InstanceOf<ObjectDisposedException> ().Or.InstanceOfType<IOException> ();
 			else
 				constraint = Is.InstanceOf<IOException> ();
 
@@ -416,6 +420,9 @@ namespace Xamarin.WebTests.TestRunners
 					break;
 				case StreamInstrumentationType.InvalidDataDuringClientAuth:
 					clientInstrumentation.OnNextRead (ReadHandler);
+					break;
+				case StreamInstrumentationType.DisposeDuringClientAuth:
+					Client.SslStream.Dispose ();
 					break;
 				default:
 					throw ctx.AssertFail (EffectiveType);

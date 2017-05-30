@@ -32,9 +32,11 @@ namespace Xamarin.WebTests.TestFramework
 		ReadDuringClientAuth,
 		CloseBeforeClientAuth,
 		CloseDuringClientAuth,
+		DisposeDuringClientAuth,
 		InvalidDataDuringClientAuth,
 		ShortReadDuringClientAuth,
 		ShortReadAndClose,
+		RemoteClosesConnectionDuringRead,
 
 		CleanShutdown,
 		DoubleShutdown,
@@ -42,7 +44,6 @@ namespace Xamarin.WebTests.TestFramework
 		ReadAfterShutdown,
 
 		ReadTimeout,
-		RemoteClosesConnectionDuringRead,
 
 		MartinTest
 	}
