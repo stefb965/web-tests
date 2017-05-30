@@ -55,6 +55,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 		TaskCompletionSource<SslStream> tcs;
 		int shutdown;
 		int closed;
+		int destroyed;
 
 		SslStream sslStream;
 
@@ -180,7 +181,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (closed != 0)
+			if (closed != 0 || destroyed != 0)
 				throw new ObjectDisposedException ("DotNetConnection");
 			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
 				throw new ObjectDisposedException ("DotNetConnection");
@@ -192,6 +193,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		public override void Close ()
 		{
 			if (Interlocked.CompareExchange (ref closed, 1, 0) != 0)
+				return;
+			if (destroyed != 0)
 				return;
 
 			try {
@@ -216,6 +219,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected override void Destroy ()
 		{
+			if (Interlocked.CompareExchange (ref destroyed, 1, 0) != 0)
+				return;
+
 			try {
 				if (sslStream != null)
 					sslStream.Dispose ();

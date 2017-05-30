@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -191,6 +191,8 @@ namespace Xamarin.WebTests.TestRunners
 			ClientHandshakeFails = 512,
 			SkipMainLoop = 1024,
 
+			HandshakeFails = ClientHandshakeFails | ServerHandshakeFails,
+
 			NeedClientInstrumentation = ClientInstrumentation | ClientStream | ClientShutdown,
 			NeedServerInstrumentation = ServerInstrumentation | ServerStream | ServerShutdown
 		}
@@ -213,7 +215,7 @@ namespace Xamarin.WebTests.TestRunners
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
-				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
+				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.CleanShutdown:
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
@@ -257,8 +259,11 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task ClientShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!HasFlag (InstrumentationFlags.ClientShutdown))
-				return Client.SslStream.ShutdownAsync ();
+			if (!HasAnyFlag (InstrumentationFlags.ClientShutdown)) {
+				if (HasAnyFlag (InstrumentationFlags.HandshakeFails))
+					return FinishedTask;
+				return Client.Shutdown (ctx, cancellationToken);
+			}
 
 			switch (EffectiveType) {
 			case StreamInstrumentationType.ShortReadAndClose:
@@ -279,8 +284,11 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override Task ServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (!HasAnyFlag (InstrumentationFlags.ServerShutdown))
-				return Server.SslStream.ShutdownAsync ();
+			if (!HasAnyFlag (InstrumentationFlags.ServerShutdown)) {
+				if (HasAnyFlag (InstrumentationFlags.HandshakeFails))
+					return FinishedTask;
+				return Server.Shutdown (ctx, cancellationToken);
+			}
 
 			LogDebug (ctx, 4, "ServerShutdown()");
 
@@ -290,6 +298,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
 				return Instrumentation_CleanServerShutdown (ctx, cancellationToken);
+			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
+				return FinishedTask;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -498,7 +508,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await Client.SslStream.ShutdownAsync ().ConfigureAwait (false);
+				await Client.Shutdown (ctx, cancellationToken).ConfigureAwait (false);
 				LogDebug (ctx, 4, "{0} - done", me);
 			} catch (OperationCanceledException) {
 				LogDebug (ctx, 4, "{0} - canceled");
@@ -535,6 +545,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			Task DoubleShutdown ()
 			{
+				// Don't use Client.Shutdown() as that might throw a different exception.
 				return ctx.AssertException<InvalidOperationException> (Client.SslStream.ShutdownAsync, "double shutdown");
 			}
 
