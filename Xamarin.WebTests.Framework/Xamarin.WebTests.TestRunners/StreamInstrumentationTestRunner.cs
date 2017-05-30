@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadAfterCleanShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.WriteAfterShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -219,7 +219,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
 			case StreamInstrumentationType.CleanShutdown:
-			case StreamInstrumentationType.ReadAfterCleanShutdown:
+			case StreamInstrumentationType.DoubleShutdown:
+			case StreamInstrumentationType.WriteAfterShutdown:
+			case StreamInstrumentationType.ReadAfterShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			default:
 				throw new InternalErrorException ();
@@ -268,7 +270,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ShortReadAndClose:
 				return Instrumentation_ShortReadAndClose (ctx, shutdown, connection);
 			case StreamInstrumentationType.CleanShutdown:
-			case StreamInstrumentationType.ReadAfterCleanShutdown:
+			case StreamInstrumentationType.DoubleShutdown:
+			case StreamInstrumentationType.WriteAfterShutdown:
+			case StreamInstrumentationType.ReadAfterShutdown:
 				return Instrumentation_CleanClientShutdown (ctx, shutdown, connection, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, shutdown, connection);
@@ -288,7 +292,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case StreamInstrumentationType.CleanShutdown:
-			case StreamInstrumentationType.ReadAfterCleanShutdown:
+			case StreamInstrumentationType.DoubleShutdown:
+			case StreamInstrumentationType.WriteAfterShutdown:
+			case StreamInstrumentationType.ReadAfterShutdown:
 				return Instrumentation_CleanServerShutdown (ctx, shutdown, connection, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
@@ -466,19 +472,29 @@ namespace Xamarin.WebTests.TestRunners
 			var me = "Instrumentation_CleanServerShutdown";
 			LogDebug (ctx, 4, me);
 
-			if (EffectiveType == StreamInstrumentationType.CleanShutdown)
+			switch (EffectiveType) {
+			case StreamInstrumentationType.CleanShutdown:
+			case StreamInstrumentationType.WriteAfterShutdown:
+			case StreamInstrumentationType.DoubleShutdown:
 				return true;
+			case StreamInstrumentationType.ReadAfterShutdown:
+				await ReadAfterShutdown ().ConfigureAwait (false);
+				return true;
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
 
-			cancellationToken.ThrowIfCancellationRequested ();
-			var ok = await cleanClientShutdownTcs.Task.ConfigureAwait (false);
-			LogDebug (ctx, 4, "{0} - client finished {1}", me, ok);
+			async Task ReadAfterShutdown ()
+			{
+				cancellationToken.ThrowIfCancellationRequested ();
+				var ok = await cleanClientShutdownTcs.Task.ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - client finished {1}", me, ok);
 
-			cancellationToken.ThrowIfCancellationRequested ();
+				cancellationToken.ThrowIfCancellationRequested ();
 
-			await ConnectionHandler.WriteBlob (ctx, Server, cancellationToken).ConfigureAwait (false);
-			LogDebug (ctx, 4, "{0} - write done", me);
-
-			return true;
+				await ConnectionHandler.WriteBlob (ctx, Server, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - write done", me);
+			}
 		}
 
 		async Task<bool> Instrumentation_CleanClientShutdown (
@@ -508,12 +524,39 @@ namespace Xamarin.WebTests.TestRunners
 			var ok = ctx.Expect (bytesWritten, Is.GreaterThan (0), "{0} - bytes written", me);
 			cleanClientShutdownTcs.TrySetResult (ok);
 
-			LogDebug (ctx, 4, "{0} reading", me);
-
 			cancellationToken.ThrowIfCancellationRequested ();
-			await ConnectionHandler.ExpectBlob (ctx, Client, cancellationToken).ConfigureAwait (false);
 
-			return true;
+			switch (EffectiveType) {
+			case StreamInstrumentationType.CleanShutdown:
+				return true;
+			case StreamInstrumentationType.DoubleShutdown:
+				await DoubleShutdown ();
+				return true;
+			case StreamInstrumentationType.WriteAfterShutdown:
+				await WriteAfterShutdown ();
+				return true;
+			case StreamInstrumentationType.ReadAfterShutdown:
+				await ReadAfterShutdown ();
+				return true;
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
+
+			Task DoubleShutdown ()
+			{
+				return ctx.AssertException<InvalidOperationException> (shutdown, "double shutdown");
+			}
+
+			Task WriteAfterShutdown ()
+			{
+				return ctx.AssertException<InvalidOperationException> (() => ConnectionHandler.WriteBlob (ctx, Client, cancellationToken));
+			}
+
+			async Task ReadAfterShutdown ()
+			{
+				LogDebug (ctx, 4, "{0} reading", me);
+				await ConnectionHandler.ExpectBlob (ctx, Client, cancellationToken).ConfigureAwait (false);
+			}
 
 			async Task WriteHandler (byte[] buffer, int offset, int size,
 			                         StreamInstrumentation.AsyncWriteFunc func,
