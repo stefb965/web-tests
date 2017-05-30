@@ -61,6 +61,8 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		internal InstrumentationFlags EffectiveFlags => GetFlags (EffectiveType);
+
 		public StreamInstrumentationTestRunner (IServer server, IClient client, ConnectionTestProvider provider,
 							StreamInstrumentationParameters parameters)
 			: base (server, client, provider, parameters)
@@ -72,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			return new StreamInstrumentationConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ShortReadAndClose;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CleanShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -191,7 +193,10 @@ namespace Xamarin.WebTests.TestRunners
 			ServerShutdown = 128,
 			ServerHandshakeFails = 256,
 			ClientHandshakeFails = 512,
-			SkipMainLoop = 1024
+			SkipMainLoop = 1024,
+
+			NeedClientInstrumentation = ClientInstrumentation | ClientStream | ClientShutdown,
+			NeedServerInstrumentation = ServerInstrumentation | ServerStream | ServerShutdown
 		}
 
 		static InstrumentationFlags GetFlags (StreamInstrumentationType type)
@@ -213,6 +218,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown;
+			case StreamInstrumentationType.CleanShutdown:
+				return InstrumentationFlags.ClientInstrumentation | InstrumentationFlags.ClientShutdown |
+					InstrumentationFlags.ServerShutdown;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -238,7 +246,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartClient (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (HasFlag (InstrumentationFlags.ClientInstrumentation))
+			if ((EffectiveFlags & InstrumentationFlags.NeedClientInstrumentation) != 0)
 				return base.StartClient (ctx, this, cancellationToken);
 			return base.StartClient (ctx, null, cancellationToken);
 		}
@@ -246,7 +254,7 @@ namespace Xamarin.WebTests.TestRunners
 		protected override Task StartServer (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
 			ctx.Assert (instrumentation, Is.Null);
-			if (HasFlag (InstrumentationFlags.ServerInstrumentation))
+			if ((EffectiveFlags & InstrumentationFlags.NeedServerInstrumentation) != 0)
 				return base.StartServer (ctx, this, cancellationToken);
 			return base.StartServer (ctx, null, cancellationToken);
 		}
@@ -276,6 +284,8 @@ namespace Xamarin.WebTests.TestRunners
 				return Task.FromResult (false);
 
 			switch (EffectiveType) {
+			case StreamInstrumentationType.CleanShutdown:
+				return Task.FromResult (true);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -444,6 +454,37 @@ namespace Xamarin.WebTests.TestRunners
 			return true;
 		}
 
+		async Task<bool> Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
+		{
+			LogDebug (ctx, 4, "Instrumentation_CleanShutdown()");
+
+			int bytesWritten = 0;
+
+			clientInstrumentation.OnNextWrite (WriteHandler);
+
+			try {
+				await shutdown ().ConfigureAwait (false);
+				LogDebug (ctx, 4, "Instrumentation_CleanShutdown() - done");
+			} catch (Exception ex) {
+				LogDebug (ctx, 4, "Instrumentation_CleanShutdown() - error", ex);
+				throw;
+			}
+
+			ctx.Assert (bytesWritten, Is.GreaterThan (0), "clean shutdown - bytes written");
+
+			return true;
+
+			async Task WriteHandler (byte[] buffer, int offset, int size,
+			                         StreamInstrumentation.AsyncWriteFunc func,
+						 CancellationToken cancellationToken)
+			{
+				LogDebug (ctx, 4, "Instrumentation_CleanShutdown() - write handler: {0} {1}", offset, size);
+				await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "Instrumentation_CleanShutdown() - write handler done");
+				bytesWritten += size;
+			}
+		}
+
 		// FIXME: broken
 		async Task<bool> Instrumentation_ReadTimeout (TestContext ctx, Func<Task> shutdown, Connection connection)
 		{
@@ -535,26 +576,6 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				return Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, CancellationToken.None);
 			}
-		}
-
-		// FIXME: broken
-		async Task<bool> Instrumentation_CleanShutdown (TestContext ctx, Func<Task> shutdown, Connection connection)
-		{
-			if (connection.ConnectionType != ConnectionType.Client)
-				return false;
-
-			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
-
-			ctx.LogMessage ("CALLING SHUTDOWN!");
-			try {
-				await shutdown ().ConfigureAwait (false);
-				ctx.LogMessage ("SHUTDOWN DONE!");
-			} catch (Exception ex) {
-				ctx.LogMessage ("SHUTDOWN FAILED: {0}", ex);
-				throw;
-			}
-
-			return true;
 		}
 
 		// FIXME: broken

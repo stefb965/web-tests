@@ -141,7 +141,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			SyncWriteFunc originalSyncWrite = syncWrite;
 
 			var action = Interlocked.Exchange (ref writeAction, null);
-			if (action?.AsyncRead != null) {
+			if (action?.AsyncWrite != null) {
 				message += " - action";
 
 				AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
