@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.TestRunners
 			get;
 		}
 
-		public ConnectionTestRunner (IServer server, IClient client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
+		public ConnectionTestRunner (Connection server, Connection client, ConnectionTestProvider provider, ConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;

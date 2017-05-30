@@ -69,9 +69,9 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get { return flags; }
 		}
 
-		public abstract IClient CreateClient (ConnectionParameters parameters);
+		public abstract Connection CreateClient (ConnectionParameters parameters);
 
-		public abstract IServer CreateServer (ConnectionParameters parameters);
+		public abstract Connection CreateServer (ConnectionParameters parameters);
 
 		public bool SupportsSslStreams => (Flags & ConnectionProviderFlags.SupportsSslStream) != 0;
 

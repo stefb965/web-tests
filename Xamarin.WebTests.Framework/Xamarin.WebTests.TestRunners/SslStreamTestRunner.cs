@@ -1,4 +1,4 @@
-﻿//
+﻿﻿﻿//
 // SslStreamTestRunner.cs
 //
 // Author:
@@ -50,7 +50,7 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (SslStreamTestParameters)base.Parameters; }
 		}
 
-		public SslStreamTestRunner (IServer server, IClient client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
+		public SslStreamTestRunner (Connection server, Connection client, ConnectionTestProvider provider, SslStreamTestParameters parameters)
 			: base (server, client, provider, parameters)
 		{
 		}

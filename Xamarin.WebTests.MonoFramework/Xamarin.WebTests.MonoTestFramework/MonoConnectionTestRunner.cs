@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.MonoTestFramework
 			private set;
 		}
 
-		protected MonoConnectionTestRunner (IServer server, IClient client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
+		protected MonoConnectionTestRunner (Connection server, Connection client, MonoConnectionTestProvider provider, MonoConnectionTestParameters parameters)
 			: base (server, client, parameters)
 		{
 			Provider = provider;

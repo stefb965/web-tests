@@ -10,7 +10,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class Connection : AbstractConnection, IConnection, ICommonConnection
+	public abstract class Connection : AbstractConnection, ITestInstance
 	{
 		public ConnectionProvider Provider {
 			get;

@@ -1,4 +1,4 @@
-﻿﻿﻿//
+﻿//
 // StreamInstrumentationTestRunner.cs
 //
 // Author:
@@ -63,7 +63,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		internal InstrumentationFlags EffectiveFlags => GetFlags (EffectiveType);
 
-		public StreamInstrumentationTestRunner (IServer server, IClient client, ConnectionTestProvider provider,
+		public StreamInstrumentationTestRunner (Connection server, Connection client, ConnectionTestProvider provider,
 							StreamInstrumentationParameters parameters)
 			: base (server, client, provider, parameters)
 		{

@@ -1,4 +1,4 @@
-﻿using System;
+﻿﻿﻿using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
@@ -15,7 +15,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DotNetServer : DotNetConnection, IServer
+	public class DotNetServer : DotNetConnection
 	{
 		public override ConnectionType ConnectionType => ConnectionType.Server;
 

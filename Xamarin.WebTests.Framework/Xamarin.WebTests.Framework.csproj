@@ -71,10 +71,6 @@
     <Compile Include="Xamarin.WebTests.HttpFramework\WebExceptionStatus.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionParameters.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ConnectionException.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IConnection.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\ICommonConnection.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IClient.cs" />
-    <Compile Include="Xamarin.WebTests.ConnectionFramework\IServer.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\ILineBasedStream.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\StreamWrapper.cs" />
     <Compile Include="Xamarin.WebTests.ConnectionFramework\Connection.cs" />

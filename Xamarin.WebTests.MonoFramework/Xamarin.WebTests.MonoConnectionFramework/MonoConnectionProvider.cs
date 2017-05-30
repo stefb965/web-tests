@@ -83,7 +83,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 			get { return (ProtocolVersions)tlsProvider.SupportedProtocols; }
 		}
 
-		public override IClient CreateClient (ConnectionParameters parameters)
+		public override Connection CreateClient (ConnectionParameters parameters)
 		{
 			if (SupportsMonoExtensions)
 				return new MonoClient (this, parameters);
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 				return new DotNetClient (this, parameters, this);
 		}
 
-		public override IServer CreateServer (ConnectionParameters parameters)
+		public override Connection CreateServer (ConnectionParameters parameters)
 		{
 			if (SupportsMonoExtensions)
 				return new MonoServer (this, parameters);

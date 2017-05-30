@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // ManualConnectionProvider.cs
 //
 // Author:
@@ -38,12 +38,12 @@ namespace Xamarin.WebTests.ConnectionFramework
 		{
 		}
 
-		public override IClient CreateClient (ConnectionParameters parameters)
+		public override Connection CreateClient (ConnectionParameters parameters)
 		{
 			return new DummyClient (this, parameters);
 		}
 
-		public override IServer CreateServer (ConnectionParameters parameters)
+		public override Connection CreateServer (ConnectionParameters parameters)
 		{
 			return new DummyServer (this, parameters);
 		}

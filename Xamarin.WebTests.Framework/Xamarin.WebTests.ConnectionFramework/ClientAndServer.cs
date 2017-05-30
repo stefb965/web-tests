@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // ClientAndServer.cs
 //
 // Author:
@@ -38,14 +38,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	public abstract class ClientAndServer : AbstractConnection
 	{
-		IServer server;
-		IClient client;
+		Connection server;
+		Connection client;
 
-		public IServer Server {
+		public Connection Server {
 			get { return server; }
 		}
 
-		public IClient Client {
+		public Connection Client {
 			get { return client; }
 		}
 
@@ -66,7 +66,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 			return null;
 		}
 
-		public ClientAndServer (IServer server, IClient client, ConnectionParameters parameters)
+		public ClientAndServer (Connection server, Connection client, ConnectionParameters parameters)
 			: base (server.PortableEndPoint, parameters)
 		{
 			this.server = server;

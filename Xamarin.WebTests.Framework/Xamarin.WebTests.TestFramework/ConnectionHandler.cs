@@ -44,11 +44,11 @@ namespace Xamarin.WebTests.TestFramework
 			private set;
 		}
 
-		protected IClient Client {
+		protected Connection Client {
 			get { return Runner.Client; }
 		}
 
-		protected IServer Server {
+		protected Connection Server {
 			get { return Runner.Server; }
 		}
 
@@ -110,12 +110,12 @@ namespace Xamarin.WebTests.TestFramework
 			ctx.LogDebug (level, formatted);
 		}
 
-		internal Task ExpectBlob (TestContext ctx, ICommonConnection connection, CancellationToken cancellationToken)
+		internal Task ExpectBlob (TestContext ctx, Connection connection, CancellationToken cancellationToken)
 		{
 			return ExpectBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
 		}
 
-		internal async Task ExpectBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal async Task ExpectBlob (TestContext ctx, Connection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -136,12 +136,12 @@ namespace Xamarin.WebTests.TestFramework
 			LogDebug (ctx, 5, "ExpectBlob done", connection, type);
 		}
 
-		internal Task WriteBlob (TestContext ctx, ICommonConnection connection, CancellationToken cancellationToken)
+		internal Task WriteBlob (TestContext ctx, Connection connection, CancellationToken cancellationToken)
 		{
 			return WriteBlob (ctx, connection, TheQuickBrownFox, TheQuickBrownFoxBuffer, cancellationToken);
 		}
 
-		internal async Task WriteBlob (TestContext ctx, ICommonConnection connection, string type, byte[] blob, CancellationToken cancellationToken)
+		internal async Task WriteBlob (TestContext ctx, Connection connection, string type, byte[] blob, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -220,7 +220,7 @@ namespace Xamarin.WebTests.TestFramework
 
 		protected abstract Task HandleServerWrite (TestContext ctx, CancellationToken cancellationToken);
 
-		async Task HandleConnection (TestContext ctx, ICommonConnection connection, Task readTask, Task writeTask, CancellationToken cancellationToken)
+		async Task HandleConnection (TestContext ctx, Connection connection, Task readTask, Task writeTask, CancellationToken cancellationToken)
 		{
 			var t1 = readTask.ContinueWith (t => {
 				LogDebug (ctx, 3, "HandleConnection - read done", connection, t.Status, t.IsFaulted, t.IsCanceled);

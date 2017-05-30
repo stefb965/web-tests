@@ -33,7 +33,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public abstract class DummyConnection : Connection, ICommonConnection
+	public abstract class DummyConnection : Connection
 	{
 		public DummyConnection (ConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters)

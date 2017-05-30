@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // DummyClient.cs
 //
 // Author:
@@ -31,7 +31,7 @@ using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.ConnectionFramework
 {
-	public class DummyClient : DummyConnection, IClient
+	public class DummyClient : DummyConnection
 	{
 		public override ConnectionType ConnectionType => ConnectionType.Client;
 

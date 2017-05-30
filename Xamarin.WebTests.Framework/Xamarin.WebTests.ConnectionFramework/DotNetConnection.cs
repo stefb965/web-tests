@@ -41,7 +41,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 {
 	using ConnectionFramework;
 
-	public abstract class DotNetConnection : Connection, ICommonConnection
+	public abstract class DotNetConnection : Connection
 	{
 		public DotNetConnection (ConnectionProvider provider, ConnectionParameters parameters)
 			: base (provider, parameters)
