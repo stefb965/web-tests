@@ -1,4 +1,4 @@
-﻿//
+﻿﻿//
 // StreamInstrumentationTestRunner.cs
 //
 // Author:
@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadTimeout;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CleanShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -210,7 +210,6 @@ namespace Xamarin.WebTests.TestRunners
 					InstrumentationFlags.ClientHandshakeFails;
 			case StreamInstrumentationType.ShortReadAndClose:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
-			case StreamInstrumentationType.ReadTimeout:
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.CleanShutdown:
@@ -272,8 +271,6 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_CleanClientShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, cancellationToken);
-			case StreamInstrumentationType.ReadTimeout:
-				return Instrumentation_ReadTimeout (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -298,8 +295,6 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
-			case StreamInstrumentationType.ReadTimeout:
-				return ServerShutdown_WaitForClient (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -589,53 +584,6 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			// We just wait until the client is done with stuff.
 			await clientTcs.Task.ConfigureAwait (false);
-		}
-
-		// FIXME: broken
-		async Task Instrumentation_ReadTimeout (TestContext ctx, CancellationToken cancellationToken)
-		{
-			var me = "Instrumentation_ReadTimeout()";
-			var tcs = new TaskCompletionSource<bool> ();
-
-			LogDebug (ctx, 4, me);
-
-			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, innerCancellationToken) => {
-				var innerMe = me + " - OnNextRead()";
-				LogDebug (ctx, 4, innerMe);
-				try {
-					var ret = await func (buffer, offset, count, innerCancellationToken).ConfigureAwait (false);
-					LogDebug (ctx, 4, "{0} done: {1}", innerMe, ret);
-					return ret;
-				} catch (OperationCanceledException) {
-					LogDebug (ctx, 4, "{0} canceled", innerMe);
-					throw;
-				} catch (Exception ex) {
-					LogDebug (ctx, 4, "{0} failed: {1}", innerMe, ex);
-					throw;
-				}
-			});
-
-			var outerCts = new CancellationTokenSource (500);
-
-			var timeoutTask = Task.Delay (2000).ContinueWith (t => {
-				ctx.LogMessage ("TIMEOUT!");
-				tcs.TrySetResult (false);
-				outerCts.Cancel ();
-			});
-
-			var readBuffer = new byte[256];
-			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
-
-			try {
-				var ret = await readTask.ConfigureAwait (false);
-				ctx.LogMessage ("READ TASK DONE: {0}", ret);
-			} catch (Exception ex) {
-				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
-			} finally {
-				tcs.TrySetResult (true);
-				clientTcs.SetResult (false);
-				outerCts.Dispose ();
-			}
 		}
 
 		async Task Instrumentation_ShortReadAndClose (TestContext ctx)
