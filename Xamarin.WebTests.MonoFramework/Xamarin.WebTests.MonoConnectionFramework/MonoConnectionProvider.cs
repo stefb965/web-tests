@@ -69,8 +69,11 @@ namespace Xamarin.WebTests.MonoConnectionFramework
 		{
 			if (tlsProvider.SupportsMonoExtensions) {
 				flags |= ConnectionProviderFlags.SupportsMonoExtensions | ConnectionProviderFlags.SupportsHttpListener;
-				if ((flags & ConnectionProviderFlags.SupportsTls12) != 0)
-					flags |= ConnectionProviderFlags.SupportsCleanShutdown;
+				// Legacy TLS does not support the clean shutdown.
+				if ((flags & ConnectionProviderFlags.SupportsTls12) != 0) {
+					if (DependencyInjector.Get<IConnectionFrameworkSetup> ().SupportsCleanShutdown)
+						flags |= ConnectionProviderFlags.SupportsCleanShutdown;
+				}
 			}
 			return flags;
 		}
