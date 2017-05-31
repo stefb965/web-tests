@@ -298,6 +298,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
+			case StreamInstrumentationType.ReadTimeout:
+				return ServerShutdown_WaitForClient (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -474,7 +476,7 @@ namespace Xamarin.WebTests.TestRunners
 			await ctx.Assert (() => readTask, Is.EqualTo (0), "read returns zero").ConfigureAwait (false);
 		}
 
-		TaskCompletionSource<bool> cleanClientShutdownTcs = new TaskCompletionSource<bool> ();
+		TaskCompletionSource<bool> clientTcs = new TaskCompletionSource<bool> ();
 
 		async Task Instrumentation_CleanServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -496,7 +498,7 @@ namespace Xamarin.WebTests.TestRunners
 			async Task ReadAfterShutdown ()
 			{
 				cancellationToken.ThrowIfCancellationRequested ();
-				var ok = await cleanClientShutdownTcs.Task.ConfigureAwait (false);
+				var ok = await clientTcs.Task.ConfigureAwait (false);
 				LogDebug (ctx, 4, "{0} - client finished {1}", me, ok);
 
 				cancellationToken.ThrowIfCancellationRequested ();
@@ -521,18 +523,18 @@ namespace Xamarin.WebTests.TestRunners
 				LogDebug (ctx, 4, "{0} - done", me);
 			} catch (OperationCanceledException) {
 				LogDebug (ctx, 4, "{0} - canceled");
-				cleanClientShutdownTcs.TrySetCanceled ();
+				clientTcs.TrySetCanceled ();
 				throw;
 			} catch (Exception ex) {
 				LogDebug (ctx, 4, "{0} - error", me, ex);
-				cleanClientShutdownTcs.TrySetException (ex);
+				clientTcs.TrySetException (ex);
 				throw;
 			}
 
 			var ok = ctx.Expect (bytesWritten, Is.GreaterThan (0), "{0} - bytes written", me);
 			ok &= ctx.Expect (Client.SslStream.CanWrite, Is.False, "{0} - SslStream.CanWrite", me);
 
-			cleanClientShutdownTcs.TrySetResult (ok);
+			clientTcs.TrySetResult (ok);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 
@@ -583,28 +585,43 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		async Task ServerShutdown_WaitForClient (TestContext ctx, CancellationToken cancellationToken)
+		{
+			// We just wait until the client is done with stuff.
+			await clientTcs.Task.ConfigureAwait (false);
+		}
+
 		// FIXME: broken
 		async Task Instrumentation_ReadTimeout (TestContext ctx, CancellationToken cancellationToken)
 		{
+			var me = "Instrumentation_ReadTimeout()";
 			var tcs = new TaskCompletionSource<bool> ();
 
-			ctx.LogMessage ("TEST!");
+			LogDebug (ctx, 4, me);
 
 			clientInstrumentation.OnNextRead (async (buffer, offset, count, func, innerCancellationToken) => {
-				ctx.LogMessage ("ON READ WITH TIMEOUT!");
-				var result = await tcs.Task;
-				ctx.LogMessage ("ON READ #1: {0}", result);
-				if (!result)
-					return 0;
-				return -1;
+				var innerMe = me + " - OnNextRead()";
+				LogDebug (ctx, 4, innerMe);
+				try {
+					var ret = await func (buffer, offset, count, innerCancellationToken).ConfigureAwait (false);
+					LogDebug (ctx, 4, "{0} done: {1}", innerMe, ret);
+					return ret;
+				} catch (OperationCanceledException) {
+					LogDebug (ctx, 4, "{0} canceled", innerMe);
+					throw;
+				} catch (Exception ex) {
+					LogDebug (ctx, 4, "{0} failed: {1}", innerMe, ex);
+					throw;
+				}
 			});
 
-			var timeoutTask = Task.Delay (10000).ContinueWith (t => {
+			var outerCts = new CancellationTokenSource (500);
+
+			var timeoutTask = Task.Delay (2000).ContinueWith (t => {
 				ctx.LogMessage ("TIMEOUT!");
 				tcs.TrySetResult (false);
+				outerCts.Cancel ();
 			});
-
-			var outerCts = new CancellationTokenSource (5000);
 
 			var readBuffer = new byte[256];
 			var readTask = Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, outerCts.Token);
@@ -616,6 +633,7 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.LogMessage ("READ TASK FAILED: {0}", ex.Message);
 			} finally {
 				tcs.TrySetResult (true);
+				clientTcs.SetResult (false);
 				outerCts.Dispose ();
 			}
 		}
