@@ -84,18 +84,6 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
 				yield return StreamInstrumentationType.CloseBeforeClientAuth;
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
-				yield return StreamInstrumentationType.InvalidDataDuringClientAuth;
-				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
-				yield break;
-
-			case ConnectionTestCategory.SslStreamInstrumentationMono:
-				yield break;
-
-			case ConnectionTestCategory.SslStreamInstrumentationWorking:
-				yield return StreamInstrumentationType.ClientHandshake;
-				yield return StreamInstrumentationType.ReadDuringClientAuth;
-				yield return StreamInstrumentationType.CloseBeforeClientAuth;
-				yield return StreamInstrumentationType.CloseDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield return StreamInstrumentationType.CleanShutdown;
@@ -103,6 +91,12 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.WriteAfterShutdown;
 				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield return StreamInstrumentationType.ShortReadAndClose;
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
+				yield break;
+
+			case ConnectionTestCategory.SslStreamInstrumentationMono:
 				yield break;
 
 			case ConnectionTestCategory.MartinTest:
@@ -448,7 +442,13 @@ namespace Xamarin.WebTests.TestRunners
 
 			LogDebug (ctx, 4, "ServerHandshake() - expecting failure");
 
-			await ctx.AssertException<ObjectDisposedException> (handshake, "server handshake").ConfigureAwait (false);
+			Constraint constraint;
+			if (EffectiveType == StreamInstrumentationType.DisposeDuringClientAuth)
+				constraint = Is.InstanceOf<ObjectDisposedException> ().Or.InstanceOfType<IOException> ();
+			else
+				constraint = Is.InstanceOf<ObjectDisposedException> ();
+
+			await ctx.AssertException (handshake, constraint, "server handshake").ConfigureAwait (false);
 
 			Client.Close ();
 
