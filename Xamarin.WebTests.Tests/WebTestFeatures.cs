@@ -84,6 +84,7 @@ namespace Xamarin.WebTests
 				yield return DotNetAttribute.Instance;
 				yield return NetworkAttribute.Instance;
 				yield return Tls12Attribute.Instance;
+				yield return CleanShutdownAttribute.Instance;
 			}
 		}
 
