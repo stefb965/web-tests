@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.DisposeDuringClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ReadTimeout;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -84,6 +84,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.ReadDuringClientAuth;
 				yield return StreamInstrumentationType.CloseBeforeClientAuth;
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
+				yield return StreamInstrumentationType.DisposeDuringClientAuth;
 				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
 				yield return StreamInstrumentationType.CleanShutdown;
@@ -668,66 +669,6 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				return Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, CancellationToken.None);
 			}
-		}
-
-		// FIXME: broken
-		void Instrumentation_DisposeBeforeClientAuth (TestContext ctx, StreamInstrumentation instrumentation)
-		{
-			instrumentation.OnNextRead ((buffer, offset, count, func, cancellationToken) => {
-				ctx.Assert (Client.Stream, Is.Not.Null);
-				ctx.Assert (Client.SslStream, Is.Not.Null);
-				ctx.Assert (Client.SslStream.IsAuthenticated, Is.False);
-
-				ctx.LogMessage ("CALLING DISPOSE!");
-				Client.SslStream.Dispose ();
-				ctx.LogMessage ("CALLING DISPOSE DONE!");
-				return func (buffer, offset, count, cancellationToken);
-			});
-		}
-
-		// FIXME: broken
-		Task Instrumentation_Dispose (TestContext ctx, Func<Task> shutdown)
-		{
-			ctx.LogMessage ("CALLING CLOSE!");
-			var portable = DependencyInjector.Get<IPortableSupport> ();
-			portable.Close (Client.SslStream);
-			ctx.LogMessage ("DONE CALLING CLOSE!");
-			return FinishedTask;
-		}
-
-		async Task Instrumentation_MartinTest (TestContext ctx, Func<Task> shutdown)
-		{
-			ctx.LogMessage ("DISPOSE INSTRUMENTATION!");
-
-			var buffer = new byte[4096];
-			var readTask = Server.Stream.ReadAsync (buffer, 0, buffer.Length);
-			var readTask2 = readTask.ContinueWith (async t => {
-				;
-				ctx.LogMessage ("READ TASK: {0} {1}", t.Status, t.Id);
-
-				await Task.Yield ();
-				ctx.LogMessage ("READ TASK #1");
-				await Task.Delay (5000);
-				ctx.LogMessage ("READ TASK #2");
-
-				var ret = await Server.Stream.ReadAsync (buffer, 0, buffer.Length);
-				ctx.LogMessage ("READ TASK #1: {0}", ret);
-			});
-
-			ctx.LogMessage ("CALLING SHUTDOWN!");
-			try {
-				await shutdown ().ConfigureAwait (false);
-				ctx.LogMessage ("SHUTDOWN DONE!");
-			} catch (Exception ex) {
-				ctx.LogMessage ("SHUTDOWN FAILED: {0}", ex);
-				throw;
-			}
-
-			await Task.Yield ();
-			ctx.LogMessage ("SHUTDOWN TASK #1");
-
-			await readTask.ConfigureAwait (false);
-			ctx.LogMessage ("SHUTDOWN COMPLETE!");
 		}
 	}
 }
