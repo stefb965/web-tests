@@ -134,6 +134,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
+		StreamInstrumentation secondClientInstrumentation;
 
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -221,7 +222,8 @@ namespace Xamarin.WebTests.TestRunners
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ConnectionReuse:
 				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown |
-					InstrumentationFlags.ServerShutdown | InstrumentationFlags.ReuseServerSocket;
+					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerShutdown |
+					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -316,13 +318,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseClientSocket);
 			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
-			var old = Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null);
-			if (old != null) {
-				if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
-					instrumentation = old;
-				else
-					throw new InternalErrorException ();
-			}
+			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
+				throw new InternalErrorException ();
 
 			LogDebug (ctx, 4, "CreateClientStream()");
 
@@ -374,6 +371,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseServerSocket);
 			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
+
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
@@ -454,6 +452,9 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
+			if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
+				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
+
 			if (!HasAnyFlag (InstrumentationFlags.ServerHandshakeFails))
 				return false;
 
@@ -491,6 +492,7 @@ namespace Xamarin.WebTests.TestRunners
 		}
 
 		TaskCompletionSource<bool> clientTcs = new TaskCompletionSource<bool> ();
+		TaskCompletionSource<bool> serverTcs = new TaskCompletionSource<bool> ();
 
 		async Task Instrumentation_CleanServerShutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -663,7 +665,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			Server.Close ();
 
-			LogDebug (ctx, 4, "{0} - restarting: {1}", me, serverInstrumentation.Socket);
+			LogDebug (ctx, 4, "{0} - restarting: {1}", me, serverInstrumentation.Socket.LocalEndPoint);
+
+			serverInstrumentation = null;
 
 			try {
 				await ((DotNetConnection)Server).Restart (ctx, cancellationToken).ConfigureAwait (false);
@@ -683,14 +687,19 @@ namespace Xamarin.WebTests.TestRunners
 			var me = "Instrumentation_ConnectionReuse(shutdown)";
 			LogDebug (ctx, 4, me);
 
-			var secondClient = Client.Provider.CreateClient (Parameters);
+			await serverTcs.Task.ConfigureAwait (false);
+			LogDebug (ctx, 4, "{0} - server ready", me);
+
+			Client.Close ();
+
+			clientInstrumentation = null;
 
 			try {
-				LogDebug (ctx, 4, "{0} - starting second client", me);
-				await secondClient.Start (ctx, this, cancellationToken).ConfigureAwait (false);
-				LogDebug (ctx, 4, "{0} - done starting second client", me);
+				LogDebug (ctx, 4, "{0} - restarting client", me);
+				await ((DotNetConnection)Client).Restart (ctx, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - done restarting client", me);
 			} catch (Exception ex) {
-				LogDebug (ctx, 4, "{0} - starting second client failed: {1}", me, ex);
+				LogDebug (ctx, 4, "{0} - restarting client failed: {1}", me, ex);
 				throw;
 			}
 		}
@@ -698,7 +707,13 @@ namespace Xamarin.WebTests.TestRunners
 		async Task<bool> Instrumentation_ConnectionReuse (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
 			var me = "Instrumentation_ConnectionReuse(handshake)";
-			LogDebug (ctx, 4, "{0}: {1}", me, connection == Client);
+			LogDebug (ctx, 4, "{0}: {1} {2}", me, connection.ConnectionType, connection == Client);
+
+			if (connection == Server) {
+				LogDebug (ctx, 4, "{0} - server handshake", me);
+				serverTcs.TrySetResult (true);
+				return false;
+			}
 
 			if (connection == Client)
 				return false;
