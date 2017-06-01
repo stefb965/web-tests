@@ -39,10 +39,15 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		new public Socket Socket {
+			get;
+		}
+
 		public StreamInstrumentation (TestContext ctx, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
 			Context = ctx;
+			Socket = socket;
 		}
 
 		MyAction writeAction;

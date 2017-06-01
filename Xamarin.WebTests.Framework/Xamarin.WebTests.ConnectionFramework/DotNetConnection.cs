@@ -50,12 +50,14 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		Socket socket;
 		Socket accepted;
+		Socket innerSocket;
 		Stream innerStream;
 		IConnectionInstrumentation instrumentation;
 		TaskCompletionSource<SslStream> tcs;
+		int started;
 		int shutdown;
 		int closed;
-		int destroyed;
+		Exception destroyed;
 
 		SslStream sslStream;
 
@@ -78,7 +80,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		protected abstract Task Start (TestContext ctx, SslStream sslStream, CancellationToken cancellationToken);
 
-		void CreateSslStream (TestContext ctx, Socket innerSocket)
+		void CreateSslStream (TestContext ctx)
 		{
 			if (instrumentation != null) {
 				if (IsServer)
@@ -96,6 +98,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override Task Start (TestContext ctx, IConnectionInstrumentation instrumentation, CancellationToken cancellationToken)
 		{
+			if (destroyed != null)
+				throw destroyed;
+			if (Interlocked.CompareExchange (ref started, 1, 0) != 0)
+				throw new InvalidOperationException ("Duplicated call to Start().");
+
 			this.instrumentation = instrumentation;
 
 			if (IsServer)
@@ -120,7 +127,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 					accepted = socket.EndAccept (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
 					ctx.LogMessage ("Accepted connection from {0}.", accepted.RemoteEndPoint);
-					CreateSslStream (ctx, accepted);
+					innerSocket = accepted;
 					await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
@@ -141,7 +148,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 				try {
 					socket.EndConnect (ar);
 					cancellationToken.ThrowIfCancellationRequested ();
-					CreateSslStream (ctx, socket);
+					innerSocket = socket;
 					await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 					tcs.SetResult (sslStream);
 				} catch (Exception ex) {
@@ -153,6 +160,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 		async Task Handshake (TestContext ctx, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
+
+			CreateSslStream (ctx);
 
 			if (instrumentation != null) {
 				Task<bool> task;
@@ -181,20 +190,31 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public sealed override async Task Shutdown (TestContext ctx, CancellationToken cancellationToken)
 		{
-			if (closed != 0 || destroyed != 0)
-				throw new ObjectDisposedException ("DotNetConnection");
-			if (Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
-				throw new ObjectDisposedException ("DotNetConnection");
+			if (destroyed != null)
+				throw destroyed;
+			if (closed != 0 || Interlocked.CompareExchange (ref shutdown, 1, 0) != 0)
+				throw new InvalidOperationException ("Cannot call Shutdown() after the connection has been closed.");
 
 			if (SupportsCleanShutdown)
 				await sslStream.ShutdownAsync ().ConfigureAwait (false);
+		}
+
+		public async Task Restart (TestContext ctx, CancellationToken cancellationToken)
+		{
+			if (destroyed != null)
+				throw destroyed;
+			if (closed == 0)
+				throw new InvalidOperationException ("Cannot restart while having an active connection.");
+
+			cancellationToken.ThrowIfCancellationRequested ();
+			await Handshake (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		public override void Close ()
 		{
 			if (Interlocked.CompareExchange (ref closed, 1, 0) != 0)
 				return;
-			if (destroyed != 0)
+			if (destroyed != null)
 				return;
 
 			try {
@@ -204,13 +224,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 				;
 			} finally {
 				innerStream = null;
-				accepted = socket = null;
 			}
 		}
 
 		protected override void Destroy ()
 		{
-			if (Interlocked.CompareExchange (ref destroyed, 1, 0) != 0)
+			var disposedEx = new ObjectDisposedException (GetType ().Name);
+			if (Interlocked.CompareExchange (ref destroyed, disposedEx, null) != null)
 				return;
 
 			try {
@@ -221,8 +241,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			} finally {
 				sslStream = null;
 			}
-			accepted = null;
-			socket = null;
+			innerSocket = accepted = socket = null;
+			innerStream = null;
 			instrumentation = null;
 		}
 	}

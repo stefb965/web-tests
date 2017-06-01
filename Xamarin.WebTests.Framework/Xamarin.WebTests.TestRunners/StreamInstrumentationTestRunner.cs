@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -663,7 +663,19 @@ namespace Xamarin.WebTests.TestRunners
 
 			Server.Close ();
 
-			throw new NotImplementedException ();
+			LogDebug (ctx, 4, "{0} - restarting: {1}", me, serverInstrumentation.Socket);
+
+			try {
+				await ((DotNetConnection)Server).Restart (ctx, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - done restarting", me);
+			} catch (Exception ex) {
+				LogDebug (ctx, 4, "{0} - failed to restart: {1}", me, ex);
+				throw;
+			}
+
+			await clientTcs.Task;
+
+			LogDebug (ctx, 4, "{0} done");
 		}
 
 		async Task Instrumentation_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
