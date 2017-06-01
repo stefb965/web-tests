@@ -43,6 +43,8 @@ namespace Xamarin.WebTests.TestFramework
 		WriteAfterShutdown,
 		ReadAfterShutdown,
 
+		ConnectionReuse,
+
 		MartinTest
 	}
 }

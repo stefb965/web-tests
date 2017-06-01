@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CleanShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -217,6 +217,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
+			case StreamInstrumentationType.ConnectionReuse:
+				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -271,6 +273,8 @@ namespace Xamarin.WebTests.TestRunners
 				return Instrumentation_CleanClientShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, cancellationToken);
+			case StreamInstrumentationType.ConnectionReuse:
+				return Instrumentation_ConnectionReuse (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -295,6 +299,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
+			case StreamInstrumentationType.ConnectionReuse:
+				return ServerShutdown_WaitForClient (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -306,8 +312,13 @@ namespace Xamarin.WebTests.TestRunners
 				throw ctx.AssertFail ("CreateClientStream()");
 
 			var instrumentation = new StreamInstrumentation (ctx, socket);
-			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
-				throw new InternalErrorException ();
+			var old = Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null);
+			if (old != null) {
+				if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
+					instrumentation = old;
+				else
+					throw new InternalErrorException ();
+			}
 
 			LogDebug (ctx, 4, "CreateClientStream()");
 
@@ -370,6 +381,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (!HasFlag (InstrumentationFlags.ClientHandshake))
 				return false;
+
+			if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
+				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
 
 			int readCount = 0;
 
@@ -636,5 +650,44 @@ namespace Xamarin.WebTests.TestRunners
 				return Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, CancellationToken.None);
 			}
 		}
+
+		async Task Instrumentation_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var me = "Instrumentation_ConnectionReuse(shutdown)";
+			LogDebug (ctx, 4, me);
+
+			var secondClient = Client.Provider.CreateClient (Parameters);
+
+			try {
+				LogDebug (ctx, 4, "{0} - starting second client", me);
+				await secondClient.Start (ctx, this, cancellationToken).ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - done starting second client", me);
+			} catch (Exception ex) {
+				LogDebug (ctx, 4, "{0} - starting second client failed: {1}", me, ex);
+				throw;
+			}
+		}
+
+		async Task<bool> Instrumentation_ConnectionReuse (TestContext ctx, Func<Task> handshake, Connection connection)
+		{
+			var me = "Instrumentation_ConnectionReuse(handshake)";
+			LogDebug (ctx, 4, "{0}: {1}", me, connection == Client);
+
+			if (connection == Client)
+				return false;
+
+			LogDebug (ctx, 4, "{0} - second handshake", me);
+
+			try {
+				await handshake ().ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - second handshake done", me);
+			} catch (Exception ex) {
+				LogDebug (ctx, 4, "{0} - second handshake failed: {1}", me, ex);
+				throw;
+			}
+
+			return true;
+		}
+
 	}
 }
