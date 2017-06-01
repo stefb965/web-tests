@@ -316,8 +316,9 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedClientInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateClientStream()");
 
+			var name = string.Format ("Client:{0}", EffectiveType);
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseClientSocket);
-			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
+			var instrumentation = new StreamInstrumentation (ctx, name, socket, ownsSocket);
 			if (Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
@@ -369,8 +370,9 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedServerInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateServerStream()");
 
+			var name = string.Format ("Server:{0}", EffectiveType);
 			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseServerSocket);
-			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
+			var instrumentation = new StreamInstrumentation (ctx, name, socket, ownsSocket);
 
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
@@ -679,7 +681,9 @@ namespace Xamarin.WebTests.TestRunners
 
 			await clientTcs.Task;
 
-			LogDebug (ctx, 4, "{0} done");
+			Server.Close ();
+
+			LogDebug (ctx, 4, "{0} done", me);
 		}
 
 		async Task Instrumentation_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
@@ -702,6 +706,10 @@ namespace Xamarin.WebTests.TestRunners
 				LogDebug (ctx, 4, "{0} - restarting client failed: {1}", me, ex);
 				throw;
 			}
+
+			Client.Close ();
+
+			clientTcs.TrySetResult (true);
 		}
 
 		async Task<bool> Instrumentation_ConnectionReuse (TestContext ctx, Func<Task> handshake, Connection connection)
@@ -727,6 +735,10 @@ namespace Xamarin.WebTests.TestRunners
 				LogDebug (ctx, 4, "{0} - second handshake failed: {1}", me, ex);
 				throw;
 			}
+
+			Client.Close ();
+
+			clientTcs.TrySetResult (true);
 
 			return true;
 		}

@@ -39,15 +39,20 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		public string Name {
+			get;
+		}
+
 		new public Socket Socket {
 			get;
 		}
 
-		public StreamInstrumentation (TestContext ctx, Socket socket, bool ownsSocket = true)
+		public StreamInstrumentation (TestContext ctx, string name, Socket socket, bool ownsSocket = true)
 			: base (socket, ownsSocket)
 		{
 			Context = ctx;
 			Socket = socket;
+			Name = string.Format ("StreamInstrumentation({0})", name);
 		}
 
 		MyAction writeAction;
@@ -78,7 +83,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override Task WriteAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			var message = string.Format ("StreamInstrumentation.WriteAsync({0},{1})", offset, count);
+			var message = string.Format ("{0}.WriteAsync({1},{2})", Name, offset, count);
 
 			AsyncWriteFunc asyncBaseWrite = base.WriteAsync;
 			AsyncWriteHandler asyncWriteHandler = (b, o, c, func, ct) => func (b, o, c, ct);
@@ -107,7 +112,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IAsyncResult BeginWrite (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			var message = string.Format ("StreamInstrumentation.BeginWrite({0},{1})", offset, size);
+			var message = string.Format ("{0}.BeginWrite({1},{2})", Name, offset, size);
 			Context.LogDebug (4, message);
 
 			AsyncWriteFunc asyncBaseWrite = (b, o, s, _) => Task.Factory.FromAsync (
@@ -144,7 +149,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override void Write (byte[] buffer, int offset, int size)
 		{
-			var message = string.Format ("StreamInstrumentation.Write({0},{1})", offset, size);
+			var message = string.Format ("{0}.Write({1},{2})", Name, offset, size);
 
 			SyncWriteFunc syncWrite = (b, o, s) => base.Write (b, o, s);
 			SyncWriteFunc originalSyncWrite = syncWrite;
@@ -181,7 +186,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override Task<int> ReadAsync (byte[] buffer, int offset, int count, CancellationToken cancellationToken)
 		{
-			var message = string.Format ("StreamInstrumentation.ReadAsync({0},{1})", offset, count);
+			var message = string.Format ("{0}.ReadAsync({1},{2})", Name, offset, count);
 
 			AsyncReadFunc asyncBaseRead = base.ReadAsync;
 			AsyncReadHandler asyncReadHandler = (b, o, c, func, ct) => func (b, o, c, ct);
@@ -211,7 +216,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override IAsyncResult BeginRead (byte[] buffer, int offset, int size, AsyncCallback callback, object state)
 		{
-			var message = string.Format ("StreamInstrumentation.BeginRead({0},{1})", offset, size);
+			var message = string.Format ("{0}.BeginRead({1},{2})", Name, offset, size);
 			Context.LogDebug (4, message);
 
 			AsyncReadFunc asyncBaseRead = (b, o, s, _) => Task.Factory.FromAsync (
@@ -246,7 +251,7 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		public override int Read (byte[] buffer, int offset, int size)
 		{
-			var message = string.Format ("StreamInstrumentation.Read({0},{1})", offset, size);
+			var message = string.Format ("{0}.Read({1},{2})", Name, offset, size);
 
 			SyncReadFunc syncRead = (b, o, s) => base.Read (b, o, s);
 			SyncReadFunc originalSyncRead = syncRead;
