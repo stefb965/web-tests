@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuseWithShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -221,6 +221,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadAfterShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ConnectionReuse:
+			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown |
 					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
@@ -279,7 +280,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, cancellationToken);
 			case StreamInstrumentationType.ConnectionReuse:
-				return Instrumentation_ConnectionReuse (ctx, cancellationToken);
+			case StreamInstrumentationType.ConnectionReuseWithShutdown:
+				return ClientShutdown_ConnectionReuse (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -305,7 +307,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
 			case StreamInstrumentationType.ConnectionReuse:
-				return ServerShutdown_Restart (ctx, cancellationToken);
+			case StreamInstrumentationType.ConnectionReuseWithShutdown:
+				return ServerShutdown_ConnectionReuse (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -387,8 +390,11 @@ namespace Xamarin.WebTests.TestRunners
 			if (!HasFlag (InstrumentationFlags.ClientHandshake))
 				return false;
 
-			if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
+			switch (EffectiveType) {
+			case StreamInstrumentationType.ConnectionReuse:
+			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
+			}
 
 			int readCount = 0;
 
@@ -397,12 +403,17 @@ namespace Xamarin.WebTests.TestRunners
 			LogDebug (ctx, 4, "ClientHandshake()");
 				  
 			Constraint constraint;
-			if (EffectiveType == StreamInstrumentationType.InvalidDataDuringClientAuth)
+			switch (EffectiveType) {
+			case StreamInstrumentationType.InvalidDataDuringClientAuth:
 				constraint = Is.InstanceOf<AuthenticationException> ();
-			else if (EffectiveType == StreamInstrumentationType.DisposeDuringClientAuth)
+				break;
+			case StreamInstrumentationType.DisposeDuringClientAuth:
 				constraint = Is.InstanceOf<ObjectDisposedException> ().Or.InstanceOfType<IOException> ();
-			else
+				break;
+			default:
 				constraint = Is.InstanceOf<IOException> ();
+				break;
+			}
 
 			await ctx.AssertException (handshake, constraint, "client handshake").ConfigureAwait (false);
 
@@ -454,8 +465,11 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
-			if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
+			switch (EffectiveType) {
+			case StreamInstrumentationType.ConnectionReuse:
+			case StreamInstrumentationType.ConnectionReuseWithShutdown:
 				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
+			}
 
 			if (!HasAnyFlag (InstrumentationFlags.ServerHandshakeFails))
 				return false;
@@ -660,16 +674,28 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task ServerShutdown_Restart (TestContext ctx, CancellationToken cancellationToken)
+		async Task ServerShutdown_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = "ServerShutdown_Restart()";
+			var me = "ServerShutdown_ConnectionReuse()";
 			LogDebug (ctx, 4, me);
+
+			Task<int> serverRead;
+			if (EffectiveType == StreamInstrumentationType.ConnectionReuseWithShutdown) {
+				var buffer = new byte[256];
+				serverRead = Server.Stream.ReadAsync (buffer, 0, buffer.Length);
+			} else {
+				serverRead = Task.FromResult (0);
+			}
+
+			await ctx.Assert (() => serverRead, Is.EqualTo (0), "read shutdown notify").ConfigureAwait (false);
 
 			Server.Close ();
 
 			LogDebug (ctx, 4, "{0} - restarting: {1}", me, serverInstrumentation.Socket.LocalEndPoint);
 
 			serverInstrumentation = null;
+
+			serverTcs.TrySetResult (true);
 
 			try {
 				await ((DotNetConnection)Server).Restart (ctx, cancellationToken).ConfigureAwait (false);
@@ -686,17 +712,22 @@ namespace Xamarin.WebTests.TestRunners
 			LogDebug (ctx, 4, "{0} done", me);
 		}
 
-		async Task Instrumentation_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
+		async Task ClientShutdown_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var me = "Instrumentation_ConnectionReuse(shutdown)";
+			var me = "ClientShutdown_ConnectionReuse()";
 			LogDebug (ctx, 4, me);
 
-			await serverTcs.Task.ConfigureAwait (false);
-			LogDebug (ctx, 4, "{0} - server ready", me);
+			if (EffectiveType == StreamInstrumentationType.ConnectionReuseWithShutdown) {
+				await Client.Shutdown (ctx, cancellationToken);
+				LogDebug (ctx, 4, "{0} - client shutdown done", me);
+			}
 
 			Client.Close ();
 
 			clientInstrumentation = null;
+
+			await serverTcs.Task.ConfigureAwait (false);
+			LogDebug (ctx, 4, "{0} - server ready", me);
 
 			try {
 				LogDebug (ctx, 4, "{0} - restarting client", me);
@@ -719,7 +750,6 @@ namespace Xamarin.WebTests.TestRunners
 
 			if (connection == Server) {
 				LogDebug (ctx, 4, "{0} - server handshake", me);
-				serverTcs.TrySetResult (true);
 				return false;
 			}
 
