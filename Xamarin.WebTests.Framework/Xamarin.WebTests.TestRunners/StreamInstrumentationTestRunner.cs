@@ -85,13 +85,19 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.CloseBeforeClientAuth;
 				yield return StreamInstrumentationType.CloseDuringClientAuth;
 				yield return StreamInstrumentationType.DisposeDuringClientAuth;
-				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+				yield return StreamInstrumentationType.InvalidDataDuringClientAuth;
 				yield return StreamInstrumentationType.ShortReadDuringClientAuth;
+				yield return StreamInstrumentationType.ShortReadAndClose;
+				yield return StreamInstrumentationType.RemoteClosesConnectionDuringRead;
+
 				yield return StreamInstrumentationType.CleanShutdown;
 				yield return StreamInstrumentationType.DoubleShutdown;
 				yield return StreamInstrumentationType.WriteAfterShutdown;
 				yield return StreamInstrumentationType.ReadAfterShutdown;
-				yield return StreamInstrumentationType.ShortReadAndClose;
+				yield return StreamInstrumentationType.WaitForShutdown;
+
+				yield return StreamInstrumentationType.ConnectionReuse;
+				yield return StreamInstrumentationType.ConnectionReuseWithShutdown;
 				yield break;
 
 			case ConnectionTestCategory.SslStreamInstrumentationExperimental:
