@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.CloseBeforeClientAuth;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -186,6 +186,8 @@ namespace Xamarin.WebTests.TestRunners
 			ServerHandshakeFails = 256,
 			ClientHandshakeFails = 512,
 			SkipMainLoop = 1024,
+			ReuseClientSocket = 2048,
+			ReuseServerSocket = 4096,
 
 			HandshakeFails = ClientHandshakeFails | ServerHandshakeFails,
 
@@ -218,7 +220,8 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadAfterShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ConnectionReuse:
-				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
+				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown |
+					InstrumentationFlags.ServerShutdown | InstrumentationFlags.ReuseServerSocket;
 			default:
 				throw new InternalErrorException ();
 			}
@@ -300,7 +303,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ShortReadAndClose:
 				return FinishedTask;
 			case StreamInstrumentationType.ConnectionReuse:
-				return ServerShutdown_WaitForClient (ctx, cancellationToken);
+				return ServerShutdown_Restart (ctx, cancellationToken);
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -311,7 +314,8 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedClientInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateClientStream()");
 
-			var instrumentation = new StreamInstrumentation (ctx, socket);
+			var ownsSocket = !HasFlag (EffectiveFlags & InstrumentationFlags.ReuseClientSocket);
+			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
 			var old = Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null);
 			if (old != null) {
 				if (EffectiveType == StreamInstrumentationType.ConnectionReuse)
@@ -368,7 +372,8 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedServerInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateServerStream()");
 
-			var instrumentation = new StreamInstrumentation (ctx, socket);
+			var ownsSocket = !HasFlag (EffectiveFlags & InstrumentationFlags.ReuseServerSocket);
+			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
 
@@ -649,6 +654,16 @@ namespace Xamarin.WebTests.TestRunners
 			{
 				return Client.Stream.ReadAsync (readBuffer, 0, readBuffer.Length, CancellationToken.None);
 			}
+		}
+
+		async Task ServerShutdown_Restart (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var me = "ServerShutdown_Restart()";
+			LogDebug (ctx, 4, me);
+
+			Server.Close ();
+
+			throw new NotImplementedException ();
 		}
 
 		async Task Instrumentation_ConnectionReuse (TestContext ctx, CancellationToken cancellationToken)

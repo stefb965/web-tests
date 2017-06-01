@@ -197,9 +197,13 @@ namespace Xamarin.WebTests.ConnectionFramework
 			if (destroyed != 0)
 				return;
 
+			var disposedInner = false;
+
 			try {
-				if (innerStream != null)
+				if (innerStream != null) {
 					innerStream.Dispose ();
+					disposedInner = true;
+				}
 			} catch {
 				;
 			} finally {
@@ -208,8 +212,11 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 			var innerSocket = IsServer ? accepted : socket;
 			try {
-				if (innerSocket != null)
+				if (innerSocket != null) {
 					innerSocket.Shutdown (SocketShutdown.Both);
+					if (disposedInner)
+						Debug.WriteLine ("{0} SOCKET SHUTDOWN DID NOT THROW!", IsServer ? "SERVER" : "CLIENT");
+				}
 			} catch {
 				;
 			} finally {

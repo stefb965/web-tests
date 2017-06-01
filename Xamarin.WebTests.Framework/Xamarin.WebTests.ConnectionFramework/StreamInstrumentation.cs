@@ -39,8 +39,8 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
-		public StreamInstrumentation (TestContext ctx, Socket socket)
-			: base (socket, true)
+		public StreamInstrumentation (TestContext ctx, Socket socket, bool ownsSocket = true)
+			: base (socket, ownsSocket)
 		{
 			Context = ctx;
 		}
