@@ -1,4 +1,4 @@
-﻿﻿//
+﻿﻿﻿//
 // StreamInstrumentationTestRunner.cs
 //
 // Author:
@@ -222,8 +222,7 @@ namespace Xamarin.WebTests.TestRunners
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
-				return InstrumentationFlags.ClientHandshake | InstrumentationFlags.ClientShutdown |
-					InstrumentationFlags.ServerHandshake | InstrumentationFlags.ServerShutdown |
+				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown |
 					InstrumentationFlags.ReuseClientSocket | InstrumentationFlags.ReuseServerSocket;
 			default:
 				throw new InternalErrorException ();
@@ -390,12 +389,6 @@ namespace Xamarin.WebTests.TestRunners
 			if (!HasFlag (InstrumentationFlags.ClientHandshake))
 				return false;
 
-			switch (EffectiveType) {
-			case StreamInstrumentationType.ConnectionReuse:
-			case StreamInstrumentationType.ConnectionReuseWithShutdown:
-				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
-			}
-
 			int readCount = 0;
 
 			clientInstrumentation.OnNextRead (ReadHandler);
@@ -465,12 +458,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task<bool> ServerHandshake (TestContext ctx, Func<Task> handshake, Connection connection)
 		{
-			switch (EffectiveType) {
-			case StreamInstrumentationType.ConnectionReuse:
-			case StreamInstrumentationType.ConnectionReuseWithShutdown:
-				return await Instrumentation_ConnectionReuse (ctx, handshake, connection).ConfigureAwait (false);
-			}
-
 			if (!HasAnyFlag (InstrumentationFlags.ServerHandshakeFails))
 				return false;
 
@@ -742,36 +729,5 @@ namespace Xamarin.WebTests.TestRunners
 
 			clientTcs.TrySetResult (true);
 		}
-
-		async Task<bool> Instrumentation_ConnectionReuse (TestContext ctx, Func<Task> handshake, Connection connection)
-		{
-			var me = "Instrumentation_ConnectionReuse(handshake)";
-			LogDebug (ctx, 4, "{0}: {1} {2}", me, connection.ConnectionType, connection == Client);
-
-			if (connection == Server) {
-				LogDebug (ctx, 4, "{0} - server handshake", me);
-				return false;
-			}
-
-			if (connection == Client)
-				return false;
-
-			LogDebug (ctx, 4, "{0} - second handshake", me);
-
-			try {
-				await handshake ().ConfigureAwait (false);
-				LogDebug (ctx, 4, "{0} - second handshake done", me);
-			} catch (Exception ex) {
-				LogDebug (ctx, 4, "{0} - second handshake failed: {1}", me, ex);
-				throw;
-			}
-
-			Client.Close ();
-
-			clientTcs.TrySetResult (true);
-
-			return true;
-		}
-
 	}
 }
