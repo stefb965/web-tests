@@ -314,7 +314,7 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedClientInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateClientStream()");
 
-			var ownsSocket = !HasFlag (EffectiveFlags & InstrumentationFlags.ReuseClientSocket);
+			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseClientSocket);
 			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
 			var old = Interlocked.CompareExchange (ref clientInstrumentation, instrumentation, null);
 			if (old != null) {
@@ -372,7 +372,7 @@ namespace Xamarin.WebTests.TestRunners
 			if ((EffectiveFlags & InstrumentationFlags.NeedServerInstrumentation) == 0)
 				throw ctx.AssertFail ("CreateServerStream()");
 
-			var ownsSocket = !HasFlag (EffectiveFlags & InstrumentationFlags.ReuseServerSocket);
+			var ownsSocket = !HasFlag (InstrumentationFlags.ReuseServerSocket);
 			var instrumentation = new StreamInstrumentation (ctx, socket, ownsSocket);
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
 				throw new InternalErrorException ();
