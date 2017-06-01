@@ -42,6 +42,7 @@ namespace Xamarin.WebTests.TestFramework
 		DoubleShutdown,
 		WriteAfterShutdown,
 		ReadAfterShutdown,
+		WaitForShutdown,
 
 		ConnectionReuse,
 		ConnectionReuseWithShutdown,

@@ -74,7 +74,7 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuseWithShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.WaitForShutdown;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -134,7 +134,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		StreamInstrumentation clientInstrumentation;
 		StreamInstrumentation serverInstrumentation;
-		StreamInstrumentation secondClientInstrumentation;
 
 		protected override Task PreRun (TestContext ctx, CancellationToken cancellationToken)
 		{
@@ -219,6 +218,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
+			case StreamInstrumentationType.WaitForShutdown:
 				return InstrumentationFlags.ClientShutdown | InstrumentationFlags.ServerShutdown;
 			case StreamInstrumentationType.ConnectionReuse:
 			case StreamInstrumentationType.ConnectionReuseWithShutdown:
@@ -275,6 +275,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
+			case StreamInstrumentationType.WaitForShutdown:
 				return Instrumentation_CleanClientShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 				return Instrumentation_RemoteClosesConnectionDuringRead (ctx, cancellationToken);
@@ -301,6 +302,7 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.DoubleShutdown:
 			case StreamInstrumentationType.WriteAfterShutdown:
 			case StreamInstrumentationType.ReadAfterShutdown:
+			case StreamInstrumentationType.WaitForShutdown:
 				return Instrumentation_CleanServerShutdown (ctx, cancellationToken);
 			case StreamInstrumentationType.RemoteClosesConnectionDuringRead:
 			case StreamInstrumentationType.ShortReadAndClose:
@@ -510,6 +512,9 @@ namespace Xamarin.WebTests.TestRunners
 			case StreamInstrumentationType.ReadAfterShutdown:
 				await ReadAfterShutdown ().ConfigureAwait (false);
 				return;
+			case StreamInstrumentationType.WaitForShutdown:
+				await WaitForShutdown ().ConfigureAwait (false);
+				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
@@ -524,6 +529,18 @@ namespace Xamarin.WebTests.TestRunners
 
 				await ConnectionHandler.WriteBlob (ctx, Server, cancellationToken).ConfigureAwait (false);
 				LogDebug (ctx, 4, "{0} - write done", me);
+			}
+
+			async Task WaitForShutdown ()
+			{
+				cancellationToken.ThrowIfCancellationRequested ();
+				var ok = await clientTcs.Task.ConfigureAwait (false);
+				LogDebug (ctx, 4, "{0} - client finished {1}", me, ok);
+
+				cancellationToken.ThrowIfCancellationRequested ();
+
+				var buffer = new byte[256];
+				await ctx.Assert (() => Server.Stream.ReadAsync (buffer, 0, buffer.Length), Is.EqualTo (0), "wait for shutdown");
 			}
 		}
 
@@ -568,6 +585,8 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 			case StreamInstrumentationType.ReadAfterShutdown:
 				await ReadAfterShutdown ();
+				break;
+			case StreamInstrumentationType.WaitForShutdown:
 				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
