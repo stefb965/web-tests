@@ -74,10 +74,12 @@ namespace Xamarin.WebTests.TestRunners
 			ConnectionHandler = new DefaultConnectionHandler (this);
 		}
 
-		const StreamInstrumentationType MartinTest = StreamInstrumentationType.WaitForShutdown;
+		const StreamInstrumentationType MartinTest = StreamInstrumentationType.ConnectionReuse;
 
 		public static IEnumerable<StreamInstrumentationType> GetStreamInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+
 			switch (category) {
 			case ConnectionTestCategory.SslStreamInstrumentation:
 				yield return StreamInstrumentationType.ClientHandshake;
@@ -93,8 +95,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return StreamInstrumentationType.CleanShutdown;
 				yield return StreamInstrumentationType.DoubleShutdown;
 				yield return StreamInstrumentationType.WriteAfterShutdown;
-				yield return StreamInstrumentationType.ReadAfterShutdown;
 				yield return StreamInstrumentationType.WaitForShutdown;
+
+				if (!setup.UsingAppleTls)
+					yield return StreamInstrumentationType.ReadAfterShutdown;
 
 				yield return StreamInstrumentationType.ConnectionReuse;
 				yield return StreamInstrumentationType.ConnectionReuseWithShutdown;

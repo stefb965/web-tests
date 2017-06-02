@@ -47,6 +47,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 			get;
 		}
 
+		bool UsingAppleTls {
+			get;
+		}
+
 		void Initialize (ConnectionProviderFactory factory);
 	}
 }
