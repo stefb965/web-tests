@@ -51,10 +51,9 @@ namespace Xamarin.WebTests.HttpHandlers
 			return new HttpListenerHandler (Value);
 		}
 
-		Task<HttpResponse> HandleRequest (TestContext ctx, HttpListenerRequest request, CancellationToken cancellationToken)
+		async Task HandleRequest (TestContext ctx, HttpListenerRequest request, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
-			return Task.FromResult (HttpResponse.CreateSuccess ());
 		}
 
 		protected internal override async Task<HttpResponse> HandleRequest (
@@ -62,9 +61,8 @@ namespace Xamarin.WebTests.HttpHandlers
 			RequestFlags effectiveFlags, CancellationToken cancellationToken)
 		{
 			var listenerContext = ((HttpListenerConnection)connection).Context;
-			var response = await HandleRequest (ctx, listenerContext.Request, cancellationToken).ConfigureAwait (false);
-			ctx.LogMessage ("GOT RESPONSE: {0}", response);
-			return HttpResponse.CreateSuccess ();
+			await HandleRequest (ctx, listenerContext.Request, cancellationToken).ConfigureAwait (false);
+			return HttpResponse.CreateFrom (listenerContext.Response);
 		}
 
 		internal Request CreateRequest (TestContext ctx, HttpServer server, Uri uri)

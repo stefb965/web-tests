@@ -121,6 +121,12 @@ namespace Xamarin.WebTests.Server {
 
 			TestContext.LogDebug (5, "WRITE RESPONSE: {0}", response);
 
+			if (response.HttpListenerResponse != null) {
+				if (response.HttpListenerResponse != Context.Response)
+					throw new ConnectionException ("Invalid HttpListenerResponse object.");
+				return;
+			}
+
 			try {
 				Context.Response.StatusCode = (int)response.StatusCode;
 				Context.Response.ProtocolVersion = GetProtocol (response.Protocol);

@@ -45,6 +45,10 @@ namespace Xamarin.WebTests.HttpFramework
 			get { return StatusCode == HttpStatusCode.OK; }
 		}
 
+		internal HttpListenerResponse HttpListenerResponse {
+			get;
+		}
+
 		public bool? KeepAlive {
 			get { return keepAlive; }
 			set {
@@ -76,8 +80,12 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		HttpResponse ()
-			: base ()
 		{
+		}
+
+		HttpResponse (HttpListenerResponse response)
+		{
+			HttpListenerResponse = response;
 		}
 
 		internal static async Task<HttpResponse> Read (HttpStreamReader reader, CancellationToken cancellationToken)
@@ -166,6 +174,11 @@ namespace Xamarin.WebTests.HttpFramework
 			var response = new HttpResponse (code);
 			response.AddHeader ("Location", uri);
 			return response;
+		}
+
+		public static HttpResponse CreateFrom (HttpListenerResponse response)
+		{
+			return new HttpResponse (response);
 		}
 
 		public static HttpResponse CreateSuccess (string body = null)
