@@ -1,5 +1,5 @@
 ﻿//
-// TestHttpListener.cs
+// HttpListenerHandler.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -27,34 +27,49 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Collections.Generic;
-using Xamarin.AsyncTests;
-using Xamarin.WebTests.ConnectionFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.HttpHandlers;
-using Xamarin.WebTests.TestRunners;
 
-namespace Xamarin.WebTests.Tests {
-	[AsyncTestFixture]
-	public class TestHttpListener : ITestParameterSource<HttpListenerHandler> {
-		public IEnumerable<HttpListenerHandler> GetParameters (TestContext ctx, string filter)
+using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
+using Xamarin.WebTests.HttpFramework;
+using Xamarin.WebTests.Server;
+
+namespace Xamarin.WebTests.HttpHandlers
+{
+	public class HttpListenerHandler : Handler
+	{
+		public HttpListenerHandler (string identifier) : base (identifier)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpListenerHandler ("martin");
-				break;
-			}
 		}
 
-		[Martin]
-		[ConnectionTestFlags (ConnectionTestFlags.RequireMonoServer)]
-		[HttpServerFlags (HttpServerFlags.HttpListener)]
-		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpListenerHandler handler,
-		                        CancellationToken cancellationToken)
+		public override bool CheckResponse (TestContext ctx, Response response)
 		{
-			return TestRunner.RunHttpListener (ctx, cancellationToken, server, handler);
+			return true;
+		}
+
+		public override object Clone ()
+		{
+			return new HttpListenerHandler (Value);
+		}
+
+		Task<HttpResponse> HandleRequest (TestContext ctx, HttpListenerRequest request, CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+			return Task.FromResult (HttpResponse.CreateSuccess ());
+		}
+
+		protected internal override async Task<HttpResponse> HandleRequest (
+			TestContext ctx, HttpConnection connection, HttpRequest request,
+			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		{
+			var listenerContext = ((HttpListenerConnection)connection).Context;
+			var response = await HandleRequest (ctx, listenerContext.Request, cancellationToken).ConfigureAwait (false);
+			ctx.LogMessage ("GOT RESPONSE: {0}", response);
+			return HttpResponse.CreateSuccess ();
+		}
+
+		internal Request CreateRequest (TestContext ctx, HttpServer server, Uri uri)
+		{
+			return new TraditionalRequest (uri);
 		}
 	}
 }
