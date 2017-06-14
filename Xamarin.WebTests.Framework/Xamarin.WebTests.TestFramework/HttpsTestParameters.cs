@@ -63,6 +63,7 @@ namespace Xamarin.WebTests.TestFramework
 			ExternalServer = other.ExternalServer;
 			OverrideTargetHost = other.OverrideTargetHost;
 			SendChunked = other.SendChunked;
+			ChunkedResponse = other.ChunkedResponse;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -87,6 +88,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public bool SendChunked {
+			get; set;
+		}
+
+		public bool ChunkedResponse {
 			get; set;
 		}
 

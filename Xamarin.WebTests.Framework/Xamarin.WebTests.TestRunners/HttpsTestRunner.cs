@@ -333,7 +333,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			case ConnectionTestType.MartinTest:
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, SendChunked = true
+					ClientCertificateValidator = acceptAll, ChunkedResponse = true
 				};
 
 			default:
@@ -345,8 +345,9 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (ExternalServer)
 				return null;
-			else
-				return new HelloWorldHandler ("hello");
+			if (Parameters.ChunkedResponse)
+				return new GetHandler ("chunked", HttpContent.HelloChunked);
+			return new HelloWorldHandler ("hello");
 		}
 
 		public Task Run (TestContext ctx, CancellationToken cancellationToken)
