@@ -332,7 +332,9 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.ServerCertificateWithCA;
+				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+					ClientCertificateValidator = acceptAll, SendChunked = true
+				};
 
 			default:
 				throw new InternalErrorException ();
@@ -378,6 +380,9 @@ namespace Xamarin.WebTests.TestRunners
 			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri, Parameters);
 
 			var request = new TraditionalRequest (webRequest);
+
+			if (Parameters.SendChunked)
+				request.RequestExt.SetSendChunked (true);
 
 			if (Parameters.OverrideTargetHost != null)
 				request.RequestExt.Host = Parameters.OverrideTargetHost;

@@ -62,6 +62,7 @@ namespace Xamarin.WebTests.TestFramework
 			ClientAbortsHandshake = other.ClientAbortsHandshake;
 			ExternalServer = other.ExternalServer;
 			OverrideTargetHost = other.OverrideTargetHost;
+			SendChunked = other.SendChunked;
 		}
 
 		public override ConnectionParameters DeepClone ()
@@ -82,6 +83,10 @@ namespace Xamarin.WebTests.TestFramework
 		}
 
 		public bool ClientAbortsHandshake {
+			get; set;
+		}
+
+		public bool SendChunked {
 			get; set;
 		}
 
