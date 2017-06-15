@@ -222,12 +222,18 @@ namespace Xamarin.WebTests.Tests
 				client.Credentials = authHandler.GetCredentials ();
 		}
 
+		[Martin]
 		[AsyncTest]
 		public async Task Test10163 (TestContext ctx, HttpServer server,
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)
 		{
+			int handlerCalled = 0;
 			var post = new PostHandler ("Post bug #10163", HttpContent.HelloWorld);
+			post.CustomHandler = (request) => {
+				Interlocked.Increment (ref handlerCalled);
+				return null;
+			};
 
 			var handler = CreateAuthMaybeNone (post, authType);
 
@@ -241,6 +247,8 @@ namespace Xamarin.WebTests.Tests
 					await post.Content.WriteToAsync (writer);
 				}
 			}
+
+			ctx.Assert (handlerCalled, Is.EqualTo (1), "handler called");
 		}
 
 		[AsyncTest]
