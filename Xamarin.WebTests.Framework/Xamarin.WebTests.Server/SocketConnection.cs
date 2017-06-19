@@ -108,12 +108,12 @@ namespace Xamarin.WebTests.Server
 			return !await reader.IsEndOfStream (cancellationToken).ConfigureAwait (false);
 		}
 
-		public override Task<HttpRequest> ReadRequest (CancellationToken cancellationToken)
+		public override Task<HttpRequest> ReadRequest (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return HttpRequest.Read (reader, cancellationToken);
+			return HttpRequest.Read (ctx, reader, cancellationToken);
 		}
 
-		public override Task<HttpResponse> ReadResponse (CancellationToken cancellationToken)
+		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
 			return HttpResponse.Read (reader, cancellationToken);
 		}

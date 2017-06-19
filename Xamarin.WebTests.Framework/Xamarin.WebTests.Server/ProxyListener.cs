@@ -57,7 +57,7 @@ namespace Xamarin.WebTests.Server
 
 		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = await connection.ReadRequest (cancellationToken).ConfigureAwait (false);
+			var request = await connection.ReadRequest (TestContext, cancellationToken).ConfigureAwait (false);
 
 			cancellationToken.ThrowIfCancellationRequested ();
 			var remoteAddress = connection.RemoteEndPoint.Address;
@@ -106,7 +106,7 @@ namespace Xamarin.WebTests.Server
 			await Task.Yield ();
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			var response = await targetConnection.ReadResponse (cancellationToken).ConfigureAwait (false);
+			var response = await targetConnection.ReadResponse (TestContext, cancellationToken).ConfigureAwait (false);
 			response.SetHeader ("Connection", "close");
 			response.SetHeader ("Proxy-Connection", "close");
 

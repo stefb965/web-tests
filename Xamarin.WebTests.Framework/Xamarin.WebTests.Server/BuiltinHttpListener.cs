@@ -55,7 +55,7 @@ namespace Xamarin.WebTests.Server
 
 		protected override async Task<bool> HandleConnection (HttpConnection connection, CancellationToken cancellationToken)
 		{
-			var request = await connection.ReadRequest (cancellationToken);
+			var request = await connection.ReadRequest (TestContext, cancellationToken);
 			return await Server.HandleConnection (TestContext, connection, request, cancellationToken);
 		}
 	}
