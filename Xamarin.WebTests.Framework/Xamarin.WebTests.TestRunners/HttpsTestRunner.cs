@@ -332,6 +332,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.RejectAll;
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, ChunkedResponse = true
 				};
