@@ -28,6 +28,7 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Xamarin.AsyncTests;
 
 namespace Xamarin.WebTests.HttpFramework
 {
@@ -88,12 +89,12 @@ namespace Xamarin.WebTests.HttpFramework
 			HttpListenerResponse = response;
 		}
 
-		internal static async Task<HttpResponse> Read (HttpStreamReader reader, CancellationToken cancellationToken)
+		internal static async Task<HttpResponse> Read (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			try {
 				var response = new HttpResponse ();
-				await response.InternalRead (reader, cancellationToken).ConfigureAwait (false);
+				await response.InternalRead (ctx, reader, cancellationToken).ConfigureAwait (false);
 				return response;
 			} catch (Exception ex) {
 				return CreateError (ex);
@@ -129,7 +130,7 @@ namespace Xamarin.WebTests.HttpFramework
 			}
 		}
 
-		async Task InternalRead (HttpStreamReader reader, CancellationToken cancellationToken)
+		async Task InternalRead (TestContext ctx, HttpStreamReader reader, CancellationToken cancellationToken)
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 			var header = await reader.ReadLineAsync (cancellationToken).ConfigureAwait (false);
@@ -142,10 +143,10 @@ namespace Xamarin.WebTests.HttpFramework
 			StatusMessage = fields.Length == 3 ? fields [2] : string.Empty;
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (reader, cancellationToken);
+			await ReadHeaders (ctx, reader, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (reader, cancellationToken);
+			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)

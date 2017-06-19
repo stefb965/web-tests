@@ -104,7 +104,7 @@ namespace Xamarin.WebTests.Server {
 				if (message.ContentType != null && message.ContentType.Equals ("application/octet-stream"))
 					return await BinaryContent.Read (reader, message.ContentLength.Value, cancellationToken);
 				if (message.ContentLength != null)
-					return await StringContent.Read (reader, message.ContentLength.Value, cancellationToken);
+					return await StringContent.Read (TestContext, reader, message.ContentLength.Value, cancellationToken);
 				if (message.TransferEncoding != null) {
 					if (!message.TransferEncoding.Equals ("chunked"))
 						throw new InvalidOperationException ();

@@ -115,7 +115,7 @@ namespace Xamarin.WebTests.Server
 
 		public override Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken)
 		{
-			return HttpResponse.Read (reader, cancellationToken);
+			return HttpResponse.Read (ctx, reader, cancellationToken);
 		}
 
 		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)

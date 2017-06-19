@@ -83,10 +83,10 @@ namespace Xamarin.WebTests.HttpFramework
 				Path = fields [1].StartsWith ("/", StringComparison.Ordinal) ? fields [1] : new Uri (fields [1]).AbsolutePath;
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await ReadHeaders (reader, cancellationToken);
+			await ReadHeaders (ctx, reader, cancellationToken);
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			Body = await ReadBody (reader, cancellationToken);
+			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
 		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
