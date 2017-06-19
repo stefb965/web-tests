@@ -357,7 +357,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (ExternalServer)
 				return null;
-			if (Parameters.Type == ConnectionTestType.MartinTest) {
+			if (false && Parameters.Type == ConnectionTestType.MartinTest) {
 				// var handler = HelloWorldHandler.Simple;
 				// var redirect = new RedirectHandler (handler, HttpStatusCode.Moved);
 				// return redirect;
