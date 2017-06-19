@@ -332,6 +332,7 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
+				goto case ConnectionTestType.RejectAll;
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 					ClientCertificateValidator = acceptAll, ChunkedResponse = true
 				};
@@ -357,7 +358,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (ExternalServer)
 				return null;
-			if (Parameters.Type == ConnectionTestType.MartinTest) {
+			if (false && Parameters.Type == ConnectionTestType.MartinTest) {
 				// var handler = HelloWorldHandler.Simple;
 				// var redirect = new RedirectHandler (handler, HttpStatusCode.Moved);
 				// return redirect;

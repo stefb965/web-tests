@@ -146,6 +146,7 @@ namespace Xamarin.WebTests.Tests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
 		}
 
+		[Martin]
 		[AsyncTest]
 		public Task RedirectNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{
@@ -227,7 +228,7 @@ namespace Xamarin.WebTests.Tests
 				client.Credentials = authHandler.GetCredentials ();
 		}
 
-		// [AsyncTest]
+		[AsyncTest]
 		public async Task Test10163 (TestContext ctx, HttpServer server,
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)
@@ -255,7 +256,7 @@ namespace Xamarin.WebTests.Tests
 			ctx.Assert (handlerCalled, Is.EqualTo (1), "handler called");
 		}
 
-		// [AsyncTest]
+		[AsyncTest]
 		public async Task Test20359 (TestContext ctx, HttpServer server,
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)
