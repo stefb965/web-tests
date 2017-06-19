@@ -146,7 +146,6 @@ namespace Xamarin.WebTests.Tests
 			return TestRunner.RunTraditional (ctx, server, handler, cancellationToken, SendAsync);
 		}
 
-		[Martin]
 		[AsyncTest]
 		public Task RedirectNoBuffering (TestContext ctx, HttpServer server, CancellationToken cancellationToken)
 		{

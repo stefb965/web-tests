@@ -332,9 +332,8 @@ namespace Xamarin.WebTests.TestRunners
 				return parameters;
 
 			case ConnectionTestType.MartinTest:
-				goto case ConnectionTestType.RejectAll;
 				return new HttpsTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
-					ClientCertificateValidator = acceptAll, ChunkedResponse = true
+					ClientCertificateValidator = acceptAll
 				};
 
 			default:
@@ -358,11 +357,8 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			if (ExternalServer)
 				return null;
-			if (false && Parameters.Type == ConnectionTestType.MartinTest) {
-				// var handler = HelloWorldHandler.Simple;
-				// var redirect = new RedirectHandler (handler, HttpStatusCode.Moved);
-				// return redirect;
-				var handler = GetBigChunkedHandler ();
+			if (Parameters.Type == ConnectionTestType.MartinTest) {
+				var handler = new DelayHandler (15000);
 				return handler;
 			}
 			if (Parameters.ChunkedResponse)
@@ -401,6 +397,10 @@ namespace Xamarin.WebTests.TestRunners
 			var webRequest = Provider.Client.SslStreamProvider.CreateWebRequest (uri, Parameters);
 
 			var request = new TraditionalRequest (webRequest);
+
+			if (Parameters.Type == ConnectionTestType.MartinTest) {
+				request.RequestExt.Timeout = 1500;
+			}
 
 			if (Parameters.SendChunked)
 				request.RequestExt.SetSendChunked (true);
