@@ -47,7 +47,7 @@ namespace Xamarin.WebTests.HttpFramework
 			return content != null ? new StringContent (content) : null;
 		}
 
-		public async static Task<StringContent> Read (HttpStreamReader reader, int length, CancellationToken cancellationToken)
+		public async static Task<StringContent> Read (TestContext ctx, HttpStreamReader reader, int length, CancellationToken cancellationToken)
 		{
 			var buffer = new char [length];
 			int offset = 0;

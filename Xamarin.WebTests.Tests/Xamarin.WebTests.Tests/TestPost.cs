@@ -80,7 +80,7 @@ namespace Xamarin.WebTests.Tests
 			};
 		}
 
-		static IEnumerable<Handler> GetChunkedTests ()
+		internal static Handler GetBigChunkedHandler ()
 		{
 			var chunks = new List<string> ();
 			for (var i = 'A'; i < 'Z'; i++) {
@@ -89,7 +89,12 @@ namespace Xamarin.WebTests.Tests
 
 			var content = new ChunkedContent (chunks);
 
-			yield return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+			return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+		}
+
+		static IEnumerable<Handler> GetChunkedTests ()
+		{
+			yield return GetBigChunkedHandler ();
 		}
 
 		static IEnumerable<PostHandler> GetRecentlyFixed ()
@@ -222,8 +227,7 @@ namespace Xamarin.WebTests.Tests
 				client.Credentials = authHandler.GetCredentials ();
 		}
 
-		[Martin]
-		[AsyncTest]
+		// [AsyncTest]
 		public async Task Test10163 (TestContext ctx, HttpServer server,
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)
@@ -251,7 +255,7 @@ namespace Xamarin.WebTests.Tests
 			ctx.Assert (handlerCalled, Is.EqualTo (1), "handler called");
 		}
 
-		[AsyncTest]
+		// [AsyncTest]
 		public async Task Test20359 (TestContext ctx, HttpServer server,
 		                             [AuthenticationType] AuthenticationType authType,
 		                             CancellationToken cancellationToken)

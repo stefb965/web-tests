@@ -341,10 +341,29 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		static Handler GetBigChunkedHandler ()
+		{
+			var chunks = new List<string> ();
+			for (var i = 'A'; i < 'Z'; i++) {
+				chunks.Add (new string (i, 1000));
+			}
+
+			var content = new ChunkedContent (chunks);
+
+			return new PostHandler ("Big Chunked", content, TransferMode.Chunked);
+		}
+
 		Handler CreateHandler (TestContext ctx)
 		{
 			if (ExternalServer)
 				return null;
+			if (Parameters.Type == ConnectionTestType.MartinTest) {
+				// var handler = HelloWorldHandler.Simple;
+				// var redirect = new RedirectHandler (handler, HttpStatusCode.Moved);
+				// return redirect;
+				var handler = GetBigChunkedHandler ();
+				return handler;
+			}
 			if (Parameters.ChunkedResponse)
 				return new GetHandler ("chunked", HttpContent.HelloChunked);
 			return new HelloWorldHandler ("hello");

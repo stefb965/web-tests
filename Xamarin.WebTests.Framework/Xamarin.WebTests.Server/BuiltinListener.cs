@@ -76,6 +76,8 @@ namespace Xamarin.WebTests.Server {
 				tcs = new TaskCompletionSource<bool> ();
 			}
 
+			TestContext.LogDebug (5, "START: {0} {1}", this, currentConnections);
+
 			return Task.Run (() => {
 				Listen ();
 			});
@@ -138,13 +140,20 @@ namespace Xamarin.WebTests.Server {
 			TestContext.LogDebug (5, "STOP: {0}", this);
 			cts.Cancel ();
 			Shutdown ();
-			await tcs.Task;
-			OnStop ();
+			TestContext.LogDebug (5, "STOP #1: {0} {1}", this, currentConnections);
+			try {
+				await tcs.Task;
+				TestContext.LogDebug (5, "STOP #2: {0} {1}", this, currentConnections);
+				OnStop ();
 
-			lock (this) {
-				cts.Dispose ();
-				cts = null;
-				tcs = null;
+				lock (this) {
+					cts.Dispose ();
+					cts = null;
+					tcs = null;
+				}
+			} catch (Exception ex) {
+				TestContext.LogDebug (5, "STOP ERROR: {0}", ex);
+				throw;
 			}
 		}
 

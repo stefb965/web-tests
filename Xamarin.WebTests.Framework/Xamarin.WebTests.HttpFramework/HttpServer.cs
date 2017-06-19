@@ -155,6 +155,9 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public int CountRequests => countRequests;
 
+		static int nextServerId;
+		public readonly int ID = ++nextServerId;
+
 		static long nextId;
 		int countRequests;
 
