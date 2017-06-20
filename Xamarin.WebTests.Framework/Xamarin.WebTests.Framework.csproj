@@ -193,6 +193,8 @@
     <Compile Include="Xamarin.WebTests.HttpHandlers\HttpListenerHandler.cs" />
     <Compile Include="Xamarin.WebTests.TestFramework\HttpListenerTestType.cs" />
     <Compile Include="Xamarin.WebTests.HttpHandlers\DelayHandler.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\InstrumentationHandler.cs" />
+    <Compile Include="Xamarin.WebTests.HttpHandlers\AbortHandler.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="..\CA\invalid-server-cert.pfx">
