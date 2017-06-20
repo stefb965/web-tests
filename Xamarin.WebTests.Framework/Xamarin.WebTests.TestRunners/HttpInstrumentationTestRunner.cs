@@ -27,6 +27,7 @@ using System;
 using System.IO;
 using System.Text;
 using System.Net;
+using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Collections;
@@ -44,7 +45,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[HttpInstrumentationTestRunner]
-	public class HttpInstrumentationTestRunner : AbstractConnection
+	public class HttpInstrumentationTestRunner : AbstractConnection, IHttpServerDelegate
 	{
 		public ConnectionTestProvider Provider {
 			get;
@@ -83,7 +84,7 @@ namespace Xamarin.WebTests.TestRunners
 			Uri = uri;
 
 			Server = new BuiltinHttpServer (uri, endpoint, flags, parameters, null) {
-				
+				Delegate = this
 			};
 		}
 
@@ -154,7 +155,25 @@ namespace Xamarin.WebTests.TestRunners
 
 		protected override void Stop ()
 		{
-			
+		}
+
+		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
+			TestContext ctx, HttpConnection connection, Task initTask,
+			CancellationToken cancellationToken)
+		{
+			await initTask.ConfigureAwait (false);
+			return true;
+		}
+
+		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
+		{
+			ctx.LogMessage ("HANDLE CONNECTION!");
+			return true;
+		}
+
+		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
+		{
+			return new StreamInstrumentation (ctx, Parameters.Identifier, socket, ownsSocket);
 		}
 	}
 }

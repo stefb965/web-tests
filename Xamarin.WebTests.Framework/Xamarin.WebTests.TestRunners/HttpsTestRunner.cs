@@ -27,6 +27,7 @@ using System.IO;
 using System.Text;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Net.Security;
 using System.Threading;
 using System.Threading.Tasks;
@@ -623,6 +624,11 @@ namespace Xamarin.WebTests.TestRunners
 			if (Parameters.RequireClientCertificate)
 				return ctx.Expect (streamConnection.SslStream.IsMutuallyAuthenticated, "server is mutually authenticated");
 			return true;
+		}
+
+		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
+		{
+			return null;
 		}
 
 		class MyRunner : TestRunner
