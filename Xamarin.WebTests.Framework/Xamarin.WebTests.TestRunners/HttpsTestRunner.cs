@@ -371,8 +371,6 @@ namespace Xamarin.WebTests.TestRunners
 				return null;
 			if (EffectiveType == ConnectionTestType.Abort)
 				return new AbortHandler ("abort");
-			if (EffectiveType == ConnectionTestType.Abort)
-				return new InstrumentationHandler ("abort");
 			if (Parameters.ChunkedResponse)
 				return new GetHandler ("chunked", HttpContent.HelloChunked);
 			return new HelloWorldHandler ("hello");
@@ -399,16 +397,6 @@ namespace Xamarin.WebTests.TestRunners
 				expectedStatus = HttpStatusCode.OK;
 				expectedException = WebExceptionStatus.Success;
 			}
-
-			if (handler is InstrumentationHandler instrumentationHandler) {
-				instrumentationHandler.RequestTask.ContinueWith (t => {
-					if (EffectiveType == ConnectionTestType.Abort)
-						;
-					else
-						throw new NotImplementedException ();
-				});
-			}
-
 
 			if (ExternalServer)
 				return impl.RunExternal (ctx, cancellationToken, Uri, expectedStatus, expectedException);

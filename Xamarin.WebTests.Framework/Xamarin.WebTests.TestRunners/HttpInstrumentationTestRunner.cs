@@ -1,5 +1,5 @@
 ﻿//
-// InstrumentationHandler.cs
+// HttpInstrumentationTestRunner.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -25,56 +25,39 @@
 // THE SOFTWARE.
 using System;
 using System.IO;
-using System.Net;
 using System.Text;
+using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Globalization;
+using System.Collections;
 using System.Collections.Generic;
-
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
 
-namespace Xamarin.WebTests.HttpHandlers
+namespace Xamarin.WebTests.TestRunners
 {
 	using HttpFramework;
+	using HttpHandlers;
 
-	public class InstrumentationHandler : Handler
+	public class HttpInstrumentationTestRunner : TestRunner
 	{
-		public InstrumentationHandler (string identifier)
-			: base (identifier)
-		{
-			requestTask = new TaskCompletionSource<HttpRequest> ();
-			responseTask = new TaskCompletionSource<HttpResponse> (); 
+		new public HttpInstrumentationHandler Handler {
+			get { return (HttpInstrumentationHandler)base.Handler; }
 		}
 
-		public override object Clone ()
+		public HttpInstrumentationTestRunner (HttpServer server, HttpInstrumentationHandler handler)
+			: base (server, handler)
 		{
-			return new InstrumentationHandler (Value);
 		}
 
-		TaskCompletionSource<HttpRequest> requestTask;
-		TaskCompletionSource<HttpResponse> responseTask;
-
-		public Task<HttpRequest> RequestTask => requestTask.Task;
-
-		public void SetResponse (HttpResponse response)
+		protected override Request CreateRequest (TestContext ctx, Uri uri)
 		{
-			responseTask.SetResult (response);
+			return Handler.CreateRequest (ctx, Server, uri);
 		}
 
-		internal protected override async Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
+		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
 		{
-			ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
-			requestTask.SetResult (request);
-			return await responseTask.Task.ConfigureAwait (false);
-		}
-
-		public override bool CheckResponse (TestContext ctx, Response response)
-		{
-			return ctx.Expect (response.Content, Is.Null, "response.Content");
+			return request.SendAsync (ctx, cancellationToken);
 		}
 	}
 }
