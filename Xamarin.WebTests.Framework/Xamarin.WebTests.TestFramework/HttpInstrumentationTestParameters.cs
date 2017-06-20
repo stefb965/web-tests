@@ -1,5 +1,5 @@
 ﻿//
-// HttpInstrumentationHandler.cs
+// HttpInstrumentationTestParameters.cs
 //
 // Author:
 //       Martin Baulig <mabaul@microsoft.com>
@@ -23,51 +23,37 @@
 // LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
+
 using System;
-using System.Net;
-using System.Threading;
-using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
 
-using Xamarin.AsyncTests;
-using Xamarin.AsyncTests.Constraints;
-using Xamarin.AsyncTests.Portable;
-using Xamarin.WebTests.HttpFramework;
-using Xamarin.WebTests.TestFramework;
-using Xamarin.WebTests.Server;
-
-namespace Xamarin.WebTests.HttpHandlers
+namespace Xamarin.WebTests.TestFramework
 {
-	public class HttpInstrumentationHandler : Handler
+	using ConnectionFramework;
+
+	[HttpInstrumentationTestParameters]
+	public class HttpInstrumentationTestParameters : ConnectionTestParameters
 	{
 		public HttpInstrumentationTestType Type {
 			get;
 		}
 
-		public HttpInstrumentationHandler (HttpInstrumentationTestType type) : base (type.ToString ())
+		public HttpInstrumentationTestParameters (ConnectionTestCategory category, HttpInstrumentationTestType type,
+		                                          string identifier, X509Certificate certificate)
+			: base (category, identifier, certificate)
 		{
 			Type = type;
 		}
 
-		public override bool CheckResponse (TestContext ctx, Response response)
+		protected HttpInstrumentationTestParameters (HttpInstrumentationTestParameters other)
+			: base (other)
 		{
-			return true;
+			Type = other.Type;
 		}
 
-		public override object Clone ()
+		public override ConnectionParameters DeepClone ()
 		{
-			return new HttpInstrumentationHandler (Type);
-		}
-
-		protected internal override Task<HttpResponse> HandleRequest (
-			TestContext ctx, HttpConnection connection, HttpRequest request,
-			RequestFlags effectiveFlags, CancellationToken cancellationToken)
-		{
-			throw new NotImplementedException ();
-		}
-
-		internal Request CreateRequest (TestContext ctx, HttpServer server, Uri uri)
-		{
-			return new TraditionalRequest (uri);
+			return new HttpInstrumentationTestParameters (this);
 		}
 	}
 }

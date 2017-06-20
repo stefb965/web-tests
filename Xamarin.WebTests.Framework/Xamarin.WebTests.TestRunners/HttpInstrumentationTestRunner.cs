@@ -33,31 +33,128 @@ using System.Collections;
 using System.Collections.Generic;
 using Xamarin.AsyncTests;
 using Xamarin.AsyncTests.Constraints;
+using Xamarin.AsyncTests.Portable;
 
 namespace Xamarin.WebTests.TestRunners
 {
+	using ConnectionFramework;
 	using HttpFramework;
 	using HttpHandlers;
+	using TestFramework;
+	using Resources;
 
-	public class HttpInstrumentationTestRunner : TestRunner
+	[HttpInstrumentationTestRunner]
+	public class HttpInstrumentationTestRunner : AbstractConnection
 	{
-		new public HttpInstrumentationHandler Handler {
-			get { return (HttpInstrumentationHandler)base.Handler; }
+		public ConnectionTestProvider Provider {
+			get;
 		}
 
-		public HttpInstrumentationTestRunner (HttpServer server, HttpInstrumentationHandler handler)
-			: base (server, handler)
-		{
+		protected Uri Uri {
+			get;
 		}
 
-		protected override Request CreateRequest (TestContext ctx, Uri uri)
-		{
-			return Handler.CreateRequest (ctx, Server, uri);
+		protected HttpServerFlags ServerFlags {
+			get;
 		}
 
-		protected override Task<Response> RunInner (TestContext ctx, Request request, CancellationToken cancellationToken)
+		new public HttpInstrumentationTestParameters Parameters {
+			get { return (HttpInstrumentationTestParameters)base.Parameters; }
+		}
+
+		public HttpInstrumentationTestType EffectiveType {
+			get {
+				if (Parameters.Type == HttpInstrumentationTestType.MartinTest)
+					return MartinTest;
+				return Parameters.Type;
+			}
+		}
+
+		public HttpServer Server {
+			get;
+		}
+
+		public HttpInstrumentationTestRunner (IPortableEndPoint endpoint, HttpInstrumentationTestParameters parameters,
+						      ConnectionTestProvider provider, Uri uri, HttpServerFlags flags)
+			: base (endpoint, parameters)
 		{
-			return request.SendAsync (ctx, cancellationToken);
+			Provider = provider;
+			ServerFlags = flags;
+			Uri = uri;
+
+			Server = new BuiltinHttpServer (uri, endpoint, flags, parameters, null) {
+				
+			};
+		}
+
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.Simple;
+
+		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
+		{
+			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
+
+			switch (category) {
+			case ConnectionTestCategory.MartinTest:
+				yield return HttpInstrumentationTestType.MartinTest;
+				yield break;
+
+			default:
+				throw ctx.AssertFail (category);
+			}
+		}
+
+		static string GetTestName (ConnectionTestCategory category, HttpInstrumentationTestType type, params object[] args)
+		{
+			var sb = new StringBuilder ();
+			sb.Append (type);
+			foreach (var arg in args) {
+				sb.AppendFormat (":{0}", arg);
+			}
+			return sb.ToString ();
+		}
+
+		public static HttpInstrumentationTestParameters GetParameters (TestContext ctx, ConnectionTestCategory category,
+		                                                               HttpInstrumentationTestType type)
+		{
+			var certificateProvider = DependencyInjector.Get<ICertificateProvider> ();
+			var acceptAll = certificateProvider.AcceptAll ();
+
+			var name = GetTestName (category, type);
+
+			return new HttpInstrumentationTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+				ClientCertificateValidator = acceptAll
+			};
+		}
+
+		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
+		{
+			var handler = HelloWorldHandler.Simple;
+			await TestRunner.RunTraditional (ctx, Server, handler, cancellationToken, true).ConfigureAwait (false);
+		}
+
+		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
+		{
+			await Server.Initialize (ctx, cancellationToken).ConfigureAwait (false);
+		}
+
+		protected override async Task Destroy (TestContext ctx, CancellationToken cancellationToken)
+		{
+			await Server.Destroy (ctx, cancellationToken).ConfigureAwait (false);
+		}
+
+		protected override async Task PreRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			await Server.PreRun (ctx, cancellationToken).ConfigureAwait (false);
+		}
+
+		protected override async Task PostRun (TestContext ctx, CancellationToken cancellationToken)
+		{
+			await Server.PostRun (ctx, cancellationToken).ConfigureAwait (false);
+		}
+
+		protected override void Stop ()
+		{
+			
 		}
 	}
 }

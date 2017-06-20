@@ -50,11 +50,14 @@ namespace Xamarin.WebTests.Tests
 		}
 
 		[Martin]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.MartinTest)]
 		[AsyncTest (ParameterFilter = "martin", Unstable = true)]
-		public Task MartinTest (TestContext ctx, HttpServer server, HttpInstrumentationHandler handler,
-					CancellationToken cancellationToken)
+		public Task MartinTest (TestContext ctx, CancellationToken cancellationToken,
+		                        ConnectionTestProvider provider,
+		                        HttpInstrumentationTestParameters parameters,
+		                        HttpInstrumentationTestRunner runner)
 		{
-			var runner = new HttpInstrumentationTestRunner (server, handler);
 			return runner.Run (ctx, cancellationToken);
 		}
 	}
