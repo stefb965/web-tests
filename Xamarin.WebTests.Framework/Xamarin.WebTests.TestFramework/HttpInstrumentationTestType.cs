@@ -30,6 +30,7 @@ namespace Xamarin.WebTests.TestFramework
 	{
 		Simple,
 		InvalidDataDuringHandshake,
+		AbortDuringHandshake,
 		MartinTest
 	}
 }

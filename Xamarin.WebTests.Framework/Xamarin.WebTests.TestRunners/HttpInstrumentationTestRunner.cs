@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.InvalidDataDuringHandshake;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.AbortDuringHandshake;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -131,17 +131,28 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var handler = HelloWorldHandler.Simple;
 
-			var expectedStatus = HttpStatusCode.OK;
-			var expectedError = WebExceptionStatus.Success;
+			HttpStatusCode expectedStatus;
+			WebExceptionStatus expectedError;
 
-			if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
+			switch (EffectiveType) {
+			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
 				expectedStatus = HttpStatusCode.InternalServerError;
 				expectedError = WebExceptionStatus.SecureChannelFailure;
+				break;
+			case HttpInstrumentationTestType.AbortDuringHandshake:
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedError = WebExceptionStatus.RequestCanceled;
+				break;
+			case HttpInstrumentationTestType.Simple:
+				expectedStatus = HttpStatusCode.OK;
+				expectedError = WebExceptionStatus.Success;
+				break;
+			default:
+				throw ctx.AssertFail (EffectiveType);
 			}
 
-			await TestRunner.RunTraditional (
-				ctx, Server, handler, cancellationToken, true,
-				expectedStatus, expectedError).ConfigureAwait (false);
+			var runner = new MyRunner (this, Server, handler, true);
+			await runner.Run (ctx, cancellationToken, expectedStatus, expectedError).ConfigureAwait (false);
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -168,7 +179,33 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		void ConfigureRequest (TestContext ctx, Uri uri, TraditionalRequest request)
+		{
+			if (Interlocked.CompareExchange (ref currentRequest, request, null) != null)
+				throw ctx.AssertFail ("Invalid nested call!");
+		}
+
+		class MyRunner : TraditionalTestRunner
+		{
+			public HttpInstrumentationTestRunner Parent {
+				get;
+			}
+
+			public MyRunner (HttpInstrumentationTestRunner parent, HttpServer server, Handler handler, bool sendAsync)
+				: base (server, handler, sendAsync)
+			{
+				Parent = parent;
+			}
+
+			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
+			{
+				Parent.ConfigureRequest (ctx, uri, (TraditionalRequest)request);
+				base.ConfigureRequest (ctx, uri, request);
+			}
+		}
+
 		StreamInstrumentation serverInstrumentation;
+		TraditionalRequest currentRequest;
 
 		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
 			TestContext ctx, HttpConnection connection, Task initTask,
@@ -218,12 +255,19 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.Simple:
+			case HttpInstrumentationTestType.AbortDuringHandshake:
 				break;
 			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
 				InstallReadHandler (ctx, instrumentation);
 				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
+			}
+
+			if (EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake) {
+				ctx.Assert (currentRequest, Is.Not.Null, "current request");
+				currentRequest.Request.Abort ();
+				await Task.Delay (5000).ConfigureAwait (false);
 			}
 
 			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
