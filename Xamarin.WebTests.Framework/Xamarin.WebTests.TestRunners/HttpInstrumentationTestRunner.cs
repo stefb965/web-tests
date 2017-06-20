@@ -174,8 +174,17 @@ namespace Xamarin.WebTests.TestRunners
 			TestContext ctx, HttpConnection connection, Task initTask,
 			CancellationToken cancellationToken)
 		{
-			await initTask.ConfigureAwait (false);
-			return true;
+			try
+			{
+				await initTask.ConfigureAwait (false);
+				return true;
+			} catch (OperationCanceledException) {
+				return false;
+			} catch {
+				if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake)
+					return false;
+				throw;
+			}
 		}
 
 		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
