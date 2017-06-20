@@ -99,6 +99,12 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpInstrumentationTestType.MartinTest;
 				yield break;
 
+			case ConnectionTestCategory.HttpInstrumentation:
+				yield return HttpInstrumentationTestType.Simple;
+				yield return HttpInstrumentationTestType.InvalidDataDuringHandshake;
+				yield return HttpInstrumentationTestType.AbortDuringHandshake;
+				yield break;
+
 			default:
 				throw ctx.AssertFail (category);
 			}

@@ -38,15 +38,18 @@ using Xamarin.WebTests.TestRunners;
 namespace Xamarin.WebTests.Tests
 {
 	[AsyncTestFixture]
-	public class TestHttpInstrumentation : ITestParameterSource<HttpInstrumentationHandler>
+	public class TestHttpInstrumentation
 	{
-		public IEnumerable<HttpInstrumentationHandler> GetParameters (TestContext ctx, string filter)
+		[New]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentation)]
+		[AsyncTest (ParameterFilter = "stable")]
+		public Task Run (TestContext ctx, CancellationToken cancellationToken,
+		                 ConnectionTestProvider provider,
+		                 HttpInstrumentationTestParameters parameters,
+		                 HttpInstrumentationTestRunner runner)
 		{
-			switch (filter) {
-			case "martin":
-				yield return new HttpInstrumentationHandler (HttpInstrumentationTestType.MartinTest);
-				break;
-			}
+			return runner.Run (ctx, cancellationToken);
 		}
 
 		[Martin]
