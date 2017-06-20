@@ -392,6 +392,9 @@ namespace Xamarin.WebTests.TestRunners
 			} else if (Parameters.ExpectWebException) {
 				expectedStatus = HttpStatusCode.InternalServerError;
 				expectedException = WebExceptionStatus.AnyErrorStatus;
+			} else if (EffectiveType == ConnectionTestType.Abort) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedException = WebExceptionStatus.RequestCanceled;
 			} else {
 				expectedStatus = HttpStatusCode.OK;
 				expectedException = WebExceptionStatus.Success;
