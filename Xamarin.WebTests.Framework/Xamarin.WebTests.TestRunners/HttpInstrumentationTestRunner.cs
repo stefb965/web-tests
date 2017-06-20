@@ -129,6 +129,8 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
+			requestDoneTcs = new TaskCompletionSource<bool> ();
+
 			var handler = HelloWorldHandler.Simple;
 
 			HttpStatusCode expectedStatus;
@@ -152,7 +154,13 @@ namespace Xamarin.WebTests.TestRunners
 			}
 
 			var runner = new MyRunner (this, Server, handler, true);
-			await runner.Run (ctx, cancellationToken, expectedStatus, expectedError).ConfigureAwait (false);
+			try {
+				await runner.Run (ctx, cancellationToken, expectedStatus, expectedError).ConfigureAwait (false);
+				requestDoneTcs.TrySetResult (true);
+			} catch {
+				requestDoneTcs.TrySetResult (false);
+				throw;
+			}
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -206,6 +214,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		StreamInstrumentation serverInstrumentation;
 		TraditionalRequest currentRequest;
+		TaskCompletionSource<bool> requestDoneTcs;
 
 		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
 			TestContext ctx, HttpConnection connection, Task initTask,
@@ -218,7 +227,8 @@ namespace Xamarin.WebTests.TestRunners
 			} catch (OperationCanceledException) {
 				return false;
 			} catch {
-				if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake)
+				if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake ||
+				    EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake)
 					return false;
 				throw;
 			}
@@ -267,7 +277,8 @@ namespace Xamarin.WebTests.TestRunners
 			if (EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake) {
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				currentRequest.Request.Abort ();
-				await Task.Delay (5000).ConfigureAwait (false);
+				// Wait until the client request finished, to make sure we are actually aboring.
+				await requestDoneTcs.Task.ConfigureAwait (false);
 			}
 
 			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
