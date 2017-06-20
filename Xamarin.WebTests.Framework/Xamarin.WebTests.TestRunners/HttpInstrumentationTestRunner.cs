@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.Simple;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.InvalidDataDuringHandshake;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -130,7 +130,18 @@ namespace Xamarin.WebTests.TestRunners
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var handler = HelloWorldHandler.Simple;
-			await TestRunner.RunTraditional (ctx, Server, handler, cancellationToken, true).ConfigureAwait (false);
+
+			var expectedStatus = HttpStatusCode.OK;
+			var expectedError = WebExceptionStatus.Success;
+
+			if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
+				expectedStatus = HttpStatusCode.InternalServerError;
+				expectedError = WebExceptionStatus.SecureChannelFailure;
+			}
+
+			await TestRunner.RunTraditional (
+				ctx, Server, handler, cancellationToken, true,
+				expectedStatus, expectedError).ConfigureAwait (false);
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -157,6 +168,8 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
+		StreamInstrumentation serverInstrumentation;
+
 		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
 			TestContext ctx, HttpConnection connection, Task initTask,
 			CancellationToken cancellationToken)
@@ -173,7 +186,47 @@ namespace Xamarin.WebTests.TestRunners
 
 		Stream IHttpServerDelegate.CreateNetworkStream (TestContext ctx, Socket socket, bool ownsSocket)
 		{
-			return new StreamInstrumentation (ctx, Parameters.Identifier, socket, ownsSocket);
+			var instrumentation = new StreamInstrumentation (ctx, Parameters.Identifier, socket, ownsSocket);
+			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
+				throw ctx.AssertFail ("Invalid nested call!");
+
+			InstallReadHandler (ctx, instrumentation);
+
+			return instrumentation;
+		}
+
+		void InstallReadHandler (TestContext ctx, StreamInstrumentation instrumentation)
+		{
+			instrumentation.OnNextRead ((b, o, s, f, c) => ReadHandler (ctx, instrumentation, b, o, s, f, c));
+		}
+
+		async Task<int> ReadHandler (TestContext ctx, StreamInstrumentation instrumentation,
+		                             byte[] buffer, int offset, int size,
+		                             StreamInstrumentation.AsyncReadFunc func,
+		                             CancellationToken cancellationToken)
+		{
+			cancellationToken.ThrowIfCancellationRequested ();
+
+			switch (EffectiveType) {
+			case HttpInstrumentationTestType.Simple:
+				break;
+			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
+				InstallReadHandler (ctx, instrumentation);
+				break;
+			default:
+				throw ctx.AssertFail (EffectiveType);
+			}
+
+			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
+
+			if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
+				if (ret > 50) {
+					for (int i = 10; i < 40; i++)
+						buffer[i] = 0xAA;
+				}
+			}
+
+			return ret;
 		}
 	}
 }
