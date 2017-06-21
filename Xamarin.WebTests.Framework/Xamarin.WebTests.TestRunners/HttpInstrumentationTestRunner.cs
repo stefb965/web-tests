@@ -421,7 +421,8 @@ namespace Xamarin.WebTests.TestRunners
 				return false;
 			} catch {
 				if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake ||
-				    EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake)
+				    EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake ||
+				    EffectiveType == HttpInstrumentationTestType.CancelMainWhileQueued)
 					return false;
 				throw;
 			}
