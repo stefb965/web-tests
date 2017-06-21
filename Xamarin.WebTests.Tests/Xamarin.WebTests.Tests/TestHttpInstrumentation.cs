@@ -58,9 +58,11 @@ namespace Xamarin.WebTests.Tests
 		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationStress)]
 		public Task RunStress (TestContext ctx, CancellationToken cancellationToken,
 		                       ConnectionTestProvider provider,
-		                       HttpInstrumentationTestParameters parameters,
+				       [Repeat (50)] int repeat,
+				       HttpInstrumentationTestParameters parameters,
 		                       HttpInstrumentationTestRunner runner)
 		{
+			ctx.LogDebug (1, $"RunStress: {repeat}");
 			return runner.Run (ctx, cancellationToken);
 		}
 
