@@ -225,13 +225,20 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
+		async Task<Operation> StartParallel (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                                     HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                                     WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			await Server.StartParallel (ctx, cancellationToken).ConfigureAwait (false);
+			return new Operation (this, handler, true, expectedStatus, expectedError);
+		}
+
 		async Task RunParallel (TestContext ctx, CancellationToken cancellationToken, Handler handler,
 		                        HttpStatusCode expectedStatus = HttpStatusCode.OK,
 		                        WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			await Server.StartParallel (ctx, cancellationToken).ConfigureAwait (false);
-			var runner = new Operation (this, handler, true, expectedStatus, expectedError);
-			await runner.Run (ctx, cancellationToken).ConfigureAwait (false);
+			var operation = await StartParallel (ctx, cancellationToken, handler, expectedStatus, expectedError).ConfigureAwait (false);
+			await operation.Run (ctx, cancellationToken);
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -492,11 +499,16 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
-					var task = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
-					if (Interlocked.CompareExchange (ref queuedTask, task, null) == null)
-						InstallReadHandler (ctx, true, instrumentation);
-					else
-						queuedRequest.Request.Abort ();
+					var operation = await StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.Simple,
+						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
+					var task = operation.Run (ctx, cancellationToken);
+					if (Interlocked.CompareExchange (ref queuedTask, task, null) != null)
+						throw new InvalidOperationException ("Invalid nested call.");
+					var request = await operation.WaitForRequest ().ConfigureAwait (false);
+					// Wait a bit to make sure the request has been queued.
+					await Task.Delay (500).ConfigureAwait (false);
+					request.Request.Abort ();
 				}
 				break;
 
