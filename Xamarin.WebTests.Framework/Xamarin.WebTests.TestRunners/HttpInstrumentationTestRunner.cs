@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.SimpleNtlm;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -111,6 +111,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpInstrumentationTestType.ManyParallelRequests;
 				yield return HttpInstrumentationTestType.CancelQueuedRequest;
 				yield return HttpInstrumentationTestType.CancelMainWhileQueued;
+				yield return HttpInstrumentationTestType.SimpleNtlm;
 				yield break;
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
@@ -151,6 +152,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 			case HttpInstrumentationTestType.CancelQueuedRequest:
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
+			case HttpInstrumentationTestType.NtlmWhileQueued:
 				parameters.ConnectionLimit = 1;
 				break;
 			case HttpInstrumentationTestType.ThreeParallelRequests:
@@ -230,6 +232,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.SimpleNtlm:
+			case HttpInstrumentationTestType.NtlmWhileQueued:
 				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
 			default:
 				return hello;
@@ -353,6 +356,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.SimpleQueuedRequest:
 				case HttpInstrumentationTestType.CancelQueuedRequest:
 				case HttpInstrumentationTestType.CancelMainWhileQueued:
+				case HttpInstrumentationTestType.NtlmWhileQueued:
 					ctx.Assert (servicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (servicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
 					break;
@@ -551,6 +555,15 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 
 			case HttpInstrumentationTestType.SimpleNtlm:
+				break;
+
+			case HttpInstrumentationTestType.NtlmWhileQueued:
+				ctx.Assert (currentOperation.HasRequest, "current request");
+				if (primary) {
+					var operation = await StartParallel (ctx, cancellationToken, HelloWorldHandler.Simple).ConfigureAwait (false);
+					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
+						throw ctx.AssertFail ("Invalid nested call");
+				}
 				break;
 
 			default:
