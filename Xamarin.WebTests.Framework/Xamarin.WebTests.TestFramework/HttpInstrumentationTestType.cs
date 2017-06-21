@@ -31,6 +31,8 @@ namespace Xamarin.WebTests.TestFramework
 		Simple,
 		InvalidDataDuringHandshake,
 		AbortDuringHandshake,
+		ParallelRequests,
+		SimpleQueuedRequest,
 		MartinTest
 	}
 }

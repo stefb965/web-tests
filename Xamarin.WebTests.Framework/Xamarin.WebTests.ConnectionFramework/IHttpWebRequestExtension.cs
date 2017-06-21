@@ -54,6 +54,10 @@ namespace Xamarin.WebTests.ConnectionFramework
 
 		Task<HttpWebResponse> GetResponseAsync ();
 
+		ServicePoint ServicePoint {
+			get;
+		}
+
 		void InstallCertificateValidator (RemoteCertificateValidationCallback validator);
 
 		void SetClientCertificates (X509CertificateCollection clientCertificates);

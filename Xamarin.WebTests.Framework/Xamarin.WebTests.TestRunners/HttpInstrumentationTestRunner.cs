@@ -88,7 +88,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.AbortDuringHandshake;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ParallelRequests;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -152,6 +152,8 @@ namespace Xamarin.WebTests.TestRunners
 				expectedError = WebExceptionStatus.RequestCanceled;
 				break;
 			case HttpInstrumentationTestType.Simple:
+			case HttpInstrumentationTestType.SimpleQueuedRequest:
+			case HttpInstrumentationTestType.ParallelRequests:
 				expectedStatus = HttpStatusCode.OK;
 				expectedError = WebExceptionStatus.Success;
 				break;
@@ -159,14 +161,23 @@ namespace Xamarin.WebTests.TestRunners
 				throw ctx.AssertFail (EffectiveType);
 			}
 
-			var runner = new MyRunner (this, Server, handler, true);
+			var runner = new MyRunner (this, Server, handler, false, expectedStatus, expectedError);
+
 			try {
-				await runner.Run (ctx, cancellationToken, expectedStatus, expectedError).ConfigureAwait (false);
+				await runner.Run (ctx, cancellationToken).ConfigureAwait (false);
 				requestDoneTcs.TrySetResult (true);
 			} catch {
 				requestDoneTcs.TrySetResult (false);
 				throw;
 			}
+		}
+
+		async Task Run (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                bool parallel = false, HttpStatusCode expectedStatus = HttpStatusCode.OK,
+				WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			var runner = new MyRunner (this, Server, handler, parallel, expectedStatus, expectedError);
+			await runner.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -193,10 +204,26 @@ namespace Xamarin.WebTests.TestRunners
 		{
 		}
 
-		void ConfigureRequest (TestContext ctx, Uri uri, TraditionalRequest request)
+		void ConfigureRequest (TestContext ctx, Uri uri, TraditionalRequest request, bool isParallel)
 		{
+			if (isParallel) {
+				switch (EffectiveType) {
+				case HttpInstrumentationTestType.ParallelRequests:
+					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
+					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
+					break;
+				default:
+					throw ctx.AssertFail (EffectiveType);
+				}
+				return;
+			}
+
 			if (Interlocked.CompareExchange (ref currentRequest, request, null) != null)
 				throw ctx.AssertFail ("Invalid nested call!");
+			currentServicePoint = request.RequestExt.ServicePoint;
+
+			if (EffectiveType == HttpInstrumentationTestType.SimpleQueuedRequest)
+				currentServicePoint.ConnectionLimit = 1;
 		}
 
 		class MyRunner : TraditionalTestRunner
@@ -205,21 +232,43 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
-			public MyRunner (HttpInstrumentationTestRunner parent, HttpServer server, Handler handler, bool sendAsync)
-				: base (server, handler, sendAsync)
+			public bool IsParallelRequest {
+				get;
+			}
+
+			public HttpStatusCode ExpectedStatus {
+				get;
+			}
+
+			public WebExceptionStatus ExpectedError {
+				get;
+			}
+
+			public MyRunner (HttpInstrumentationTestRunner parent, HttpServer server, Handler handler,
+					 bool parallel, HttpStatusCode expectedStatus, WebExceptionStatus expectedError)
+				: base (server, handler, true)
 			{
 				Parent = parent;
+				IsParallelRequest = parallel;
+				ExpectedStatus = expectedStatus;
+				ExpectedError = expectedError;
 			}
 
 			protected override void ConfigureRequest (TestContext ctx, Uri uri, Request request)
 			{
-				Parent.ConfigureRequest (ctx, uri, (TraditionalRequest)request);
+				Parent.ConfigureRequest (ctx, uri, (TraditionalRequest)request, IsParallelRequest);
 				base.ConfigureRequest (ctx, uri, request);
+			}
+
+			public Task Run (TestContext ctx, CancellationToken cancellationToken)
+			{
+				return Run (ctx, cancellationToken, ExpectedStatus, ExpectedError);
 			}
 		}
 
 		StreamInstrumentation serverInstrumentation;
 		TraditionalRequest currentRequest;
+		ServicePoint currentServicePoint;
 		TaskCompletionSource<bool> requestDoneTcs;
 
 		async Task<bool> IHttpServerDelegate.CheckCreateConnection (
@@ -250,7 +299,7 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			var instrumentation = new StreamInstrumentation (ctx, Parameters.Identifier, socket, ownsSocket);
 			if (Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null) != null)
-				throw ctx.AssertFail ("Invalid nested call!");
+				return null;
 
 			InstallReadHandler (ctx, instrumentation);
 
@@ -271,20 +320,26 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.Simple:
+				break;
+			case HttpInstrumentationTestType.ParallelRequests:
+				ctx.Assert (currentRequest, Is.Not.Null, "current request");
+				await Run (ctx, cancellationToken, HelloWorldHandler.Simple, true).ConfigureAwait (false);
+				break;
+			case HttpInstrumentationTestType.SimpleQueuedRequest:
+				ctx.Assert (currentRequest, Is.Not.Null, "current request");
+				await Run (ctx, cancellationToken, HelloWorldHandler.Simple, true).ConfigureAwait (false);
+				break;
 			case HttpInstrumentationTestType.AbortDuringHandshake:
+				ctx.Assert (currentRequest, Is.Not.Null, "current request");
+				currentRequest.Request.Abort ();
+				// Wait until the client request finished, to make sure we are actually aboring.
+				await requestDoneTcs.Task.ConfigureAwait (false);
 				break;
 			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
 				InstallReadHandler (ctx, instrumentation);
 				break;
 			default:
 				throw ctx.AssertFail (EffectiveType);
-			}
-
-			if (EffectiveType == HttpInstrumentationTestType.AbortDuringHandshake) {
-				ctx.Assert (currentRequest, Is.Not.Null, "current request");
-				currentRequest.Request.Abort ();
-				// Wait until the client request finished, to make sure we are actually aboring.
-				await requestDoneTcs.Task.ConfigureAwait (false);
 			}
 
 			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);

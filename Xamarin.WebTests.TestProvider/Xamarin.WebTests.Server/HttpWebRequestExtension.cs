@@ -96,6 +96,8 @@ namespace Xamarin.WebTests.Server
 			return (HttpWebResponse)await Request.GetResponseAsync ();
 		}
 
+		public ServicePoint ServicePoint => Request.ServicePoint;
+
 		public void InstallCertificateValidator (RemoteCertificateValidationCallback validator)
 		{
 			Request.ServerCertificateValidationCallback = validator;
