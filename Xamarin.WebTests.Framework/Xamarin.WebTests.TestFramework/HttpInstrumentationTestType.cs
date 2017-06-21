@@ -39,6 +39,7 @@ namespace Xamarin.WebTests.TestFramework
 		SimpleQueuedRequest,
 		CancelQueuedRequest,
 		CancelMainWhileQueued,
+		SimpleNtlm,
 		MartinTest
 	}
 }

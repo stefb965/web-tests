@@ -38,7 +38,7 @@ namespace Xamarin.WebTests.HttpHandlers
 		public HelloWorldHandler (string identifier)
 			: base (identifier)
 		{
-			Message = string.Format ("Hello World {0}!", ++next_id);
+			Message = string.Format ("Hello World ({0}:{1})!", ++next_id, identifier);
 		}
 
 		public string Message {

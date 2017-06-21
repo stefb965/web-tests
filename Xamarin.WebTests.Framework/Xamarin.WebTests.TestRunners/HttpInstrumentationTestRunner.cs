@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.CancelMainWhileQueued;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.SimpleNtlm;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -110,6 +110,7 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpInstrumentationTestType.ParallelRequestsSomeQueued;
 				yield return HttpInstrumentationTestType.ManyParallelRequests;
 				yield return HttpInstrumentationTestType.CancelQueuedRequest;
+				yield return HttpInstrumentationTestType.CancelMainWhileQueued;
 				yield break;
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
@@ -174,7 +175,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
-			var handler = HelloWorldHandler.Simple;
+			var handler = CreateHandler (ctx);
 
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedError;
@@ -189,27 +190,16 @@ namespace Xamarin.WebTests.TestRunners
 				expectedStatus = HttpStatusCode.InternalServerError;
 				expectedError = WebExceptionStatus.RequestCanceled;
 				break;
-			case HttpInstrumentationTestType.Simple:
-			case HttpInstrumentationTestType.SimpleQueuedRequest:
-			case HttpInstrumentationTestType.CancelQueuedRequest:
-			case HttpInstrumentationTestType.ParallelRequests:
-			case HttpInstrumentationTestType.ThreeParallelRequests:
-			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
-			case HttpInstrumentationTestType.ManyParallelRequests:
-			case HttpInstrumentationTestType.ManyParallelRequestsStress:
+			default:
 				expectedStatus = HttpStatusCode.OK;
 				expectedError = WebExceptionStatus.Success;
 				break;
-			default:
-				throw ctx.AssertFail (EffectiveType);
 			}
 
 			currentOperation = new Operation (this, handler, false, expectedStatus, expectedError);
 			currentOperation.Start (ctx, cancellationToken);
 
 			await currentOperation.WaitForCompletion ().ConfigureAwait (false);
-
-			ctx.LogMessage ("OPERATION DONE!");
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
@@ -230,10 +220,19 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 			}
 
-			if (queuedOperation != null) {
-				ctx.LogMessage ("WAITING FOR QUEUED OP");
+			if (queuedOperation != null)
 				await queuedOperation.WaitForCompletion ().ConfigureAwait (false);
-				ctx.LogMessage ("WAITING FOR QUEUED OP DONE");
+		}
+
+		Handler CreateHandler (TestContext ctx)
+		{
+			var hello = new HelloWorldHandler (EffectiveType.ToString ());
+
+			switch (EffectiveType) {
+			case HttpInstrumentationTestType.SimpleNtlm:
+				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
+			default:
+				return hello;
 			}
 		}
 
@@ -378,7 +377,6 @@ namespace Xamarin.WebTests.TestRunners
 			public void Start (TestContext ctx, CancellationToken cancellationToken)
 			{
 				runTask = Run (ctx, cancellationToken, ExpectedStatus, ExpectedError).ContinueWith (t => {
-					ctx.LogMessage ($"OPERATION DONE: {IsParallelRequest} {t.Status}");
 					if (t.IsFaulted || t.IsCanceled)
 						requestDoneTask.TrySetResult (false);
 					else
@@ -517,6 +515,10 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
 				ctx.Assert (primary, "Primary request");
 				InstallReadHandler (ctx, primary, instrumentation);
+				if (ret > 50) {
+					for (int i = 10; i < 40; i++)
+						buffer[i] = 0xAA;
+				}
 				break;
 
 			case HttpInstrumentationTestType.CancelQueuedRequest:
@@ -548,15 +550,11 @@ namespace Xamarin.WebTests.TestRunners
 				}
 				break;
 
+			case HttpInstrumentationTestType.SimpleNtlm:
+				break;
+
 			default:
 				throw ctx.AssertFail (EffectiveType);
-			}
-
-			if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
-				if (ret > 50) {
-					for (int i = 10; i < 40; i++)
-						buffer[i] = 0xAA;
-				}
 			}
 
 			return ret;
