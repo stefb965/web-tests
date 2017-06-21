@@ -63,12 +63,13 @@ namespace Xamarin.WebTests.TestRunners
 			get { return (HttpInstrumentationTestParameters)base.Parameters; }
 		}
 
-		public HttpInstrumentationTestType EffectiveType {
-			get {
-				if (Parameters.Type == HttpInstrumentationTestType.MartinTest)
-					return MartinTest;
-				return Parameters.Type;
-			}
+		public HttpInstrumentationTestType EffectiveType => GetEffectiveType (Parameters.Type);
+
+		static HttpInstrumentationTestType GetEffectiveType (HttpInstrumentationTestType type)
+		{
+			if (type == HttpInstrumentationTestType.MartinTest)
+				return MartinTest;
+			return type;
 		}
 
 		public HttpServer Server {
@@ -88,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ThreeParallelRequests;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ParallelRequestsSomeQueued;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -105,6 +106,10 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpInstrumentationTestType.AbortDuringHandshake;
 				yield return HttpInstrumentationTestType.ParallelRequests;
 				yield return HttpInstrumentationTestType.SimpleQueuedRequest;
+				yield return HttpInstrumentationTestType.ThreeParallelRequests;
+				yield return HttpInstrumentationTestType.ParallelRequestsSomeQueued;
+				yield return HttpInstrumentationTestType.ManyParallelRequests;
+				yield return HttpInstrumentationTestType.ManyParallelRequestsStress;
 				yield break;
 
 			default:
@@ -130,9 +135,23 @@ namespace Xamarin.WebTests.TestRunners
 
 			var name = GetTestName (category, type);
 
-			return new HttpInstrumentationTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
+			var parameters = new HttpInstrumentationTestParameters (category, type, name, ResourceManager.SelfSignedServerCertificate) {
 				ClientCertificateValidator = acceptAll
 			};
+
+			switch (GetEffectiveType (type)) {
+			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+				parameters.CountParallelRequests = 5;
+				break;
+			case HttpInstrumentationTestType.ManyParallelRequests:
+				parameters.CountParallelRequests = 10;
+				break;
+			case HttpInstrumentationTestType.ManyParallelRequestsStress:
+				parameters.CountParallelRequests = 50;
+				break;
+			}
+
+			return parameters;
 		}
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
@@ -157,6 +176,9 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 			case HttpInstrumentationTestType.ParallelRequests:
 			case HttpInstrumentationTestType.ThreeParallelRequests:
+			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+			case HttpInstrumentationTestType.ManyParallelRequests:
+			case HttpInstrumentationTestType.ManyParallelRequestsStress:
 				expectedStatus = HttpStatusCode.OK;
 				expectedError = WebExceptionStatus.Success;
 				break;
@@ -174,14 +196,23 @@ namespace Xamarin.WebTests.TestRunners
 				throw;
 			}
 
-			if (EffectiveType == HttpInstrumentationTestType.ParallelRequests) {
+			switch (EffectiveType) {
+			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (readHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
-			} else if (EffectiveType == HttpInstrumentationTestType.ThreeParallelRequests) {
+				break;
+			case HttpInstrumentationTestType.ThreeParallelRequests:
 				ctx.Assert (readHandlerCalled, Is.EqualTo (3), "ReadHandler called three times");
-			} else if (EffectiveType == HttpInstrumentationTestType.SimpleQueuedRequest) {
+				break;
+			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (queuedTask, Is.Not.Null, "have queued task");
 				await queuedTask.ConfigureAwait (false);
 				ctx.Assert (readHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
+				break;
+			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+			case HttpInstrumentationTestType.ManyParallelRequests:
+			case HttpInstrumentationTestType.ManyParallelRequestsStress:
+				ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests), "ReadHandler count");
+				break;
 			}
 		}
 
@@ -227,6 +258,9 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
 					break;
 				case HttpInstrumentationTestType.ThreeParallelRequests:
+				case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+				case HttpInstrumentationTestType.ManyParallelRequests:
+				case HttpInstrumentationTestType.ManyParallelRequestsStress:
 					break;
 				default:
 					throw ctx.AssertFail (EffectiveType);
@@ -238,10 +272,23 @@ namespace Xamarin.WebTests.TestRunners
 				throw ctx.AssertFail ("Invalid nested call!");
 			currentServicePoint = request.RequestExt.ServicePoint;
 
-			if (EffectiveType == HttpInstrumentationTestType.SimpleQueuedRequest)
+			switch (EffectiveType) {
+			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				currentServicePoint.ConnectionLimit = 1;
-			else if (EffectiveType == HttpInstrumentationTestType.ThreeParallelRequests)
+				break;
+			case HttpInstrumentationTestType.ThreeParallelRequests:
 				currentServicePoint.ConnectionLimit = 5;
+				break;
+			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+				currentServicePoint.ConnectionLimit = 3;
+				break;
+			case HttpInstrumentationTestType.ManyParallelRequests:
+				currentServicePoint.ConnectionLimit = 5;
+				break;
+			case HttpInstrumentationTestType.ManyParallelRequestsStress:
+				currentServicePoint.ConnectionLimit = 10;
+				break;
+			}
 		}
 
 		class MyRunner : TraditionalTestRunner
@@ -342,6 +389,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.Simple:
 				ctx.Assert (primary, "Primary request");
 				break;
+
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
@@ -351,6 +399,7 @@ namespace Xamarin.WebTests.TestRunners
 					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
 				}
 				break;
+
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
@@ -359,12 +408,28 @@ namespace Xamarin.WebTests.TestRunners
 						throw ctx.AssertFail ("Invalid nested call");
 				}
 				break;
+
 			case HttpInstrumentationTestType.ThreeParallelRequests:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
 					var secondTask = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
 					var thirdTask = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
 					await Task.WhenAll (secondTask, thirdTask).ConfigureAwait (false);
+				} else {
+					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
+					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
+				}
+				break;
+
+			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
+			case HttpInstrumentationTestType.ManyParallelRequests:
+			case HttpInstrumentationTestType.ManyParallelRequestsStress:
+				ctx.Assert (currentRequest, Is.Not.Null, "current request");
+				if (primary) {
+					var parallelTasks = new Task [Parameters.CountParallelRequests];
+					for (int i = 0; i < parallelTasks.Length; i++)
+						parallelTasks [i] = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
+					await Task.WhenAll (parallelTasks).ConfigureAwait (false);
 				} else {
 					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
@@ -378,10 +443,12 @@ namespace Xamarin.WebTests.TestRunners
 				// Wait until the client request finished, to make sure we are actually aboring.
 				await requestDoneTcs.Task.ConfigureAwait (false);
 				break;
+
 			case HttpInstrumentationTestType.InvalidDataDuringHandshake:
 				ctx.Assert (primary, "Primary request");
 				InstallReadHandler (ctx, primary, instrumentation);
 				break;
+
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
