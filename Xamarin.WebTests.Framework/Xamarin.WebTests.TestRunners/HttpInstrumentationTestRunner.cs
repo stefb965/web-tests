@@ -209,6 +209,8 @@ namespace Xamarin.WebTests.TestRunners
 
 			await currentOperation.WaitForCompletion ().ConfigureAwait (false);
 
+			ctx.LogMessage ("OPERATION DONE!");
+
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (readHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
@@ -226,6 +228,12 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ManyParallelRequestsStress:
 				// ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests + 1), "ReadHandler count");
 				break;
+			}
+
+			if (queuedOperation != null) {
+				ctx.LogMessage ("WAITING FOR QUEUED OP");
+				await queuedOperation.WaitForCompletion ().ConfigureAwait (false);
+				ctx.LogMessage ("WAITING FOR QUEUED OP DONE");
 			}
 		}
 
@@ -370,6 +378,7 @@ namespace Xamarin.WebTests.TestRunners
 			public void Start (TestContext ctx, CancellationToken cancellationToken)
 			{
 				runTask = Run (ctx, cancellationToken, ExpectedStatus, ExpectedError).ContinueWith (t => {
+					ctx.LogMessage ($"OPERATION DONE: {IsParallelRequest} {t.Status}");
 					if (t.IsFaulted || t.IsCanceled)
 						requestDoneTask.TrySetResult (false);
 					else
@@ -528,13 +537,12 @@ namespace Xamarin.WebTests.TestRunners
 				ctx.Assert (currentOperation.HasRequest, "current request");
 				if (primary) {
 					var operation = await StartParallel (
-						ctx, cancellationToken, HelloWorldHandler.Simple,
-						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
+						ctx, cancellationToken, HelloWorldHandler.Simple).ConfigureAwait (false);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
 					// Wait a bit to make sure the request has been queued.
-					await Task.Delay (500).ConfigureAwait (false);
+					await Task.Delay (2500).ConfigureAwait (false);
 					currentOperation.Request.Request.Abort ();
 				}
 				break;
