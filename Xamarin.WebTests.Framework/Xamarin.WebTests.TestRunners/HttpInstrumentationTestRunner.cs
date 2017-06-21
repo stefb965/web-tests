@@ -140,14 +140,23 @@ namespace Xamarin.WebTests.TestRunners
 			};
 
 			switch (GetEffectiveType (type)) {
+			case HttpInstrumentationTestType.SimpleQueuedRequest:
+				parameters.ConnectionLimit = 1;
+				break;
+			case HttpInstrumentationTestType.ThreeParallelRequests:
+				parameters.ConnectionLimit = 5;
+				break;
 			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
 				parameters.CountParallelRequests = 5;
+				parameters.ConnectionLimit = 3;
 				break;
 			case HttpInstrumentationTestType.ManyParallelRequests:
 				parameters.CountParallelRequests = 10;
+				parameters.ConnectionLimit = 5;
 				break;
 			case HttpInstrumentationTestType.ManyParallelRequestsStress:
 				parameters.CountParallelRequests = 50;
+				parameters.ConnectionLimit = 10;
 				break;
 			}
 
@@ -211,7 +220,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
 			case HttpInstrumentationTestType.ManyParallelRequests:
 			case HttpInstrumentationTestType.ManyParallelRequestsStress:
-				ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests), "ReadHandler count");
+				ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests + 1), "ReadHandler count");
 				break;
 			}
 		}
@@ -272,23 +281,10 @@ namespace Xamarin.WebTests.TestRunners
 				throw ctx.AssertFail ("Invalid nested call!");
 			currentServicePoint = request.RequestExt.ServicePoint;
 
-			switch (EffectiveType) {
-			case HttpInstrumentationTestType.SimpleQueuedRequest:
-				currentServicePoint.ConnectionLimit = 1;
-				break;
-			case HttpInstrumentationTestType.ThreeParallelRequests:
-				currentServicePoint.ConnectionLimit = 5;
-				break;
-			case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
-				currentServicePoint.ConnectionLimit = 3;
-				break;
-			case HttpInstrumentationTestType.ManyParallelRequests:
-				currentServicePoint.ConnectionLimit = 5;
-				break;
-			case HttpInstrumentationTestType.ManyParallelRequestsStress:
-				currentServicePoint.ConnectionLimit = 10;
-				break;
-			}
+			if (Parameters.ConnectionLimit != 0)
+				currentServicePoint.ConnectionLimit = Parameters.ConnectionLimit;
+			if (Parameters.IdleTime != 0)
+				currentServicePoint.MaxIdleTime = Parameters.IdleTime;
 		}
 
 		class MyRunner : TraditionalTestRunner
@@ -432,7 +428,7 @@ namespace Xamarin.WebTests.TestRunners
 					await Task.WhenAll (parallelTasks).ConfigureAwait (false);
 				} else {
 					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
-					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
+					ctx.Expect (currentServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
 				}
 				break;
 

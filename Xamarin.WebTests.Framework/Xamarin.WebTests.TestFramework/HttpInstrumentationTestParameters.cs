@@ -50,9 +50,19 @@ namespace Xamarin.WebTests.TestFramework
 		{
 			Type = other.Type;
 			CountParallelRequests = other.CountParallelRequests;
+			ConnectionLimit = other.ConnectionLimit;
+			IdleTime = other.IdleTime;
 		}
 
 		public int CountParallelRequests {
+			get; set;
+		}
+
+		public int ConnectionLimit {
+			get; set;
+		}
+
+		public int IdleTime {
 			get; set;
 		}
 
