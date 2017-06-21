@@ -66,11 +66,15 @@ namespace Xamarin.WebTests.HttpFramework {
 
 		public override void RegisterHandler (string path, Handler handler)
 		{
+			if (handlers.ContainsKey (path))
+				throw new NotSupportedException ($"Attempted to register path '{path}' a second time.");
 			handlers.Add (path, handler);
 		}
 
 		protected internal override Handler GetHandler (string path)
 		{
+			if (!handlers.ContainsKey (path))
+				throw new NotSupportedException ($"No handler registered for path '{path}'.");
 			var handler = handlers[path];
 			handlers.Remove (path);
 			return handler;
