@@ -37,6 +37,7 @@ namespace Xamarin.WebTests.TestFramework
 		ManyParallelRequests,
 		ManyParallelRequestsStress,
 		SimpleQueuedRequest,
+		CancelQueuedRequest,
 		MartinTest
 	}
 }
