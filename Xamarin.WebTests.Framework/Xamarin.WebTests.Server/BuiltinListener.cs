@@ -79,18 +79,18 @@ namespace Xamarin.WebTests.Server {
 			TestContext.LogDebug (5, "START: {0} {1}", this, currentConnections);
 
 			return Task.Run (() => {
-				Listen ();
+				Listen (false);
 			});
 		}
 
-		void Listen ()
+		void Listen (bool singleRequest)
 		{
 			Interlocked.Increment (ref currentConnections);
-			TestContext.LogDebug (5, "LISTEN: {0} {1}", this, currentConnections);
-			AcceptAsync (cts.Token).ContinueWith (OnAccepted);
+			TestContext.LogDebug (5, "LISTEN: {0} {1} {2}", this, singleRequest, currentConnections);
+			AcceptAsync (cts.Token).ContinueWith (t => OnAccepted (singleRequest, t));
 		}
 
-		void OnAccepted (Task<HttpConnection> task)
+		void OnAccepted (bool singleRequest, Task<HttpConnection> task)
 		{
 			if (task.IsCanceled || cts.IsCancellationRequested) {
 				OnFinished ();
@@ -101,7 +101,8 @@ namespace Xamarin.WebTests.Server {
 				return;
 			}
 
-			Listen ();
+			if (!singleRequest)
+				Listen (false);
 
 			var connection = task.Result;
 
@@ -167,7 +168,7 @@ namespace Xamarin.WebTests.Server {
 
 		public void StartParallel ()
 		{
-			Listen ();
+			Listen (true);
 		}
 
 		public async Task<T> RunWithContext<T> (TestContext ctx, Func<CancellationToken, Task<T>> func, CancellationToken cancellationToken)
