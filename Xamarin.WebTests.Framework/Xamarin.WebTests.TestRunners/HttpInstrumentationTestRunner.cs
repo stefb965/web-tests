@@ -345,6 +345,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ParallelRequests:
 				case HttpInstrumentationTestType.SimpleQueuedRequest:
 				case HttpInstrumentationTestType.CancelQueuedRequest:
+				case HttpInstrumentationTestType.CancelMainWhileQueued:
 					ctx.Assert (servicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (servicePoint.CurrentConnections, Is.EqualTo (1), "ServicePoint.CurrentConnections");
 					break;
@@ -516,11 +517,25 @@ namespace Xamarin.WebTests.TestRunners
 						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
 					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
 						throw new InvalidOperationException ("Invalid nested call.");
-					var task = operation.Run (ctx, cancellationToken);
 					var request = await operation.WaitForRequest ().ConfigureAwait (false);
 					// Wait a bit to make sure the request has been queued.
 					await Task.Delay (500).ConfigureAwait (false);
 					request.Request.Abort ();
+				}
+				break;
+
+			case HttpInstrumentationTestType.CancelMainWhileQueued:
+				ctx.Assert (currentOperation.HasRequest, "current request");
+				if (primary) {
+					var operation = await StartParallel (
+						ctx, cancellationToken, HelloWorldHandler.Simple,
+						HttpStatusCode.InternalServerError, WebExceptionStatus.RequestCanceled).ConfigureAwait (false);
+					if (Interlocked.CompareExchange (ref queuedOperation, operation, null) != null)
+						throw new InvalidOperationException ("Invalid nested call.");
+					var request = await operation.WaitForRequest ().ConfigureAwait (false);
+					// Wait a bit to make sure the request has been queued.
+					await Task.Delay (500).ConfigureAwait (false);
+					currentOperation.Request.Request.Abort ();
 				}
 				break;
 
