@@ -225,11 +225,12 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		async Task Run (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-		                bool parallel = false, HttpStatusCode expectedStatus = HttpStatusCode.OK,
-				WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		async Task RunParallel (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                        HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                        WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
-			var runner = new MyRunner (this, Server, handler, parallel, expectedStatus, expectedError);
+			await Server.StartParallel (ctx, cancellationToken).ConfigureAwait (false);
+			var runner = new MyRunner (this, Server, handler, true, expectedStatus, expectedError);
 			await runner.Run (ctx, cancellationToken).ConfigureAwait (false);
 		}
 
@@ -379,6 +380,8 @@ namespace Xamarin.WebTests.TestRunners
 		{
 			cancellationToken.ThrowIfCancellationRequested ();
 
+			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
+
 			Interlocked.Increment (ref readHandlerCalled);
 
 			switch (EffectiveType) {
@@ -389,7 +392,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
-					await Run (ctx, cancellationToken, HelloWorldHandler.Simple, true).ConfigureAwait (false);
+					await RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple).ConfigureAwait (false);
 				} else {
 					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
 					ctx.Assert (currentServicePoint.CurrentConnections, Is.EqualTo (2), "ServicePoint.CurrentConnections");
@@ -399,7 +402,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleQueuedRequest:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
-					var task = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
+					var task = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
 					if (Interlocked.CompareExchange (ref queuedTask, task, null) != null)
 						throw ctx.AssertFail ("Invalid nested call");
 				}
@@ -408,8 +411,8 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ThreeParallelRequests:
 				ctx.Assert (currentRequest, Is.Not.Null, "current request");
 				if (primary) {
-					var secondTask = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
-					var thirdTask = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
+					var secondTask = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
+					var thirdTask = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
 					await Task.WhenAll (secondTask, thirdTask).ConfigureAwait (false);
 				} else {
 					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
@@ -424,7 +427,7 @@ namespace Xamarin.WebTests.TestRunners
 				if (primary) {
 					var parallelTasks = new Task [Parameters.CountParallelRequests];
 					for (int i = 0; i < parallelTasks.Length; i++)
-						parallelTasks [i] = Run (ctx, cancellationToken, HelloWorldHandler.Simple, true);
+						parallelTasks [i] = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
 					await Task.WhenAll (parallelTasks).ConfigureAwait (false);
 				} else {
 					ctx.Assert (currentServicePoint, Is.Not.Null, "ServicePoint");
@@ -448,8 +451,6 @@ namespace Xamarin.WebTests.TestRunners
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
-
-			var ret = await func (buffer, offset, size, cancellationToken).ConfigureAwait (false);
 
 			if (EffectiveType == HttpInstrumentationTestType.InvalidDataDuringHandshake) {
 				if (ret > 50) {

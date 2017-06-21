@@ -135,6 +135,8 @@ namespace Xamarin.WebTests.HttpFramework {
 			Interlocked.Exchange (ref initialized, 0);
 		}
 
+		public abstract Task StartParallel (TestContext ctx, CancellationToken cancellationToken);
+
 		public abstract Task Start (TestContext ctx, CancellationToken cancellationToken);
 
 		public abstract Task Stop (TestContext ctx, CancellationToken cancellationToken);

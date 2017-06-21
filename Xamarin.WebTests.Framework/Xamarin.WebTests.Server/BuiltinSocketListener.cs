@@ -59,7 +59,7 @@ namespace Xamarin.WebTests.Server
 
 			socket = new Socket (AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 			socket.Bind (NetworkEndPoint);
-			socket.Listen (1);
+			socket.Listen (128);
 		}
 
 		public override async Task<HttpConnection> AcceptAsync (CancellationToken cancellationToken)
