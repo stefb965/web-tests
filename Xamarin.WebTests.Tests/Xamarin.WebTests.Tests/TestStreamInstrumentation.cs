@@ -41,7 +41,6 @@ namespace Xamarin.WebTests.Tests
 	using TestFramework;
 	using TestRunners;
 
-	[Work]
 	[CleanShutdown]
 	[AsyncTestFixture (Timeout = 5000)]
 	public class TestStreamInstrumentation
@@ -66,19 +65,8 @@ namespace Xamarin.WebTests.Tests
 			await runner.Run (ctx, cancellationToken);
 		}
 
-		[New]
 		[AsyncTest]
-		[ProtocolVersion (ProtocolVersions.Tls12)]
-		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentation)]
-		public async Task RunNew (TestContext ctx, CancellationToken cancellationToken,
-		                          ConnectionTestProvider provider, StreamInstrumentationParameters parameters,
-		                          StreamInstrumentationTestRunner runner)
-		{
-			await runner.Run (ctx, cancellationToken);
-		}
-
-		[New]
-		[AsyncTest]
+		[Experimental]
 		[ProtocolVersion (ProtocolVersions.Tls12)]
 		[ConnectionTestCategory (ConnectionTestCategory.SslStreamInstrumentationExperimental)]
 		public async Task RunExperimental (TestContext ctx, CancellationToken cancellationToken,

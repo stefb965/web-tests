@@ -109,7 +109,13 @@ namespace Xamarin.WebTests.TestRunners
 				yield return HttpInstrumentationTestType.ThreeParallelRequests;
 				yield return HttpInstrumentationTestType.ParallelRequestsSomeQueued;
 				yield return HttpInstrumentationTestType.ManyParallelRequests;
+				yield break;
+
+			case ConnectionTestCategory.HttpInstrumentationStress:
 				yield return HttpInstrumentationTestType.ManyParallelRequestsStress;
+				yield break;
+
+			case ConnectionTestCategory.HttpInstrumentationExperimental:
 				yield break;
 
 			default:
@@ -155,8 +161,8 @@ namespace Xamarin.WebTests.TestRunners
 				parameters.ConnectionLimit = 5;
 				break;
 			case HttpInstrumentationTestType.ManyParallelRequestsStress:
-				parameters.CountParallelRequests = 50;
-				parameters.ConnectionLimit = 10;
+				parameters.CountParallelRequests = 100;
+				parameters.ConnectionLimit = 25;
 				break;
 			}
 
@@ -355,7 +361,6 @@ namespace Xamarin.WebTests.TestRunners
 
 		bool IHttpServerDelegate.HandleConnection (TestContext ctx, HttpConnection connection, HttpRequest request, Handler handler)
 		{
-			ctx.LogMessage ("HANDLE CONNECTION!");
 			return true;
 		}
 

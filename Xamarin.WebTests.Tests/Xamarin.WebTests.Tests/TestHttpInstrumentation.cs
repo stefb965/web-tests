@@ -40,14 +40,39 @@ namespace Xamarin.WebTests.Tests
 	[AsyncTestFixture]
 	public class TestHttpInstrumentation
 	{
-		[New]
+		[Work]
+		[AsyncTest]
 		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
 		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentation)]
-		[AsyncTest (ParameterFilter = "stable")]
 		public Task Run (TestContext ctx, CancellationToken cancellationToken,
-		                 ConnectionTestProvider provider,
-		                 HttpInstrumentationTestParameters parameters,
-		                 HttpInstrumentationTestRunner runner)
+				 ConnectionTestProvider provider,
+				 HttpInstrumentationTestParameters parameters,
+				 HttpInstrumentationTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
+		[Stress]
+		[AsyncTest]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationStress)]
+		public Task RunStress (TestContext ctx, CancellationToken cancellationToken,
+		                       ConnectionTestProvider provider,
+		                       HttpInstrumentationTestParameters parameters,
+		                       HttpInstrumentationTestRunner runner)
+		{
+			return runner.Run (ctx, cancellationToken);
+		}
+
+		[Work]
+		[AsyncTest]
+		[Experimental]
+		[ConnectionTestFlags (ConnectionTestFlags.RequireDotNet)]
+		[ConnectionTestCategory (ConnectionTestCategory.HttpInstrumentationExperimental)]
+		public Task RunExperimental (TestContext ctx, CancellationToken cancellationToken,
+		                             ConnectionTestProvider provider,
+		                             HttpInstrumentationTestParameters parameters,
+		                             HttpInstrumentationTestRunner runner)
 		{
 			return runner.Run (ctx, cancellationToken);
 		}
