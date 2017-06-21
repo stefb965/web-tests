@@ -121,14 +121,14 @@ namespace Xamarin.WebTests.Server
 			return HttpResponse.Read (ctx, reader, cancellationToken);
 		}
 
-		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
+		internal override Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
 			return request.Write (writer, cancellationToken);
 		}
 
-		internal override Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
+		internal override Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)
 		{
-			return response.Write (writer, cancellationToken);
+			return response.Write (ctx, writer, cancellationToken, Server.Instrumentation);
 		}
 
 		protected override void Close ()

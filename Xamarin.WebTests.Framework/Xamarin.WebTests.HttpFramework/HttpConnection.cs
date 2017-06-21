@@ -70,9 +70,9 @@ namespace Xamarin.WebTests.HttpFramework
 
 		public abstract Task<HttpResponse> ReadResponse (TestContext ctx, CancellationToken cancellationToken);
 
-		internal abstract Task WriteRequest (HttpRequest request, CancellationToken cancellationToken);
+		internal abstract Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken);
 
-		internal abstract Task WriteResponse (HttpResponse response, CancellationToken cancellationToken);
+		internal abstract Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken);
 
 		int disposed;
 

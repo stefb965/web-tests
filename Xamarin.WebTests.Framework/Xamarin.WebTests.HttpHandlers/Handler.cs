@@ -138,8 +138,18 @@ namespace Xamarin.WebTests.HttpHandlers
 				if (!response.KeepAlive.HasValue && ((Flags & RequestFlags.KeepAlive) != 0))
 					response.KeepAlive = true;
 
-				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				bool responseWritten = false;
+				var instrumentation = connection.Server.Instrumentation;
+				if (instrumentation != null) {
+					cancellationToken.ThrowIfCancellationRequested ();
+					responseWritten = await instrumentation.WriteResponse (
+						ctx, connection, response, cancellationToken).ConfigureAwait (false);
+				}
+
+				if (!responseWritten) {
+					cancellationToken.ThrowIfCancellationRequested ();
+					await connection.WriteResponse (ctx, response, cancellationToken);
+				}
 
 				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (ctx, response);
@@ -166,7 +176,7 @@ namespace Xamarin.WebTests.HttpHandlers
 
 			try {
 				cancellationToken.ThrowIfCancellationRequested ();
-				await connection.WriteResponse (response, cancellationToken);
+				await connection.WriteResponse (ctx, response, cancellationToken);
 				return false;
 			} catch (OperationCanceledException) {
 				throw;

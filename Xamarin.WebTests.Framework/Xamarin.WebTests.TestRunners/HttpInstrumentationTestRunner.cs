@@ -45,7 +45,7 @@ namespace Xamarin.WebTests.TestRunners
 	using Resources;
 
 	[HttpInstrumentationTestRunner]
-	public class HttpInstrumentationTestRunner : AbstractConnection, IHttpServerDelegate
+	public class HttpInstrumentationTestRunner : AbstractConnection, IHttpServerDelegate, IHttpInstrumentation
 	{
 		public ConnectionTestProvider Provider {
 			get;
@@ -85,7 +85,7 @@ namespace Xamarin.WebTests.TestRunners
 			Uri = uri;
 
 			Server = new BuiltinHttpServer (uri, endpoint, flags, parameters, null) {
-				Delegate = this
+				Delegate = this, Instrumentation = this
 			};
 		}
 
@@ -441,6 +441,21 @@ namespace Xamarin.WebTests.TestRunners
 			var old = Interlocked.CompareExchange (ref serverInstrumentation, instrumentation, null);
 			InstallReadHandler (ctx, old == null, instrumentation);
 			return instrumentation;
+		}
+
+		async Task<bool> IHttpInstrumentation.WriteResponse (TestContext ctx, HttpConnection connection,
+		                                                     HttpResponse response, CancellationToken cancellationToken)
+		{
+			await connection.WriteResponse (ctx, response, cancellationToken).ConfigureAwait (false);
+			return true;
+		}
+
+		async Task IHttpInstrumentation.ResponseHeadersWritten (TestContext ctx, CancellationToken cancellationToken)
+		{
+			ctx.LogMessage ("RESPONSE HEADERS WRITTEN!");
+			if (EffectiveType != HttpInstrumentationTestType.NtlmWhileQueued)
+				return;
+			await Task.Delay (100000).ConfigureAwait (false);
 		}
 
 		void InstallReadHandler (TestContext ctx, bool primary, StreamInstrumentation instrumentation)

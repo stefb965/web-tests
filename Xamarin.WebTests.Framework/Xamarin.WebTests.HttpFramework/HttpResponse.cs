@@ -149,7 +149,8 @@ namespace Xamarin.WebTests.HttpFramework
 			Body = await ReadBody (ctx, reader, cancellationToken);
 		}
 
-		public async Task Write (StreamWriter writer, CancellationToken cancellationToken)
+		public async Task Write (TestContext ctx, StreamWriter writer, CancellationToken cancellationToken,
+		                         IHttpInstrumentation instrumentation = null)
 		{
 			CheckHeaders ();
 			responseWritten = true;
@@ -159,6 +160,9 @@ namespace Xamarin.WebTests.HttpFramework
 			var message = StatusMessage ?? ((HttpStatusCode)StatusCode).ToString ();
 			await writer.WriteAsync (string.Format ("{0} {1} {2}\r\n", ProtocolToString (Protocol), (int)StatusCode, message));
 			await WriteHeaders (writer, cancellationToken);
+
+			if (instrumentation != null)
+				await instrumentation.ResponseHeadersWritten (ctx, cancellationToken).ConfigureAwait (false);
 
 			if (Body != null)
 				await Body.WriteToAsync (writer);

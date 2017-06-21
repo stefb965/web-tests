@@ -69,7 +69,7 @@ namespace Xamarin.WebTests.Server
 					authHeader = null;
 				var response = authManager.HandleAuthentication (connection, request, authHeader);
 				if (response != null) {
-					await connection.WriteResponse (response, cancellationToken);
+					await connection.WriteResponse (TestContext, response, cancellationToken);
 					return false;
 				}
 
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Server
 				var copyResponseTask = CopyResponse (connection, targetConnection, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
-				await targetConnection.WriteRequest (request, cancellationToken);
+				await targetConnection.WriteRequest (TestContext, request, cancellationToken);
 
 				cancellationToken.ThrowIfCancellationRequested ();
 				await copyResponseTask;
@@ -111,7 +111,7 @@ namespace Xamarin.WebTests.Server
 			response.SetHeader ("Proxy-Connection", "close");
 
 			cancellationToken.ThrowIfCancellationRequested ();
-			await connection.WriteResponse (response, cancellationToken);
+			await connection.WriteResponse (TestContext, response, cancellationToken);
 		}
 
 		IPEndPoint GetConnectEndpoint (HttpRequest request)
@@ -140,7 +140,7 @@ namespace Xamarin.WebTests.Server
 			writer.AutoFlush = true;
 
 			var connectionEstablished = new HttpResponse (HttpStatusCode.OK, HttpProtocol.Http10, "Connection established");
-			await connectionEstablished.Write (writer, cancellationToken).ConfigureAwait (false);
+			await connectionEstablished.Write (TestContext, writer, cancellationToken).ConfigureAwait (false);
 
 			try {
 				await RunTunnel (stream, targetStream, cancellationToken);

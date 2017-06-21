@@ -114,7 +114,7 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		internal override async Task WriteResponse (HttpResponse response, CancellationToken cancellationToken)
+		internal override async Task WriteResponse (TestContext ctx, HttpResponse response, CancellationToken cancellationToken)
 		{
 			await Task.Yield ();
 			cancellationToken.ThrowIfCancellationRequested ();
@@ -147,7 +147,7 @@ namespace Xamarin.WebTests.Server {
 			}
 		}
 
-		internal override Task WriteRequest (HttpRequest request, CancellationToken cancellationToken)
+		internal override Task WriteRequest (TestContext ctx, HttpRequest request, CancellationToken cancellationToken)
 		{
 			throw new NotImplementedException ();
 		}
