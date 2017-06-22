@@ -41,6 +41,8 @@ namespace Xamarin.WebTests.TestFramework
 		CancelMainWhileQueued,
 		SimpleNtlm,
 		NtlmWhileQueued,
-		MartinTest
+		ReuseConnection,
+		MartinTest,
+		DummyDontUse
 	}
 }

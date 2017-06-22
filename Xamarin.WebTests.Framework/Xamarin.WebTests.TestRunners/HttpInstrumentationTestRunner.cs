@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.NtlmWhileQueued;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ReuseConnection;
 
 		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
@@ -177,6 +177,7 @@ namespace Xamarin.WebTests.TestRunners
 
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
+			var me = $"{GetType ().Name}.{nameof (Run)}()";
 			var handler = CreateHandler (ctx);
 
 			HttpStatusCode expectedStatus;
@@ -189,6 +190,7 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 			case HttpInstrumentationTestType.AbortDuringHandshake:
 			case HttpInstrumentationTestType.CancelMainWhileQueued:
+			case HttpInstrumentationTestType.NtlmWhileQueued:
 				expectedStatus = HttpStatusCode.InternalServerError;
 				expectedError = WebExceptionStatus.RequestCanceled;
 				break;
@@ -198,10 +200,18 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 			}
 
+			ctx.LogDebug (2, $"{me}");
+
 			currentOperation = new Operation (this, handler, false, expectedStatus, expectedError);
 			currentOperation.Start (ctx, cancellationToken);
 
-			await currentOperation.WaitForCompletion ().ConfigureAwait (false);
+			try {
+				await currentOperation.WaitForCompletion ().ConfigureAwait (false);
+				ctx.LogDebug (2, $"{me} operation done");
+			} catch (Exception ex) {
+				ctx.LogDebug (2, $"{me} operation failed: {ex.Message}");
+				throw;
+			}
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
@@ -220,10 +230,21 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ManyParallelRequestsStress:
 				// ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests + 1), "ReadHandler count");
 				break;
+			case HttpInstrumentationTestType.ReuseConnection:
+				await RunSecond (ctx, cancellationToken, CreateHandler (ctx)).ConfigureAwait (false);
+				break;
 			}
 
-			if (queuedOperation != null)
-				await queuedOperation.WaitForCompletion ().ConfigureAwait (false);
+			if (queuedOperation != null) {
+				ctx.LogDebug (2, $"{me} waiting for queued operations.");
+				try {
+					await queuedOperation.WaitForCompletion ().ConfigureAwait (false);
+					ctx.LogDebug (2, $"{me} done waiting for queued operations.");
+				} catch (Exception ex) {
+					ctx.LogDebug (2, $"{me} waiting for queued operations failed: {ex.Message}.");
+					throw;
+				}
+			}
 		}
 
 		Handler CreateHandler (TestContext ctx)
@@ -234,8 +255,27 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.SimpleNtlm:
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
+			case HttpInstrumentationTestType.ReuseConnection:
+				return new HttpInstrumentationHandler (this);
 			default:
 				return hello;
+			}
+		}
+
+		async Task HandleRequest (
+			TestContext ctx, HttpInstrumentationHandler handler,
+			HttpConnection connection, HttpRequest request,
+			CancellationToken cancellationToken)
+		{
+			if (EffectiveType == HttpInstrumentationTestType.DummyDontUse)
+				await Task.Yield ();
+
+			if (EffectiveType == HttpInstrumentationTestType.ReuseConnection) {
+				var firstHandler = (HttpInstrumentationHandler)currentOperation.Handler;
+				ctx.LogDebug (2, $"{handler.Message}: {handler == firstHandler} {handler.RemoteEndPoint}");
+				if (handler == firstHandler)
+					return;
+				ctx.Assert (connection.RemoteEndPoint, Is.EqualTo (firstHandler.RemoteEndPoint), "RemoteEndPoint");
 			}
 		}
 
@@ -254,6 +294,15 @@ namespace Xamarin.WebTests.TestRunners
 		                        WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var operation = await StartParallel (ctx, cancellationToken, handler, expectedStatus, expectedError).ConfigureAwait (false);
+			await operation.WaitForCompletion ();
+		}
+
+		async Task RunSecond (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                      HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                      WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		{
+			var operation = new Operation (this, handler, true, expectedStatus, expectedError);
+			operation.Start (ctx, cancellationToken);
 			await operation.WaitForCompletion ();
 		}
 
@@ -364,6 +413,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ParallelRequestsSomeQueued:
 				case HttpInstrumentationTestType.ManyParallelRequests:
 				case HttpInstrumentationTestType.ManyParallelRequestsStress:
+				case HttpInstrumentationTestType.ReuseConnection:
 					break;
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
@@ -452,10 +502,11 @@ namespace Xamarin.WebTests.TestRunners
 
 		async Task IHttpInstrumentation.ResponseHeadersWritten (TestContext ctx, CancellationToken cancellationToken)
 		{
-			ctx.LogMessage ("RESPONSE HEADERS WRITTEN!");
 			if (EffectiveType != HttpInstrumentationTestType.NtlmWhileQueued)
 				return;
-			await Task.Delay (100000).ConfigureAwait (false);
+
+			await Task.Delay (500);
+			currentOperation.Request.Request.Abort ();
 		}
 
 		void InstallReadHandler (TestContext ctx, bool primary, StreamInstrumentation instrumentation)
@@ -505,7 +556,7 @@ namespace Xamarin.WebTests.TestRunners
 					var thirdTask = RunParallel (ctx, cancellationToken, HelloWorldHandler.Simple);
 					await Task.WhenAll (secondTask, thirdTask).ConfigureAwait (false);
 				} else {
-					ctx.Assert (currentOperation.ServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
+					// ctx.Assert (currentOperation.ServicePoint.CurrentConnections, Is.EqualTo (3), "ServicePoint.CurrentConnections");
 				}
 				break;
 
@@ -581,11 +632,64 @@ namespace Xamarin.WebTests.TestRunners
 				}
 				break;
 
+			case HttpInstrumentationTestType.ReuseConnection:
+				break;
+
 			default:
 				throw ctx.AssertFail (EffectiveType);
 			}
 
 			return ret;
+		}
+
+		class HttpInstrumentationHandler : Handler
+		{
+			public HttpInstrumentationTestRunner TestRunner {
+				get;
+			}
+
+			public string Message {
+				get;
+			}
+
+			public IPEndPoint RemoteEndPoint {
+				get;
+				private set;
+			}
+
+			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent)
+				: base (parent.EffectiveType.ToString ())
+			{
+				TestRunner = parent;
+				Message = $"{GetType ().Name}({parent.EffectiveType})";
+				Flags = RequestFlags.KeepAlive;
+			}
+
+			public override object Clone ()
+			{
+				return new HttpInstrumentationHandler (TestRunner);
+			}
+
+			protected internal override async Task<HttpResponse> HandleRequest (
+				TestContext ctx, HttpConnection connection, HttpRequest request,
+				RequestFlags effectiveFlags, CancellationToken cancellationToken)
+			{
+				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
+				RemoteEndPoint = connection.RemoteEndPoint;
+				await TestRunner.HandleRequest (ctx, this, connection, request, cancellationToken).ConfigureAwait (false);
+				return HttpResponse.CreateSuccess (Message);
+			}
+
+			public override bool CheckResponse (TestContext ctx, Response response)
+			{
+				if (!ctx.Expect (response.Content, Is.Not.Null, "response.Content != null"))
+					return false;
+				if (!ctx.Expect (response.Content.Length, Is.EqualTo (Message.Length), "response.Content.Length"))
+					return false;
+				if (!ctx.Expect (response.Content.AsString (), Is.EqualTo (Message), "response.Content.AsString()"))
+					return false;
+				return true;
+			}
 		}
 	}
 }
