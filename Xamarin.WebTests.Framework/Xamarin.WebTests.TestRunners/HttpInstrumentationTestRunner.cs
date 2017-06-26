@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.SimpleNtlm;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ReuseConnection;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -107,13 +107,12 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.SimplePost,
 			HttpInstrumentationTestType.SimpleRedirect,
 			HttpInstrumentationTestType.PostRedirect,
+			HttpInstrumentationTestType.PostNtlm,
 		};
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
 			HttpInstrumentationTestType.ReuseConnection,
 			HttpInstrumentationTestType.MartinTest,
-			HttpInstrumentationTestType.PostRedirect,
-			HttpInstrumentationTestType.PostNtlm,
 		};
 
 		static readonly HttpInstrumentationTestType[] StressTests = {
@@ -198,7 +197,7 @@ namespace Xamarin.WebTests.TestRunners
 		public async Task Run (TestContext ctx, CancellationToken cancellationToken)
 		{
 			var me = $"{GetType ().Name}.{nameof (Run)}()";
-			var handler = CreateHandler (ctx);
+			var handler = CreateHandler (ctx, true);
 
 			HttpStatusCode expectedStatus;
 			WebExceptionStatus expectedError;
@@ -251,7 +250,7 @@ namespace Xamarin.WebTests.TestRunners
 				// ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests + 1), "ReadHandler count");
 				break;
 			case HttpInstrumentationTestType.ReuseConnection:
-				await RunSecond (ctx, cancellationToken, CreateHandler (ctx)).ConfigureAwait (false);
+				await RunSecond (ctx, cancellationToken, CreateHandler (ctx, false)).ConfigureAwait (false);
 				break;
 			}
 
@@ -267,7 +266,7 @@ namespace Xamarin.WebTests.TestRunners
 			}
 		}
 
-		Handler CreateHandler (TestContext ctx)
+		Handler CreateHandler (TestContext ctx, bool primary)
 		{
 			var hello = new HelloWorldHandler (EffectiveType.ToString ());
 			var postHello = new PostHandler (EffectiveType.ToString (), HttpContent.HelloWorld);
@@ -278,7 +277,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
 			case HttpInstrumentationTestType.ReuseConnection:
-				return new HttpInstrumentationHandler (this);
+				return new HttpInstrumentationHandler (this, !primary);
 			case HttpInstrumentationTestType.SimplePost:
 				return postHello;
 			case HttpInstrumentationTestType.SimpleRedirect:
@@ -697,22 +696,29 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			public bool CloseConnection {
+				get;
+			}
+
 			public IPEndPoint RemoteEndPoint {
 				get;
 				private set;
 			}
 
-			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent)
+			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent, bool closeConnection)
 				: base (parent.EffectiveType.ToString ())
 			{
 				TestRunner = parent;
+				CloseConnection = closeConnection;
 				Message = $"{GetType ().Name}({parent.EffectiveType})";
 				Flags = RequestFlags.KeepAlive;
+				if (closeConnection)
+					Flags |= RequestFlags.CloseConnection;
 			}
 
 			public override object Clone ()
 			{
-				return new HttpInstrumentationHandler (TestRunner);
+				return new HttpInstrumentationHandler (TestRunner, CloseConnection);
 			}
 
 			protected internal override async Task<HttpResponse> HandleRequest (

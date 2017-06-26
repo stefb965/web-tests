@@ -153,6 +153,8 @@ namespace Xamarin.WebTests.HttpHandlers
 
 				Debug (ctx, 1, "HANDLE REQUEST DONE", response);
 				DumpHeaders (ctx, response);
+				if ((Flags & RequestFlags.CloseConnection) != 0)
+					return false;
 				return response.KeepAlive ?? false;
 			} catch (AssertionException ex) {
 				originalError = ex;

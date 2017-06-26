@@ -81,7 +81,7 @@ namespace Xamarin.WebTests.Server {
 				tcs = new TaskCompletionSource<bool> ();
 			}
 
-			TestContext.LogDebug (5, $"{ME}: START: {this} {currentConnections}");
+			TestContext.LogDebug (5, $"{ME}: START: {currentConnections}");
 
 			return Task.Run (() => {
 				Listen (false);
@@ -91,7 +91,7 @@ namespace Xamarin.WebTests.Server {
 		void Listen (bool singleRequest)
 		{
 			Interlocked.Increment (ref currentConnections);
-			TestContext.LogDebug (5, $"{ME}: LISTEN: {this} {singleRequest} {currentConnections}");
+			TestContext.LogDebug (5, $"{ME}: LISTEN: {singleRequest} {currentConnections}");
 			AcceptAsync (cts.Token).ContinueWith (t => OnAccepted (singleRequest, t));
 		}
 
@@ -113,7 +113,7 @@ namespace Xamarin.WebTests.Server {
 			var connection = task.Result;
 
 			MainLoop (connection, cts.Token).ContinueWith (t => {
-				TestContext.LogDebug (5, $"{ME}: MAIN LOOP DONE: {this} {t.Status}");
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP DONE: {t.Status}");
 				if (t.IsFaulted)
 					TestContext.AddException (ref currentError, t);
 				if (t.IsCompleted)
@@ -129,7 +129,7 @@ namespace Xamarin.WebTests.Server {
 				var connections = Interlocked.Decrement (ref currentConnections);
 				var error = Interlocked.Exchange (ref currentError, null);
 
-				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {this} {connections} {error}");
+				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {connections} {error}");
 
 				if (error != null) {
 					tcs.SetException (error);
@@ -147,10 +147,10 @@ namespace Xamarin.WebTests.Server {
 			TestContext.LogDebug (5, $"{ME}: STOP: {this}");
 			cts.Cancel ();
 			Shutdown ();
-			TestContext.LogDebug (5, $"{ME}: STOP #1: {this} {currentConnections}");
+			TestContext.LogDebug (5, $"{ME}: STOP #1: {currentConnections}");
 			try {
 				await tcs.Task;
-				TestContext.LogDebug (5, $"{ME}: STOP #2: {this} {currentConnections}");
+				TestContext.LogDebug (5, $"{ME}: STOP #2: {currentConnections}");
 				OnStop ();
 
 				lock (this) {
@@ -206,11 +206,14 @@ namespace Xamarin.WebTests.Server {
 				return;
 
 			while (!cancellationToken.IsCancellationRequested) {
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP");
 				var wantToReuse = await HandleConnection (connection, cancellationToken);
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #1: {wantToReuse}");
 				if (!wantToReuse || cancellationToken.IsCancellationRequested)
 					break;
 
 				bool connectionAvailable = connection.IsStillConnected ();
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP #2: {connectionAvailable}");
 				if (!connectionAvailable && !cancellationToken.IsCancellationRequested)
 					throw new ConnectionException ("Expecting another connection, but socket has been shut down.");
 			}
