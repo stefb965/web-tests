@@ -26,12 +26,14 @@
 using System;
 using System.Net;
 using Xamarin.AsyncTests;
+using Xamarin.AsyncTests.Constraints;
 
 namespace Xamarin.WebTests.HttpFramework
 {
 	using Server;
 
-	public enum AuthenticationState {
+	public enum AuthenticationState
+	{
 		Authenticated,
 		ResendRequest,
 		ResendRequestWithoutBody,
@@ -51,6 +53,7 @@ namespace Xamarin.WebTests.HttpFramework
 		}
 
 		bool haveChallenge;
+		bool complete;
 
 		HttpResponse OnError (string format, params object[] args)
 		{
@@ -64,13 +67,30 @@ namespace Xamarin.WebTests.HttpFramework
 
 		protected abstract HttpResponse OnUnauthenticated (HttpConnection connection, HttpRequest request, string token, bool omitBody);
 
-		public HttpResponse HandleAuthentication (HttpConnection connection, HttpRequest request, string authHeader)
+		public HttpResponse HandleAuthentication (TestContext ctx, HttpConnection connection, HttpRequest request, string authHeader)
 		{
 			if (AuthenticationType == AuthenticationType.ForceNone) {
 				// Must not contain any auth header
 				if (authHeader == null)
 					return null;
 				return OnError ("Must not contain any auth header.");
+			}
+
+			if (request.Method == "GET" || request.Method == "HEAD" || request.Body == null) {
+				if (request.Headers.TryGetValue ("Transfer-Encoding", out string transferEncoding))
+					ctx.AssertFail ($"Must not send 'Transfer-Encoding' header with '${request.Method}' request.");
+				if (request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.AssertFail ($"Must not send 'Content-Length' header with '${request.Method}' request.");
+			} else if (haveChallenge && !complete) {
+				if (request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.Assert (int.Parse (contentLength), Is.EqualTo (0), "Must send zero-length content with NTLM challenge.");
+				else
+					ctx.AssertFail ("Must send 'Content-Length: 0' with NTLM challenge.");
+			} else {
+				if (request.Headers.TryGetValue ("Transfer-Encoding", out string transferEncoding))
+					ctx.Assert (transferEncoding, Is.EqualTo ("chunked"), "Transfer-Encoding");
+				else if (!request.Headers.TryGetValue ("Content-Length", out string contentLength))
+					ctx.AssertFail ("Need either 'Transfer-Encoding' or 'Content-Length'");
 			}
 
 			if (authHeader == null) {
@@ -101,6 +121,9 @@ namespace Xamarin.WebTests.HttpFramework
 			var handler = DependencyInjector.Get<NTLMHandler> ();
 			if (handler.HandleNTLM (ref bytes, ref haveChallenge))
 				return null;
+
+			if (haveChallenge)
+				complete = true;
 
 			var token = "NTLM " + Convert.ToBase64String (bytes);
 			return OnUnauthenticated (connection, request, token, false);

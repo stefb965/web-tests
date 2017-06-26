@@ -104,7 +104,7 @@ namespace Xamarin.WebTests.HttpHandlers
 			if (!request.Headers.TryGetValue ("Authorization", out authHeader))
 				authHeader = null;
 
-			var response = manager.HandleAuthentication (connection, request, authHeader);
+			var response = manager.HandleAuthentication (ctx, connection, request, authHeader);
 			if (response != null)
 				return response;
 

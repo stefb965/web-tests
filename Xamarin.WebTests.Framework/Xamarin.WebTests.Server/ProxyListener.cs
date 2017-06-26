@@ -67,7 +67,7 @@ namespace Xamarin.WebTests.Server
 				string authHeader;
 				if (!request.Headers.TryGetValue ("Proxy-Authorization", out authHeader))
 					authHeader = null;
-				var response = authManager.HandleAuthentication (connection, request, authHeader);
+				var response = authManager.HandleAuthentication (TestContext, connection, request, authHeader);
 				if (response != null) {
 					await connection.WriteResponse (TestContext, response, cancellationToken);
 					return false;
