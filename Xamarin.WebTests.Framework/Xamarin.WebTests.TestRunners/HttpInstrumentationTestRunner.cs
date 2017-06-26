@@ -89,37 +89,57 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ReuseConnection;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.PostNtlm;
 
-		public static IEnumerable<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
+		static readonly HttpInstrumentationTestType[] WorkingTests = {
+			HttpInstrumentationTestType.Simple,
+			HttpInstrumentationTestType.InvalidDataDuringHandshake,
+			HttpInstrumentationTestType.AbortDuringHandshake,
+			HttpInstrumentationTestType.ParallelRequests,
+			HttpInstrumentationTestType.ThreeParallelRequests,
+			HttpInstrumentationTestType.ParallelRequestsSomeQueued,
+			HttpInstrumentationTestType.ManyParallelRequests,
+			HttpInstrumentationTestType.SimpleQueuedRequest,
+			HttpInstrumentationTestType.CancelQueuedRequest,
+			HttpInstrumentationTestType.CancelMainWhileQueued,
+			HttpInstrumentationTestType.SimpleNtlm,
+			HttpInstrumentationTestType.NtlmWhileQueued,
+			HttpInstrumentationTestType.SimplePost,
+			HttpInstrumentationTestType.SimpleRedirect,
+			HttpInstrumentationTestType.PostRedirect,
+		};
+
+		static readonly HttpInstrumentationTestType[] UnstableTests = {
+			HttpInstrumentationTestType.ReuseConnection,
+			HttpInstrumentationTestType.MartinTest,
+			HttpInstrumentationTestType.PostRedirect,
+			HttpInstrumentationTestType.PostNtlm,
+		};
+
+		static readonly HttpInstrumentationTestType[] StressTests = {
+			HttpInstrumentationTestType.ManyParallelRequestsStress
+		};
+
+		static readonly HttpInstrumentationTestType[] MartinTests = {
+			HttpInstrumentationTestType.MartinTest
+		};
+
+		public static IList<HttpInstrumentationTestType> GetInstrumentationTypes (TestContext ctx, ConnectionTestCategory category)
 		{
 			var setup = DependencyInjector.Get<IConnectionFrameworkSetup> ();
 
 			switch (category) {
 			case ConnectionTestCategory.MartinTest:
-				yield return HttpInstrumentationTestType.MartinTest;
-				yield break;
+				return MartinTests;
 
 			case ConnectionTestCategory.HttpInstrumentation:
-				yield return HttpInstrumentationTestType.Simple;
-				yield return HttpInstrumentationTestType.InvalidDataDuringHandshake;
-				yield return HttpInstrumentationTestType.AbortDuringHandshake;
-				yield return HttpInstrumentationTestType.ParallelRequests;
-				yield return HttpInstrumentationTestType.SimpleQueuedRequest;
-				yield return HttpInstrumentationTestType.ThreeParallelRequests;
-				yield return HttpInstrumentationTestType.ParallelRequestsSomeQueued;
-				yield return HttpInstrumentationTestType.ManyParallelRequests;
-				yield return HttpInstrumentationTestType.CancelQueuedRequest;
-				yield return HttpInstrumentationTestType.CancelMainWhileQueued;
-				yield return HttpInstrumentationTestType.SimpleNtlm;
-				yield break;
+				return WorkingTests;
 
 			case ConnectionTestCategory.HttpInstrumentationStress:
-				yield return HttpInstrumentationTestType.ManyParallelRequestsStress;
-				yield break;
+				return StressTests;
 
 			case ConnectionTestCategory.HttpInstrumentationExperimental:
-				yield break;
+				return UnstableTests;
 
 			default:
 				throw ctx.AssertFail (category);
@@ -257,6 +277,12 @@ namespace Xamarin.WebTests.TestRunners
 				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
 			case HttpInstrumentationTestType.ReuseConnection:
 				return new HttpInstrumentationHandler (this);
+			case HttpInstrumentationTestType.SimplePost:
+				return new PostHandler ("No body");
+			case HttpInstrumentationTestType.SimpleRedirect:
+				return new RedirectHandler (hello, HttpStatusCode.Redirect);
+			case HttpInstrumentationTestType.PostNtlm:
+				return new AuthenticationHandler (AuthenticationType.NTLM, new PostHandler ("post-ntlm", HttpContent.HelloWorld));
 			default:
 				return hello;
 			}
@@ -528,6 +554,7 @@ namespace Xamarin.WebTests.TestRunners
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.Simple:
+			case HttpInstrumentationTestType.SimplePost:
 				ctx.Assert (primary, "Primary request");
 				break;
 
@@ -621,6 +648,9 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 
 			case HttpInstrumentationTestType.SimpleNtlm:
+			case HttpInstrumentationTestType.PostNtlm:
+			case HttpInstrumentationTestType.SimpleRedirect:
+			case HttpInstrumentationTestType.PostRedirect:
 				break;
 
 			case HttpInstrumentationTestType.NtlmWhileQueued:

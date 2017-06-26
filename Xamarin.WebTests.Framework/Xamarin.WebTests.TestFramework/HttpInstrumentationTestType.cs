@@ -43,6 +43,10 @@ namespace Xamarin.WebTests.TestFramework
 		NtlmWhileQueued,
 		ReuseConnection,
 		MartinTest,
+		SimplePost,
+		SimpleRedirect,
+		PostRedirect,
+		PostNtlm,
 		DummyDontUse
 	}
 }
