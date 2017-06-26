@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ReuseConnection;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.ReuseConnection2;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -108,6 +108,7 @@ namespace Xamarin.WebTests.TestRunners
 			HttpInstrumentationTestType.SimpleRedirect,
 			HttpInstrumentationTestType.PostRedirect,
 			HttpInstrumentationTestType.PostNtlm,
+			HttpInstrumentationTestType.NtlmChunked,
 		};
 
 		static readonly HttpInstrumentationTestType[] UnstableTests = {
@@ -232,6 +233,8 @@ namespace Xamarin.WebTests.TestRunners
 				throw;
 			}
 
+			Operation secondOperation = null;
+
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.ParallelRequests:
 				ctx.Assert (readHandlerCalled, Is.EqualTo (2), "ReadHandler called twice");
@@ -250,8 +253,20 @@ namespace Xamarin.WebTests.TestRunners
 				// ctx.Assert (readHandlerCalled, Is.EqualTo (Parameters.CountParallelRequests + 1), "ReadHandler count");
 				break;
 			case HttpInstrumentationTestType.ReuseConnection:
-				await RunSecond (ctx, cancellationToken, CreateHandler (ctx, false)).ConfigureAwait (false);
+			case HttpInstrumentationTestType.ReuseConnection2:
+				secondOperation = StartSecond (ctx, cancellationToken, CreateHandler (ctx, false));
 				break;
+			}
+
+			if (secondOperation != null) {
+				ctx.LogDebug (2, $"{me} waiting for second operation.");
+				try {
+					await secondOperation.WaitForCompletion ().ConfigureAwait (false);
+					ctx.LogDebug (2, $"{me} done waiting for second operation.");
+				} catch (Exception ex) {
+					ctx.LogDebug (2, $"{me} waiting for second operation failed: {ex.Message}.");
+					throw;
+				}
 			}
 
 			if (queuedOperation != null) {
@@ -277,7 +292,11 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.NtlmWhileQueued:
 				return new AuthenticationHandler (AuthenticationType.NTLM, hello);
 			case HttpInstrumentationTestType.ReuseConnection:
-				return new HttpInstrumentationHandler (this, !primary);
+				return new HttpInstrumentationHandler (this, null, !primary);
+			case HttpInstrumentationTestType.ReuseConnection2:
+				if (primary)
+					return new HttpInstrumentationHandler (this, null, false);
+				return new HttpInstrumentationHandler (this, HttpContent.HelloWorld, true);
 			case HttpInstrumentationTestType.SimplePost:
 				return postHello;
 			case HttpInstrumentationTestType.SimpleRedirect:
@@ -328,13 +347,13 @@ namespace Xamarin.WebTests.TestRunners
 			await operation.WaitForCompletion ();
 		}
 
-		async Task RunSecond (TestContext ctx, CancellationToken cancellationToken, Handler handler,
-		                      HttpStatusCode expectedStatus = HttpStatusCode.OK,
-		                      WebExceptionStatus expectedError = WebExceptionStatus.Success)
+		Operation StartSecond (TestContext ctx, CancellationToken cancellationToken, Handler handler,
+		                       HttpStatusCode expectedStatus = HttpStatusCode.OK,
+		                       WebExceptionStatus expectedError = WebExceptionStatus.Success)
 		{
 			var operation = new Operation (this, handler, true, expectedStatus, expectedError);
 			operation.Start (ctx, cancellationToken);
-			await operation.WaitForCompletion ();
+			return operation;
 		}
 
 		protected override async Task Initialize (TestContext ctx, CancellationToken cancellationToken)
@@ -445,6 +464,7 @@ namespace Xamarin.WebTests.TestRunners
 				case HttpInstrumentationTestType.ManyParallelRequests:
 				case HttpInstrumentationTestType.ManyParallelRequestsStress:
 				case HttpInstrumentationTestType.ReuseConnection:
+				case HttpInstrumentationTestType.ReuseConnection2:
 					break;
 				default:
 					throw ctx.AssertFail (Parent.EffectiveType);
@@ -677,6 +697,7 @@ namespace Xamarin.WebTests.TestRunners
 				break;
 
 			case HttpInstrumentationTestType.ReuseConnection:
+			case HttpInstrumentationTestType.ReuseConnection2:
 				break;
 
 			default:
@@ -700,15 +721,20 @@ namespace Xamarin.WebTests.TestRunners
 				get;
 			}
 
+			public HttpContent Content {
+				get;
+			}
+
 			public IPEndPoint RemoteEndPoint {
 				get;
 				private set;
 			}
 
-			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent, bool closeConnection)
+			public HttpInstrumentationHandler (HttpInstrumentationTestRunner parent, HttpContent content, bool closeConnection)
 				: base (parent.EffectiveType.ToString ())
 			{
 				TestRunner = parent;
+				Content = content;
 				CloseConnection = closeConnection;
 				Message = $"{GetType ().Name}({parent.EffectiveType})";
 				Flags = RequestFlags.KeepAlive;
@@ -718,14 +744,38 @@ namespace Xamarin.WebTests.TestRunners
 
 			public override object Clone ()
 			{
-				return new HttpInstrumentationHandler (TestRunner, CloseConnection);
+				return new HttpInstrumentationHandler (TestRunner, Content, CloseConnection);
+			}
+
+			public override void ConfigureRequest (Request request, Uri uri)
+			{
+				if (TestRunner.EffectiveType == HttpInstrumentationTestType.ReuseConnection2) {
+					request.Method = "POST";
+
+					if (Content != null) {
+						request.SetContentType ("text/plain");
+						request.Content = Content.RemoveTransferEncoding ();
+					}
+				}
+
+				base.ConfigureRequest (request, uri);
 			}
 
 			protected internal override async Task<HttpResponse> HandleRequest (
 				TestContext ctx, HttpConnection connection, HttpRequest request,
 				RequestFlags effectiveFlags, CancellationToken cancellationToken)
 			{
-				ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
+				switch (TestRunner.EffectiveType) {
+				case HttpInstrumentationTestType.ReuseConnection:
+					ctx.Assert (request.Method, Is.EqualTo ("GET"), "method");
+					break;
+				case HttpInstrumentationTestType.ReuseConnection2:
+					ctx.Assert (request.Method, Is.EqualTo ("POST"), "method");
+					break;
+				default:
+					throw ctx.AssertFail (TestRunner.EffectiveType);
+				}
+
 				RemoteEndPoint = connection.RemoteEndPoint;
 				await TestRunner.HandleRequest (ctx, this, connection, request, cancellationToken).ConfigureAwait (false);
 				return HttpResponse.CreateSuccess (Message);

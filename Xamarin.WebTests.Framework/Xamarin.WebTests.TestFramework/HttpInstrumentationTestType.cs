@@ -48,6 +48,7 @@ namespace Xamarin.WebTests.TestFramework
 		PostRedirect,
 		PostNtlm,
 		NtlmChunked,
+		ReuseConnection2,
 		DummyDontUse
 	}
 }
