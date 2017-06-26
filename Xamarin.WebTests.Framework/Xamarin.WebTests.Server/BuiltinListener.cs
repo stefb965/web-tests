@@ -52,6 +52,10 @@ namespace Xamarin.WebTests.Server {
 		volatile TaskCompletionSource<bool> tcs;
 		volatile CancellationTokenSource cts;
 
+		static int nextID;
+		public readonly int ID = ++nextID;
+		readonly string ME;
+
 		internal TestContext TestContext {
 			get;
 		}
@@ -64,6 +68,7 @@ namespace Xamarin.WebTests.Server {
 		{
 			TestContext = ctx;
 			Server = server;
+			ME = $"BuiltinListener({ID})";
 		}
 
 		public Task Start ()
@@ -76,7 +81,7 @@ namespace Xamarin.WebTests.Server {
 				tcs = new TaskCompletionSource<bool> ();
 			}
 
-			TestContext.LogDebug (5, "START: {0} {1}", this, currentConnections);
+			TestContext.LogDebug (5, $"{ME}: START: {this} {currentConnections}");
 
 			return Task.Run (() => {
 				Listen (false);
@@ -86,7 +91,7 @@ namespace Xamarin.WebTests.Server {
 		void Listen (bool singleRequest)
 		{
 			Interlocked.Increment (ref currentConnections);
-			TestContext.LogDebug (5, "LISTEN: {0} {1} {2}", this, singleRequest, currentConnections);
+			TestContext.LogDebug (5, $"{ME}: LISTEN: {this} {singleRequest} {currentConnections}");
 			AcceptAsync (cts.Token).ContinueWith (t => OnAccepted (singleRequest, t));
 		}
 
@@ -98,6 +103,7 @@ namespace Xamarin.WebTests.Server {
 			}
 			if (task.IsFaulted) {
 				TestContext.AddException (ref currentError, task);
+				OnFinished ();
 				return;
 			}
 
@@ -107,7 +113,7 @@ namespace Xamarin.WebTests.Server {
 			var connection = task.Result;
 
 			MainLoop (connection, cts.Token).ContinueWith (t => {
-				TestContext.LogDebug (5, "MAIN LOOP DONE: {0} {1}", this, t.Status);
+				TestContext.LogDebug (5, $"{ME}: MAIN LOOP DONE: {this} {t.Status}");
 				if (t.IsFaulted)
 					TestContext.AddException (ref currentError, t);
 				if (t.IsCompleted)
@@ -123,7 +129,7 @@ namespace Xamarin.WebTests.Server {
 				var connections = Interlocked.Decrement (ref currentConnections);
 				var error = Interlocked.Exchange (ref currentError, null);
 
-				TestContext.LogDebug (5, "ON FINISHED: {0} {1} {2}", this, connections, error);
+				TestContext.LogDebug (5, $"{ME}: ON FINISHED: {this} {connections} {error}");
 
 				if (error != null) {
 					tcs.SetException (error);
@@ -138,13 +144,13 @@ namespace Xamarin.WebTests.Server {
 
 		public async Task Stop ()
 		{
-			TestContext.LogDebug (5, "STOP: {0}", this);
+			TestContext.LogDebug (5, $"{ME}: STOP: {this}");
 			cts.Cancel ();
 			Shutdown ();
-			TestContext.LogDebug (5, "STOP #1: {0} {1}", this, currentConnections);
+			TestContext.LogDebug (5, $"{ME}: STOP #1: {this} {currentConnections}");
 			try {
 				await tcs.Task;
-				TestContext.LogDebug (5, "STOP #2: {0} {1}", this, currentConnections);
+				TestContext.LogDebug (5, $"{ME}: STOP #2: {this} {currentConnections}");
 				OnStop ();
 
 				lock (this) {
@@ -153,7 +159,7 @@ namespace Xamarin.WebTests.Server {
 					tcs = null;
 				}
 			} catch (Exception ex) {
-				TestContext.LogDebug (5, "STOP ERROR: {0}", ex);
+				TestContext.LogDebug (5, $"{ME}: STOP ERROR: {ex}");
 				throw;
 			}
 		}

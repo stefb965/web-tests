@@ -89,7 +89,7 @@ namespace Xamarin.WebTests.TestRunners
 			};
 		}
 
-		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.PostNtlm;
+		const HttpInstrumentationTestType MartinTest = HttpInstrumentationTestType.SimpleNtlm;
 
 		static readonly HttpInstrumentationTestType[] WorkingTests = {
 			HttpInstrumentationTestType.Simple,
@@ -270,6 +270,8 @@ namespace Xamarin.WebTests.TestRunners
 		Handler CreateHandler (TestContext ctx)
 		{
 			var hello = new HelloWorldHandler (EffectiveType.ToString ());
+			var postHello = new PostHandler (EffectiveType.ToString (), HttpContent.HelloWorld);
+			var chunkedPost = new PostHandler (EffectiveType.ToString (), HttpContent.HelloChunked, TransferMode.Chunked);
 
 			switch (EffectiveType) {
 			case HttpInstrumentationTestType.SimpleNtlm:
@@ -278,11 +280,15 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.ReuseConnection:
 				return new HttpInstrumentationHandler (this);
 			case HttpInstrumentationTestType.SimplePost:
-				return new PostHandler ("No body");
+				return postHello;
 			case HttpInstrumentationTestType.SimpleRedirect:
 				return new RedirectHandler (hello, HttpStatusCode.Redirect);
 			case HttpInstrumentationTestType.PostNtlm:
-				return new AuthenticationHandler (AuthenticationType.NTLM, new PostHandler ("post-ntlm", HttpContent.HelloWorld));
+				return new AuthenticationHandler (AuthenticationType.NTLM, postHello);
+			case HttpInstrumentationTestType.PostRedirect:
+				return new RedirectHandler (postHello, HttpStatusCode.TemporaryRedirect);
+			case HttpInstrumentationTestType.NtlmChunked:
+				return new AuthenticationHandler (AuthenticationType.NTLM, chunkedPost);
 			default:
 				return hello;
 			}
@@ -452,6 +458,14 @@ namespace Xamarin.WebTests.TestRunners
 					ServicePoint.ConnectionLimit = Parent.Parameters.ConnectionLimit;
 				if (Parent.Parameters.IdleTime != 0)
 					ServicePoint.MaxIdleTime = Parent.Parameters.IdleTime;
+				currentRequest.RequestExt.ReadWriteTimeout = int.MaxValue;
+				currentRequest.RequestExt.Timeout = int.MaxValue;
+
+				switch (Parent.EffectiveType) {
+				case HttpInstrumentationTestType.SimplePost:
+					currentRequest.SetContentLength (((PostHandler)Handler).Content.Length);
+					break;
+				}
 			}
 
 			public void Start (TestContext ctx, CancellationToken cancellationToken)
@@ -651,6 +665,7 @@ namespace Xamarin.WebTests.TestRunners
 			case HttpInstrumentationTestType.PostNtlm:
 			case HttpInstrumentationTestType.SimpleRedirect:
 			case HttpInstrumentationTestType.PostRedirect:
+			case HttpInstrumentationTestType.NtlmChunked:
 				break;
 
 			case HttpInstrumentationTestType.NtlmWhileQueued:
